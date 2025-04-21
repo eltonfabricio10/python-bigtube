@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=BigTube
+Comment=Gerenciador de Downloads de Vídeos
+Exec=bigtube
+Icon=bigtube
+Terminal=false
+Type=Application
+Categories=Utility;Video;Network;
+Keywords=download;video;youtube;
