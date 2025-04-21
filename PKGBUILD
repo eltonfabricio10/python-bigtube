@@ -46,7 +46,7 @@ sha256sums=(
 
 # Preparação do pacote
 prepare() {
-    cd "${srcdir}/${pkgname}"
+    cd "${srcdir}/src/${_pkgname}"
 
     # Limpar builds anteriores
     rm -rvf build dist *.egg-info
@@ -54,7 +54,7 @@ prepare() {
 
 # Construção do pacote
 build() {
-    cd "${srcdir}/${pkgname}"
+    cd "${srcdir}/src/${_pkgname}"
 
     # Construir pacote Python
     python -m build --wheel --no-isolation
@@ -62,7 +62,7 @@ build() {
 
 # Instalação do pacote
 package() {
-    cd "${srcdir}/${pkgname}"
+    cd "${srcdir}/src/${_pkgname}"
 
     # Instalar pacote Python
     python -m installer --destdir="${pkgdir}" dist/*.whl
