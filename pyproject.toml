@@ -42,7 +42,14 @@ Issues = "https://github.com/eltonfabricio10/python-bigtube/issues"
 
 # Configurações de ferramenta
 [tool.setuptools]
-packages = ["bigtube"]
+package-dir = {"" = "src"}
+packages = [
+    "bigtube",
+    "bigtube.ui",
+    "bigtube.download_manager",
+    "bigtube.settings",
+    "bigtube.i18n"
+]
 
 # Configurações do Black (formatador)
 [tool.black]
