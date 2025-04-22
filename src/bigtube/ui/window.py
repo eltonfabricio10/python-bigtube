@@ -8,12 +8,12 @@ import io
 import threading
 from PIL import Image
 from datetime import datetime
-from download_manager import DownloadManager
-from settings import Settings
-from utils import validate_url, fetch_video_thumbnail, open_file
-from ui.download_row import DownloadRow
-from ui.settings_dialog import SettingsDialog
-from ui.history_messages import HistoryWindow
+from bigtube.download.download_manager import DownloadManager
+from bigtube.settings.settings import Settings
+from bigtube.utils import validate_url, fetch_video_thumbnail, open_file
+from bigtube.download.download_row import DownloadRow
+from bigtube.settings.settings_dialog import SettingsDialog
+from bigtube.ui.history_messages import HistoryWindow
 
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')

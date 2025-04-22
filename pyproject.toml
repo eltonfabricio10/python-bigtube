@@ -46,7 +46,7 @@ package-dir = {"" = "src"}
 packages = [
     "bigtube",
     "bigtube.ui",
-    "bigtube.download_manager",
+    "bigtube.download",
     "bigtube.settings",
     "bigtube.i18n"
 ]

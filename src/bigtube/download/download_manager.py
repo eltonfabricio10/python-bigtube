@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 import gi
 import yt_dlp
-from utils import (
+from bigtube.utils import (
     DownloadLogger,
     sanitize_filename,
     generate_unique_filename,

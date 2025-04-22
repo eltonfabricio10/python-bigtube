@@ -3,7 +3,7 @@
 Implementação da classe de aplicativo principal
 """
 import gi
-from window import BigTubeWindow
+from bigtube.ui.window import BigTubeWindow
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, Gio

@@ -5,7 +5,7 @@ Ponto de entrada principal para o aplicativo BigTube
 """
 import sys
 import gi
-from app import BigTubeApp
+from bigtube.app import BigTubeApp
 
 # Verifica dependências
 try:
