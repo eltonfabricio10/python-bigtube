@@ -2,7 +2,7 @@
 Name=BigTube
 Comment=Gerenciador de Downloads de Vídeos
 Exec=bigtube
-Icon=bigtube
+Icon=youtube-dl
 Terminal=false
 Type=Application
 Categories=Utility;Video;Network;
