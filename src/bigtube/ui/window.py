@@ -9,7 +9,7 @@ import threading
 from PIL import Image
 from datetime import datetime
 from bigtube.download.download_manager import DownloadManager
-from bigtube.settings.settings import Settings
+from bigtube.settings.settings_manager import Settings
 from bigtube.utils import validate_url, fetch_video_thumbnail, open_file
 from bigtube.download.download_row import DownloadRow
 from bigtube.settings.settings_dialog import SettingsDialog
