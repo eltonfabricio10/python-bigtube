@@ -4,7 +4,6 @@ Gerenciamento de downloads de vídeos
 """
 import os
 import threading
-import subprocess
 import json
 from datetime import datetime
 import gi
@@ -42,7 +41,7 @@ class DownloadItem:
         self.ydl = None  # Referência ao objeto YoutubeDL
 
     def to_dict(self):
-        """Converte o item para um dicionário"""
+        """Converte o item para um dicionário."""
         return {
             'id': self.id,
             'url': self.url,
@@ -152,7 +151,7 @@ class DownloadManager:
     def start_download(self, url, download_row, audio_only=False, file_format="mp4", quality="Melhor"):
         """Inicia um download de vídeo"""
         with self.semaphore:
-            # Cria um novo item de download
+            # Cria um novo item de download.
             download_item = DownloadItem(url, self.config['download_dir'], {
                 'audio_only': audio_only,
                 'format': file_format,
@@ -166,9 +165,9 @@ class DownloadManager:
             if not check_disk_space(self.config['download_dir']):
                 error_msg = "Espaço em disco insuficiente para o download."
                 GLib.idle_add(self._download_error, download_item, download_row, error_msg)
-                return
+                return None
 
-            # Iniciar o download em uma thread separada
+            # Iniciar o download em uma thread separada.
             thread = threading.Thread(
                 target=self._download_video_thread,
                 args=(download_item, download_row)
@@ -184,23 +183,37 @@ class DownloadManager:
 
     def cancel_download(self, download_item, download_row):
         """Cancela um download em andamento"""
-        if download_item in self.active_downloads and not download_item.completed:
-            download_item.cancelled = True
-            GLib.idle_add(
-                self.update_download_progress,
-                download_item, download_row, 0.0,
-                "Cancelando download..."
-            )
+        if download_item not in self.active_downloads or download_item.completed:
+            return
 
-            # Tenta interromper o yt-dlp
-            if download_item.ydl:
-                try:
-                    # yt-dlp não tem um método direto para interromper,
-                    # mas podemos tentar forçar uma exceção
-                    download_item.ydl._finish_multiline_status()
-                    download_item.status = "Download cancelado!"
-                except:
-                    pass
+        download_item.cancelled = True
+        GLib.idle_add(
+            self.update_download_progress,
+            download_item, download_row, 0.0,
+            "Cancelando download..."
+        )
+
+        # Interrompe o download
+        self._interrupt_ytdlp_download(download_item)
+
+        # Processa o cancelamento
+        self._download_cancelled(download_item, download_row)
+
+    @staticmethod
+    def _interrupt_ytdlp_download(download_item):
+        """Interrompe o processo de download do yt-dlp"""
+        # Tenta interromper o yt-dlp
+        if not download_item.ydl:
+            return
+
+        try:
+            # yt-dlp não tem um método direto para interromper,
+            # mas podemos tentar forçar uma finalização
+            download_item.ydl._finish_multiline_status()
+            download_item.status = "Download cancelado!"
+        except Exception as e:
+            # Registra o erro, mas continua com o cancelamento.
+            print(f"Erro ao interromper download: {str(e)}")
 
     def clean_finished_threads(self):
         """Remove threads que já terminaram"""
@@ -368,7 +381,7 @@ class DownloadManager:
         download_item.start_time = datetime.now()
 
         try:
-            # Configuração do logger para capturar o progresso
+            # Configuração do logger para capturar o progresso.
             logger = DownloadLogger()
 
             # Função para atualizar o progresso na UI
