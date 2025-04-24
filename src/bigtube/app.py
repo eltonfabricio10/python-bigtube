@@ -36,6 +36,9 @@ class BigTubeApp(Adw.Application):
         quit_action.connect("activate", self.on_quit)
         self.add_action(quit_action)
 
+        self.set_accels_for_action("app.quit", ["<Ctrl>Q"])
+        self.set_accels_for_action("app.about", ["<Ctrl>H"])
+
     def on_about(self, action, param):
         """Mostra a janela Sobre"""
         about = Adw.AboutWindow(

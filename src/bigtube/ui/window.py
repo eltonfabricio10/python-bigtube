@@ -24,8 +24,14 @@ class BigTubeWindow(Adw.ApplicationWindow):
     """Janela principal do aplicativo BigTube"""
 
     def __init__(self, app):
-        super().__init__(application=app, title="BigTube")
+        super().__init__(application=app)
         self.app = app
+
+        # Definir ícone da janela
+        self.set_icon_name("youtube-dl")
+
+        # Definir título da janela
+        self.set_title("BigTube - Baixador de Vídeos")
 
         # Carregar configurações
         self.settings = Settings()
@@ -53,7 +59,7 @@ class BigTubeWindow(Adw.ApplicationWindow):
         self.connect("close-request", self.on_close)
 
         # Aplicar tema
-        self.apply_theme()
+        self.apply_theme()        
 
     def setup_ui(self):
         """Configura a interface do usuário"""

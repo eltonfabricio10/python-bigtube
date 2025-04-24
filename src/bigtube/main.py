@@ -21,6 +21,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+
 def main() -> int:
     """
     Função principal para iniciar o aplicativo.
