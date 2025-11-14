@@ -1,52 +1,60 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Ponto de entrada principal para o aplicativo BigTube
-
-Este módulo serve como o ponto de entrada principal para o aplicativo BigTube.
-Ele verifica as dependências necessárias, inicializa os componentes principais
-e inicia a aplicação.
-"""
 import sys
-import logging
+import os
+from .ui.main_window import MainWindow
+
 import gi
-from bigtube.app import BigTubeApp
-from bigtube.utils import check_dependencies
-
-# Configuração do logger
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-
-logger = logging.getLogger(__name__)
+gi.require_version('Gtk', '4.0')
+gi.require_version('Adw', '1')
+from gi.repository import Gtk, Adw, Gio, Gdk
 
 
-def main() -> int:
+class BigTubeApplication(Adw.Application):
     """
-    Função principal para iniciar o aplicativo.
-    
-    Verifica as dependências, inicializa os componentes necessários
-    e inicia o aplicativo.
-    
-    Returns:
-        int: Código de saída do aplicativo
+    Classe principal da aplicação GTK4/Adwaita.
     """
-    # Verifica dependências
-    try:
-        check_dependencies()
-    except ImportError as e:
-        logger.error(f"Erro de dependência: {e}")
-        return 1
-    
-    # Inicializa GStreamer
-    gi.require_version('Gst', '1.0')
-    from gi.repository import Gst
-    Gst.init(None)
-    
-    # Inicia o aplicativo
-    app = BigTubeApp()
-    return app.run(sys.argv)
+    def __init__(self, **kwargs):
+        super().__init__(application_id='org.big.bigtube',
+                         flags=Gio.ApplicationFlags.FLAGS_NONE,
+                         **kwargs)
+        self.connect('activate', self.on_activate)
+        self.connect('startup', self.on_startup)
 
-if __name__ == "__main__":
-    sys.exit(main())
+    def on_startup(self, app):
+        """Carrega o CSS global na inicialização."""
+        provider = Gtk.CssProvider()
+
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        css_path = os.path.join(BASE_DIR, 'data', 'style.css')
+
+        try:
+            provider.load_from_path(css_path)
+
+            Gtk.StyleContext.add_provider_for_display(
+                Gdk.Display.get_default(),
+                provider,
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            )
+        except Exception as e:
+            print(f"Error CSS: {e}")
+
+    def on_activate(self, app):
+        """
+        Cria e exibe a janela principal da aplicação.
+        """
+        self.win = MainWindow(application=app)
+        self.win.present()
+
+
+def run():
+    """
+    Função de ponto de entrada para ser chamada via pyproject.toml
+    """
+    app = BigTubeApplication()
+    # Executa a aplicação
+    sys.exit(app.run(sys.argv))
+
+
+if __name__ == '__main__':
+    run()

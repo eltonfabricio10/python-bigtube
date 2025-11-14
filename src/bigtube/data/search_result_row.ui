@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.99.3 -->
+<interface>
+  <requires lib="gtk" version="4.18"/>
+  <template class="SearchResultRow" parent="GtkBox">
+    <child>
+      <object class="GtkImage" id="row_thumbnail">
+        <property name="icon-name">image-missing-symbolic</property>
+        <property name="margin-start">12</property>
+        <property name="pixel-size">80</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox" id="box_title">
+        <property name="hexpand">True</property>
+        <property name="hexpand-set">False</property>
+        <property name="margin-start">12</property>
+        <property name="orientation">vertical</property>
+        <property name="valign">center</property>
+        <child>
+          <object class="GtkLabel" id="row_title">
+            <property name="halign">start</property>
+            <property name="label">Unknown Music</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="row_channel">
+            <property name="css-classes">caption</property>
+            <property name="halign">start</property>
+            <property name="label">Unknown Artist</property>
+            <property name="valign">fill</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox" id="box_button">
+        <property name="margin-start">12</property>
+        <property name="margin-top">0</property>
+        <property name="spacing">6</property>
+        <child>
+          <object class="GtkButton" id="row_download_button">
+            <property name="has-frame">False</property>
+            <property name="icon-name">folder-download-symbolic</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="row_play_button">
+            <property name="has-frame">False</property>
+            <property name="icon-name">media-playback-start-symbolic</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="row_queue_button">
+            <property name="has-frame">False</property>
+            <property name="icon-name">list-add-symbolic</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

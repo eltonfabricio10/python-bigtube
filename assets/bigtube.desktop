@@ -5,5 +5,5 @@ Exec=bigtube
 Icon=youtube-dl
 Terminal=false
 Type=Application
-Categories=Utility;Video;Network;
+Categories=Network;
 Keywords=download;video;youtube;

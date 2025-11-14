@@ -44,13 +44,11 @@ prepare() {
     rm -rvf build dist *.egg-info
 }
 
-# Construção do pacote
 build() {
     cd "${srcdir}/${pkgname}"
     python -m build --wheel --no-isolation
 }
 
-# Instalação do pacote
 package() {
     cd "${srcdir}/${pkgname}"
     python -m installer --destdir="${pkgdir}" dist/*.whl
