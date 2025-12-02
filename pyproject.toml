@@ -10,8 +10,8 @@ packages = [{include = "bigtube", from = "src"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 PyGObject = "^3.44"
-yt-dlp = "^2024.01.24"
 requests = "^2.31.0"
+python-mpv = "^1.0.8"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.2.1"

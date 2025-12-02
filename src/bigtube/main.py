@@ -2,12 +2,16 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
-from .ui.main_window import MainWindow
+os.environ["GDK_BACKEND"] = "x11"
+os.environ["GSK_RENDERER"] = "cairo"
 
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw, Gio, Gdk
+from gi.repository import Gtk, Adw, Gio, Gdk, GLib
+
+from .ui.main_window import MainWindow
+from .core.image_loader import ImageLoader
 
 
 class BigTubeApplication(Adw.Application):
@@ -43,8 +47,18 @@ class BigTubeApplication(Adw.Application):
         """
         Cria e exibe a janela principal da aplicação.
         """
-        self.win = MainWindow(application=app)
-        self.win.present()
+        win = self.props.active_window
+        if not win:
+            win = MainWindow(application=app)
+            win.connect("close-request", self.on_app_quit)
+
+        win.present()
+
+    def on_app_quit(self, win):
+        print("[System] Encerrando aplicação...")
+        ImageLoader.shutdown()
+        GLib.timeout_add(100, lambda: sys.exit(0))
+        return False
 
 
 def run():

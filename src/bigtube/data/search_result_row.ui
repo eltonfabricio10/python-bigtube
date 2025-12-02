@@ -1,26 +1,44 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Created with Cambalache 0.99.3 -->
 <interface>
+  <!-- interface-name search_result_row.ui -->
   <requires lib="gtk" version="4.18"/>
   <template class="SearchResultRow" parent="GtkBox">
+    <property name="css-classes">rounded</property>
+    <property name="hexpand">True</property>
+    <child>
+      <object class="GtkCheckButton" id="select_check">
+        <property name="halign">center</property>
+        <property name="margin-start">6</property>
+        <property name="valign">center</property>
+      </object>
+    </child>
     <child>
       <object class="GtkImage" id="row_thumbnail">
-        <property name="icon-name">image-missing-symbolic</property>
-        <property name="margin-start">12</property>
+        <property name="icon-name">viewimage</property>
+        <property name="margin-start">6</property>
         <property name="pixel-size">80</property>
+        <property name="valign">center</property>
       </object>
     </child>
     <child>
       <object class="GtkBox" id="box_title">
-        <property name="hexpand">True</property>
+        <property name="hexpand">False</property>
         <property name="hexpand-set">False</property>
+        <property name="margin-end">0</property>
         <property name="margin-start">12</property>
         <property name="orientation">vertical</property>
         <property name="valign">center</property>
         <child>
           <object class="GtkLabel" id="row_title">
+            <property name="ellipsize">end</property>
             <property name="halign">start</property>
+            <property name="hexpand">False</property>
             <property name="label">Unknown Music</property>
+            <property name="lines">2</property>
+            <property name="max-width-chars">-1</property>
+            <property name="wrap">True</property>
+            <property name="wrap-mode">word</property>
           </object>
         </child>
         <child>
@@ -34,26 +52,34 @@
       </object>
     </child>
     <child>
+      <object class="GtkBox">
+        <property name="hexpand">True</property>
+      </object>
+    </child>
+    <child>
       <object class="GtkBox" id="box_button">
-        <property name="margin-start">12</property>
+        <property name="margin-start">0</property>
         <property name="margin-top">0</property>
         <property name="spacing">6</property>
         <child>
           <object class="GtkButton" id="row_download_button">
             <property name="has-frame">False</property>
             <property name="icon-name">folder-download-symbolic</property>
+            <property name="valign">center</property>
           </object>
         </child>
         <child>
           <object class="GtkButton" id="row_play_button">
             <property name="has-frame">False</property>
             <property name="icon-name">media-playback-start-symbolic</property>
+            <property name="valign">center</property>
           </object>
         </child>
         <child>
-          <object class="GtkButton" id="row_queue_button">
+          <object class="GtkButton" id="row_copy_button">
             <property name="has-frame">False</property>
-            <property name="icon-name">list-add-symbolic</property>
+            <property name="icon-name">edit-copy-symbolic</property>
+            <property name="valign">center</property>
           </object>
         </child>
       </object>

@@ -6,8 +6,8 @@
   <requires lib="libadwaita" version="1.0"/>
   <template class="BigTubeMainWindow" parent="AdwApplicationWindow">
     <property name="adaptive-preview">False</property>
-    <property name="default-height">600</property>
-    <property name="default-width">800</property>
+    <property name="default-height">720</property>
+    <property name="default-width">960</property>
     <property name="icon-name">media-downloader</property>
     <property name="show-menubar">False</property>
     <property name="startup-id">org.big.bigtube</property>
@@ -29,34 +29,95 @@
                       <object class="GtkStackPage" id="search_page">
                         <property name="child">
                           <object class="GtkBox" id="search_box">
+                            <property name="opacity">1.0</property>
                             <property name="orientation">vertical</property>
                             <child>
-                              <object class="AdwHeaderBar" id="search_bar">
-                                <property name="halign">fill</property>
-                                <property name="hexpand">True</property>
-                                <property name="hexpand-set">False</property>
-                                <property name="opacity">1.0</property>
-                                <property name="show-back-button">False</property>
-                                <property name="show-end-title-buttons">False</property>
-                                <property name="show-start-title-buttons">False</property>
-                                <property name="title-widget">
-                                  <object class="GtkSearchEntry" id="search_entry">
-                                    <property name="hexpand">False</property>
-                                    <property name="placeholder-text">search...</property>
+                              <object class="GtkLabel" id="lbl_search">
+                                <property name="css-classes">title-1</property>
+                                <property name="label">Search Manager</property>
+                                <property name="margin-bottom">12</property>
+                                <property name="margin-end">5</property>
+                                <property name="margin-start">5</property>
+                                <property name="margin-top">12</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox" id="search_bar">
+                                <property name="margin-bottom">5</property>
+                                <property name="margin-end">5</property>
+                                <property name="margin-start">5</property>
+                                <property name="margin-top">0</property>
+                                <child>
+                                  <object class="GtkDropDown" id="search_source_dropdown">
+                                    <property name="enable-search">False</property>
+                                    <property name="halign">fill</property>
+                                    <property name="has-tooltip">True</property>
+                                    <property name="margin-end">8</property>
+                                    <property name="margin-start">0</property>
+                                    <property name="margin-top">0</property>
+                                    <property name="model">
+                                      <object class="GtkStringList" id="search_model">
+                                        <items>
+                                          <item translatable="yes">YouTube</item>
+                                          <item translatable="yes">SoundCloud</item>
+                                          <item/>
+                                          <item translatable="yes">Direct Link</item>
+                                        </items>
+                                      </object>
+                                    </property>
+                                    <property name="selected">0</property>
+                                    <property name="tooltip-text">Select source</property>
                                   </object>
-                                </property>
-                                <property name="valign">start</property>
+                                </child>
+                                <child>
+                                  <object class="GtkSearchEntry" id="search_entry">
+                                    <property name="activates-default">True</property>
+                                    <property name="focus-on-click">True</property>
+                                    <property name="focusable">False</property>
+                                    <property name="halign">fill</property>
+                                    <property name="hexpand">True</property>
+                                    <property name="hexpand-set">True</property>
+                                    <property name="margin-end">0</property>
+                                    <property name="margin-top">0</property>
+                                    <property name="max-width-chars">-1</property>
+                                    <property name="placeholder-text">Search...</property>
+                                    <property name="valign">fill</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="search_button">
+                                    <property name="halign">fill</property>
+                                    <property name="has-frame">False</property>
+                                    <property name="icon-name">file-search-symbolic</property>
+                                    <property name="margin-end">0</property>
+                                    <property name="margin-start">8</property>
+                                    <property name="margin-top">0</property>
+                                  </object>
+                                </child>
                               </object>
                             </child>
                             <child>
                               <object class="GtkScrolledWindow" id="search_scroll">
                                 <property name="child">
-                                  <object class="GtkListView">
+                                  <object class="GtkListView" id="search_results_list">
                                     <property name="vexpand">True</property>
                                   </object>
                                 </property>
                                 <property name="vexpand">True</property>
                                 <property name="vexpand-set">False</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="btn_download_selected">
+                                <property name="can-shrink">False</property>
+                                <property name="css-classes">suggested-action</property>
+                                <property name="halign">center</property>
+                                <property name="has-frame">True</property>
+                                <property name="icon-name">cloud-download</property>
+                                <property name="label">Download Selected (0)</property>
+                                <property name="opacity">1.0</property>
+                                <property name="use-underline">False</property>
+                                <property name="visible">False</property>
                               </object>
                             </child>
                           </object>
@@ -69,8 +130,36 @@
                     <child>
                       <object class="GtkStackPage" id="download_page">
                         <property name="child">
-                          <object class="GtkLabel">
-                            <property name="label">empty</property>
+                          <object class="GtkScrolledWindow" id="download_scrolled">
+                            <property name="child">
+                              <object class="GtkBox" id="download_box">
+                                <property name="margin-bottom">0</property>
+                                <property name="margin-end">5</property>
+                                <property name="margin-start">5</property>
+                                <property name="margin-top">0</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkLabel" id="lbl_download">
+                                    <property name="css-classes">title-1</property>
+                                    <property name="justify">center</property>
+                                    <property name="label">Downloads Manager</property>
+                                    <property name="margin-bottom">12</property>
+                                    <property name="margin-end">5</property>
+                                    <property name="margin-start">5</property>
+                                    <property name="margin-top">12</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkListBox" id="downloads_list">
+                                    <property name="css-classes">boxed-list</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </property>
+                            <property name="margin-bottom">0</property>
+                            <property name="margin-end">0</property>
+                            <property name="margin-start">0</property>
+                            <property name="margin-top">0</property>
                           </object>
                         </property>
                         <property name="icon-name">folder-download-symbolic</property>
@@ -105,8 +194,52 @@
                     <child>
                       <object class="GtkStackPage" id="settings_page">
                         <property name="child">
-                          <object class="GtkLabel">
-                            <property name="label">Empty Page</property>
+                          <object class="AdwPreferencesPage" id="BigTubeSettingsPage">
+                            <property name="banner">
+                              <object class="AdwBanner" id="settings_banner">
+                                <property name="button-style">default</property>
+                                <property name="css-classes">title-1</property>
+                                <property name="revealed">True</property>
+                                <property name="title">Settings Manager</property>
+                                <property name="use-markup">True</property>
+                              </object>
+                            </property>
+                            <property name="title"/>
+                            <child>
+                              <object class="AdwPreferencesGroup" id="group_storage">
+                                <property name="title">Storage</property>
+                                <child>
+                                  <object class="AdwActionRow" id="settings_row_folder">
+                                    <property name="icon-name">folder-download-symbolic</property>
+                                    <property name="title">Downloads Folder</property>
+                                    <property name="title-selectable">False</property>
+                                    <child>
+                                      <object class="GtkButton" id="settings_btn_pick">
+                                        <property name="icon-name">document-edit-symbolic</property>
+                                        <property name="valign">center</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwPreferencesGroup" id="group_system">
+                                <property name="title">Engine</property>
+                                <child>
+                                  <object class="AdwActionRow" id="settings_row_version">
+                                    <property name="icon-name">application-x-executable-symbolic</property>
+                                    <property name="title">Engine Version (yt-dlp)</property>
+                                    <child>
+                                      <object class="GtkButton" id="settings_btn_update">
+                                        <property name="label">Update Check</property>
+                                        <property name="valign">center</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
                           </object>
                         </property>
                         <property name="icon-name">settings</property>
@@ -152,14 +285,19 @@
             <property name="vexpand">False</property>
             <child>
               <object class="GtkImage" id="player_thumbnail">
-                <property name="icon-name">image-missing-symbolic</property>
-                <property name="margin-start">8</property>
-                <property name="pixel-size">50</property>
+                <property name="halign">center</property>
+                <property name="icon-name">viewimage</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <property name="pixel-size">60</property>
                 <property name="valign">center</property>
               </object>
             </child>
             <child>
               <object class="GtkBox" id="title_box">
+                <property name="halign">fill</property>
                 <property name="homogeneous">True</property>
                 <property name="margin-start">12</property>
                 <property name="orientation">vertical</property>
@@ -167,74 +305,97 @@
                 <property name="vexpand">False</property>
                 <child>
                   <object class="GtkLabel" id="player_title">
-                    <property name="halign">start</property>
+                    <property name="ellipsize">end</property>
+                    <property name="halign">fill</property>
                     <property name="label">Unknown Music</property>
+                    <property name="lines">-1</property>
                     <property name="margin-top">0</property>
+                    <property name="max-width-chars">20</property>
                     <property name="valign">fill</property>
+                    <property name="wrap">False</property>
                   </object>
                 </child>
                 <child>
                   <object class="GtkLabel" id="player_artist">
                     <property name="css-classes">caption</property>
+                    <property name="ellipsize">end</property>
                     <property name="halign">start</property>
                     <property name="label">Unknown Artist</property>
+                    <property name="max-width-chars">20</property>
                   </object>
                 </child>
               </object>
             </child>
             <child>
               <object class="GtkBox" id="player_box">
+                <property name="halign">fill</property>
+                <property name="hexpand">True</property>
+                <property name="hexpand-set">False</property>
                 <property name="margin-bottom">3</property>
                 <property name="margin-end">12</property>
                 <property name="margin-start">12</property>
                 <property name="orientation">vertical</property>
                 <property name="valign">center</property>
+                <property name="width-request">-1</property>
                 <child>
                   <object class="GtkBox" id="button_box">
                     <property name="halign">center</property>
+                    <property name="hexpand">True</property>
                     <property name="spacing">5</property>
                     <child>
-                      <object class="GtkButton" id="player_prev">
+                      <object class="GtkButton" id="player_prev_button">
                         <property name="has-frame">False</property>
+                        <property name="has-tooltip">True</property>
                         <property name="icon-name">media-skip-backward-symbolic</property>
                         <property name="margin-top">5</property>
+                        <property name="tooltip-text">Previous</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkButton" id="player_playpause">
+                      <object class="GtkButton" id="player_playpause_button">
                         <property name="can-shrink">False</property>
                         <property name="has-frame">False</property>
+                        <property name="hexpand">False</property>
                         <property name="icon-name">media-playback-start-symbolic</property>
                         <property name="margin-top">5</property>
                         <property name="tooltip-text">Play/Pause</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkButton" id="player_next">
+                      <object class="GtkButton" id="player_next_button">
                         <property name="has-frame">False</property>
+                        <property name="has-tooltip">True</property>
                         <property name="icon-name">media-skip-forward-symbolic</property>
                         <property name="margin-top">5</property>
+                        <property name="tooltip-text">Next</property>
                       </object>
                     </child>
                   </object>
                 </child>
                 <child>
                   <object class="GtkBox" id="progress_box">
+                    <property name="halign">fill</property>
+                    <property name="hexpand">False</property>
+                    <property name="hexpand-set">False</property>
                     <child>
                       <object class="GtkLabel" id="player_time_current">
+                        <property name="halign">start</property>
                         <property name="label">0:00</property>
                         <property name="margin-start">5</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkScale" id="player_progress">
+                        <property name="halign">fill</property>
                         <property name="hexpand">True</property>
+                        <property name="hexpand-set">True</property>
                         <property name="margin-end">7</property>
                         <property name="margin-start">7</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkLabel" id="player_time_total">
+                        <property name="halign">end</property>
                         <property name="label">0:00</property>
                         <property name="margin-end">5</property>
                       </object>
@@ -245,8 +406,30 @@
             </child>
             <child>
               <object class="GtkVolumeButton" id="player_volume">
+                <property name="adjustment">
+                  <object class="GtkAdjustment" id="volume_adjustment">
+                    <property name="page-increment">0.1</property>
+                    <property name="step-increment">0.05</property>
+                    <property name="upper">1.0</property>
+                    <property name="value">1.0</property>
+                  </object>
+                </property>
                 <property name="margin-bottom">5</property>
                 <property name="margin-end">5</property>
+                <property name="valign">end</property>
+                <property name="value">1.0</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="player_video_toggle_button">
+                <property name="halign">fill</property>
+                <property name="has-frame">False</property>
+                <property name="has-tooltip">True</property>
+                <property name="icon-name">video-display-symbolic</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">3</property>
+                <property name="tooltip-text">Open Video Window</property>
                 <property name="valign">end</property>
               </object>
             </child>
