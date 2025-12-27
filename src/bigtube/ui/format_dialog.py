@@ -40,7 +40,7 @@ class FormatSelectionDialog(Gtk.Window):
         lbl_title.set_wrap(True)
         lbl_title.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
         lbl_title.set_justify(Gtk.Justification.CENTER)
-        lbl_title.set_css_classes(["title-3"]) # Texto grande
+        lbl_title.set_css_classes(["title-3"])
         main_box.append(lbl_title)
 
         # Duração
@@ -69,7 +69,7 @@ class FormatSelectionDialog(Gtk.Window):
             main_box.append(Gtk.Label(label="Nenhum formato de vídeo encontrado.", css_classes=["error"]))
 
         # 3. SEÇÃO ÁUDIOS
-        main_box.append(Gtk.Separator()) # Separador visual
+        main_box.append(Gtk.Separator())
 
         lbl_sec_aud = Gtk.Label(label="🎵 Áudio (Apenas Música)", xalign=0)
         lbl_sec_aud.set_css_classes(["heading"])
@@ -100,7 +100,7 @@ class FormatSelectionDialog(Gtk.Window):
 
         # Coluna de Texto
         vbox_txt = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
-        vbox_txt.set_hexpand(True) # Empurra o botão para a direita
+        vbox_txt.set_hexpand(True)
 
         # Label Principal (ex: 1080p 60fps)
         lbl_main = Gtk.Label(label=fmt_data['label'])
@@ -119,7 +119,7 @@ class FormatSelectionDialog(Gtk.Window):
         btn = Gtk.Button(label="Baixar")
         btn.set_valign(Gtk.Align.CENTER)
         btn.add_css_class("pill")      # Botão arredondado
-        btn.add_css_class("suggested-action") # Azul
+        btn.add_css_class("suggested-action")
 
         # Callback do botão
         btn.connect("clicked", lambda b: self.on_item_clicked(fmt_data))
@@ -136,8 +136,10 @@ class FormatSelectionDialog(Gtk.Window):
             self.callback(self.video_info, fmt_data)
 
     def _format_duration(self, seconds):
-        if not seconds: return "--:--"
+        if not seconds:
+            return "--:--"
         m, s = divmod(int(seconds), 60)
         h, m = divmod(m, 60)
-        if h > 0: return f"{h}h {m}m {s}s"
+        if h > 0:
+            return f"{h}h {m}m {s}s"
         return f"{m}m {s}s"

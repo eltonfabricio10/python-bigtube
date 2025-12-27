@@ -58,7 +58,6 @@ class MainWindow(Adw.ApplicationWindow):
     player_volume = Gtk.Template.Child()
 
     # --- Widgets de Download ---
-    btn_download_selected = Gtk.Template.Child()
     downloads_list = Gtk.Template.Child()
 
     # --- Widgets de Configurações ---
@@ -73,7 +72,6 @@ class MainWindow(Adw.ApplicationWindow):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
         # 1. Inicializa Infraestrutura
         Config.ensure_dirs()
         self.downloader = Downloader()
@@ -133,11 +131,6 @@ class MainWindow(Adw.ApplicationWindow):
             window_parent=self
         )
 
-        # 7. Conexões Globais da Janela
-        self.btn_download_selected.connect(
-            "clicked", self.on_download_selected_clicked
-        )
-
         # Atalho de Teclado (ESC para fechar vídeo)
         key_controller = Gtk.EventControllerKey()
         key_controller.connect("key-pressed", self.on_key_pressed)
@@ -162,6 +155,10 @@ class MainWindow(Adw.ApplicationWindow):
             row.connect(
                 'play-requested',
                 lambda r, data: self.play_video_from_search(data)
+            )
+            row.connect(
+                'download-requested',
+                lambda r, data: self.on_download_selected(data)
             )
 
         def on_bind(factory, list_item):
@@ -244,7 +241,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         # 3. Esconde Janela de Vídeo se estiver aberta
         if self.video_window.is_visible():
-            self.video_window.hide()
+            self.video_window.set_visible(False)
 
         # 4. Bloqueia os botões (estado inicial)
         self.player_playpause_button.set_sensitive(False)
@@ -257,41 +254,32 @@ class MainWindow(Adw.ApplicationWindow):
     # LÓGICA DE DOWNLOAD (Orquestração)
     # =========================================================================
 
-    def on_download_selected_clicked(self, btn):
+    def on_download_selected(self, data):
         """
         Botão da barra superior: Baixar Selecionados.
         """
-        items = self.search_ctrl.get_selected_items()
-
-        if not items:
-            print("[UI] Nada selecionado.")
-            return
-
-        print(f"[UI] Iniciando fluxo de download para {len(items)} itens.")
-
-        # Muda para a tela de downloads para feedback visual
-        self.pageview.set_visible_child_name("downloads")
+        print(f"[UI] Iniciando fluxo de download para {data.title}.")
 
         # Inicia análise em background
         threading.Thread(
             target=self._process_download_queue,
-            args=(items,),
+            args=(data,),
             daemon=True
         ).start()
 
-    def _process_download_queue(self, items):
+    def _process_download_queue(self, item):
         """Thread que busca metadados de cada vídeo selecionado."""
-        for item in items:
-            print(f"[Queue] Analisando formatos: {item.title}")
 
-            # Busca formatos (1080p, 4k, audio...)
-            info = self.downloader.fetch_video_info(item.url)
+        print(f"[Queue] Analisando formatos: {item.title}")
 
-            if info:
-                # Se achou, mostra o popup na thread principal
-                GLib.idle_add(self._show_format_popup, info)
-            else:
-                print(f"[Erro] Falha ao obter info de {item.title}")
+        # Busca formatos (1080p, 4k, audio...)
+        info = self.downloader.fetch_video_info(item.url)
+
+        if info:
+            # Se achou, mostra o popup na thread principal
+            GLib.idle_add(self._show_format_popup, info)
+        else:
+            print(f"[Erro] Falha ao obter info de {item.title}")
 
     def _show_format_popup(self, info):
         """Exibe o diálogo de seleção de qualidade."""

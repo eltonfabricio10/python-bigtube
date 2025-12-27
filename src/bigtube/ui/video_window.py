@@ -71,6 +71,7 @@ class VideoWindow(Adw.Window):
         return True
 
     def show_video(self):
+        print("[VideoWindow] Exibindo...")
         self.present()
 
     def stop(self): self.mpv_widget.stop()

@@ -4,6 +4,7 @@ import sys
 import os
 os.environ["GDK_BACKEND"] = "x11"
 os.environ["GSK_RENDERER"] = "cairo"
+os.environ['GTK_IM_MODULE'] = 'gtk-im-context-simple'
 
 import gi
 gi.require_version('Gtk', '4.0')
@@ -50,6 +51,7 @@ class BigTubeApplication(Adw.Application):
         win = self.props.active_window
         if not win:
             win = MainWindow(application=app)
+            win.set_icon_name("bigtube")
             win.connect("close-request", self.on_app_quit)
 
         win.present()
@@ -66,6 +68,7 @@ def run():
     Função de ponto de entrada para ser chamada via pyproject.toml
     """
     app = BigTubeApplication()
+    GLib.set_prgname("org.big.bigtube")
     # Executa a aplicação
     sys.exit(app.run(sys.argv))
 

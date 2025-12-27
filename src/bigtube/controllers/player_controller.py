@@ -1,6 +1,11 @@
 import os
+import threading
+import subprocess
+import json
 from gi.repository import Gtk, Gdk
 from ..core.image_loader import ImageLoader
+#  from .ytvideostream import get_combined_stream_url
+from ..core.config import Config
 
 
 class PlayerController:
@@ -68,7 +73,7 @@ class PlayerController:
         self.video_window.connect('window-hidden', self.on_window_hidden)
 
     def play_media(self, url, title, artist, thumbnail_url=None, is_video=True, is_local=False):
-        print(f"[PlayerCtrl] Aletrando para: {title}")
+        print(f"[PlayerCtrl] Alterando para: {title}")
         self.video_window.stop()
 
         self.ui['lbl_time_cur'].set_label("00:00")
@@ -95,7 +100,16 @@ class PlayerController:
             self.ui['img_thumb'].set_from_icon_name("audio-x-generic-symbolic")
 
         self._set_loading(True)
-        self.video_window.play(url)
+
+        def _play(_url):
+            uri = get_combined_stream_url(_url) if not is_local else _url
+            self.video_window.play(uri)
+
+        uri = threading.Thread(
+            target=_play,
+            args=(url,),
+            daemon=True
+        ).start()
 
         # Habilita botões de navegação imediatamente (Play/Next/Prev)
         self.ui['btn_play'].set_sensitive(True)
@@ -140,6 +154,8 @@ class PlayerController:
 
     def on_time_changed(self, win, seconds):
         self.ui['lbl_time_cur'].set_label(self._format_time(seconds))
+
+
         if self.ui['progress'].get_sensitive():
             self.ui['progress'].set_value(seconds)
 
@@ -197,3 +213,82 @@ class PlayerController:
         else:
             self.video_window.show_video()
             btn.set_icon_name("view-reveal-symbolic")
+
+
+def get_combined_stream_url(youtube_url):
+    """
+    Obtém a URL do stream chamando o binário yt-dlp via subprocess.
+    """
+    # 1. Verifica se o yt-dlp está instalado no PATH do sistema
+    yt_dlp_path = Config.YT_DLP_PATH
+    if not yt_dlp_path:
+        return "Error: Binary 'yt-dlp' not found in user PATH."
+
+    env = os.environ.copy()
+    env["PATH"] = str(Config.BIN_DIR) + os.pathsep + env.get("PATH", "")
+
+    try:
+        # 2. Monta o comando CLI
+        # Equivalente ao seu 'extractor_args' e 'ydl_opts'
+        command = [
+            yt_dlp_path,
+            '--dump-json',       # Retorna o JSON completo
+            '--no-playlist',     # Garante que vem apenas um objeto JSON
+            '--quiet',           # Silencia logs de progresso
+            '--no-warnings',
+            # A mágica do cliente Android via linha de comando:
+            '--extractor-args', 'youtube:player_client=android,web;skip=hls,dash',
+            youtube_url
+        ]
+
+        # 3. Executa o comando
+        result = subprocess.run(
+            command,
+            capture_output=True,  # Pega o stdout e stderr
+            text=True,           # Retorna como string (não bytes)
+            encoding='utf-8',
+            check=True,           # Lança erro se o yt-dlp falhar (código != 0)
+            env=env
+        )
+
+        # 4. Converte a string de saída (stdout) para Dicionário Python
+        info_dict = json.loads(result.stdout)
+
+        # 5. --- LÓGICA DE FILTRAGEM (Cópia exata da sua lógica original) ---
+
+        if 'formats' in info_dict:
+            # Prioridade 1: Formato 22 (720p com áudio)
+            for fmt in info_dict['formats']:
+                if fmt.get('format_id') == '22' and 'url' in fmt:
+                    return fmt['url']
+
+            # Prioridade 2: Qualquer formato com Codec de Vídeo E Áudio (vcodec != none)
+            for fmt in info_dict['formats']:
+                vcodec = fmt.get('vcodec', 'none')
+                acodec = fmt.get('acodec', 'none')
+                if (vcodec != 'none' and acodec != 'none' and 'url' in fmt):
+                    return fmt['url']
+
+            # Prioridade 3: Qualquer formato que tenha URL
+            for fmt in info_dict['formats']:
+                if 'url' in fmt:
+                    return fmt['url']
+
+        # Fallback: URL na raiz do JSON
+        if 'url' in info_dict:
+            return info_dict['url']
+
+        return "No valid stream URL found"
+
+    except subprocess.CalledProcessError as e:
+        # Captura erros do próprio yt-dlp (ex: vídeo privado, geo-block)
+        error_msg = e.stderr.strip() if e.stderr else str(e)
+        print(f"yt-dlp binary error: {error_msg}")
+        return f"Error: {error_msg}"
+
+    except json.JSONDecodeError:
+        return "Error: Could not parse JSON output from yt-dlp"
+
+    except Exception as e:
+        print(f"Error fetching combined stream URL: {e}")
+        return f"Error: {str(e)}"

@@ -21,8 +21,6 @@ class Downloader:
             self.binary,
             "--dump-single-json",
             "--no-warnings",
-            # MUDANÇA 1: Usamos 'tv_embedded' aqui porque ele expõe
-            # as resoluções (1080p, 720p) separadamente de forma mais clara que o Android.
             "--extractor-args", "youtube:player_client=tv_embedded,web_embedded",
             url
         ]
@@ -118,16 +116,21 @@ class Downloader:
 
                 # Monta Label
                 label_parts = [f"{height}p"]
-                if fps > 30: label_parts.append(f"{int(fps)}fps")
+                if fps > 30:
+                    label_parts.append(f"{int(fps)}fps")
                 label_parts.append(f"({ext})")
 
                 # Codec Info
                 vc = str(vcodec).lower()
-                if 'av01' in vc: label_parts.append("[AV1]")
-                elif 'vp9' in vc: label_parts.append("[VP9]")
-                elif 'avc1' in vc or 'h264' in vc: label_parts.append("[H.264]")
+                if 'av01' in vc:
+                    label_parts.append("[AV1]")
+                elif 'vp9' in vc:
+                    label_parts.append("[VP9]")
+                elif 'avc1' in vc or 'h264' in vc:
+                    label_parts.append("[H.264]")
 
-                if f.get('dynamic_range') == 'HDR': label_parts.append("HDR")
+                if f.get('dynamic_range') == 'HDR':
+                    label_parts.append("HDR")
 
                 clean_data['videos'].append({
                     'id': fmt_id,
@@ -143,7 +146,6 @@ class Downloader:
         # --- ORDENAÇÃO E LIMPEZA ---
 
         # Remove duplicatas exatas de label para limpar a lista visual
-        # (Ex: às vezes tem 2 streams H.264 iguais de fontes diferentes)
         clean_data['videos'] = self._remove_duplicates(clean_data['videos'])
         clean_data['audios'] = self._remove_duplicates(clean_data['audios'])
 
@@ -184,38 +186,20 @@ class Downloader:
 
         # 1. Sanitização de Nome
         safe_title = "".join([c for c in title if c.isalnum() or c in " -_()."]).strip()
-        if not safe_title: safe_title = f"video_{format_id}"
+        if not safe_title:
+            safe_title = f"video_{format_id}"
 
         output_template = os.path.join(self.download_folder, f"{safe_title}.%(ext)s")
-
-        # 2. Lógica de Áudio Inteligente (O Pulo do Gato 🐈)
-        # Se o ID for numérico (vídeo), pedimos para colar o áudio junto.
-        # Se for string (ex: '140' ou 'ba' - áudio), baixamos só ele.
-        # O yt-dlp entende: "baixe ESSE video E o melhor áudio que achar"
-
-        # Como saber se é vídeo ou áudio?
-        # Simples: Se o usuário escolheu no popup, nós sabemos, mas aqui recebemos só o ID.
-        # Estratégia Sênior: Tentamos baixar '{id}+bestaudio/best'.
-        # Se for áudio puro, o yt-dlp ignora o '+bestaudio' ou baixa e mescla (sem problemas).
-        # Mas para garantir, vamos assumir que queremos juntar áudio sempre que possível.
-
         final_format_arg = f"{format_id}+bestaudio/best"
-
-        # Mas se o usuário escolheu ÁUDIO na lista (m4a, mp3), não queremos vídeo junto.
-        # Vamos confiar que se o usuário escolheu um formato de vídeo, ele quer som.
-        # Nota: Se o formato original já tiver som, o yt-dlp é esperto e não duplica.
 
         cmd = [
             self.binary,
             "--no-warnings",
             "--newline",
-            "-f", final_format_arg, # <--- AQUI MUDOU (Garante som)
-            "--merge-output-format", "mp4", # <--- Garante que o final seja MP4/MKV compatível
+            "-f", final_format_arg,
+            "--merge-output-format", "mp4",
             "-o", output_template,
-
-            # MUDANÇA CRÍTICA: Mesmos clientes da busca para os IDs baterem
             "--extractor-args", "youtube:player_client=tv_embedded,web_embedded",
-
             "--ignore-config",
             url
         ]
@@ -239,7 +223,8 @@ class Downloader:
 
             for line in process.stdout:
                 line = line.strip()
-                if not line: continue
+                if not line:
+                    continue
 
                 # Debug
                 if "ERROR:" in line or "WARNING:" in line:
@@ -254,7 +239,8 @@ class Downloader:
                                 progress_callback(p, "Baixando...")
                             break
                 elif "[Merger]" in line:
-                    if progress_callback: progress_callback("99%", "Unindo Áudio/Vídeo...")
+                    if progress_callback:
+                        progress_callback("99%", "Unindo Áudio/Vídeo...")
                     print("[Downloader] Unindo arquivos...")
                 elif "Destination:" in line:
                     print(f"[Downloader] Arquivo: {line}")
@@ -262,25 +248,29 @@ class Downloader:
             process.wait()
 
             if process.returncode == 0:
-                if progress_callback: progress_callback("100%", "Concluído ✅")
+                if progress_callback:
+                    progress_callback("100%", "Concluído ✅")
                 print(f"[Downloader] Sucesso: {title}")
                 return True
             else:
                 print("\n" + "="*30)
                 print("❌ ERRO FATAL NO YT-DLP")
-                for err in error_log: print(f" > {err}")
+                for err in error_log:
+                    print(f" > {err}")
                 print("="*30 + "\n")
 
                 msg_erro = "Erro no Download"
                 if any("ffmpeg" in e.lower() for e in error_log):
                     msg_erro = "Falta FFmpeg (Vídeo sem som)"
                 elif "requested format is not available" in str(error_log).lower():
-                     msg_erro = "Formato indisponível (Tente outro)"
+                    msg_erro = "Formato indisponível (Tente outro)"
 
-                if progress_callback: progress_callback("0%", msg_erro)
+                if progress_callback:
+                    progress_callback("0%", msg_erro)
                 return False
 
         except Exception as e:
             print(f"[Downloader Exception] {e}")
-            if progress_callback: progress_callback("0%", "Erro Crítico")
+            if progress_callback:
+                progress_callback("0%", "Erro Crítico")
             return False

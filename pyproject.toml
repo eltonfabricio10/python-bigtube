@@ -12,10 +12,7 @@ python = "^3.10"
 PyGObject = "^3.44"
 requests = "^2.31.0"
 python-mpv = "^1.0.8"
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.2.1"
-mypy = "^1.8.0"
+yt-dlp = "^2025.12.8"
 
 [tool.poetry.scripts]
-bigtube = "bigtube.main:run"
+init = "bigtube.main:run"

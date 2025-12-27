@@ -37,7 +37,6 @@ class SearchResultRow(Gtk.Box):
     }
 
     # IDs do seu .ui
-    select_check = Gtk.Template.Child()
     row_thumbnail = Gtk.Template.Child()
     row_title = Gtk.Template.Child()
     row_channel = Gtk.Template.Child()
@@ -54,15 +53,12 @@ class SearchResultRow(Gtk.Box):
         self.row_download_button.connect('clicked', self.on_download_clicked)
         self.row_copy_button.connect('clicked', self.on_copy_clicked)
 
-        self.select_check.connect("toggled", self.on_check_toggled)
-
     def set_data(self, video_data_obj):
         """
         Recebe um 'GObject' com os dados e atualiza a UI.
         """
         # Guarda os dados para uso futuro (como no 'copiar')
         self.video_data = video_data_obj
-        self.select_check.set_active(self.video_data.is_selected)
 
         full_title = self.video_data.title or 'Untitled'
         self.row_title.set_label(full_title)
@@ -77,10 +73,6 @@ class SearchResultRow(Gtk.Box):
                 self.row_thumbnail,
                 width=80, height=50
             )
-
-    def on_check_toggled(self, btn):
-        if self.video_data:
-            self.video_data.is_selected = btn.get_active()
 
     def on_download_clicked(self, button):
         """

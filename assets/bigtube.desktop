@@ -1,9 +1,11 @@
 [Desktop Entry]
-Name=BigTube
-Comment=Gerenciador de Downloads de Vídeos
-Exec=bigtube
-Icon=youtube-dl
-Terminal=false
 Type=Application
-Categories=Network;
-Keywords=download;video;youtube;
+Name=BigTube
+Comment=Profissional TubePlayer
+Exec=/caminho/completo/para/poetry run init
+Path=/caminho/completo/para/mediaharbor
+Icon=bigtube
+Terminal=false
+Categories=Video;AudioVideo;
+DBusActivatable=true
+StartupNotify=true
