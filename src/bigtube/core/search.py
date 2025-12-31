@@ -14,11 +14,7 @@ class DRMError(Exception):
 class SearchEngine:
     def __init__(self):
         self.SEARCH_LIMIT = 10
-
-        # 1. Garante que o binário (yt-dlp) e o runtime (Deno) existem
         Updater.ensure_exists()
-
-        # Caminho do executável local
         self.binary = str(Config.YT_DLP_PATH)
 
     def search(self, query, source="youtube"):
@@ -30,21 +26,19 @@ class SearchEngine:
             return []
 
         # ==============================================================================
-        # 1. LINK DIRETO (Simples, sem estratégias de retry)
+        # LINK DIRETO
         # ==============================================================================
         if source == "url" or query.startswith("http") or query.startswith("www"):
             return self._handle_direct_link(query)
 
-        # ==============================================================================
-        # 2. BUSCA TEXTUAL
-        # ==============================================================================
-
+        # ====================================================================
+        # BUSCA TEXTUAL
+        # ====================================================================
         force_audio = False
         args = []
 
         if source == "soundcloud":
-            # --- MODO SOUNDCLOUD ---
-            force_audio = True  # Marca como áudio (não abre janela)
+            force_audio = True
             args = [
                 "--flat-playlist",
                 "--dump-json",
@@ -52,8 +46,6 @@ class SearchEngine:
             ]
 
         else:
-            # --- MODO YOUTUBE (Padrão para todo o resto) ---
-            # Usa cliente Android que é rápido e estável para buscas
             args = [
                 "--extractor-args", "youtube:player_client=android",
                 "--flat-playlist",
@@ -73,24 +65,25 @@ class SearchEngine:
         # Configuração única e robusta
         cmd_args = [
             url,
-            "--dump-json",       # Apenas metadados JSON
-            "--no-playlist",     # Tenta pegar apenas o vídeo se for lista
-            "--skip-download",   # Não baixa o arquivo
-            # Cliente Android evita erros de PO Token do iOS e SABR do Web
+            "--dump-json",
+            "--no-playlist",
+            "--skip-download",
             "--extractor-args", "youtube:player_client=android",
             "--user-agent", "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36"
         ]
 
         try:
-            # Executa uma única vez
-            results = self._run_cli(cmd_args, is_search=False, force_audio=False)
+            results = self._run_cli(
+                cmd_args,
+                is_search=False,
+                force_audio=False
+            )
             if results:
                 return results
             else:
                 raise DRMError("Nenhum dado retornado.")
 
         except Exception as e:
-            # Se falhar, converte o erro para algo legível e avisa a UI
             self._raise_friendly_error(str(e))
 
     def _run_cli(self, args, is_search=True, force_audio=False):
@@ -99,8 +92,7 @@ class SearchEngine:
         """
         full_cmd = [self.binary, "--ignore-errors", "--no-warnings"] + args
 
-        # --- INJEÇÃO DO DENO ---
-        # Adiciona a pasta bin (onde está o deno) no PATH temporário
+        # --- INJECT DENO ---
         env = os.environ.copy()
         env["PATH"] = str(Config.BIN_DIR) + os.pathsep + env.get("PATH", "")
 
@@ -111,7 +103,7 @@ class SearchEngine:
                 text=True,
                 encoding='utf-8',
                 errors='replace',
-                env=env  # <--- Ambiente com Deno
+                env=env
             )
 
             if process.returncode != 0 and not is_search:
@@ -120,7 +112,8 @@ class SearchEngine:
             json_outputs = []
             for line in process.stdout.splitlines():
                 line = line.strip()
-                if not line: continue
+                if not line:
+                    continue
                 try:
                     data = json.loads(line)
                     json_outputs.append(self._parse_entry(data, force_audio))
@@ -137,12 +130,18 @@ class SearchEngine:
         err = error_text.lower()
         user_msg = "Não foi possível carregar."
 
-        if "drm" in err: user_msg = "Conteúdo protegido por DRM."
-        elif "geo" in err: user_msg = "Conteúdo bloqueado no país."
-        elif "private" in err: user_msg = "Vídeo privado."
-        elif "sign in" in err or "age" in err: user_msg = "Login necessário (Age Gated)."
-        elif "403" in err: user_msg = "Acesso negado (403)."
-        elif "404" in err: user_msg = "Não encontrado (404)."
+        if "drm" in err:
+            user_msg = "Conteúdo protegido por DRM."
+        elif "geo" in err:
+            user_msg = "Conteúdo bloqueado no país."
+        elif "private" in err:
+            user_msg = "Vídeo privado."
+        elif "sign in" in err or "age" in err:
+            user_msg = "Login necessário (Age Gated)."
+        elif "403" in err:
+            user_msg = "Acesso negado (403)."
+        elif "404" in err:
+            user_msg = "Não encontrado (404)."
 
         raise DRMError(f"{user_msg}\n(Log: {error_text[:100]}...)")
 
@@ -150,16 +149,13 @@ class SearchEngine:
         """
         Normaliza os dados.
         """
-        # 1. Resolve Thumbnail
+        # Resolve Thumbnail
         thumb_url = entry.get('thumbnail')
         if not thumb_url and 'thumbnails' in entry:
             thumbs = entry['thumbnails']
             if isinstance(thumbs, list) and len(thumbs) > 0:
                 thumb_url = thumbs[-1].get('url')
 
-        # 2. Lógica de Áudio vs Vídeo
-        # Se force_audio=True (SoundCloud), is_video vira False.
-        # Se force_audio=False, assume True, salvo se vcodec indicar 'none'.
         is_video = not force_audio
 
         if entry.get('vcodec') == 'none':

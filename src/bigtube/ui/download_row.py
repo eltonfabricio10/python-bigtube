@@ -1,6 +1,7 @@
 import gi
 import sys
 import os
+import shutil
 import subprocess
 gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk, Pango, GLib, Gio
@@ -31,7 +32,7 @@ class DownloadRow(Gtk.Box):
         self.lbl_path.set_label(filename)
 
         # Conecta sinais (podemos fazer isso no XML, mas aqui é seguro também)
-        self.btn_folder.connect("clicked", self.on_open_folder_clicked)
+        self.btn_folder.connect("clicked", self.show_in_folder)
         self.btn_play.connect("clicked", self.on_play_file_clicked)
 
     def update_progress(self, percent_str, status_text="Baixando..."):
@@ -65,25 +66,6 @@ class DownloadRow(Gtk.Box):
         # Mostra os botões de ação
         self.actions_box.set_visible(True)
 
-    def on_open_folder_clicked(self, btn):
-        """Abre o gerenciador de arquivos selecionando o arquivo."""
-        path = self.full_path
-        if not os.path.exists(path):
-            return
-
-        try:
-            if sys.platform == "win32":
-                subprocess.run(["explorer", "/select,", path])
-            elif sys.platform == "darwin":
-                subprocess.run(["open", "-R", path])
-            else:
-                # Linux (Tentativa universal com dbus ou xdg-open)
-                # Tenta abrir a pasta pai, pois selecionar arquivo no Linux varia muito (Nautilus vs Dolphin)
-                folder = os.path.dirname(path)
-                subprocess.run(["xdg-open", folder])
-        except Exception as e:
-            print(f"Erro ao abrir pasta: {e}")
-
     def on_play_file_clicked(self, btn):
         """
         Em vez de abrir externo, chama o player do BigTube.
@@ -94,3 +76,54 @@ class DownloadRow(Gtk.Box):
         # Se tivermos um callback registrado, usamos ele
         if self.on_play_callback:
             self.on_play_callback(self.full_path, self.lbl_title.get_label())
+
+    def show_in_folder(self, btn):
+        """
+        Abre o gerenciador de arquivos com o arquivo específico
+        """
+        file_path = self.full_path
+        # Validação básica de existência
+        if not os.path.exists(file_path):
+            print(f"[System] Erro: Arquivo não encontrado: {file_path}")
+            return
+
+        abs_path = os.path.abspath(file_path)
+        parent_dir = os.path.dirname(abs_path)
+
+        # 1. TENTATIVA VIA DBUS
+        try:
+            subprocess.run([
+                "dbus-send", "--session", "--print-reply", "--dest=org.freedesktop.FileManager1",
+                "/org/freedesktop/FileManager1", "org.freedesktop.FileManager1.ShowItems",
+                f"array:string:file://{abs_path}", "string:"
+            ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print("[download] D-BUS ok! ")
+            return
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
+
+        # 2. TENTATIVA VIA BINÁRIOS ESPECÍFICOS
+        managers = [
+            ("nautilus", ["--select"]),
+            ("dolphin", ["--select"]),
+            ("nemo", ["--select"]),
+            ("caja", ["--select"]),
+            ("thunar", []),
+            ("pcmanfm-qt", ["--show-item"]),
+        ]
+
+        for manager, args in managers:
+            if shutil.which(manager):
+                try:
+                    cmd = [manager] + args + [abs_path]
+                    subprocess.Popen(cmd)
+                    return
+                except Exception as e:
+                    print(f"[System] Falha ao invocar {manager}: {e}")
+                    continue
+
+        # 3. FALLBACK ABSOLUTO (xdg-open)
+        try:
+            subprocess.Popen(["xdg-open", parent_dir])
+        except Exception as e:
+            print(f"[System] Falha crítica no fallback: {e}")

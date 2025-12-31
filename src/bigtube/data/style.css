@@ -2,3 +2,30 @@
     border-radius: 12px;
     box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
 }
+
+.spinner-box {
+    background-color: rgb(0, 0, 0);
+}
+
+.top-toast {
+    /* R=28, G=113, B=216 (Azul Adwaita)
+       A=0.85 (85% Visível, 15% Transparente)
+    */
+    background-color: rgba(28, 113, 216, 0.85);
+    color: white;
+    border-radius: 24px;
+    padding: 8px 24px;
+    margin-top: 20px;
+    font-weight: 800;
+
+
+    /* Opcional: Borda fina semi-transparente para dar acabamento premium */
+    border: 1px solid rgba(127, 127, 127, 0.85);
+}
+
+.top-toast.error {
+    /* R=192, G=28, B=40 (Vermelho Adwaita)
+       A=0.85
+    */
+    background-color: rgba(192, 28, 40, 0.85);
+}

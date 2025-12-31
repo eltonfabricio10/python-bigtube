@@ -42,7 +42,9 @@ class Downloader:
             return self._parse_formats(info)
 
         except Exception as e:
-            print(f"[Downloader Exception] {e}")
+            import traceback
+            traceback.print_exc()
+            print(f"[Erro Fatal] {e}")
             return None
 
     def _parse_formats(self, info):
@@ -63,21 +65,24 @@ class Downloader:
 
         formats = info.get('formats', [])
 
-        # DEBUG: Ver quantos formatos brutos chegaram
-        print(f"[Downloader] Formatos brutos encontrados: {len(formats)}")
+        # DEBUG: Ver quantos formatos chegaram
+        print(f"[Downloader] Formatos encontrados: {len(formats)}")
 
         for f in formats:
             # Filtros básicos de lixo
-            if 'storyboard' in f.get('format_note', '') or f.get('protocol') == 'http_dash_segments':
+            format_note = f.get('format_note') or ''
+            protocol = f.get('protocol') or ''
+
+            if 'storyboard' in format_note or protocol == 'http_dash_segments':
                 continue
 
-            fmt_id = f.get('format_id')
+            fmt_id = str(f.get('format_id') or '')
             ext = f.get('ext')
+            print(ext)
 
             # Pega valores brutos (podem ser None)
-            vcodec = f.get('vcodec')
-            acodec = f.get('acodec')
-            height = f.get('height')
+            vcodec = str(f.get('vcodec') or 'none').split('.')[0]
+            acodec = str(f.get('acodec') or 'none').split('.')[0]
 
             # --- CÁLCULO DE TAMANHO ---
             filesize = f.get('filesize') or f.get('filesize_approx')
@@ -92,9 +97,14 @@ class Downloader:
 
             # É ÁUDIO SE: vcodec é 'none' OU vcodec é None (null no json)
             # E precisa ter acodec válido.
-            is_audio_only = (vcodec == 'none' or vcodec is None) and (acodec != 'none' and acodec is not None)
+            is_audio_only = (
+                vcodec == 'none' or vcodec is None
+            ) and (
+                acodec != 'none' and acodec is not None
+            )
 
             # É VÍDEO SE: tem altura definida (height > 0)
+            height = f.get('height') or -1
             is_video = height is not None and height > 0
 
             # --- 1. PROCESSAR ÁUDIO ---
@@ -107,8 +117,16 @@ class Downloader:
                     'size': size_str,
                     'size_val': size_mb,
                     'type': 'audio',
-                    'quality': abr
+                    'quality': abr,
+                    'codec': acodec
                 })
+
+                clean_data['audios'] = self._del_duplic(clean_data['audios'])
+                # Ordena Áudios: Qualidade > Tamanho
+                clean_data['audios'].sort(
+                    key=lambda x: (x['quality'], x['size_val']),
+                    reverse=True
+                )
 
             # --- 2. PROCESSAR VÍDEO ---
             elif is_video:
@@ -128,6 +146,8 @@ class Downloader:
                     label_parts.append("[VP9]")
                 elif 'avc1' in vc or 'h264' in vc:
                     label_parts.append("[H.264]")
+                else:
+                    label_parts.append(f"[{vc.upper()}]")
 
                 if f.get('dynamic_range') == 'HDR':
                     label_parts.append("HDR")
@@ -140,30 +160,23 @@ class Downloader:
                     'ext': ext,
                     'size': size_str,
                     'size_val': size_mb,
-                    'type': 'video'
+                    'type': 'video',
+                    'codec': vc
                 })
 
-        # --- ORDENAÇÃO E LIMPEZA ---
+                # --- ORDENAÇÃO E LIMPEZA ---
 
-        # Remove duplicatas exatas de label para limpar a lista visual
-        clean_data['videos'] = self._remove_duplicates(clean_data['videos'])
-        clean_data['audios'] = self._remove_duplicates(clean_data['audios'])
-
-        # Ordena Vídeos: Resolução > FPS > Tamanho
-        clean_data['videos'].sort(
-            key=lambda x: (x['resolution'], x['fps'], x['size_val']),
-            reverse=True
-        )
-
-        # Ordena Áudios: Qualidade > Tamanho
-        clean_data['audios'].sort(
-            key=lambda x: (x['quality'], x['size_val']),
-            reverse=True
-        )
+                # Remove duplicatas exatas de label para limpar a lista visual
+                clean_data['videos'] = self._del_duplic(clean_data['videos'])
+                # Ordena Vídeos: Resolução > FPS > Tamanho
+                clean_data['videos'].sort(
+                    key=lambda x: (x['resolution'], x['fps'], x['size_val']),
+                    reverse=True
+                )
 
         return clean_data
 
-    def _remove_duplicates(self, items):
+    def _del_duplic(self, items):
         seen = set()
         unique = []
         for item in items:
@@ -174,35 +187,57 @@ class Downloader:
                 seen.add(key)
         return unique
 
-    def download_video(self, url, format_id, title, progress_callback=None):
+    def download_video(self, url, format_id, title, ext, progress_callback=None):
         """
-        Baixa o vídeo e reporta erros detalhados.
+        Baixa o vídeo/áudio com progresso em tempo real e suporte a SoundCloud.
         """
-        print(f"[Downloader] Iniciando download: {title} (ID: {format_id})")
-        self.download_folder = Config.get("download_path")
+        print(f"[Downloader] Iniciando: {title}")
 
+        self.download_folder = Config.get("download_path")
         if not os.path.exists(self.download_folder):
             os.makedirs(self.download_folder)
 
-        # 1. Sanitização de Nome
+        # 1. Sanitização de Nome (Mantive sua lógica, é boa)
         safe_title = "".join([c for c in title if c.isalnum() or c in " -_()."]).strip()
         if not safe_title:
             safe_title = f"video_{format_id}"
 
-        output_template = os.path.join(self.download_folder, f"{safe_title}.%(ext)s")
-        final_format_arg = f"{format_id}+bestaudio/best"
+        output_template = os.path.join(
+            self.download_folder,
+            f"{safe_title}.%(ext)s"
+        )
 
+        # 2. LÓGICA DE COMANDO DINÂMICA
         cmd = [
             self.binary,
             "--no-warnings",
             "--newline",
-            "-f", final_format_arg,
-            "--merge-output-format", "mp4",
-            "-o", output_template,
-            "--extractor-args", "youtube:player_client=tv_embedded,web_embedded",
+            "--no-playlist",
             "--ignore-config",
-            url
+            "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+            "-o", output_template,
         ]
+
+        # Verifica se é modo ÁUDIO (MP3, WAV, M4A)
+        is_audio_mode = ext in ['mp3', 'wav', 'm4a', 'opus', 'flac']
+
+        if is_audio_mode:
+            cmd.extend([
+                "-f", f"{format_id}",
+                "--extract-audio",
+                "--audio-format", ext,
+                "--audio-quality", "0",
+            ])
+        else:
+            if "+bestaudio" not in format_id:
+                cmd.extend(["-f", f"{format_id}+bestaudio/best"])
+            else:
+                cmd.extend(["-f", format_id])
+
+            # Só usa merge se for vídeo
+            cmd.extend(["--merge-output-format", ext])
+
+        cmd.append(url)
 
         env = os.environ.copy()
         env["PATH"] = str(Config.BIN_DIR) + os.pathsep + env.get("PATH", "")
@@ -210,6 +245,7 @@ class Downloader:
         error_log = []
 
         try:
+            # 3. EXECUÇÃO COM PIPE EM TEMPO REAL
             process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -226,51 +262,60 @@ class Downloader:
                 if not line:
                     continue
 
-                # Debug
+                # Debug no console (Opcional, pode comentar em produção)
+                print(f"[YT-DLP] {line}")
+
+                # Captura erros para log
                 if "ERROR:" in line or "WARNING:" in line:
                     error_log.append(line)
-                    print(f"[YT-DLP LOG] {line}")
 
+                # --- PARSING DE PROGRESSO ---
                 if "[download]" in line and "%" in line:
                     parts = line.split()
                     for p in parts:
                         if "%" in p:
+                            # Remove cores ANSI se houver e pega a porcentagem
+                            percent = p.replace('%', '')
+                            # Chama o callback (UI Update)
                             if progress_callback:
-                                progress_callback(p, "Baixando...")
+                                progress_callback(f"{percent}%", "Baixando...")
                             break
-                elif "[Merger]" in line:
-                    if progress_callback:
-                        progress_callback("99%", "Unindo Áudio/Vídeo...")
-                    print("[Downloader] Unindo arquivos...")
-                elif "Destination:" in line:
-                    print(f"[Downloader] Arquivo: {line}")
 
+                elif "[Merger]" in line or "[ExtractAudio]" in line:
+                    if progress_callback:
+                        progress_callback("99%", "Processando Áudio...")
+
+                elif "[Fixup]" in line:
+                    if progress_callback:
+                        progress_callback("99%", "Finalizando arquivo...")
+
+            # Aguarda o fim do processo
             process.wait()
 
             if process.returncode == 0:
                 if progress_callback:
                     progress_callback("100%", "Concluído ✅")
-                print(f"[Downloader] Sucesso: {title}")
+                print(f"[Downloader] Sucesso: {safe_title}")
                 return True
             else:
-                print("\n" + "="*30)
-                print("❌ ERRO FATAL NO YT-DLP")
-                for err in error_log:
-                    print(f" > {err}")
-                print("="*30 + "\n")
+                # TRATAMENTO DE ERROS INTELIGENTE
+                print(f"ERRO FATAL (Code {process.returncode})")
 
-                msg_erro = "Erro no Download"
+                msg_erro = "Erro desconhecido"
                 if any("ffmpeg" in e.lower() for e in error_log):
-                    msg_erro = "Falta FFmpeg (Vídeo sem som)"
-                elif "requested format is not available" in str(error_log).lower():
-                    msg_erro = "Formato indisponível (Tente outro)"
+                    msg_erro = "Erro: FFmpeg não instalado"
+                elif any("sign" in e.lower() for e in error_log):
+                    msg_erro = "Erro: Assinatura/Bloqueio do YouTube"
+                elif "invalid merge" in str(error_log).lower():
+                    msg_erro = "Erro interno de formato"
 
                 if progress_callback:
-                    progress_callback("0%", msg_erro)
+                    progress_callback("Erro", msg_erro)
+
                 return False
 
         except Exception as e:
             print(f"[Downloader Exception] {e}")
             if progress_callback:
-                progress_callback("0%", "Erro Crítico")
+                progress_callback("Erro", "Falha Crítica no Sistema")
             return False

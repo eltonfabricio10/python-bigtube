@@ -1,10 +1,8 @@
 import locale
-import sys
-import time
 import mpv
 import gi
 gi.require_version('Gtk', '4.0')
-from gi.repository import Gtk, Gdk, GLib, GObject
+from gi.repository import Gtk, GLib, GObject
 
 try:
     from gi.repository import GdkX11
@@ -35,6 +33,7 @@ class MpvWidget(Gtk.DrawingArea):
         print("[MpvWidget] Iniciando em modo ÁUDIO...")
         self.mpv = mpv.MPV(
             vo='null',
+            vid='no',
             keep_open='yes',
             ytdl=True,
             hwdec='auto',
@@ -42,7 +41,6 @@ class MpvWidget(Gtk.DrawingArea):
         )
 
         self._setup_observers()
-
         self.connect("realize", self.on_realize)
         self.connect("unrealize", self.on_unrealize)
 
@@ -85,7 +83,7 @@ class MpvWidget(Gtk.DrawingArea):
                 pass
 
     def on_realize(self, widget):
-        """A Janela Abriu! Hora de acordar o vídeo."""
+        """Hora de acordar o vídeo."""
         if not HAS_X11_LIB:
             return
 
@@ -100,7 +98,6 @@ class MpvWidget(Gtk.DrawingArea):
                 self.mpv.force_window = True
                 self.mpv.vo = 'x11'
                 self.mpv.vid = 'auto'
-                self.mpv.seek(0, reference='relative')
             else:
                 print("[MpvWidget] Erro: XID não encontrado.")
 
@@ -108,7 +105,7 @@ class MpvWidget(Gtk.DrawingArea):
             print(f"[Erro Realize] {e}")
 
     def on_unrealize(self, widget):
-        """Janela fechou? Volta para ÁUDIO."""
+        """Volta para ÁUDIO."""
         try:
             self.mpv.vid = 'no'
             self.mpv.vo = 'null'

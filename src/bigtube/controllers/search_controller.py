@@ -4,7 +4,13 @@ from ..core.search import SearchEngine
 from ..ui.search_result_row import VideoDataObject
 
 
-class SearchController:
+class SearchController(GObject.Object):
+    __gtype_name__ = 'SearchController'
+
+    __gsignals__ = {
+        'loading-state': (GObject.SIGNAL_RUN_FIRST, None, (bool,))
+    }
+
     def __init__(
         self,
         search_entry,
@@ -12,9 +18,9 @@ class SearchController:
         results_list_view,
         source_dropdown,
         on_play_callback,
-        on_clear_callback=None
+        on_clear_callback=None,
     ):
-
+        super().__init__()
         self.entry = search_entry
         self.btn = search_button
         self.list_view = results_list_view
@@ -35,7 +41,7 @@ class SearchController:
         self.btn.connect("clicked", self.on_search_activate)
         self.list_view.connect("activate", self.on_item_activated)
 
-        # CORREÇÃO 1: Detectar quando o texto muda (para limpar lista)
+        # Detectar quando o texto muda (para limpar lista)
         self.entry.connect("search-changed", self.on_search_changed)
 
     def set_current_by_item(self, video_obj):
@@ -59,7 +65,7 @@ class SearchController:
         """
         text = entry.get_text()
         if not text or not text.strip():
-            print("[SearchController] Limpando lista...")
+            print("[SearchController] Clear list...")
             self.store.remove_all()
             self.current_index = -1
 
@@ -71,8 +77,9 @@ class SearchController:
         if not query:
             return
 
-        print(f"[Search] Buscando: {query}")
+        print(f"[Search] Searching: {query}")
         self.btn.set_sensitive(False)
+        GLib.idle_add(self.emit, 'loading-state', True)
         self.store.remove_all()
         self.current_index = -1
 
@@ -96,10 +103,13 @@ class SearchController:
 
     def _update_ui_with_results(self, results):
         for item in results:
+            if "channel" in item['url']:
+                continue
             self.store.append(VideoDataObject(item))
         self._finish_loading()
 
     def _finish_loading(self):
+        GLib.idle_add(self.emit, 'loading-state', False)
         self.btn.set_sensitive(True)
 
     def on_item_activated(self, list_view, position):

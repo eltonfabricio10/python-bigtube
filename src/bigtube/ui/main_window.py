@@ -2,6 +2,7 @@
 import gi
 import os
 import threading
+import mimetypes
 
 # --- CORE ---
 from ..core.downloader import Downloader
@@ -17,10 +18,12 @@ from ..controllers.player_controller import PlayerController
 from .video_window import VideoWindow
 from .format_dialog import FormatSelectionDialog
 from .search_result_row import SearchResultRow
+from .message_manager import MessageManager
+from .top_toast import TopToast
 
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw, GObject, Gio, Gdk, GLib
+from gi.repository import Gtk, Adw, Gdk, GLib
 
 # Caminho do arquivo XML
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -36,6 +39,8 @@ class MainWindow(Adw.ApplicationWindow):
     # =========================================================================
 
     # Navegação Principal (Stack)
+    main_overlay = Gtk.Template.Child()
+    main_box = Gtk.Template.Child()
     pageview = Gtk.Template.Child()
 
     # --- Widgets de Busca ---
@@ -115,6 +120,7 @@ class MainWindow(Adw.ApplicationWindow):
             on_play_callback=self.play_video_from_search,
             on_clear_callback=self.reset_player_state
         )
+        self.search_ctrl.connect('loading-state', self.set_loading_searching)
 
         # 5. Inicializa DOWNLOAD CONTROLLER
         self.download_ctrl = DownloadController(
@@ -136,9 +142,75 @@ class MainWindow(Adw.ApplicationWindow):
         key_controller.connect("key-pressed", self.on_key_pressed)
         self.add_controller(key_controller)
 
+        self.setup_loading()
+        self.top_toast = TopToast()
+        self.main_overlay.add_overlay(self.top_toast)
+        MessageManager.init(self.top_toast, self)
+
     # =========================================================================
     # SETUP VISUAL (Factories)
     # =========================================================================
+    def setup_loading(self):
+        self.loading_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.loading_box.set_halign(Gtk.Align.CENTER)
+        self.loading_box.set_valign(Gtk.Align.CENTER)
+        self.loading_box.set_spacing(10)
+        self.loading_box.add_css_class("card")
+        self.loading_box.set_visible(False)
+
+        self.spinner = Gtk.Spinner()
+        self.spinner.set_size_request(96, 96)
+        self.spinner.set_halign(Gtk.Align.CENTER)
+        self.spinner.set_hexpand(True)
+
+        self.lbl_loading = Gtk.Label()
+        self.lbl_loading.add_css_class("title-2")
+        self.lbl_loading.set_size_request(300, -1)
+        self.lbl_loading.set_wrap(False)
+        self.lbl_loading.set_xalign(0.5)
+        self.lbl_loading.set_margin_bottom(20)
+
+        self.loading_box.append(self.spinner)
+        self.loading_box.append(self.lbl_loading)
+
+        self.main_overlay.add_overlay(self.loading_box)
+
+        self.text_animator = TextAnimator(
+            self.lbl_loading,
+            "..."
+        )
+
+    def set_loading_state_downloader(self, is_loading):
+        if is_loading:
+            self.set_focus(None)
+            self.loading_box.set_visible(True)
+            self.main_box.set_sensitive(False)
+            self.main_box.add_css_class("spinner-box")
+            self.spinner.start()
+            self.text_animator.base_text = "Analisando formatos"
+            self.text_animator.start()
+        else:
+            self.spinner.stop()
+            self.text_animator.stop()
+            self.loading_box.set_visible(False)
+            self.main_box.set_sensitive(True)
+            self.main_box.remove_css_class("spinner-box")
+
+    def set_loading_searching(self, controller, is_loading):
+        if is_loading:
+            self.set_focus(None)
+            self.loading_box.set_visible(True)
+            self.main_box.set_sensitive(False)
+            self.main_box.add_css_class("spinner-box")
+            self.spinner.start()
+            self.text_animator.base_text = "Pesquisando"
+            self.text_animator.start()
+        else:
+            self.spinner.stop()
+            self.text_animator.stop()
+            self.loading_box.set_visible(False)
+            self.main_box.set_sensitive(True)
+            self.main_box.remove_css_class("spinner-box")
 
     def setup_listview_factory(self):
         """
@@ -196,12 +268,16 @@ class MainWindow(Adw.ApplicationWindow):
         Chamado pelo DownloadController.
         Manda o PlayerController tocar o arquivo baixado.
         """
+        mime_type, _ = mimetypes.guess_type(file_path)
+        is_audio = mime_type and mime_type.startswith('audio')
+        video_var = False if is_audio else True
+
         self.player_ctrl.play_media(
             url=file_path,
             title=title,
             artist="Arquivo Baixado",
             thumbnail_url=None,
-            is_video=True,
+            is_video=video_var,
             is_local=True
         )
 
@@ -259,6 +335,7 @@ class MainWindow(Adw.ApplicationWindow):
         Botão da barra superior: Baixar Selecionados.
         """
         print(f"[UI] Iniciando fluxo de download para {data.title}.")
+        self.set_loading_state_downloader(True)
 
         # Inicia análise em background
         threading.Thread(
@@ -324,6 +401,7 @@ class MainWindow(Adw.ApplicationWindow):
                     url=video_info['url'],
                     format_id=format_data['id'],
                     title=video_info['title'],
+                    ext=format_data['ext'],
                     progress_callback=ui_progress_callback
                 )
 
@@ -331,6 +409,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         # Cria e exibe o diálogo
         dialog = FormatSelectionDialog(self, info, start_real_download)
+        self.set_loading_state_downloader(False)
         dialog.present()
 
     # =========================================================================
@@ -344,3 +423,45 @@ class MainWindow(Adw.ApplicationWindow):
                 self.video_window.on_close_request(None)
                 return True
         return False
+
+
+class TextAnimator:
+    def __init__(self, label, base_text="...", interval=500):
+        """
+        Anima um Gtk.Label com reticências (...).
+
+        :param label: O widget Gtk.Label alvo
+        :param base_text: O texto base (ex: "Processando")
+        :param interval: Velocidade em ms (padrão 500ms)
+        """
+        self.label = label
+        self.base_text = base_text
+        self.interval = interval
+        self.timer_id = None
+        self.dots_count = 0
+
+    def start(self):
+        """Inicia a animação se não estiver rodando"""
+        if self.timer_id is None:
+            self.dots_count = 0
+            # Atualiza imediatamente para não esperar 500ms pelo primeiro ponto
+            self.label.set_label(self.base_text)
+            self.timer_id = GLib.timeout_add(self.interval, self._animate_step)
+
+    def stop(self):
+        """Para a animação e reseta o texto"""
+        if self.timer_id is not None:
+            GLib.source_remove(self.timer_id)
+            self.timer_id = None
+            # Opcional: Limpa ou reseta o texto quando para
+            self.label.set_label(self.base_text)
+
+    def _animate_step(self):
+        """Chamado automaticamente pelo GLib"""
+        self.dots_count = (self.dots_count + 1) % 4
+
+        # Monta a string: "Texto" + "..."
+        text = f"{self.base_text}{'.' * self.dots_count}"
+        self.label.set_label(text)
+
+        return True

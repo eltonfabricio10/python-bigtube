@@ -4,7 +4,6 @@ import subprocess
 import json
 from gi.repository import Gtk, Gdk
 from ..core.image_loader import ImageLoader
-#  from .ytvideostream import get_combined_stream_url
 from ..core.config import Config
 
 
@@ -28,7 +27,9 @@ class PlayerController:
         self._connect_ui_signals()
         self._connect_video_signals()
 
-        # --- ESTADO INICIAL (Tudo Travado) ---
+        self._time_remaining = None
+
+        # --- ESTADO INICIAL ---
         self._reset_ui_state()
 
     def _reset_ui_state(self):
@@ -57,12 +58,30 @@ class PlayerController:
         self.loading_spinner.set_visible(False)
 
     def _connect_ui_signals(self):
-        self.ui['btn_play'].connect('clicked', self.on_playpause_clicked)
-        self.ui['btn_prev'].connect('clicked', lambda b: self.on_prev() if self.on_prev else None)
-        self.ui['btn_next'].connect('clicked', lambda b: self.on_next() if self.on_next else None)
-        self.ui['progress'].connect('change-value', self.on_user_seek)
-        self.ui['volume'].connect('value-changed', self.on_volume_changed)
-        self.ui['btn_video'].connect('clicked', self.on_toggle_video_window)
+        self.ui['btn_play'].connect(
+            'clicked',
+            self.on_playpause_clicked
+        )
+        self.ui['btn_prev'].connect(
+            'clicked',
+            lambda b: self.on_prev() if self.on_prev else None
+        )
+        self.ui['btn_next'].connect(
+            'clicked',
+            lambda b: self.on_next() if self.on_next else None
+        )
+        self.ui['progress'].connect(
+            'change-value',
+            self.on_user_seek
+        )
+        self.ui['volume'].connect(
+            'value-changed',
+            self.on_volume_changed
+        )
+        self.ui['btn_video'].connect(
+            'clicked',
+            self.on_toggle_video_window
+        )
 
     def _connect_video_signals(self):
         self.video_window.connect('time-changed', self.on_time_changed)
@@ -72,8 +91,12 @@ class PlayerController:
         self.video_window.connect('video-ready', self.on_video_ready)
         self.video_window.connect('window-hidden', self.on_window_hidden)
 
-    def play_media(self, url, title, artist, thumbnail_url=None, is_video=True, is_local=False):
-        print(f"[PlayerCtrl] Alterando para: {title}")
+    def play_media(
+        self, url, title, artist,
+        thumbnail_url=None,
+        is_video=True, is_local=False
+    ):
+        print(f"[PlayerCtrl] Change to: {is_video} {title}")
         self.video_window.stop()
 
         self.ui['lbl_time_cur'].set_label("00:00")
@@ -86,14 +109,19 @@ class PlayerController:
         self.ui['btn_video'].set_sensitive(False)
 
         self.current_url = url
-        self.is_video_mode = is_video or is_local
+        self.is_video_mode = is_video
 
         self.ui['lbl_title'].set_label(title or "Desconhecido")
         self.ui['lbl_artist'].set_label(artist or "Artista Desconhecido")
         self.cached_artist_name = artist or ""
 
         if thumbnail_url:
-            ImageLoader.load(thumbnail_url, self.ui['img_thumb'], width=60, height=40)
+            ImageLoader.load(
+                thumbnail_url,
+                self.ui['img_thumb'],
+                width=60,
+                height=40
+            )
         elif is_local:
             self.ui['img_thumb'].set_from_icon_name("folder-download-symbolic")
         else:
@@ -102,8 +130,8 @@ class PlayerController:
         self._set_loading(True)
 
         def _play(_url):
-            uri = get_combined_stream_url(_url) if not is_local else _url
-            self.video_window.play(uri)
+            _uri = get_combined_stream_url(_url) if not is_local else _url
+            self.video_window.play(_uri)
 
         uri = threading.Thread(
             target=_play,
@@ -119,7 +147,7 @@ class PlayerController:
         self.ui['progress'].set_sensitive(False)
         self.ui['btn_video'].set_sensitive(False)
 
-        if is_local:
+        if is_local and is_video:
             self.video_window.show_video()
 
     def stop(self):
@@ -153,13 +181,17 @@ class PlayerController:
     # --- HANDLERS DE SINAIS (MPV -> UI) ---
 
     def on_time_changed(self, win, seconds):
-        self.ui['lbl_time_cur'].set_label(self._format_time(seconds))
+        if self._time_remaining:
+            curr = self._time_remaining - seconds
+            self.ui['lbl_time_tot'].set_label(f"- {self._format_time(curr)}")
 
+        self.ui['lbl_time_cur'].set_label(self._format_time(seconds))
 
         if self.ui['progress'].get_sensitive():
             self.ui['progress'].set_value(seconds)
 
     def on_duration_changed(self, win, seconds):
+        self._time_remaining = seconds
         self.ui['lbl_time_tot'].set_label(self._format_time(seconds))
         self.ui['progress'].set_range(0, seconds)
         self.ui['progress'].set_sensitive(True)
@@ -193,7 +225,6 @@ class PlayerController:
 
     def on_window_hidden(self, win):
         self.ui['btn_video'].set_icon_name("video-display-symbolic")
-        self._set_loading(False)
 
     # --- HANDLERS DE UI ---
 
@@ -219,7 +250,6 @@ def get_combined_stream_url(youtube_url):
     """
     Obtém a URL do stream chamando o binário yt-dlp via subprocess.
     """
-    # 1. Verifica se o yt-dlp está instalado no PATH do sistema
     yt_dlp_path = Config.YT_DLP_PATH
     if not yt_dlp_path:
         return "Error: Binary 'yt-dlp' not found in user PATH."
@@ -228,60 +258,55 @@ def get_combined_stream_url(youtube_url):
     env["PATH"] = str(Config.BIN_DIR) + os.pathsep + env.get("PATH", "")
 
     try:
-        # 2. Monta o comando CLI
-        # Equivalente ao seu 'extractor_args' e 'ydl_opts'
         command = [
             yt_dlp_path,
-            '--dump-json',       # Retorna o JSON completo
-            '--no-playlist',     # Garante que vem apenas um objeto JSON
-            '--quiet',           # Silencia logs de progresso
+            '--dump-json',
+            '--no-playlist',
+            '--quiet',
             '--no-warnings',
-            # A mágica do cliente Android via linha de comando:
             '--extractor-args', 'youtube:player_client=android,web;skip=hls,dash',
             youtube_url
         ]
 
-        # 3. Executa o comando
+        # comando
         result = subprocess.run(
             command,
-            capture_output=True,  # Pega o stdout e stderr
-            text=True,           # Retorna como string (não bytes)
+            capture_output=True,
+            text=True,
             encoding='utf-8',
-            check=True,           # Lança erro se o yt-dlp falhar (código != 0)
+            check=True,
             env=env
         )
 
-        # 4. Converte a string de saída (stdout) para Dicionário Python
         info_dict = json.loads(result.stdout)
 
-        # 5. --- LÓGICA DE FILTRAGEM (Cópia exata da sua lógica original) ---
+        # --- LÓGICA DE FILTRAGEM ---
 
         if 'formats' in info_dict:
-            # Prioridade 1: Formato 22 (720p com áudio)
+            # Formato 22
             for fmt in info_dict['formats']:
                 if fmt.get('format_id') == '22' and 'url' in fmt:
                     return fmt['url']
 
-            # Prioridade 2: Qualquer formato com Codec de Vídeo E Áudio (vcodec != none)
+            # Qualquer formato com Codec de Vídeo E Áudio
             for fmt in info_dict['formats']:
                 vcodec = fmt.get('vcodec', 'none')
                 acodec = fmt.get('acodec', 'none')
                 if (vcodec != 'none' and acodec != 'none' and 'url' in fmt):
                     return fmt['url']
 
-            # Prioridade 3: Qualquer formato que tenha URL
+            # Qualquer formato que tenha URL
             for fmt in info_dict['formats']:
                 if 'url' in fmt:
                     return fmt['url']
 
-        # Fallback: URL na raiz do JSON
+        # URL - JSON
         if 'url' in info_dict:
             return info_dict['url']
 
         return "No valid stream URL found"
 
     except subprocess.CalledProcessError as e:
-        # Captura erros do próprio yt-dlp (ex: vídeo privado, geo-block)
         error_msg = e.stderr.strip() if e.stderr else str(e)
         print(f"yt-dlp binary error: {error_msg}")
         return f"Error: {error_msg}"

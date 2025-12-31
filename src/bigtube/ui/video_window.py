@@ -65,14 +65,14 @@ class VideoWindow(Adw.Window):
         return False
 
     def on_close_request(self, win):
-        print("[VideoWindow] Escondendo...")
+        print("[VideoWindow] Hide...")
         self.set_visible(False)
         self.emit('window-hidden')
         return True
 
     def show_video(self):
-        print("[VideoWindow] Exibindo...")
-        self.present()
+        print("[VideoWindow] Show...")
+        self.set_visible(True)
 
     def stop(self): self.mpv_widget.stop()
     def play(self, url): self.mpv_widget.play(url)
