@@ -1,101 +1,134 @@
-# -*- coding: utf-8 -*-
 import os
 import stat
 import urllib.request
 import subprocess
 import zipfile
 import io
-from .config import Config
+import sys
+from typing import Optional, Tuple
+from pathlib import Path
+
+# Internal Imports
+from .config import ConfigManager
 
 
 class Updater:
+    """
+    Handles automatic downloading and updating of external binaries
+    (yt-dlp and Deno) required for the application to function.
+    """
+
+    # Direct download URLs
+    _YT_DLP_URL = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux"
+    _DENO_URL = "https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip"
+
     @staticmethod
-    def get_local_version():
-        """Pergunta a versão para o binário local via linha de comando."""
-        if not Config.YT_DLP_PATH.exists():
+    def get_local_version() -> Optional[str]:
+        """
+        Queries the local yt-dlp binary for its version.
+        Returns the version string (e.g., '2023.10.13') or None if missing/error.
+        """
+        binary_path = ConfigManager.YT_DLP_PATH
+
+        if not binary_path.exists():
             return None
 
         try:
-            # Executa: ./yt-dlp --version
+            # Exec: ./yt-dlp --version
             result = subprocess.run(
-                [str(Config.YT_DLP_PATH), "--version"],
-                capture_output=True, text=True
+                [str(binary_path), "--version"],
+                capture_output=True,
+                text=True,
+                check=False
             )
-            return result.stdout.strip()
-        except Exception:
-            return "Erro"
+            if result.returncode == 0:
+                return result.stdout.strip()
+            return "Unknown"
+        except Exception as e:
+            print(f"[Updater] Error checking version: {e}")
+            return "Error"
 
     @staticmethod
-    def update_yt_dlp():
+    def update_yt_dlp() -> Tuple[bool, str]:
         """
-        Baixa a versão mais recente direto do GitHub oficial.
+        Downloads the latest yt-dlp binary from GitHub.
+        Returns: (Success: bool, Version/Error: str)
         """
-        Config.ensure_dirs()
-        print(f"[Updater] Baixando yt-dlp em: {Config.YT_DLP_PATH}")
+        ConfigManager.ensure_dirs()
+        target_path = ConfigManager.YT_DLP_PATH
 
-        # URL oficial do binário Linux
-        url = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux"
+        print(f"[Updater] Downloading yt-dlp to: {target_path}")
 
         try:
-            # 1. Baixa o arquivo
-            print("[Updater] Download iniciado...")
-            with urllib.request.urlopen(url) as response, open(Config.YT_DLP_PATH, 'wb') as out_file:
-                out_file.write(response.read())
+            # 1. Download stream
+            with urllib.request.urlopen(Updater._YT_DLP_URL, timeout=30) as response:
+                data = response.read()
 
-            # 2. Dá permissão de execução (chmod +x)
-            st = os.stat(Config.YT_DLP_PATH)
-            os.chmod(Config.YT_DLP_PATH, st.st_mode | stat.S_IEXEC)
+            # 2. Write to file
+            with open(target_path, 'wb') as out_file:
+                out_file.write(data)
 
-            print("[Updater] Binário instalado e executável!")
-            return True, Updater.get_local_version()
+            # 3. Grant Execution Permissions (chmod +x)
+            st = os.stat(target_path)
+            os.chmod(target_path, st.st_mode | stat.S_IEXEC)
+
+            new_version = Updater.get_local_version()
+            print(f"[Updater] yt-dlp installed successfully! Version: {new_version}")
+            return True, str(new_version)
 
         except Exception as e:
-            print(f"[Updater] Erro crítico: {e}")
+            print(f"[Updater] Critical Error updating yt-dlp: {e}")
             return False, str(e)
 
     @staticmethod
-    def update_deno():
+    def update_deno() -> bool:
         """
-        Baixa o Deno (Runtime JS portátil).
+        Downloads and extracts the Deno runtime (required for some JS signatures).
         """
-        print(f"[Updater] Baixando Deno para: {Config.DENO_PATH}")
+        ConfigManager.ensure_dirs()
+        target_path = ConfigManager.DENO_PATH
 
-        # URL oficial para Linux x64 (Ajustar se for ARM/Mac)
-        url = "https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip"
+        print(f"[Updater] Downloading Deno to: {target_path}")
 
         try:
-            # 1. Baixa o ZIP na memória
-            with urllib.request.urlopen(url) as response:
+            # 1. Download ZIP to memory
+            with urllib.request.urlopen(Updater._DENO_URL, timeout=60) as response:
                 zip_data = response.read()
 
-            # 2. Extrai apenas o binário 'deno'
+            # 2. Extract specific binary
             with zipfile.ZipFile(io.BytesIO(zip_data)) as z:
-                # O zip contem um arquivo chamado 'deno'
-                with z.open("deno") as zf, open(Config.DENO_PATH, 'wb') as f:
-                    f.write(zf.read())
+                # The zip contains a file named 'deno' (no extension on Linux)
+                if "deno" in z.namelist():
+                    with z.open("deno") as zf, open(target_path, 'wb') as f:
+                        f.write(zf.read())
+                else:
+                    raise FileNotFoundError("deno binary not found in downloaded zip")
 
-            # 3. Dá permissão de execução
-            st = os.stat(Config.DENO_PATH)
-            os.chmod(Config.DENO_PATH, st.st_mode | stat.S_IEXEC)
+            # 3. Grant Execution Permissions
+            st = os.stat(target_path)
+            os.chmod(target_path, st.st_mode | stat.S_IEXEC)
 
-            print("[Updater] Deno instalado com sucesso!")
+            print("[Updater] Deno installed successfully!")
             return True
 
         except Exception as e:
-            print(f"[Updater Error] Falha ao baixar Deno: {e}")
+            print(f"[Updater] Failed to download Deno: {e}")
             return False
 
     @staticmethod
     def ensure_exists():
-        """Verifica se yt-dlp E Deno existem. Se não, baixa."""
-        Config.ensure_dirs()
+        """
+        Checks if required binaries exist. Downloads them if missing.
+        Blocking call - should ideally be run in a thread or splash screen.
+        """
+        ConfigManager.ensure_dirs()
 
-        # 1. Garante yt-dlp
-        if not Config.YT_DLP_PATH.exists():
-            print("[System] yt-dlp ausente. Baixando...")
+        # 1. Check yt-dlp
+        if not ConfigManager.YT_DLP_PATH.exists():
+            print("[System] yt-dlp missing. Starting auto-download...")
             Updater.update_yt_dlp()
 
-        # 2. Garante Deno (Runtime JS)
-        if not Config.DENO_PATH.exists():
-            print("[System] Runtime JS (Deno) ausente. Baixando...")
+        # 2. Check Deno
+        if not ConfigManager.DENO_PATH.exists():
+            print("[System] JS Runtime (Deno) missing. Starting auto-download...")
             Updater.update_deno()

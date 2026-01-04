@@ -2,7 +2,7 @@
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
 <!-- Created with Cambalache 0.96.3 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
-  <ui template-class="BigTubeMainWindow" filename="bigtube.ui" sha256="12bf852fd69daf4c2bdef80e9a70ee3c918165cc15f81da2d0a2fd30d0b85658"/>
-  <ui template-class="SearchResultRow" filename="search_result_row.ui" sha256="d4f79739192ab53534c2e173526302158ca3c1d9f8d73e95fb9654bc12d766d5"/>
-  <ui template-class="BigTubeDownloadRow" filename="download_row.ui" sha256="67e9c08aceaa4203e28cee331b7651df6ac89fc521d17b174d9118b97ec73c76"/>
+  <ui template-class="BigTubeMainWindow" filename="bigtube.ui" sha256="816c996d7983af95c126fd74fa36886da8d6b304bb6269c04f7ece8b965b42aa"/>
+  <ui template-class="SearchResultRow" filename="search_result_row.ui" sha256="874b2f8fdc71acfb6d8763dc1a47ecb151749cd5245f0d6c8252944a4629e65a"/>
+  <ui template-class="BigTubeDownloadRow" filename="download_row.ui" sha256="de800b6098d40b009a124ef91a735315627db06a05475b865ec55edefeb7669b"/>
 </cambalache-project>

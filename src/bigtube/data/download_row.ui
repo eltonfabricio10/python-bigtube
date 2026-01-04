@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.3 -->
+<!-- Created with Cambalache 0.96.3 -->
 <interface>
   <!-- interface-name download_row.ui -->
   <requires lib="gtk" version="4.18"/>
@@ -13,6 +13,7 @@
     <property name="spacing">8</property>
     <child>
       <object class="GtkBox" id="header_box">
+        <property name="hexpand">True</property>
         <property name="spacing">12</property>
         <child>
           <object class="GtkLabel" id="lbl_title">
@@ -26,7 +27,6 @@
         </child>
         <child>
           <object class="GtkLabel" id="lbl_status">
-            <property name="label">Aguardando...</property>
             <style>
               <class name="dim-label"/>
               <class name="caption"/>
@@ -36,12 +36,31 @@
       </object>
     </child>
     <child>
-      <object class="GtkProgressBar" id="progress_bar">
-        <property name="fraction">0.0</property>
+      <object class="GtkBox" id="center_box">
+        <property name="hexpand">True</property>
+        <child>
+          <object class="GtkProgressBar" id="progress_bar">
+            <property name="fraction">0.0</property>
+            <property name="hexpand">True</property>
+            <property name="valign">center</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="btn_cancel">
+            <property name="css-classes">flat
+destructive-action</property>
+            <property name="halign">end</property>
+            <property name="has-frame">False</property>
+            <property name="icon-name">process-stop-symbolic</property>
+            <property name="margin-start">8</property>
+            <property name="valign">center</property>
+          </object>
+        </child>
       </object>
     </child>
     <child>
       <object class="GtkBox" id="footer_box">
+        <property name="hexpand">True</property>
         <property name="spacing">10</property>
         <child>
           <object class="GtkLabel" id="lbl_path">
@@ -59,8 +78,8 @@
             <property name="visible">False</property>
             <child>
               <object class="GtkButton" id="btn_folder">
+                <property name="css-classes">flat</property>
                 <property name="icon-name">folder-open-symbolic</property>
-                <property name="tooltip-text">Show Directory</property>
                 <style>
                   <class name="flat"/>
                 </style>
@@ -68,8 +87,8 @@
             </child>
             <child>
               <object class="GtkButton" id="btn_play">
+                <property name="css-classes">flat</property>
                 <property name="icon-name">media-playback-start-symbolic</property>
-                <property name="tooltip-text">Play</property>
                 <style>
                   <class name="flat"/>
                 </style>

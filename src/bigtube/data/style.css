@@ -8,24 +8,46 @@
 }
 
 .top-toast {
-    /* R=28, G=113, B=216 (Azul Adwaita)
-       A=0.85 (85% Visível, 15% Transparente)
-    */
-    background-color: rgba(28, 113, 216, 0.85);
+    background-color: alpha(black, 0.8);
     color: white;
     border-radius: 24px;
     padding: 8px 24px;
-    margin-top: 20px;
-    font-weight: 800;
-
-
-    /* Opcional: Borda fina semi-transparente para dar acabamento premium */
-    border: 1px solid rgba(127, 127, 127, 0.85);
+    margin-top: 16px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    font-weight: bold;
 }
 
 .top-toast.error {
-    /* R=192, G=28, B=40 (Vermelho Adwaita)
-       A=0.85
-    */
-    background-color: rgba(192, 28, 40, 0.85);
+    background-color: #e01b24; /* Red */
+    color: white;
+}
+
+.top-toast.success {
+    background-color: #2ec27e; /* Green */
+    color: black;
+}
+
+/* Barra de Progresso Padrão (Azul) */
+progressbar > trough > progress {
+    background-color: #3584e4; /* Azul Adwaita */
+    border-radius: 99px;
+    min-height: 8px; /* Deixa a barra mais gordinha e moderna */
+}
+
+/* Barra de Progresso Concluída (Verde) */
+progressbar.success > trough > progress {
+    background-color: #2ec27e; /* Verde Sucesso */
+    transition: background-color 0.3s ease; /* Animação suave de cor */
+}
+
+/* Barra de Progresso Interrompida (Laranja/Amarelo) */
+progressbar.warning > trough > progress {
+    background-color: #e5a50a; /* Amarelo Adwaita (Warning) */
+    opacity: 0.8;
+}
+
+/* Fundo da barra (o trilho cinza) */
+progressbar > trough {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 99px;
 }

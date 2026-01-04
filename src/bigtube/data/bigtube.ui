@@ -34,10 +34,9 @@
                                 <property name="opacity">1.0</property>
                                 <property name="orientation">vertical</property>
                                 <child>
-                                  <object class="AdwBanner">
+                                  <object class="AdwBanner" id="search_banner">
                                     <property name="css-classes">title-1</property>
                                     <property name="revealed">True</property>
-                                    <property name="title">Search Manager</property>
                                   </object>
                                 </child>
                                 <child>
@@ -57,10 +56,10 @@
                                         <property name="model">
                                           <object class="GtkStringList" id="search_model">
                                             <items>
-                                              <item translatable="yes">YouTube</item>
-                                              <item translatable="yes">SoundCloud</item>
+                                              <item translatable="yes"/>
+                                              <item translatable="yes"/>
                                               <item/>
-                                              <item translatable="yes">Direct Link</item>
+                                              <item translatable="yes"/>
                                             </items>
                                           </object>
                                         </property>
@@ -79,7 +78,6 @@
                                         <property name="margin-end">0</property>
                                         <property name="margin-top">0</property>
                                         <property name="max-width-chars">-1</property>
-                                        <property name="placeholder-text">Search...</property>
                                         <property name="valign">fill</property>
                                       </object>
                                     </child>
@@ -110,7 +108,6 @@
                             </property>
                             <property name="icon-name">file-search-symbolic</property>
                             <property name="name">search</property>
-                            <property name="title">Search</property>
                           </object>
                         </child>
                         <child>
@@ -123,10 +120,18 @@
                                     <property name="margin-top">0</property>
                                     <property name="orientation">vertical</property>
                                     <child>
-                                      <object class="AdwBanner">
+                                      <object class="AdwBanner" id="download_banner">
                                         <property name="css-classes">title-1</property>
                                         <property name="revealed">True</property>
-                                        <property name="title">Downloads Manager</property>
+                                        <child>
+                                          <object class="GtkButton" id="btn_clear">
+                                            <property name="halign">end</property>
+                                            <property name="has-frame">False</property>
+                                            <property name="icon-name">list-remove-all-symbolic</property>
+                                            <property name="margin-end">12</property>
+                                            <property name="valign">center</property>
+                                          </object>
+                                        </child>
                                       </object>
                                     </child>
                                     <child>
@@ -147,7 +152,6 @@
                             </property>
                             <property name="icon-name">folder-download-symbolic</property>
                             <property name="name">downloads</property>
-                            <property name="title">Downloads</property>
                           </object>
                         </child>
                         <child>
@@ -159,18 +163,15 @@
                                     <property name="button-style">default</property>
                                     <property name="css-classes">title-1</property>
                                     <property name="revealed">True</property>
-                                    <property name="title">Settings Manager</property>
                                     <property name="use-markup">True</property>
                                   </object>
                                 </property>
                                 <property name="title"/>
                                 <child>
                                   <object class="AdwPreferencesGroup" id="group_storage">
-                                    <property name="title">Storage</property>
                                     <child>
                                       <object class="AdwActionRow" id="settings_row_folder">
                                         <property name="icon-name">folder-download-symbolic</property>
-                                        <property name="title">Downloads Folder</property>
                                         <property name="title-selectable">False</property>
                                         <child>
                                           <object class="GtkButton" id="settings_btn_pick">
@@ -188,10 +189,8 @@
                                     <child>
                                       <object class="AdwActionRow" id="settings_row_version">
                                         <property name="icon-name">application-x-executable-symbolic</property>
-                                        <property name="title">Engine Version (yt-dlp)</property>
                                         <child>
                                           <object class="GtkButton" id="settings_btn_update">
-                                            <property name="label">Update Check</property>
                                             <property name="valign">center</property>
                                           </object>
                                         </child>
@@ -203,7 +202,6 @@
                             </property>
                             <property name="icon-name">settings</property>
                             <property name="name">settings</property>
-                            <property name="title">Settings</property>
                           </object>
                         </child>
                       </object>
@@ -266,7 +264,6 @@
                       <object class="GtkLabel" id="player_title">
                         <property name="ellipsize">end</property>
                         <property name="halign">fill</property>
-                        <property name="label">Unknown Music</property>
                         <property name="lines">-1</property>
                         <property name="margin-top">0</property>
                         <property name="max-width-chars">20</property>
@@ -279,7 +276,6 @@
                         <property name="css-classes">caption</property>
                         <property name="ellipsize">end</property>
                         <property name="halign">start</property>
-                        <property name="label">Unknown Artist</property>
                         <property name="max-width-chars">20</property>
                       </object>
                     </child>
@@ -307,7 +303,6 @@
                             <property name="has-tooltip">True</property>
                             <property name="icon-name">media-skip-backward-symbolic</property>
                             <property name="margin-top">5</property>
-                            <property name="tooltip-text">Previous</property>
                           </object>
                         </child>
                         <child>
@@ -317,7 +312,6 @@
                             <property name="hexpand">False</property>
                             <property name="icon-name">media-playback-start-symbolic</property>
                             <property name="margin-top">5</property>
-                            <property name="tooltip-text">Play/Pause</property>
                           </object>
                         </child>
                         <child>
@@ -326,7 +320,6 @@
                             <property name="has-tooltip">True</property>
                             <property name="icon-name">media-skip-forward-symbolic</property>
                             <property name="margin-top">5</property>
-                            <property name="tooltip-text">Next</property>
                           </object>
                         </child>
                       </object>
@@ -339,7 +332,6 @@
                         <child>
                           <object class="GtkLabel" id="player_time_current">
                             <property name="halign">start</property>
-                            <property name="label">0:00</property>
                             <property name="margin-start">5</property>
                           </object>
                         </child>
@@ -355,7 +347,6 @@
                         <child>
                           <object class="GtkLabel" id="player_time_total">
                             <property name="halign">end</property>
-                            <property name="label">0:00</property>
                             <property name="margin-end">5</property>
                           </object>
                         </child>
@@ -388,7 +379,6 @@
                     <property name="margin-bottom">5</property>
                     <property name="margin-end">5</property>
                     <property name="margin-start">3</property>
-                    <property name="tooltip-text">Open Video Window</property>
                     <property name="valign">end</property>
                   </object>
                 </child>

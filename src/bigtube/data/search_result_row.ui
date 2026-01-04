@@ -27,7 +27,6 @@
             <property name="ellipsize">end</property>
             <property name="halign">start</property>
             <property name="hexpand">False</property>
-            <property name="label">Unknown Music</property>
             <property name="lines">2</property>
             <property name="max-width-chars">-1</property>
             <property name="wrap">True</property>
@@ -38,14 +37,13 @@
           <object class="GtkLabel" id="row_channel">
             <property name="css-classes">caption</property>
             <property name="halign">start</property>
-            <property name="label">Unknown Artist</property>
             <property name="valign">fill</property>
           </object>
         </child>
       </object>
     </child>
     <child>
-      <object class="GtkBox">
+      <object class="GtkBox" id="empty_box">
         <property name="hexpand">True</property>
       </object>
     </child>
