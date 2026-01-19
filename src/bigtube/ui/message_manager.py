@@ -32,7 +32,7 @@ class MessageManager:
         Replaces 'show' to match calls from other controllers.
         """
         if not cls._toast_widget:
-            print("[UI Error] MessageManager not initialized (missing toast_widget).")
+            print("[UI Error] MessageManager not initialized.")
             return
 
         # 1. Cancel previous hide timer if active (Reset countdown)

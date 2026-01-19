@@ -2,6 +2,9 @@ import locale
 import gi
 from gi.repository import Gtk, GLib, GObject, Gdk
 
+# Internal Imports
+from ..core.locales import ResourceManager as Res, StringKey
+
 # Check for X11 capability (Required for embedding in GTK4 currently)
 try:
     from gi.repository import GdkX11
@@ -9,12 +12,18 @@ try:
 except ImportError:
     HAS_X11_LIB = False
 
-# Safe Import of python-mpv
 try:
     import mpv
 except ImportError:
+    import sys
+    # Use standard stderr if logger isn't available yet or strictly for this critical import check
+    print("[MpvWidget] CRITICAL: 'python-mpv' library not found.", file=sys.stderr)
     mpv = None
-    print("[MpvWidget] CRITICAL: 'python-mpv' library not found.")
+
+from ..core.logger import get_logger
+
+# Module logger
+logger = get_logger(__name__)
 
 # MPV requires C-style numeric formatting (dots, not commas)
 try:
@@ -47,9 +56,11 @@ class MpvWidget(Gtk.DrawingArea):
 
         if not mpv:
             self.mpv = None
+            self.is_wayland = False
             return
 
-        print("[MpvWidget] Initializing MPV core...")
+        logger.info("Initializing MPV core...")
+        self.is_wayland = False  # Will be set in _on_realize
 
         # Initialize MPV
         # input_default_bindings=True allows standard MPV hotkeys if window has focus
@@ -59,7 +70,7 @@ class MpvWidget(Gtk.DrawingArea):
             keep_open='yes',
             ytdl=True,  # yt-dlp logic in Search/PlayerController
             hwdec='auto',
-            input_default_bindings=True
+            input_default_bindings=False
         )
 
         self._setup_observers()
@@ -67,6 +78,26 @@ class MpvWidget(Gtk.DrawingArea):
         # Connect GTK Lifecycle signals to handle embedding
         self.connect("realize", self._on_realize)
         self.connect("unrealize", self._on_unrealize)
+
+    def handle_keypress(self, keyval):
+        """
+        Manually forwards GTK key events to MPV as command strings.
+        This bypasses mpv's internal X11 key handling which causes >16bit errors.
+        """
+        if not self.mpv:
+            return
+
+        key_name = Gdk.keyval_name(keyval)
+        if not key_name:
+            return
+
+        # Simple mapping for common controls
+        # MPV command 'keypress' takes the key name
+        try:
+            self.mpv.keypress(key_name)
+        except Exception as e:
+            # We explicitly ignore errors here to prevent crashing on weird keys
+            logger.debug(f"MPV Keypress rejected: {key_name} ({e})")
 
     def _setup_observers(self):
         """Registers MPV event listeners."""
@@ -118,9 +149,9 @@ class MpvWidget(Gtk.DrawingArea):
     def _on_realize(self, widget):
         """
         Called when the widget is attached to a window and has resources.
-        This is where we attempt X11 Embedding.
+        This is where we attempt X11 Embedding or configure Wayland fallback.
         """
-        if not self.mpv or not HAS_X11_LIB:
+        if not self.mpv:
             return
 
         try:
@@ -129,33 +160,44 @@ class MpvWidget(Gtk.DrawingArea):
             display = Gdk.Display.get_default()
 
             # Check if we are running on X11
-            if isinstance(display, GdkX11.X11Display) and hasattr(surface, 'get_xid'):
-                xid = surface.get_xid()
-                print(f"[MpvWidget] Embedding into X11 Window ID: {xid}")
+            is_x11 = HAS_X11_LIB and isinstance(display, GdkX11.X11Display) and hasattr(surface, 'get_xid')
 
+            if is_x11:
+                xid = surface.get_xid()
+                logger.info(f"Embedding into X11 Window ID: {xid}")
+                self.is_wayland = False
                 self.mpv.wid = int(xid)
                 self.mpv.force_window = True
                 self.mpv.vo = 'x11'
                 self.mpv.vid = 'auto'
             else:
-                print("[MpvWidget] Wayland or non-X11 detected. Embedding not supported.")
-                # On Wayland, we keep video disabled or let MPV open its own window if absolutely necessary
-                # For this specific app, we might stick to Audio-Only on Wayland to avoid crashes.
-                self.mpv.vo = 'null'
+                # Wayland: Open MPV in a separate controllable window
+                logger.info("Wayland detected. Using separate MPV window (still controllable).")
+                self.is_wayland = True
+                self.mpv.force_window = 'yes'
+                self.mpv.vo = 'gpu'  # Works well on Wayland
+                self.mpv.vid = 'auto'
+                self.mpv.keep_open = 'yes'
+                # Window title and config for separate window
+                self.mpv['title'] = Res.get(StringKey.PLAYER_WINDOW_TITLE)
+                self.mpv['ontop'] = False
+                self.mpv['geometry'] = '854x480'
 
         except Exception as e:
-            print(f"[MpvWidget] Embedding Error: {e}")
+            logger.error(f"Embedding/Config error: {e}")
 
     def _on_unrealize(self, widget):
         """
         Called when widget is hidden/destroyed.
-        Switch back to Audio-Only mode to save resources.
+        Switch back to Audio-Only mode to save resources (X11 only).
         """
         if not self.mpv:
             return
         try:
-            self.mpv.vid = 'no'
-            self.mpv.vo = 'null'
+            # On Wayland, MPV manages its own window, so we don't need to switch modes
+            if not self.is_wayland:
+                self.mpv.vid = 'no'
+                self.mpv.vo = 'null'
         except Exception:
             pass
 

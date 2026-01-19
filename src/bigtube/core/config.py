@@ -6,6 +6,10 @@ from gi.repository import GLib
 
 # Import internal Enums
 from .enums import ThemeMode, VideoQuality
+from .logger import get_logger
+
+# Module logger
+logger = get_logger(__name__)
 
 
 class ConfigManager:
@@ -41,8 +45,12 @@ class ConfigManager:
     _DEFAULTS = {
         "download_path": str(Path(_DEFAULT_DOWNLOAD_DIR) / "BigTube"),
         "theme_mode": ThemeMode.SYSTEM.value,
-        "default_quality": VideoQuality.BEST.value,
-        "max_concurrent_downloads": 3
+        "default_quality": VideoQuality.ASK.value,
+        "max_concurrent_downloads": 3,
+        "add_metadata": False,
+        "download_subtitles": False,
+        "save_history": True,
+        "auto_clear_finished": False
     }
 
     _data = {}
@@ -57,7 +65,7 @@ class ConfigManager:
             # Load config immediately after ensuring dirs
             cls.load()
         except OSError as e:
-            print(f"[Config] Critical Error creating directories: {e}")
+            logger.error(f"Critical error creating directories: {e}")
 
     @classmethod
     def load(cls):
@@ -84,7 +92,7 @@ class ConfigManager:
                 cls._data.update(loaded_data)
 
         except (json.JSONDecodeError, ValueError, OSError) as e:
-            print(f"[Config] Corruption detected ({e}). Resetting to defaults.")
+            logger.warning(f"Config corruption detected ({e}). Resetting to defaults.")
             cls._data = cls._DEFAULTS.copy()
             cls.save()
 
@@ -99,7 +107,7 @@ class ConfigManager:
                 json.dump(cls._data, f, indent=4, ensure_ascii=False)
             # print("[Config] Settings saved.")
         except OSError as e:
-            print(f"[Config] Failed to save: {e}")
+            logger.error(f"Failed to save config: {e}")
 
     @classmethod
     def get(cls, key: str):
@@ -124,7 +132,7 @@ class ConfigManager:
         cls._data[key] = value
         cls.save()
 
-    # --- Helpers for Paths (AQUI ESTAVA O ERRO) ---
+    # --- Helpers for Paths ---
 
     @classmethod
     def get_download_path(cls) -> str:
@@ -135,3 +143,11 @@ class ConfigManager:
     def get_yt_dlp_path(cls) -> str:
         """Returns the absolute path to the yt-dlp binary."""
         return str(cls.YT_DLP_PATH)
+
+    @classmethod
+    def get_env_with_bin_path(cls) -> dict:
+        """Returns a copy of os.environ with BIN_DIR prepended to PATH."""
+        env = os.environ.copy()
+        env["PATH"] = str(cls.BIN_DIR) + os.pathsep + env.get("PATH", "")
+        return env
+

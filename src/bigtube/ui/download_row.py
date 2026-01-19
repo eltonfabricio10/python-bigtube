@@ -2,13 +2,18 @@ import os
 import shutil
 import subprocess
 import glob
+import threading
 from gi.repository import Gtk, GLib
 
 # Internal Imports
 from ..core.locales import ResourceManager as Res, StringKey
 from ..core.enums import DownloadStatus
 from ..core.history_manager import HistoryManager
-from .message_manager import MessageManager  # Assuming this exists from your structure
+from ..core.logger import get_logger
+from .message_manager import MessageManager
+
+# Module logger
+logger = get_logger(__name__)
 
 # Path to the .ui file
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -30,6 +35,7 @@ class DownloadRow(Gtk.Box):
     btn_folder = Gtk.Template.Child()
     btn_play = Gtk.Template.Child()
     btn_cancel = Gtk.Template.Child()
+    btn_pause = Gtk.Template.Child()
 
     def __init__(self, title, filename, full_path, on_play_callback=None):
         super().__init__()
@@ -38,6 +44,7 @@ class DownloadRow(Gtk.Box):
         self.on_play_callback = on_play_callback
         self.downloader_instance = None  # Holds the VideoDownloader object
         self.is_cancelled = False
+        self.is_paused = False
 
         # Initial UI Setup
         self.lbl_title.set_label(title)
@@ -47,6 +54,7 @@ class DownloadRow(Gtk.Box):
         self.btn_folder.connect("clicked", self._on_open_folder_clicked)
         self.btn_play.connect("clicked", self._on_play_clicked)
         self.btn_cancel.connect("clicked", self._on_cancel_clicked)
+        self.btn_pause.connect("clicked", self._on_pause_clicked)
 
     def set_downloader(self, downloader):
         """
@@ -64,7 +72,7 @@ class DownloadRow(Gtk.Box):
         if self.is_cancelled:
             return
 
-        print(f"[UI] Cancelling download: {self.full_path}")
+        logger.info(f"Cancelling download: {self.full_path}")
         self.is_cancelled = True
 
         # 1. Stop the Engine
@@ -73,6 +81,7 @@ class DownloadRow(Gtk.Box):
 
         # 2. Visual Feedback
         self.btn_cancel.set_sensitive(False)
+        self.btn_pause.set_sensitive(False)
         self.lbl_status.set_label(Res.get(StringKey.STATUS_CANCELLED))
         self.progress_bar.add_css_class("warning")  # Turn bar orange/yellow
 
@@ -85,8 +94,56 @@ class DownloadRow(Gtk.Box):
 
     def _on_play_clicked(self, btn):
         """Triggers the internal player callback."""
-        if os.path.exists(self.full_path) and self.on_play_callback:
+        if not os.path.exists(self.full_path):
+            MessageManager.show_confirmation(
+                title=Res.get(StringKey.MSG_FILE_NOT_FOUND_TITLE),
+                body=f"{Res.get(StringKey.MSG_FILE_NOT_FOUND_BODY)}\n{self.full_path}",
+                on_confirm_callback=self._cleanup_partial_files
+            )
+            return
+
+        if self.on_play_callback:
             self.on_play_callback(self.full_path, self.lbl_title.get_label())
+
+    def _on_pause_clicked(self, btn):
+        """
+        Toggles between Pause and Resume.
+        """
+        if not self.downloader_instance:
+            return
+
+        if self.is_paused:
+            # === RESUME ===
+            self.is_paused = False
+            self.btn_pause.set_icon_name("media-playback-pause-symbolic")
+            self.btn_pause.set_tooltip_text(Res.get(StringKey.BTN_PAUSE))
+            self.lbl_status.set_label(Res.get(StringKey.STATUS_RESUMING))
+            self.progress_bar.remove_css_class("warning")
+            
+            # Restart the download in a separate thread
+            def resume_task():
+                logger.info(f"Starting resume thread for {self.full_path}")
+                try:
+                    self.downloader_instance.resume()
+                except Exception as e:
+                    logger.exception(f"Error during resume: {e}")
+                    # Update UI on error (must use idle_add)
+                    GLib.idle_add(self.set_error_state, str(e))
+
+            threading.Thread(target=resume_task, daemon=True).start()
+             
+        else:
+            # === PAUSE ===
+            self.is_paused = True
+            self.downloader_instance.pause()
+            self.btn_pause.set_icon_name("media-playback-start-symbolic")
+            self.btn_pause.set_tooltip_text(Res.get(StringKey.BTN_RESUME))
+            self.lbl_status.set_label(Res.get(StringKey.STATUS_PAUSED))
+            self.lbl_status.set_label(Res.get(StringKey.STATUS_PAUSED))
+            self.progress_bar.add_css_class("warning")
+            
+            # Persist Paused state
+            HistoryManager.update_status(self.full_path, DownloadStatus.PAUSED)
 
     # =========================================================================
     # UI UPDATES
@@ -98,6 +155,10 @@ class DownloadRow(Gtk.Box):
         Expected format for percent_str: "45.5%" or "100%"
         """
         if self.is_cancelled:
+            return
+            
+        if self.is_paused:
+            # Don't update visual progress while paused (avoids flickering)
             return
 
         # Ensure we don't have conflicting styles
@@ -143,6 +204,7 @@ class DownloadRow(Gtk.Box):
         """Visual feedback for success."""
         if hasattr(self, 'btn_cancel'):
             self.btn_cancel.set_sensitive(False)
+        self.btn_pause.set_visible(False)  # Hide pause button on completion
 
         self.lbl_status.set_label(Res.get(StringKey.STATUS_COMPLETED))
         self.lbl_status.add_css_class("success")
@@ -176,24 +238,32 @@ class DownloadRow(Gtk.Box):
             for pattern in patterns:
                 for trash_file in glob.glob(pattern):
                     try:
-                        print(f"[Cleanup] Removing residual: {trash_file}")
+                        logger.info(f"Removing temp file (Cleanup): {trash_file}")
                         os.remove(trash_file)
                     except OSError as e:
-                        print(f"[Cleanup] Failed to delete {trash_file}: {e}")
+                        logger.warning(f"Failed to delete {trash_file}: {e}")
 
             # Remove from JSON History
             HistoryManager.remove_entry(self.full_path)
 
             # Remove Row from UI
             # We delay slightly to let the animation finish or user see "Cancelled"
-            parent = self.get_parent()  # The ListBox
-            if parent:
-                parent.remove(self)
+            parent = self.get_parent()
+            
+            # Use traversal to find the ListBox and the Row
+            # If we are inside a ListBoxRow (implicit wrapper), we must remove that row from the ListBox
+            if isinstance(parent, Gtk.ListBoxRow):
+                list_box = parent.get_parent()
+                if list_box and hasattr(list_box, "remove"):
+                    list_box.remove(parent)
+            elif parent and hasattr(parent, "remove"):
+                 # Direct child of a container that supports remove (e.g. Box)
+                 parent.remove(self)
 
             MessageManager.show(Res.get(StringKey.STATUS_CANCELLED))
 
         except Exception as e:
-            print(f"[Cleanup] Error: {e}")
+            logger.error(f"Cleanup error: {e}")
 
         return False  # Stop timeout
 
@@ -202,7 +272,11 @@ class DownloadRow(Gtk.Box):
         Cross-platform (Linux focused) method to highlight a file in the file manager.
         """
         if not os.path.exists(file_path):
-            print(f"[System] File not found: {file_path}")
+            MessageManager.show_confirmation(
+                title=Res.get(StringKey.MSG_FILE_NOT_FOUND_TITLE),
+                body=f"{Res.get(StringKey.MSG_FILE_NOT_FOUND_BODY)}\n{file_path}",
+                on_confirm_callback=self._cleanup_partial_files
+            )
             return
 
         abs_path = os.path.abspath(file_path)
@@ -241,4 +315,4 @@ class DownloadRow(Gtk.Box):
         try:
             subprocess.Popen(["xdg-open", parent_dir])
         except Exception as e:
-            print(f"[System] Failed to open folder: {e}")
+            logger.error(f"Failed to open folder: {e}")

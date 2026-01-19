@@ -27,8 +27,7 @@ class VideoWindow(Adw.Window):
 
         # Window Setup
         self.set_resizable(False)
-        self.set_default_size(854, 480)
-        self.set_title("BigTube Player")
+        self.set_default_size(640, 360)
 
         # Core Component
         self.mpv_widget = MpvWidget()
@@ -46,17 +45,35 @@ class VideoWindow(Adw.Window):
         self._connect_internal_signals()
 
     def _connect_internal_signals(self):
-        self.mpv_widget.connect('time-changed', lambda w, v: self.emit('time-changed', v))
-        self.mpv_widget.connect('duration-changed', lambda w, v: self.emit('duration-changed', v))
-        self.mpv_widget.connect('video-ended', lambda w: self.emit('video-ended'))
-        self.mpv_widget.connect('video-ready', lambda w: self.emit('video-ready'))
-        self.mpv_widget.connect('state-changed', lambda w, v: self.emit('state-changed', v))
+        self.mpv_widget.connect(
+            'time-changed',
+            lambda w, v: self.emit('time-changed', v)
+        )
+        self.mpv_widget.connect(
+            'duration-changed',
+            lambda w, v: self.emit('duration-changed', v)
+        )
+        self.mpv_widget.connect(
+            'video-ended',
+            lambda w: self.emit('video-ended')
+        )
+        self.mpv_widget.connect(
+            'video-ready',
+            lambda w: self.emit('video-ready')
+        )
+        self.mpv_widget.connect(
+            'state-changed',
+            lambda w, v: self.emit('state-changed', v)
+        )
 
     def _on_key_pressed(self, controller, keyval, keycode, state):
-        """Handle shortcuts (ESC to hide)."""
+        """Handle shortcuts (ESC to hide) & Forward to MPV."""
         if keyval == Gdk.KEY_Escape:
             self.on_close_request(self)
             return True
+            
+        # Forward everything else to MPV
+        self.mpv_widget.handle_keypress(keyval)
         return False
 
     def on_close_request(self, win):

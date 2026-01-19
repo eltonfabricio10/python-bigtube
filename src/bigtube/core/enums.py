@@ -6,10 +6,10 @@ class AppSection(str, Enum):
     Identifies the pages in the GtkStack (Main Window).
     Values must match the child names in Cambalache/UI.
     """
-    SEARCH = "page_search"
-    DOWNLOADS = "page_downloads"
-    SETTINGS = "page_settings"
-    PLAYER = "page_player"
+    SEARCH = "search_page"
+    DOWNLOADS = "download_page"
+    SETTINGS = "settings_page"
+    PLAYER = "control_box"
 
 
 class DownloadStatus(str, Enum):
@@ -19,6 +19,7 @@ class DownloadStatus(str, Enum):
     """
     PENDING = "pending"          # In queue
     DOWNLOADING = "downloading"  # Active
+    PAUSED = "paused"            # User paused
     COMPLETED = "completed"      # Success
     ERROR = "error"              # Failed
     CANCELLED = "cancelled"      # User stopped
@@ -34,6 +35,7 @@ class ThemeMode(str, Enum):
 
 class VideoQuality(str, Enum):
     """Preferred quality settings."""
+    ASK = "ask"          # Ask every time (Show Dialog)
     BEST = "best"        # Best Video + Best Audio
     WORST = "worst"      # Smallest file size
     AUDIO = "audio_only"  # Convert to MP3/M4A

@@ -3,6 +3,10 @@ import json
 import time
 from gi.repository import GLib
 from .enums import DownloadStatus
+from .logger import get_logger
+
+# Module logger
+logger = get_logger(__name__)
 
 
 class HistoryManager:
@@ -14,6 +18,9 @@ class HistoryManager:
     # We use the same directory logic as ConfigManager to keep things organized
     _CONFIG_DIR = os.path.join(GLib.get_user_config_dir(), "bigtube")
     _FILE_PATH = os.path.join(_CONFIG_DIR, "history.json")
+
+    # Maximum number of items to keep in history
+    MAX_HISTORY_SIZE = 20
 
     @classmethod
     def load(cls) -> list:
@@ -28,7 +35,7 @@ class HistoryManager:
             with open(cls._FILE_PATH, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except (json.JSONDecodeError, OSError) as e:
-            print(f"[History] Error loading file: {e}")
+            logger.error(f"Error loading history file: {e}")
             return []
 
     @classmethod
@@ -41,7 +48,7 @@ class HistoryManager:
             with open(cls._FILE_PATH, 'w', encoding='utf-8') as f:
                 json.dump(items, f, indent=2, ensure_ascii=False)
         except OSError as e:
-            print(f"[History] Error saving file: {e}")
+            logger.error(f"Error saving history file: {e}")
 
     @classmethod
     def add_entry(cls, video_info: dict, format_data: dict, file_path: str):
@@ -68,8 +75,8 @@ class HistoryManager:
         # Insert at the beginning (Stack behavior: Newest first)
         history.insert(0, new_item)
 
-        # Optional: Limit history size to prevent performance issues (e.g., 100 items)
-        history = history[:20]
+        # Optional: Limit history size to prevent performance issues
+        history = history[:cls.MAX_HISTORY_SIZE]
 
         cls.save(history)
         return new_item
@@ -115,7 +122,7 @@ class HistoryManager:
 
         if len(new_history) != original_count:
             cls.save(new_history)
-            print(f"[History] Removed entry: {file_path}")
+            logger.info(f"Removed history entry: {file_path}")
 
     @classmethod
     def clear_all(cls):
@@ -123,7 +130,7 @@ class HistoryManager:
         Wipes the entire history file.
         """
         cls.save([])
-        print("[History] All entries cleared.")
+        logger.info("All history entries cleared")
 
     @classmethod
     def _ensure_dir_exists(cls):

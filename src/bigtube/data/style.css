@@ -3,51 +3,48 @@
     box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
 }
 
-.spinner-box {
-    background-color: rgb(0, 0, 0);
-}
-
 .top-toast {
-    background-color: alpha(black, 0.8);
+    background-color: rgba(0, 0, 0, 0.8);
     color: white;
     border-radius: 24px;
     padding: 8px 24px;
     margin-top: 16px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     font-weight: bold;
 }
 
 .top-toast.error {
-    background-color: #e01b24; /* Red */
-    color: white;
+    background-color: rgba(224, 27, 36, 0.8);
+    /* Red */
+    color: #fefefe;
 }
 
 .top-toast.success {
-    background-color: #2ec27e; /* Green */
-    color: black;
+    background-color: rgba(37, 107, 75, 0.8);
+    /* Green */
+    color: #fefefe;
 }
 
-/* Barra de Progresso Padrão (Azul) */
-progressbar > trough > progress {
-    background-color: #3584e4; /* Azul Adwaita */
+progressbar>trough>progress {
+    background-color: rgba(53, 132, 228, 0.8);
+    /* Default */
     border-radius: 99px;
-    min-height: 8px; /* Deixa a barra mais gordinha e moderna */
+    min-height: 8px;
 }
 
-/* Barra de Progresso Concluída (Verde) */
-progressbar.success > trough > progress {
-    background-color: #2ec27e; /* Verde Sucesso */
-    transition: background-color 0.3s ease; /* Animação suave de cor */
+progressbar.success>trough>progress {
+    background-color: rgba(46, 194, 126, 0.8);
+    /* Success */
+    transition: background-color 0.3s ease;
 }
 
-/* Barra de Progresso Interrompida (Laranja/Amarelo) */
-progressbar.warning > trough > progress {
-    background-color: #e5a50a; /* Amarelo Adwaita (Warning) */
+progressbar.warning>trough>progress {
+    background-color: rgba(229, 165, 10, 0.8);
+    /* Warning */
     opacity: 0.8;
 }
 
-/* Fundo da barra (o trilho cinza) */
-progressbar > trough {
+progressbar>trough {
     background-color: rgba(0, 0, 0, 0.1);
     border-radius: 99px;
 }

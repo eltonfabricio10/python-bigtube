@@ -6,22 +6,32 @@ from gi.repository import Gtk, Gio, GObject, GLib
 
 # Internal Imports
 from ..core.search import SearchEngine
+from ..core.search_history import SearchHistory
 from ..ui.search_result_row import VideoDataObject
+from ..ui.suggestion_popover import SuggestionPopover
+from ..ui.message_manager import MessageManager
 
 
 class SearchController(GObject.Object):
+    """
+    Manages the Search View logic, including:
+    - Network requests (via SearchEngine)
+    - UI Updates (Gtk.ListView)
+    - History & Autocomplete (SuggestionPopover)
+    - Playback coordination
+    """
     __gtype_name__ = 'SearchController'
 
     __gsignals__ = {
-        'loading-state': (GObject.SIGNAL_RUN_FIRST, None, (bool,))
+        'loading-state': (GObject.SIGNAL_RUN_FIRST, None, (bool, str))
     }
 
     def __init__(
         self,
-        search_entry,
-        search_button,
-        results_list_view,
-        source_dropdown,
+        search_entry: Gtk.SearchEntry,
+        search_button: Gtk.Button,
+        results_list_view: Gtk.ListView,
+        source_dropdown: Gtk.DropDown,
         on_play_callback,
         on_clear_callback=None,
     ):
@@ -45,18 +55,32 @@ class SearchController(GObject.Object):
 
         self.current_index = -1
 
+        # --- AUTOCOMPLETE SETUP ---
+        self.popover = SuggestionPopover(self.entry)
+        self.popover.connect('suggestion-selected', self._on_suggestion_clicked)
+
+        # State for Smart Switching
+        # Default to 0 (YouTube). Updates when user manually selects YT (0) or SC (1).
+        self.last_provider_idx = 0 
+
         # --- SIGNAL CONNECTIONS ---
+        focus_controller = Gtk.EventControllerFocus()
+        focus_controller.connect("leave", self._on_focus_leave)
+        self.entry.add_controller(focus_controller)
         self.entry.connect("activate", self.on_search_activate)
         self.btn.connect("clicked", self.on_search_activate)
         self.list_view.connect("activate", self.on_item_activated)
+        
+        # Track dropdown changes to remember user preference
+        self.dropdown.connect("notify::selected", self._on_dropdown_changed)
 
-        # Detect when text changes (e.g., cleared via 'X' button)
+        # Detect when text changes
         self.entry.connect("search-changed", self.on_search_changed)
+        self.clicked_suggestions = False
 
     # =========================================================================
     # PUBLIC METHODS (API)
     # =========================================================================
-
     def set_current_by_item(self, video_obj):
         """
         Synchronizes the list selection when a video is played externally
@@ -106,38 +130,94 @@ class SearchController(GObject.Object):
     # =========================================================================
     # EVENT HANDLERS
     # =========================================================================
+    def _on_focus_leave(self, controller):
+        """Close popover."""
+        self.popover.popdown()
 
     def on_search_changed(self, entry):
         """Handles clearing the list when search box is empty."""
         text = entry.get_text()
+
+        # 0. Smart Source Switching
+        # Force "Direct Link" if text looks like URL, otherwise ensure it's a Provider (YT/SC)
+        if text.strip(): # Only if not empty
+            is_url = self._looks_like_url(text)
+            current_idx = self.dropdown.get_selected()
+            
+            if is_url and current_idx != 2:
+                # Switch to Direct Link (Index 2)
+                self.dropdown.set_selected(2)
+                print("[SearchController] Auto-switched to Direct Link")
+                
+            elif not is_url and current_idx == 2:
+                # Restore previous provider (Youtube or Soundcloud)
+                self.dropdown.set_selected(self.last_provider_idx)
+                print(f"[SearchController] Auto-restored provider (Index {self.last_provider_idx})")
+
+        # 1. Clear List Logic
         if not text or not text.strip():
-            # print("[SearchController] Clearing list due to empty input.")
+            print("[SearchController] Clearing list...")
             self.store.remove_all()
             self.current_index = -1
+            self.popover.update_suggestions([])
+            self.popover.popdown()
 
             if self.on_clear_callback:
                 self.on_clear_callback()
+            return
+
+        # 2. Autocomplete Logic
+        if not self.clicked_suggestions:
+            raw_matches = SearchHistory.get_matches(text)
+            
+            # Determine Source from Dropdown logic (Index 2 matches 'Link Direto' / 'URL')
+            idx = self.dropdown.get_selected()
+            is_source_url = (idx == 2)
+            
+            filtered = []
+            for match in raw_matches:
+                match_is_url = self._looks_like_url(match)
+                if is_source_url:
+                    # If Source is URL, only show URL matches
+                    if match_is_url:
+                        filtered.append(match)
+                else:
+                    # If Source is YT/SC, only show Keyword matches (NOT URLs)
+                    if not match_is_url:
+                        filtered.append(match)
+            
+            self.popover.update_suggestions(filtered)
+        else:
+            self.clicked_suggestions = False
 
     def on_search_activate(self, widget):
         """Triggered by Enter key or Search Button."""
+        self.popover.popdown()
+
         query = self.entry.get_text().strip()
         if not query:
             return
 
+        # [HISTORY] Save query and hide suggestions
+        SearchHistory.add(query)
         print(f"[SearchController] Query: {query}")
 
         # Lock UI
         self.btn.set_sensitive(False)
-        self.emit('loading-state', True)  # Signal handled by MainWindow
+        self.emit('loading-state', True, query)
 
         # Reset State
         self.store.remove_all()
         self.current_index = -1
 
         # Determine Source (YouTube vs SoundCloud)
-        # Assuming index 0=YouTube, 1=SoundCloud
         idx = self.dropdown.get_selected()
-        source = "soundcloud" if idx == 1 else "youtube"
+        if idx == 1:
+            source = "soundcloud"
+        elif idx == 2:
+            source = "url"
+        else:
+            source = "youtube"
 
         # Run in background
         threading.Thread(
@@ -151,6 +231,22 @@ class SearchController(GObject.Object):
         self.current_index = position
         self._play_current_index()
 
+    def _on_suggestion_clicked(self, popover, text):
+        """Triggered when user clicks a row in the suggestion popover."""
+        # Update entry text
+        self.clicked_suggestions = True
+        popover.popdown()
+        self.entry.set_text(text)
+        self.entry.set_position(-1)
+        # Trigger immediate search
+        self.on_search_activate(self.entry)
+
+    def _looks_like_url(self, text: str) -> bool:
+        """Simple heuristic to detect if text is/intends to be a URL."""
+        if not text:
+            return False
+        return text.strip().lower().startswith(('http:', 'https:', 'www.'))
+
     # =========================================================================
     # INTERNAL LOGIC
     # =========================================================================
@@ -162,6 +258,7 @@ class SearchController(GObject.Object):
             GLib.idle_add(self._update_ui_with_results, results)
         except Exception as e:
             print(f"[SearchController] Error: {e}")
+            MessageManager.show(str(e), True)
             GLib.idle_add(self._finish_loading)
 
     def _update_ui_with_results(self, results):
@@ -179,8 +276,16 @@ class SearchController(GObject.Object):
 
     def _finish_loading(self):
         """Unlocks UI."""
-        self.emit('loading-state', False)
+        self.emit('loading-state', False, None)
         self.btn.set_sensitive(True)
+
+    def _on_dropdown_changed(self, dropdown, param):
+        """Updates the remembered provider whenever the user selects a non-URL source."""
+        idx = dropdown.get_selected()
+        # Only update memory if selecting a Provider (0=YT, 1=SC).
+        # Ignore 2 (URL) because that can be auto-triggered, and we want to remember what was before that.
+        if idx == 0 or idx == 1:
+            self.last_provider_idx = idx
 
     def _play_current_index(self):
         """Helper to fire the play callback safely."""

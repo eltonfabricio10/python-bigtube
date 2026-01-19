@@ -9,6 +9,11 @@ from gi.repository import Gtk, GLib
 from ..core.image_loader import ImageLoader
 from ..core.config import ConfigManager
 from ..core.locales import ResourceManager as Res, StringKey
+from ..core.logger import get_logger
+from ..core.validators import run_subprocess_with_timeout, Timeouts
+
+# Module logger
+logger = get_logger(__name__)
 
 
 class PlayerController:
@@ -100,7 +105,7 @@ class PlayerController:
         """
         Main method to start playback. Handles both local files and web streams.
         """
-        print(f"[PlayerCtrl] Requesting: {title} (Video={is_video}, Local={is_local})")
+        logger.info(f"Playing: {title} (Video={is_video}, Local={is_local})")
 
         # 1. Reset Logic
         self.video_window.stop()
@@ -112,9 +117,9 @@ class PlayerController:
         # 2. Update Metadata
         self.current_url = url
         self.is_video_mode = is_video
-        self.cached_artist_name = artist or "Unknown Artist"
+        self.cached_artist_name = artist or Res.get(StringKey.PLAYER_UNKNOWN_ARTIST)
 
-        self.ui['lbl_title'].set_label(title or "Unknown Title")
+        self.ui['lbl_title'].set_label(title or Res.get(StringKey.PLAYER_UNKNOWN_TITLE))
         self.ui['lbl_artist'].set_label(self.cached_artist_name)
 
         # 3. Handle Thumbnail
@@ -147,7 +152,7 @@ class PlayerController:
         """Stops playback and resets UI."""
         self.video_window.stop()
         self._set_loading(False)
-        self.ui['lbl_title'].set_label("Stopped")  # Localize if needed
+        self.ui['lbl_title'].set_label(Res.get(StringKey.PLAYER_STOPPED))
         self.ui['lbl_artist'].set_label("")
         self._reset_ui_state()
 
@@ -171,7 +176,7 @@ class PlayerController:
             GLib.idle_add(self.ui['btn_play'].set_sensitive, True)
 
         except Exception as e:
-            print(f"[PlayerCtrl] Error resolving stream: {e}")
+            logger.error(f"Error resolving stream: {e}")
             GLib.idle_add(self._set_loading, False)
 
     def _set_loading(self, is_loading):
@@ -180,7 +185,7 @@ class PlayerController:
             self.ui['btn_play'].set_visible(False)
             self.loading_spinner.set_visible(True)
             self.loading_spinner.start()
-            self.ui['lbl_artist'].set_label("Buffering...")  # Localize if needed
+            self.ui['lbl_artist'].set_label(Res.get(StringKey.PLAYER_BUFFERING))
         else:
             self.loading_spinner.stop()
             self.loading_spinner.set_visible(False)
@@ -244,7 +249,7 @@ class PlayerController:
             self.ui['btn_video'].set_sensitive(True)
 
     def on_video_ended(self, win):
-        print("[PlayerCtrl] Video ended. Requesting next...")
+        logger.debug("Video ended. Requesting next...")
         if self.on_next:
             self.on_next()
 
@@ -285,12 +290,11 @@ class PlayerController:
         """
         binary = ConfigManager.get_yt_dlp_path()
         if not os.path.exists(binary):
-            print("[PlayerCtrl] Error: yt-dlp binary not found.")
+            logger.error("yt-dlp binary not found")
             return url  # Fallback to original URL, maybe MPV can handle it
 
         # Inject internal bin path
-        env = os.environ.copy()
-        env["PATH"] = str(ConfigManager.BIN_DIR) + os.pathsep + env.get("PATH", "")
+        env = ConfigManager.get_env_with_bin_path()
 
         cmd = [
             binary,
@@ -304,15 +308,17 @@ class PlayerController:
         ]
 
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, encoding='utf-8', env=env
+            return_code, stdout, stderr = run_subprocess_with_timeout(
+                cmd,
+                timeout=Timeouts.STREAM_EXTRACTION,
+                env=env
             )
 
-            if result.returncode != 0:
-                print(f"[PlayerCtrl] yt-dlp error: {result.stderr}")
+            if return_code != 0:
+                logger.error(f"yt-dlp error: {stderr}")
                 return url
 
-            info = json.loads(result.stdout)
+            info = json.loads(stdout)
 
             # 1. Try exact Format 22 (720p/MP4/AAC) - Best for embedded players
             formats = info.get('formats', [])
@@ -332,6 +338,6 @@ class PlayerController:
                 return info['url']
 
         except Exception as e:
-            print(f"[PlayerCtrl] Exception extracting stream: {e}")
+            logger.exception(f"Exception extracting stream: {e}")
 
         return url  # Last resort: return original

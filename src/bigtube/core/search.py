@@ -6,13 +6,15 @@ from typing import List, Dict, Optional
 # Internal Imports
 from .config import ConfigManager
 from .locales import ResourceManager as Res, StringKey
-# Assuming Updater exists in core (if not refactored yet, keep as is)
 from .updater import Updater
+from .logger import get_logger, SearchError
+from .validators import (
+    is_valid_url, sanitize_url, sanitize_search_query,
+    run_subprocess_with_timeout, Timeouts, retry_with_backoff
+)
 
-
-class SearchError(Exception):
-    """Custom exception to notify UI about search/playback failures."""
-    pass
+# Module logger
+logger = get_logger(__name__)
 
 
 class SearchEngine:
@@ -21,6 +23,7 @@ class SearchEngine:
     Parses JSON output into clean dictionaries.
     """
 
+    # Maximum number of search results to return
     SEARCH_LIMIT = 15
 
     def __init__(self):
@@ -31,8 +34,7 @@ class SearchEngine:
         self.binary_path = ConfigManager.get_yt_dlp_path()
 
         # Prepare environment with internal bin path
-        self._env = os.environ.copy()
-        self._env["PATH"] = str(ConfigManager.BIN_DIR) + os.pathsep + self._env.get("PATH", "")
+        self._env = ConfigManager.get_env_with_bin_path()
 
     def search(self, query: str, source: str = "youtube") -> List[Dict]:
         """
@@ -42,11 +44,18 @@ class SearchEngine:
         if not query:
             return []
 
-        # ==============================================================================
-        # STRATEGY 1: DIRECT LINK
-        # ==============================================================================
+        # Validate URL if source is url or looks like one
         if source == "url" or query.startswith("http") or query.startswith("www"):
-            return self._handle_direct_link(query)
+            sanitized = sanitize_url(query)
+            if not is_valid_url(sanitized):
+                logger.warning(f"Invalid URL rejected: {query}")
+                raise SearchError(Res.get(StringKey.ERR_INVALID_URL))
+            return self._handle_direct_link(sanitized)
+
+        # Sanitize search query
+        clean_query = sanitize_search_query(query)
+        if not clean_query:
+            return []
 
         # ==============================================================================
         # STRATEGY 2: KEYWORD SEARCH
@@ -64,19 +73,19 @@ class SearchEngine:
         else:
             # Default to YouTube
             args = [
-                "--extractor-args", "youtube:player_client=android", # Android client is faster for searching
+                "--extractor-args", "youtube:player_client=android",
                 "--flat-playlist",
                 "--dump-json",
-                f"ytsearch{self.SEARCH_LIMIT}:{query}"
+                f"ytsearch{self.SEARCH_LIMIT}:{clean_query}"
             ]
 
-        return self._run_cli(args, is_search=True, force_audio=force_audio)
+        return self._run_cli(args, force_audio=force_audio)
 
     def _handle_direct_link(self, url: str) -> List[Dict]:
         """
         Processes direct links using a robust User-Agent configuration.
         """
-        print(f"[Search] Processing direct link: {url}")
+        logger.info(f"Processing direct link: {url}")
 
         cmd_args = [
             url,
@@ -88,20 +97,17 @@ class SearchEngine:
         ]
 
         try:
-            results = self._run_cli(
-                cmd_args,
-                is_search=False,
-                force_audio=False
-            )
-
+            results = self._run_cli(cmd_args, force_audio=False)
             if results:
                 return results
             else:
                 # If no data returned but no crash, raise generic error
                 raise SearchError(Res.get(StringKey.SEARCH_NO_RESULTS))
 
+        except SearchError:
+            raise  # Re-raise SearchError as-is
         except Exception as e:
-            # Re-raise nicely formatted error
+            logger.exception(f"Error processing direct link: {e}")
             raise SearchError(str(e))
 
     def _run_cli(self, args: List[str], is_search: bool = True, force_audio: bool = False) -> List[Dict]:
@@ -111,23 +117,20 @@ class SearchEngine:
         full_cmd = [self.binary_path, "--ignore-errors", "--no-warnings"] + args
 
         try:
-            process = subprocess.run(
+            return_code, stdout, stderr = run_subprocess_with_timeout(
                 full_cmd,
-                capture_output=True,
-                text=True,
-                encoding='utf-8',
-                errors='replace',
+                timeout=Timeouts.SUBPROCESS_SEARCH,
                 env=self._env
             )
 
-            # If it's a direct link and failed, we want to know why
-            if process.returncode != 0 and not is_search:
-                error_msg = self._analyze_error(process.stderr)
+            # If it's failed, we want to know why
+            if return_code != 0:
+                error_msg = self._analyze_error(stderr)
                 raise SearchError(error_msg)
 
             json_outputs = []
 
-            for line in process.stdout.splitlines():
+            for line in stdout.splitlines():
                 line = line.strip()
                 if not line:
                     continue
@@ -143,24 +146,33 @@ class SearchEngine:
             return json_outputs
 
         except FileNotFoundError:
-            # Critical: yt-dlp binary missing
-            raise SearchError(Res.get(StringKey.ERR_CRITICAL).format("yt-dlp missing"))
+            logger.error("yt-dlp binary not found")
+            raise SearchError(Res.get(StringKey.ERR_CRITICAL) + "yt-dlp missing")
+        except subprocess.TimeoutExpired:
+            logger.error("Search timed out")
+            raise SearchError(Res.get(StringKey.ERR_NETWORK) + " (Timeout)")
+        except subprocess.SubprocessError as e:
+            logger.error(f"Subprocess error during search: {e}")
+            raise SearchError(Res.get(StringKey.SEARCH_ERROR))
 
     def _analyze_error(self, error_text: str) -> str:
         """
         Translates raw yt-dlp stderr into localized user-friendly messages.
         """
         err = error_text.lower()
+        logger.debug(f"Analyzing search error: {err[:200]}")
 
         if "drm" in err:
             return Res.get(StringKey.ERR_DRM)
         if "geo" in err:
-            return Res.get(StringKey.ERR_DRM)  # Similar to DRM for user
+            return Res.get(StringKey.ERR_DRM)
         if "private" in err:
             return Res.get(StringKey.ERR_PRIVATE)
-        if "sign in" in err or "age" in err:
-            return Res.get(StringKey.ERR_DRM)  # Content gated
+        if "sign in" in err:
+            return Res.get(StringKey.ERR_DRM)
         if "403" in err or "404" in err:
+            return Res.get(StringKey.ERR_NETWORK)
+        if "unable to download" in err:
             return Res.get(StringKey.ERR_NETWORK)
 
         return Res.get(StringKey.SEARCH_ERROR)

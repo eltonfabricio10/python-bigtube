@@ -43,3 +43,22 @@ class DownloadController:
         """
         while (child := self.list_box.get_first_child()) is not None:
             self.list_box.remove(child)
+
+    def remove_row_by_path(self, file_path):
+        """
+        Finds and removes the row corresponding to the given file path.
+        """
+        child = self.list_box.get_first_child()
+        while child:
+            next_child = child.get_next_sibling()
+            
+            # In GTK4 ListBox, children are ListBoxRow wrappers.
+            # We need to check the inner widget which is our DownloadRow.
+            inner_widget = child.get_child()
+            
+            if inner_widget and hasattr(inner_widget, 'full_path') and inner_widget.full_path == file_path:
+                self.list_box.remove(child)
+                return True
+                
+            child = next_child
+        return False

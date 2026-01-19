@@ -2,6 +2,7 @@ import os
 import json
 import subprocess
 import re
+import shutil
 from typing import Optional, Callable, Dict, List
 from collections import deque
 
@@ -9,6 +10,12 @@ from collections import deque
 from .config import ConfigManager
 from .enums import FileExt
 from .locales import ResourceManager as Res, StringKey
+from .logger import get_logger, NetworkError
+from .validators import run_subprocess_with_timeout, Timeouts, retry_with_backoff, sanitize_filename
+
+
+# Module logger
+logger = get_logger(__name__)
 
 # Regex to capture percentage (e.g. "45.6%") from yt-dlp stdout
 PROGRESS_REGEX = re.compile(r'(\d{1,3}\.\d)%')
@@ -24,22 +31,24 @@ class VideoDownloader:
         self.binary_path = ConfigManager.get_yt_dlp_path()
         self.process: Optional[subprocess.Popen] = None
         self.is_cancelled = False
+        self.is_paused = False
+
 
         # Setup environment to ensure internal bin folder is in PATH
         # This is crucial if ffmpeg is bundled in ~/.local/share/bigtube/bin
-        self._env = os.environ.copy()
-        self._env["PATH"] = str(ConfigManager.BIN_DIR) + os.pathsep + self._env.get("PATH", "")
+        self._env = ConfigManager.get_env_with_bin_path()
 
     # =========================================================================
     # METADATA FETCHING
     # =========================================================================
 
+    @retry_with_backoff(max_attempts=3, exceptions=(subprocess.TimeoutExpired, NetworkError))
     def fetch_video_info(self, url: str) -> Optional[Dict]:
         """
         Retrieves full metadata and available formats for a given URL.
         Returns a structured dictionary or None if failed.
         """
-        print(f"[Downloader] Fetching metadata for: {url}")
+        logger.info(f"Fetching metadata for: {url}")
 
         cmd = [
             self.binary_path,
@@ -50,24 +59,28 @@ class VideoDownloader:
         ]
 
         try:
-            result = subprocess.run(
+            # Use utility with timeout
+            return_code, stdout, stderr = run_subprocess_with_timeout(
                 cmd,
-                capture_output=True,
-                text=True,
-                encoding='utf-8',
-                errors='replace',
+                timeout=Timeouts.SUBPROCESS_METADATA,
                 env=self._env
             )
 
-            if result.returncode != 0:
-                print(f"[Downloader] Error fetching metadata: {result.stderr}")
+            if return_code != 0:
+                logger.error(f"Failed to fetch metadata: {stderr}")
                 return None
 
-            raw_info = json.loads(result.stdout)
+            raw_info = json.loads(stdout)
             return self._parse_formats(raw_info)
 
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse metadata JSON: {e}")
+            return None
+        except subprocess.SubprocessError as e:
+            logger.error(f"Subprocess error fetching metadata: {e}")
+            return None
         except Exception as e:
-            print(f"[Downloader] Critical Exception fetching info: {e}")
+            logger.exception(f"Unexpected error fetching metadata: {e}")
             return None
 
     def _parse_formats(self, info: dict) -> dict:
@@ -88,7 +101,7 @@ class VideoDownloader:
         }
 
         formats = info.get('formats', [])
-        # print(f"[Downloader] Parsing {len(formats)} formats...")
+        logger.debug(f"Parsing {len(formats)} formats...")
 
         for f in formats:
             # Basic filters for garbage formats
@@ -130,8 +143,9 @@ class VideoDownloader:
                     'ext': ext,
                     'size': size_str,
                     'size_val': size_mb,
-                    'quality': abr,  # Used for sorting
-                    'type': 'audio'
+                    'quality': abr,
+                    'type': 'audio',
+                    'codec': acodec.split('.')[0]
                 })
 
             # 2. Process Video
@@ -164,7 +178,8 @@ class VideoDownloader:
                     'ext': ext,
                     'size': size_str,
                     'size_val': size_mb,
-                    'type': 'video'
+                    'type': 'video',
+                    'codec': vcodec.split('.')[0]
                 })
 
         # --- Sorting and Deduplication ---
@@ -202,7 +217,7 @@ class VideoDownloader:
                 'label': 'Audio MP3 (Convert)',
                 'ext': FileExt.MP3.value,
                 'codec': 'mp3_convert',
-                'quality': 999  # Force top sort
+                'quality': 999
             })
             data['audios'].insert(0, mp3_opt)
 
@@ -218,7 +233,7 @@ class VideoDownloader:
         return unique
 
     # =========================================================================
-    # DOWNLOADING
+    # DOWNLOAD MANAGEMENT
     # =========================================================================
 
     def start_download(self,
@@ -229,36 +244,68 @@ class VideoDownloader:
                        progress_callback: Callable[[str, str], None],
                        force_overwrite: bool = False) -> bool:
         """
-        Executes the download process via subprocess.
-        Updates progress via callback(percent, status).
-        Returns True if successful.
+        Starts downloading the video.
+        Uses subprocess to call yt-dlp and parses stdout for progress.
         """
+        # Store params for potential resume
+        self._last_params = {
+            'url': url,
+            'format_id': format_id,
+            'title': title,
+            'ext': ext,
+            'progress_callback': progress_callback,
+            'force_overwrite': force_overwrite
+        }
+
+        # Reset state flags
         self.is_cancelled = False
+        self.is_paused = False
 
         # 1. Path Setup
         download_dir = ConfigManager.get_download_path()
         if not os.path.exists(download_dir):
             os.makedirs(download_dir, exist_ok=True)
 
-        # Sanitize filename
-        safe_title = "".join([c for c in title if c.isalnum() or c in " -_()."]).strip()
+        # Sanitize filename (secure)
+        safe_title = sanitize_filename(title)
         if not safe_title:
             safe_title = f"video_{format_id}"
 
         output_template = os.path.join(download_dir, f"{safe_title}.%(ext)s")
 
-        print(f"[Downloader] Starting: {safe_title} -> {ext}")
+        logger.info(f"Starting download: {safe_title} -> {ext}")
 
         # 2. Command Construction
         cmd = [
             self.binary_path,
             "--no-warnings",
-            "--newline",     # Critical for regex parsing
+            "--newline",
             "--no-playlist",
             "--ignore-config",
+            "--ignore-errors",  # Don't fail the whole download if metadata/subs fail
             "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
             "-o", output_template
         ]
+
+        # --- Inject User Preferences (requires ffmpeg) ---
+        has_ffmpeg = shutil.which("ffmpeg") is not None
+        
+        if ConfigManager.get("add_metadata"):
+            if has_ffmpeg:
+                cmd.append("--embed-metadata")
+            else:
+                logger.warning("ffmpeg not found. Skipping '--embed-metadata'")
+        
+        if ConfigManager.get("download_subtitles"):
+            if has_ffmpeg:
+                cmd.extend([
+                    "--write-sub",
+                    "--write-auto-sub",
+                    "--sub-langs", "en.*,pt.*",  # Limit to avoid 429 errors
+                    "--embed-subs"
+                ])
+            else:
+                logger.warning("ffmpeg not found. Skipping subtitle flags")
 
         if force_overwrite:
             cmd.append("--force-overwrites")
@@ -272,7 +319,7 @@ class VideoDownloader:
                 "-f", format_id,
                 "--extract-audio",
                 "--audio-format", ext,
-                "--audio-quality", "0",  # Best quality
+                "--audio-quality", "0",
             ])
         else:
             # Video Mode
@@ -293,7 +340,7 @@ class VideoDownloader:
             self.process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,  # Merge stderr into stdout
+                stderr=subprocess.STDOUT,
                 text=True,
                 encoding='utf-8',
                 errors='replace',
@@ -304,7 +351,7 @@ class VideoDownloader:
 
             # Cache localized strings to avoid fetching repeatedly in loop
             status_dl = Res.get(StringKey.STATUS_DOWNLOADING)
-            status_proc = "Processing..."  # You can add a key for this later if needed
+            status_proc = Res.get(StringKey.STATUS_DOWNLOADING_PROCESSING)
 
             while True:
                 # Check if process finished
@@ -334,28 +381,43 @@ class VideoDownloader:
             return_code = self.process.wait()
 
             if return_code == 0:
-                print(f"[Downloader] Success: {safe_title}")
+                logger.info(f"Download completed successfully: {safe_title}")
                 if progress_callback:
                     progress_callback("100%", Res.get(StringKey.STATUS_COMPLETED))
                 return True
 
             elif return_code == -15 or self.is_cancelled:
-                print("[Downloader] Cancelled by user.")
+                logger.info("Download cancelled by user")
                 if progress_callback:
                     progress_callback("Cancelled", Res.get(StringKey.STATUS_CANCELLED))
                 return False
 
             else:
-                print(f"[Downloader] Fatal Error (Code {return_code})")
+                logger.error(f"Download failed with code {return_code}")
+                # Log the last few lines of yt-dlp output to help debugging
+                error_log = "\n".join(last_log_lines)
+                logger.error(f"yt-dlp output snippet:\n{error_log}")
+                
                 error_msg = self._analyze_error(last_log_lines)
                 if progress_callback:
                     progress_callback(Res.get(StringKey.STATUS_ERROR), error_msg)
                 return False
 
-        except Exception as e:
-            print(f"[Downloader] Exception: {e}")
+        except subprocess.TimeoutExpired:
+            logger.error("Download timed out")
             if progress_callback:
-                msg = Res.get(StringKey.ERR_CRITICAL).format(str(e))
+                progress_callback(Res.get(StringKey.STATUS_ERROR), "Timeout")
+            return False
+
+        except subprocess.SubprocessError as e:
+            logger.error(f"Subprocess error during download: {e}")
+            if progress_callback:
+                progress_callback(Res.get(StringKey.STATUS_ERROR), Res.get(StringKey.ERR_UNKNOWN))
+            return False
+        except Exception as e:
+            logger.exception(f"Unexpected error during download: {e}")
+            if progress_callback:
+                msg = Res.get(StringKey.ERR_CRITICAL) + str(e)
                 progress_callback(Res.get(StringKey.STATUS_ERROR), msg)
             return False
         finally:
@@ -363,13 +425,45 @@ class VideoDownloader:
 
     def cancel(self):
         """Terminates the current download process."""
+        self.is_cancelled = True
+        self._terminate_process("Cancelled")
+
+    def pause(self):
+        """Pauses the download by terminating the process (yt-dlp can resume later)."""
         if self.process:
-            self.is_cancelled = True
-            print("[Downloader] Sending termination signal...")
+            self.is_paused = True
+            self._terminate_process("Paused")
+
+    def _terminate_process(self, reason: str):
+        """Helper to kill the subprocess safely."""
+        if self.process:
+            logger.info(f"Terminating download process: {reason}")
             try:
                 self.process.terminate()
-            except OSError:
-                pass
+                # Give it a moment to close gracefully
+                try:
+                    self.process.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    self.process.kill()
+            except OSError as e:
+                logger.warning(f"Failed to terminate process: {e}")
+
+    def resume(self) -> bool:
+        """
+        Resumes a paused download using stored parameters.
+        WARNING: This is blocking and should be run in a separate thread.
+        """
+        if not hasattr(self, '_last_params') or not self._last_params:
+            logger.error("Cannot resume: No previous download parameters stored.")
+            return False
+        
+        logger.info("Resuming download...")
+        
+        # IMPORTANT: Disable force_overwrite for resume, otherwise yt-dlp might 
+        # delete the .part file and restart from 0 if it was originally a forced overwrite.
+        self._last_params['force_overwrite'] = False
+        
+        return self.start_download(**self._last_params)
 
     def _analyze_error(self, log_lines: deque) -> str:
         """

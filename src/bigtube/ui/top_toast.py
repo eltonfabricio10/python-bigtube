@@ -16,18 +16,16 @@ class TopToast(Gtk.Revealer):
         self.set_valign(Gtk.Align.START)   # Stick to Top
         self.set_halign(Gtk.Align.CENTER)  # Center Horizontally
         self.set_transition_type(Gtk.RevealerTransitionType.SLIDE_DOWN)
-
-        # 'can-target' = False ensures clicks pass through the empty area
-        # around the toast, preventing it from blocking UI underneath excessively.
         self.set_can_target(False)
 
         # Visual Container (The Pill)
         self._box = Gtk.Box()
-        self._box.add_css_class("top-toast")  # CSS class for styling (padding, radius, shadow)
+        self._box.add_css_class("top-toast")
 
         # Text Label
         self._label = Gtk.Label()
-        self._label.set_wrap(False)  # Single line preferred
+        self._label.set_justify(2)
+        self._label.set_wrap(False)
         self._box.append(self._label)
 
         # Set the box as the child of the Revealer
@@ -35,7 +33,7 @@ class TopToast(Gtk.Revealer):
 
     def update_style(self, text: str, is_error: bool):
         """
-        Updates the label text and toggles CSS classes for state (Error vs Normal).
+        Updates the label text and toggles CSS classes for state.
         """
         self._label.set_label(text)
 

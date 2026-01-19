@@ -46,6 +46,16 @@
           </object>
         </child>
         <child>
+          <object class="GtkButton" id="btn_pause">
+            <property name="css-classes">flat</property>
+            <property name="halign">end</property>
+            <property name="has-frame">False</property>
+            <property name="icon-name">media-playback-pause-symbolic</property>
+            <property name="margin-start">8</property>
+            <property name="valign">center</property>
+          </object>
+        </child>
+        <child>
           <object class="GtkButton" id="btn_cancel">
             <property name="css-classes">flat
 destructive-action</property>

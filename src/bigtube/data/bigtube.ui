@@ -107,7 +107,7 @@
                               </object>
                             </property>
                             <property name="icon-name">file-search-symbolic</property>
-                            <property name="name">search</property>
+                            <property name="name">search_page</property>
                           </object>
                         </child>
                         <child>
@@ -151,7 +151,7 @@
                               </object>
                             </property>
                             <property name="icon-name">folder-download-symbolic</property>
-                            <property name="name">downloads</property>
+                            <property name="name">download_page</property>
                           </object>
                         </child>
                         <child>
@@ -168,14 +168,21 @@
                                 </property>
                                 <property name="title"/>
                                 <child>
-                                  <object class="AdwPreferencesGroup" id="group_storage">
+                                  <object class="AdwPreferencesGroup" id="group_appearance">
                                     <child>
-                                      <object class="AdwActionRow" id="settings_row_folder">
-                                        <property name="icon-name">folder-download-symbolic</property>
-                                        <property name="title-selectable">False</property>
+                                      <object class="AdwComboRow" id="row_theme">
+                                        <property name="icon-name">games-config-theme</property>
+                                        <property name="model">
+                                          <object class="GtkStringList" id="theme_list"/>
+                                        </property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="AdwActionRow" id="row_version">
+                                        <property name="icon-name">application-x-executable-symbolic</property>
                                         <child>
-                                          <object class="GtkButton" id="settings_btn_pick">
-                                            <property name="icon-name">document-edit-symbolic</property>
+                                          <object class="GtkButton" id="btn_update">
+                                            <property name="icon-name">software-update-symbolic</property>
                                             <property name="valign">center</property>
                                           </object>
                                         </child>
@@ -184,13 +191,59 @@
                                   </object>
                                 </child>
                                 <child>
-                                  <object class="AdwPreferencesGroup" id="group_system">
-                                    <property name="title">Engine</property>
+                                  <object class="AdwPreferencesGroup" id="group_downloads">
                                     <child>
-                                      <object class="AdwActionRow" id="settings_row_version">
-                                        <property name="icon-name">application-x-executable-symbolic</property>
+                                      <object class="AdwActionRow" id="row_folder">
+                                        <property name="icon-name">folder-download-symbolic</property>
+                                        <property name="title-selectable">False</property>
                                         <child>
-                                          <object class="GtkButton" id="settings_btn_update">
+                                          <object class="GtkButton" id="btn_select_folder">
+                                            <property name="icon-name">folder-open-symbolic</property>
+                                            <property name="valign">center</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="AdwComboRow" id="row_quality">
+                                        <property name="icon-name">bookmark-new-list</property>
+                                        <property name="model">
+                                          <object class="GtkStringList" id="quality_list"/>
+                                        </property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="AdwSwitchRow" id="row_metadata">
+                                        <property name="icon-name">database-index</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="AdwSwitchRow" id="row_subtitles">
+                                        <property name="icon-name">add-subtitle</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="AdwPreferencesGroup" id="group_storage">
+                                    <child>
+                                      <object class="AdwSwitchRow" id="row_save_history">
+                                        <property name="active">True</property>
+                                        <property name="icon-name">view-history</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="AdwSwitchRow" id="row_auto_clear">
+                                        <property name="icon-name">edit-delete-shred</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="AdwActionRow" id="row_clear_data">
+                                        <property name="icon-name">rabbitvcs-clear</property>
+                                        <child>
+                                          <object class="GtkButton" id="btn_clear_now">
+                                            <property name="css-classes">destructive-action</property>
+                                            <property name="icon-name">edit-clear-history</property>
                                             <property name="valign">center</property>
                                           </object>
                                         </child>
@@ -201,7 +254,7 @@
                               </object>
                             </property>
                             <property name="icon-name">settings</property>
-                            <property name="name">settings</property>
+                            <property name="name">settings_page</property>
                           </object>
                         </child>
                       </object>

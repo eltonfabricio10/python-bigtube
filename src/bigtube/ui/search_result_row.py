@@ -114,7 +114,7 @@ class SearchResultRow(Gtk.Box):
         if self.video_data and self.video_data.url:
             clipboard = Gdk.Display.get_default().get_clipboard()
             clipboard.set(self.video_data.url)
-
-            # Show feedback using the global message manager
-            # (Assuming English string here, could use Locales too)
-            MessageManager.show("Link Copied!", is_error=False)
+            MessageManager.show(
+                Res.get(StringKey.MSG_LINK_COPIED)+"\n"+self.video_data.url,
+                is_error=False
+            )

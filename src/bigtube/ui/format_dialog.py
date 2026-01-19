@@ -71,7 +71,8 @@ class FormatSelectionDialog(Adw.Window):
         # Duration Label
         raw_duration = self.video_info.get('duration')
         dur_txt = self._format_duration(raw_duration)
-        lbl_dur = Gtk.Label(label=f"Duration: {dur_txt}")  # You can add a locale key for 'Duration' later
+        dur = Res.get(StringKey.LBL_VIDEO_DURATION)
+        lbl_dur = Gtk.Label(label=f"{dur} {dur_txt}")
         lbl_dur.add_css_class("dim-label")
         lbl_dur.set_margin_bottom(12)
 
@@ -79,14 +80,6 @@ class FormatSelectionDialog(Adw.Window):
         box_header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         box_header.append(lbl_title)
         box_header.append(lbl_dur)
-
-        # Add to Group
-        # Ideally, we add it as a child, but PreferencesGroup expects rows.
-        # We can use set_header_suffix or just add a custom row.
-        # Here, adding the box directly to the page as a separate widget
-        # is cleaner in GTK4 if not using a group, but to keep margins we use the group header hack
-        # or just add the box to the group if Adwaita version allows.
-        # Let's stick to the user's effective strategy of using header_suffix for custom content
         group.set_header_suffix(box_header)
 
     def _setup_section(self, title: str, items: list):

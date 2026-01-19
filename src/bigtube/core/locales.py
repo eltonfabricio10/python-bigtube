@@ -14,6 +14,7 @@ LOCALE_DIR = BASE_DIR / "locales"
 APP_DOMAIN = "bigtube"
 
 
+
 # 2. Define a dummy function for marking strings for extraction.
 # This function does nothing at runtime (it just returns the string),
 # but it tells xgettext that this string needs to be translated later.
@@ -41,25 +42,24 @@ try:
     # The real translation function
     _ = translator.gettext
 except Exception as e:
-    print(f"[Locales] Warning: Translation not loaded ({e}). Using Fallback (English).")
+    print(f"[Locales] Warning: ({e}). Using Fallback (English).")
     # Fallback: identity function
     _ = lambda s: s
 
 
 class StringKey(Enum):
     """
-    Enum keys now contain the DEFAULT ENGLISH TEXT (msgid),
-    wrapped in N_() so extraction tools can find them.
+    Enum keys now contain the DEFAULT ENGLISH TEXT (msgid).
     """
     # App General
-    APP_TITLE = N_("BigTube Downloader")
+    APP_TITLE = N_("BigTube")
 
-    # Navigation
+    # Navigation titles
     NAV_SEARCH = N_("Search")
     NAV_DOWNLOADS = N_("Downloads")
     NAV_SETTINGS = N_("Settings")
 
-    # Banners -> Pages
+    # Banners Pages
     NAV_SEARCH_BANNER = N_("Search Manager")
     NAV_DOWNLOADS_BANNER = N_("Downloads Manager")
     NAV_SETTINGS_BANNER = N_("Settings Manager")
@@ -69,10 +69,15 @@ class StringKey(Enum):
     SELECT_SOURCE_SC = N_("SoundCloud")
     SELECT_SOURCE_URL = N_("Direct Link")
 
+    # Player Default
+    PLAYER_TITLE = N_("Untitled")
+    PLAYER_ARTIST = N_("Unknown")
+
     # Search Page
     SEARCH_PLACEHOLDER = N_("Paste URL or type keywords...")
     SEARCH_BTN_LABEL = N_("Search")
     SEARCH_NO_RESULTS = N_("No results found.")
+    SEARCH_START = N_("Looking for:")
 
     # Tooltips
     TIP_PLAY = N_("Play Video")
@@ -83,37 +88,71 @@ class StringKey(Enum):
     # Dialog
     DIALOG_FORMAT_TITLE = N_("Select Quality")
     LBL_VIDEO_FORMATS = N_("Video Formats")
+    LBL_VIDEO_DURATION = N_("Duration:")
     LBL_AUDIO_FORMATS = N_("Audio Only")
     BTN_START_DOWNLOAD = N_("Download")
 
     # History
     BTN_CLEAR_HISTORY = N_("Clear History")
     MSG_CONFIRM_CLEAR_TITLE = N_("Clear History?")
-    MSG_CONFIRM_CLEAR_BODY = N_("This will remove all entries from the list. Files will remain on disk.")
+    MSG_CONFIRM_CLEAR_BODY = N_("This will remove all entries from the list.\nFiles will remain on disk.")
     MSG_HISTORY_CLEARED = N_("History cleared successfully.")
+    MSG_DOWNLOAD_DATA_ERROR = N_("Failed to get info for")
 
     # Settings
     PREFS_FOLDER_LABEL = N_("Download Folder")
     BTN_SELECT_FOLDER = N_("Pick Folder")
     PREFS_VERSION_LABEL = N_("Current Version")
     BTN_CHECK_UPDATES = N_("Check for Updates")
+    
+    PREFS_APPEARANCE = N_("Appearance")
+    PREFS_THEME = N_("Theme")
+    PREFS_DOWNLOADS = N_("Downloads")
+    PREFS_STORAGE = N_("Storage / History")
+    PREFS_QUALITY = N_("Video Quality")
+    PREFS_METADATA = N_("Add Metadata")
+    PREFS_SUBTITLES = N_("Download Subtitles")
+    PREFS_SAVE_HISTORY = N_("Save Download History")
+    PREFS_AUTO_CLEAR = N_("Auto-clear Finished")
+    PREFS_CLEAR_DATA = N_("Clear Application Data")
 
     # Status
-    STATUS_PENDING = N_("Pending...")
+    STATUS_FETCH = N_("Searching for information")
+    STATUS_PENDING = N_("Pending")
     STATUS_DOWNLOADING = N_("Downloading...")
+    STATUS_DOWNLOADING_PROCESSING = N_("Processing...")
     STATUS_COMPLETED = N_("Completed")
     STATUS_ERROR = N_("Error")
     STATUS_CANCELLED = N_("Cancelled")
     STATUS_INTERRUPTED = N_("Interrupted")
+    STATUS_PAUSED = N_("Paused")
+    STATUS_RESUMING = N_("Resuming...")
+
+    # Buttons
+    BTN_PAUSE = N_("Pause")
+    BTN_RESUME = N_("Resume")
 
     # Errors
-    ERR_CRITICAL = N_("Critical Error: {}")
+    ERR_CRITICAL = N_("Critical Error: ")
     ERR_NETWORK = N_("Network Error")
     ERR_DRM = N_("Content is DRM Protected")
     ERR_PRIVATE = N_("Video is Private")
     ERR_UNKNOWN = N_("Unknown Error")
+    ERR_FFMPEG = N_("FFmpeg Error - Missing or incompatible")
+    ERR_DISK_SPACE = N_("Not enough disk space")
     SEARCH_ERROR = N_("Error searching for video")
     MSG_FILE_EXISTS = N_("File Already Exists")
+    MSG_FILE_NOT_FOUND_TITLE = N_("File Not Found, Remove from History?")
+    MSG_FILE_NOT_FOUND_BODY = N_("The following file exists in history but was not found on disk:\n")
+    MSG_HISTORY_ITEM_REMOVED = N_("Item removed from history.")
+    ERR_INVALID_URL = N_("Invalid URL format")
+
+    # Player States
+    PLAYER_STOPPED = N_("Stopped")
+    PLAYER_BUFFERING = N_("Buffering...")
+    PLAYER_UNKNOWN_ARTIST = N_("Unknown Artist")
+    PLAYER_UNKNOWN_TITLE = N_("Unknown Title")
+    PLAYER_WINDOW_TITLE = N_("BigTube Player")
 
 
 class ResourceManager:
@@ -122,7 +161,7 @@ class ResourceManager:
         """
         Retrieves the translated string.
         It takes the msgid from the Enum (key.value) and passes it
-        to the active gettext function _().
+        to the active gettext function.
         """
         if not isinstance(key, StringKey):
             return str(key)

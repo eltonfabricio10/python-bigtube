@@ -17,6 +17,11 @@ from gi.repository import Gtk, Adw, Gio, GLib, Gdk
 # Internal Imports
 from .ui.main_window import BigTubeMainWindow
 from .core.image_loader import ImageLoader
+from .core.logger import get_logger, BigTubeLogger
+
+# Initialize logging system
+BigTubeLogger.setup(level="INFO", console_output=True)
+logger = get_logger(__name__)
 
 
 class BigTubeApplication(Adw.Application):
@@ -53,7 +58,7 @@ class BigTubeApplication(Adw.Application):
                 Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
             )
         except Exception as e:
-            print(f"[System] Error loading CSS from {css_path}: {e}")
+            logger.error(f"Error loading CSS from {css_path}: {e}")
 
     def on_activate(self, app):
         """
@@ -75,7 +80,7 @@ class BigTubeApplication(Adw.Application):
         Handles application shutdown sequence.
         Cleans up resources like the ImageLoader thread pool.
         """
-        print("[System] Shutting down application...")
+        logger.info("Shutting down application...")
 
         # Gracefully stop the image loader threads
         if hasattr(ImageLoader, 'shutdown'):

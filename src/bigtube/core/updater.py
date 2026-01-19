@@ -10,6 +10,10 @@ from pathlib import Path
 
 # Internal Imports
 from .config import ConfigManager
+from .logger import get_logger
+
+# Module logger
+logger = get_logger(__name__)
 
 
 class Updater:
@@ -45,7 +49,7 @@ class Updater:
                 return result.stdout.strip()
             return "Unknown"
         except Exception as e:
-            print(f"[Updater] Error checking version: {e}")
+            logger.error(f"Error checking yt-dlp version: {e}")
             return "Error"
 
     @staticmethod
@@ -57,7 +61,7 @@ class Updater:
         ConfigManager.ensure_dirs()
         target_path = ConfigManager.YT_DLP_PATH
 
-        print(f"[Updater] Downloading yt-dlp to: {target_path}")
+        logger.info(f"Downloading yt-dlp to: {target_path}")
 
         try:
             # 1. Download stream
@@ -73,11 +77,11 @@ class Updater:
             os.chmod(target_path, st.st_mode | stat.S_IEXEC)
 
             new_version = Updater.get_local_version()
-            print(f"[Updater] yt-dlp installed successfully! Version: {new_version}")
+            logger.info(f"yt-dlp installed successfully! Version: {new_version}")
             return True, str(new_version)
 
         except Exception as e:
-            print(f"[Updater] Critical Error updating yt-dlp: {e}")
+            logger.error(f"Critical error updating yt-dlp: {e}")
             return False, str(e)
 
     @staticmethod
@@ -88,7 +92,7 @@ class Updater:
         ConfigManager.ensure_dirs()
         target_path = ConfigManager.DENO_PATH
 
-        print(f"[Updater] Downloading Deno to: {target_path}")
+        logger.info(f"Downloading Deno to: {target_path}")
 
         try:
             # 1. Download ZIP to memory
@@ -108,11 +112,11 @@ class Updater:
             st = os.stat(target_path)
             os.chmod(target_path, st.st_mode | stat.S_IEXEC)
 
-            print("[Updater] Deno installed successfully!")
+            logger.info("Deno installed successfully!")
             return True
 
         except Exception as e:
-            print(f"[Updater] Failed to download Deno: {e}")
+            logger.error(f"Failed to download Deno: {e}")
             return False
 
     @staticmethod
@@ -125,10 +129,10 @@ class Updater:
 
         # 1. Check yt-dlp
         if not ConfigManager.YT_DLP_PATH.exists():
-            print("[System] yt-dlp missing. Starting auto-download...")
+            logger.info("yt-dlp missing. Starting auto-download...")
             Updater.update_yt_dlp()
 
         # 2. Check Deno
         if not ConfigManager.DENO_PATH.exists():
-            print("[System] JS Runtime (Deno) missing. Starting auto-download...")
+            logger.info("Deno runtime missing. Starting auto-download...")
             Updater.update_deno()
