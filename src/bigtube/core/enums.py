@@ -36,7 +36,7 @@ class ThemeMode(str, Enum):
 class VideoQuality(str, Enum):
     """Preferred quality settings."""
     ASK = "ask"
-    
+
     # Video Presets (MP4/AVC + M4A)
     P_144 = "bestvideo[height=144][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=144]+bestaudio"
     P_240 = "bestvideo[height=240][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=240]+bestaudio"
@@ -46,10 +46,10 @@ class VideoQuality(str, Enum):
     P_1080 = "bestvideo[height=1080][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=1080]+bestaudio"
     P_1440 = "bestvideo[height=1440][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=1440]+bestaudio"
     P_2160 = "bestvideo[height=2160][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=2160]+bestaudio"
-    
+
     # Generic Helpers
     BEST = "bestvideo[ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo+bestaudio/best"
-    
+
     # Audio Presets
     AUDIO_MP3 = "bestaudio/best --extract-audio --audio-quality 0 --audio-format mp3 --embed-thumbnail"
     AUDIO_M4A = "bestaudio/best --format-sort acodec:m4a"
