@@ -135,6 +135,8 @@ class StringKey(Enum):
     STATUS_COMPLETED = N_("Completed")
     STATUS_ERROR = N_("Error")
     STATUS_CANCELLED = N_("Cancelled")
+    STATUS_CONFIRM = N_("Confirm")
+    STATUS_CANCEL = N_("Cancel")
     STATUS_INTERRUPTED = N_("Interrupted")
     STATUS_PAUSED = N_("Paused")
     STATUS_RESUMING = N_("Resuming...")

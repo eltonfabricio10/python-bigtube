@@ -70,8 +70,8 @@ class MessageManager:
         # Responses
         # Note: You should verify these keys exist in your locales.py
         # or use literal strings if you prefer for now.
-        txt_cancel = Res.get(StringKey.STATUS_CANCELLED) or "Cancel"
-        txt_confirm = "Confirm"
+        txt_cancel = Res.get(StringKey.STATUS_CANCEL) or "Cancel"
+        txt_confirm = Res.get(StringKey.STATUS_CONFIRM) or "Confirm"
 
         dialog.add_response("cancel", txt_cancel)
         dialog.add_response("confirm", txt_confirm)
