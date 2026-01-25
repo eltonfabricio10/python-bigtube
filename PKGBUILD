@@ -27,17 +27,9 @@ makedepends=(
     'git'
 )
 
-optdepends=(
-    'ffmpeg'
-)
-
-source=(
-    "git+${url}.git"
-)
-
-sha256sums=(
-    'SKIP'
-)
+optdepends=('ffmpeg')
+source=("git+${url}.git")
+sha256sums=('SKIP')
 
 prepare() {
     cd "${srcdir}/${pkgname}"

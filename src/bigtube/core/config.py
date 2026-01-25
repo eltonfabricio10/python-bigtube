@@ -1,6 +1,7 @@
 import os
 import json
 import sys
+import shutil
 from pathlib import Path
 from gi.repository import GLib
 
@@ -33,8 +34,8 @@ class ConfigManager:
     BIN_DIR = DATA_DIR / "bin"
 
     # Binary Names
-    YT_DLP_NAME = "yt-dlp.exe" if sys.platform == "win32" else "yt-dlp"
-    DENO_NAME = "deno.exe" if sys.platform == "win32" else "deno"
+    YT_DLP_NAME = "yt-dlp"
+    DENO_NAME = "deno"
 
     YT_DLP_PATH = BIN_DIR / YT_DLP_NAME
     DENO_PATH = BIN_DIR / DENO_NAME
@@ -144,7 +145,14 @@ class ConfigManager:
     @classmethod
     def get_yt_dlp_path(cls) -> str:
         """Returns the absolute path to the yt-dlp binary."""
-        return str(cls.YT_DLP_PATH)
+        # Prefer local binary if it exists
+        if cls.YT_DLP_PATH.exists():
+            return str(cls.YT_DLP_PATH)
+            
+        # Fallback to system install
+        system_bin = shutil.which("yt-dlp")
+        if system_bin:
+            return system_bin
 
     @classmethod
     def get_env_with_bin_path(cls) -> dict:
