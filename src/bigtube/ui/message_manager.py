@@ -15,7 +15,7 @@ class MessageManager:
 
     _toast_widget = None
     _window = None
-    _timer_id = None  # Stores the current countdown ID to prevent conflicts
+    _timer_id = None
 
     @classmethod
     def init(cls, toast_widget, window=None):
@@ -71,13 +71,10 @@ class MessageManager:
         # Note: You should verify these keys exist in your locales.py
         # or use literal strings if you prefer for now.
         txt_cancel = Res.get(StringKey.STATUS_CANCELLED) or "Cancel"
-        txt_confirm = "Confirm"  # Add StringKey.BTN_CONFIRM if needed
+        txt_confirm = "Confirm"
 
         dialog.add_response("cancel", txt_cancel)
         dialog.add_response("confirm", txt_confirm)
-
-        # Style: Destructive usually implies deletion, Suggested implies safe action
-        # Adjust based on context, here defaults to Destructive for safety (e.g. Delete)
         dialog.set_response_appearance("confirm", Adw.ResponseAppearance.DESTRUCTIVE)
 
         dialog.set_default_response("cancel")

@@ -139,7 +139,6 @@ class DownloadRow(Gtk.Box):
             self.btn_pause.set_icon_name("media-playback-start-symbolic")
             self.btn_pause.set_tooltip_text(Res.get(StringKey.BTN_RESUME))
             self.lbl_status.set_label(Res.get(StringKey.STATUS_PAUSED))
-            self.lbl_status.set_label(Res.get(StringKey.STATUS_PAUSED))
             self.progress_bar.add_css_class("warning")
             
             # Persist Paused state

@@ -2,6 +2,11 @@ import gi
 gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk, GObject
 
+from ..core.logger import get_logger
+
+# Module logger
+logger = get_logger(__name__)
+
 
 class SuggestionPopover(Gtk.Popover):
     """
@@ -56,7 +61,7 @@ class SuggestionPopover(Gtk.Popover):
         Rebuilds the list based on matches.
         Shows/Hides the popover automatically.
         """
-        print(f"[SUGGESTIONS]: {suggestions}")
+        logger.debug(f"Updating suggestions: {len(suggestions)} items")
         self.suggestions = suggestions
 
         # 1. Handle Empty State
@@ -108,7 +113,7 @@ class SuggestionPopover(Gtk.Popover):
         if entry_width < 50:
             entry_width = 300
 
-        print(count, target_height, final_height)
+        logger.debug(f"Popover size: {count} items, height={final_height}")
 
         self.set_size_request(entry_width, final_height)
 

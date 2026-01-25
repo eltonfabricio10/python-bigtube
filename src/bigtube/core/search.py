@@ -8,6 +8,7 @@ from .config import ConfigManager
 from .locales import ResourceManager as Res, StringKey
 from .updater import Updater
 from .logger import get_logger, SearchError
+from .search_history import SearchCache
 from .validators import (
     is_valid_url, sanitize_url, sanitize_search_query,
     run_subprocess_with_timeout, Timeouts, retry_with_backoff
@@ -52,6 +53,12 @@ class SearchEngine:
                 raise SearchError(Res.get(StringKey.ERR_INVALID_URL))
             return self._handle_direct_link(sanitized)
 
+        # Check cache first (for non-URL searches)
+        cached_results = SearchCache.get(query, source)
+        if cached_results is not None:
+            logger.debug(f"Cache hit for '{query}' ({source})")
+            return cached_results
+
         # Sanitize search query
         clean_query = sanitize_search_query(query)
         if not clean_query:
@@ -79,7 +86,7 @@ class SearchEngine:
                 f"ytsearch{self.SEARCH_LIMIT}:{clean_query}"
             ]
 
-        return self._run_cli(args, force_audio=force_audio)
+        return self._run_cli(args, force_audio=force_audio, query=query, source=source)
 
     def _handle_direct_link(self, url: str) -> List[Dict]:
         """
@@ -110,7 +117,7 @@ class SearchEngine:
             logger.exception(f"Error processing direct link: {e}")
             raise SearchError(str(e))
 
-    def _run_cli(self, args: List[str], is_search: bool = True, force_audio: bool = False) -> List[Dict]:
+    def _run_cli(self, args: List[str], is_search: bool = True, force_audio: bool = False, query: str = None, source: str = None) -> List[Dict]:
         """
         Executes yt-dlp in a subprocess and parses JSON output line-by-line.
         """
@@ -142,6 +149,10 @@ class SearchEngine:
                         json_outputs.append(parsed)
                 except json.JSONDecodeError:
                     pass
+
+            # Cache results for non-URL searches
+            if query and source and source != "url":
+                SearchCache.set(query, source, json_outputs)
 
             return json_outputs
 

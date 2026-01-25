@@ -104,7 +104,7 @@ class StringKey(Enum):
     BTN_SELECT_FOLDER = N_("Pick Folder")
     PREFS_VERSION_LABEL = N_("Current Version")
     BTN_CHECK_UPDATES = N_("Check for Updates")
-    
+
     PREFS_APPEARANCE = N_("Appearance")
     PREFS_THEME = N_("Theme")
     PREFS_DOWNLOADS = N_("Downloads")
@@ -115,6 +115,17 @@ class StringKey(Enum):
     PREFS_SAVE_HISTORY = N_("Save Download History")
     PREFS_AUTO_CLEAR = N_("Auto-clear Finished")
     PREFS_CLEAR_DATA = N_("Clear Application Data")
+
+    # Theme Options
+    PREFS_THEME_SYSTEM = N_("System")
+    PREFS_THEME_LIGHT = N_("Light")
+    PREFS_THEME_DARK = N_("Dark")
+
+    # Quality Options
+    PREFS_QUALITY_ASK = N_("Ask Every Time")
+    PREFS_QUALITY_BEST = N_("Best Available")
+    PREFS_QUALITY_WORST = N_("Smallest Size")
+    PREFS_QUALITY_AUDIO = N_("Audio Only")
 
     # Status
     STATUS_FETCH = N_("Searching for information")

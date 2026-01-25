@@ -111,7 +111,8 @@ class PlayerController:
         self.video_window.stop()
         self._reset_ui_state()
 
-        if self.video_window.is_visible():
+        # If currently open, keep it open only if next item is also video
+        if self.video_window.is_visible() and not is_video:
             self.video_window.set_visible(False)
 
         # 2. Update Metadata
@@ -159,7 +160,6 @@ class PlayerController:
     # =========================================================================
     # INTERNAL LOGIC
     # =========================================================================
-
     def _resolve_and_play(self, url, is_local):
         """Worker thread logic to resolve URL and trigger play on Main Thread."""
         try:
@@ -205,7 +205,6 @@ class PlayerController:
     # =========================================================================
     # VIDEO WINDOW CALLBACKS
     # =========================================================================
-
     def on_time_changed(self, win, seconds):
         # Update Countdown
         if self._time_remaining:
@@ -259,7 +258,6 @@ class PlayerController:
     # =========================================================================
     # UI HANDLERS
     # =========================================================================
-
     def on_playpause_clicked(self, btn):
         self.video_window.toggle_pause()
 
@@ -280,7 +278,6 @@ class PlayerController:
     # =========================================================================
     # STATIC HELPERS (Stream Extraction)
     # =========================================================================
-
     @staticmethod
     def _extract_stream_url(url: str) -> str:
         """
@@ -340,4 +337,4 @@ class PlayerController:
         except Exception as e:
             logger.exception(f"Exception extracting stream: {e}")
 
-        return url  # Last resort: return original
+        return url

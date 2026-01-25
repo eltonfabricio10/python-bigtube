@@ -1,5 +1,6 @@
 import threading
 import os
+import shutil
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
@@ -13,8 +14,8 @@ from ..ui.message_manager import MessageManager
 from ..core.enums import ThemeMode, VideoQuality
 from ..core.history_manager import HistoryManager
 from ..core.search_history import SearchHistory
-import shutil
-import os
+from ..core.logger import get_logger
+logger = get_logger(__name__)
 
 
 class SettingsController:
@@ -52,58 +53,88 @@ class SettingsController:
         Sets localized titles for UI elements that are empty in the .ui file.
         """
         # Pages & Groups
-        if 'page' in widgets: widgets['page'].set_title(Res.get(StringKey.NAV_SETTINGS))
-        if 'grp_appear' in widgets: widgets['grp_appear'].set_title(Res.get(StringKey.PREFS_APPEARANCE))
-        if 'grp_dl' in widgets: widgets['grp_dl'].set_title(Res.get(StringKey.PREFS_DOWNLOADS))
-        if 'grp_store' in widgets: widgets['grp_store'].set_title(Res.get(StringKey.PREFS_STORAGE))
+        if 'page' in widgets:
+            widgets['page'].set_title(Res.get(StringKey.NAV_SETTINGS))
+        if 'grp_appear' in widgets:
+            widgets['grp_appear'].set_title(Res.get(StringKey.PREFS_APPEARANCE))
+        if 'grp_dl' in widgets:
+            widgets['grp_dl'].set_title(Res.get(StringKey.PREFS_DOWNLOADS))
+        if 'grp_store' in widgets:
+            widgets['grp_store'].set_title(Res.get(StringKey.PREFS_STORAGE))
 
         # Rows
-        if 'row_theme' in widgets: widgets['row_theme'].set_title(Res.get(StringKey.PREFS_THEME))
+        if 'row_theme' in widgets:
+            widgets['row_theme'].set_title(Res.get(StringKey.PREFS_THEME))
         self.row_version.set_title(Res.get(StringKey.PREFS_VERSION_LABEL))
-        
+
         self.row_folder.set_title(Res.get(StringKey.PREFS_FOLDER_LABEL))
-        
-        if 'row_quality' in widgets: widgets['row_quality'].set_title(Res.get(StringKey.PREFS_QUALITY))
-        if 'row_meta' in widgets: widgets['row_meta'].set_title(Res.get(StringKey.PREFS_METADATA))
-        if 'row_sub' in widgets: widgets['row_sub'].set_title(Res.get(StringKey.PREFS_SUBTITLES))
-        if 'row_hist' in widgets: widgets['row_hist'].set_title(Res.get(StringKey.PREFS_SAVE_HISTORY))
-        if 'row_auto' in widgets: widgets['row_auto'].set_title(Res.get(StringKey.PREFS_AUTO_CLEAR))
-        if 'row_clear' in widgets: widgets['row_clear'].set_title(Res.get(StringKey.PREFS_CLEAR_DATA))
-        
-        # Extra: Set text for Clear button if passed (it might be inside row_clear but accessible?)
-        # btn_clear_now is a child. We need a way to set its label if we want to translate "Clear Now"
-        # Assuming widget dict is flat. Let's see if btn_clear_now is passed? It wasn't in MainWindow snippet.
-        # But we can assume it says "Clear History" or similar icon-only based on UI.
+
+        if 'row_quality' in widgets:
+            widgets['row_quality'].set_title(Res.get(StringKey.PREFS_QUALITY))
+        if 'row_meta' in widgets:
+            widgets['row_meta'].set_title(Res.get(StringKey.PREFS_METADATA))
+        if 'row_sub' in widgets:
+            widgets['row_sub'].set_title(Res.get(StringKey.PREFS_SUBTITLES))
+        if 'row_hist' in widgets:
+            widgets['row_hist'].set_title(Res.get(StringKey.PREFS_SAVE_HISTORY))
+        if 'row_auto' in widgets:
+            widgets['row_auto'].set_title(Res.get(StringKey.PREFS_AUTO_CLEAR))
+        if 'row_clear' in widgets:
+            widgets['row_clear'].set_title(Res.get(StringKey.PREFS_CLEAR_DATA))
 
     def _setup_bindings(self, w):
         """Connects signals for changes."""
         # 1. Theme
         if 'row_theme' in w:
-            model = Gtk.StringList.new(["System", "Light", "Dark"])
+            # Use translated theme names
+            theme_names = [
+                Res.get(StringKey.PREFS_THEME_SYSTEM),
+                Res.get(StringKey.PREFS_THEME_LIGHT),
+                Res.get(StringKey.PREFS_THEME_DARK)
+            ]
+            model = Gtk.StringList.new(theme_names)
             w['row_theme'].set_model(model)
             w['row_theme'].connect("notify::selected", self._on_theme_changed)
 
         # 2. Quality
         if 'row_quality' in w:
-            model = Gtk.StringList.new(["Ask Every Time", "Best Available", "Smallest Size", "Audio Only"])
+            # Use translated quality names
+            quality_names = [
+                Res.get(StringKey.PREFS_QUALITY_ASK),
+                Res.get(StringKey.PREFS_QUALITY_BEST),
+                Res.get(StringKey.PREFS_QUALITY_WORST),
+                Res.get(StringKey.PREFS_QUALITY_AUDIO)
+            ]
+            model = Gtk.StringList.new(quality_names)
             w['row_quality'].set_model(model)
             w['row_quality'].connect("notify::selected", self._on_quality_changed)
 
         # 3. Switches
-        if 'row_meta' in w: w['row_meta'].connect("notify::active", lambda o, p: ConfigManager.set("add_metadata", o.get_active()))
-        if 'row_sub' in w: w['row_sub'].connect("notify::active", lambda o, p: ConfigManager.set("download_subtitles", o.get_active()))
-        if 'row_hist' in w: w['row_hist'].connect("notify::active", lambda o, p: ConfigManager.set("save_history", o.get_active()))
-        if 'row_auto' in w: w['row_auto'].connect("notify::active", lambda o, p: ConfigManager.set("auto_clear_finished", o.get_active()))
-        
+        if 'row_meta' in w:
+            w['row_meta'].connect(
+                "notify::active",
+                lambda o, p: ConfigManager.set("add_metadata", o.get_active())
+            )
+        if 'row_sub' in w:
+            w['row_sub'].connect(
+                "notify::active",
+                lambda o, p: ConfigManager.set("download_subtitles", o.get_active())
+            )
+        if 'row_hist' in w:
+            w['row_hist'].connect(
+                "notify::active",
+                lambda o, p: ConfigManager.set("save_history", o.get_active())
+            )
+        if 'row_auto' in w:
+            w['row_auto'].connect(
+                "notify::active",
+                lambda o, p: ConfigManager.set("auto_clear_finished", o.get_active())
+            )
+
         # 4. Clear Data
-        # We need to find the button inside the row? Or connect to row activation?
-        # AdwActionRow is activatable if it has a suffix widget or we set it?
-        # Ideally we connect to the button signal. 
-        # MainWindow didn't pass btn_clear_now in the dict, but it IS a property of MainWindow.
-        # We should ask MainWindow to pass it or use row activation (AdwActionRow 'activated' signal).
         if 'row_clear' in w:
             w['row_clear'].connect("activated", self._on_clear_data_activated)
-            
+
         if 'btn_clear_now' in w:
             w['btn_clear_now'].connect("clicked", self._on_clear_data_clicked)
 
@@ -115,26 +146,35 @@ class SettingsController:
 
         # Load Switches
         w = self.widgets_map
-        if 'row_meta' in w: w['row_meta'].set_active(ConfigManager.get("add_metadata"))
-        if 'row_sub' in w: w['row_sub'].set_active(ConfigManager.get("download_subtitles"))
-        if 'row_hist' in w: w['row_hist'].set_active(ConfigManager.get("save_history"))
-        if 'row_auto' in w: w['row_auto'].set_active(ConfigManager.get("auto_clear_finished"))
-        
+        if 'row_meta' in w:
+            w['row_meta'].set_active(ConfigManager.get("add_metadata"))
+        if 'row_sub' in w:
+            w['row_sub'].set_active(ConfigManager.get("download_subtitles"))
+        if 'row_hist' in w:
+            w['row_hist'].set_active(ConfigManager.get("save_history"))
+        if 'row_auto' in w:
+            w['row_auto'].set_active(ConfigManager.get("auto_clear_finished"))
+
         # Load Theme
         if 'row_theme' in w:
             val = ConfigManager.get("theme_mode")
             idx = 0
-            if val == ThemeMode.LIGHT: idx = 1
-            elif val == ThemeMode.DARK: idx = 2
+            if val == ThemeMode.LIGHT:
+                idx = 1
+            elif val == ThemeMode.DARK:
+                idx = 2
             w['row_theme'].set_selected(idx)
 
         # Load Quality
         if 'row_quality' in w:
             val = ConfigManager.get("default_quality")
-            idx = 0 # Default ASK
-            if val == VideoQuality.BEST: idx = 1
-            elif val == VideoQuality.WORST: idx = 2
-            elif val == VideoQuality.AUDIO: idx = 3
+            idx = 0
+            if val == VideoQuality.BEST:
+                idx = 1
+            elif val == VideoQuality.WORST:
+                idx = 2
+            elif val == VideoQuality.AUDIO:
+                idx = 3
             w['row_quality'].set_selected(idx)
 
         # Set Version (Async to avoid lag on startup)
@@ -143,11 +183,13 @@ class SettingsController:
     def _on_theme_changed(self, row, param):
         idx = row.get_selected()
         mode = ThemeMode.SYSTEM
-        if idx == 1: mode = ThemeMode.LIGHT
-        elif idx == 2: mode = ThemeMode.DARK
-        
+        if idx == 1:
+            mode = ThemeMode.LIGHT
+        elif idx == 2:
+            mode = ThemeMode.DARK
+
         ConfigManager.set("theme_mode", mode)
-        
+
         # Apply theme immediately (Adwaita logic)
         manager = Adw.StyleManager.get_default()
         if mode == ThemeMode.SYSTEM:
@@ -160,14 +202,17 @@ class SettingsController:
     def _on_quality_changed(self, row, param):
         idx = row.get_selected()
         mode = VideoQuality.ASK
-        if idx == 1: mode = VideoQuality.BEST
-        elif idx == 2: mode = VideoQuality.WORST
-        elif idx == 3: mode = VideoQuality.AUDIO
+        if idx == 1:
+            mode = VideoQuality.BEST
+        elif idx == 2:
+            mode = VideoQuality.WORST
+        elif idx == 3:
+            mode = VideoQuality.AUDIO
         ConfigManager.set("default_quality", mode)
 
     def _on_clear_data_activated(self, row):
         """Called when 'Clear Data' row is clicked."""
-        self._on_clear_data_clicked(None) # Reuse logic
+        self._on_clear_data_clicked(None)
 
     def _on_clear_data_clicked(self, btn):
         MessageManager.show_confirmation(
@@ -175,7 +220,7 @@ class SettingsController:
             body="This will verify/reset configuration and clear temporary files. History will be kept.",
             on_confirm_callback=self._perform_app_reset
         )
-    
+
     def _perform_app_reset(self):
         # 1. Clear Search History
         try:
@@ -193,12 +238,8 @@ class SettingsController:
         except Exception as e:
             pass
 
-        # 3. Clear Caches (~/.cache/bigtube or similar logic if implemented)
-        # Assuming yt-dlp cache is managed by yt-dlp, we can try to find and delete it if known.
-        # But commonly we just ensure config dirs.
-        # Let's verify config dirs.
+        # 3. Clear Caches (~/.cache/bigtube)
         ConfigManager.ensure_dirs()
-        
         MessageManager.show("Data cleared successfully.")
 
     def _async_load_version(self):
@@ -210,7 +251,6 @@ class SettingsController:
     # =========================================================================
     # FOLDER SELECTION LOGIC
     # =========================================================================
-
     def on_pick_folder_clicked(self, btn):
         """Opens GTK4 FileDialog to select download directory."""
         dialog = Gtk.FileDialog()
@@ -223,7 +263,7 @@ class SettingsController:
                 f = Gio.File.new_for_path(current_path)
                 dialog.set_initial_folder(f)
         except Exception as e:
-            print(f"[Settings] Warning setting initial folder: {e}")
+            logger.error(f"Warning setting initial folder: {e}")
 
         # Open Modal
         dialog.select_folder(self.window, None, self._on_folder_selected)
@@ -240,10 +280,10 @@ class SettingsController:
 
                 # 2. Update UI
                 self.row_folder.set_subtitle(new_path)
-                print(f"[Settings] New download path: {new_path}")
+                logger.info(f"New download path: {new_path}")
 
         except Exception as e:
-            print(f"[Settings] Error selecting folder: {e}")
+            logger.error(f"Error selecting folder: {e}")
             # Optional: Show error toast
             MessageManager.show("Failed to select folder", is_error=True)
 
@@ -276,7 +316,7 @@ class SettingsController:
             )
 
         except Exception as e:
-            print(f"[Settings] Update Exception: {e}")
+            logger.error(f"Update Exception: {e}")
             GLib.idle_add(self._on_update_error, str(e))
 
     def _on_update_finished(self, ok_bin, ok_deno, new_ver):

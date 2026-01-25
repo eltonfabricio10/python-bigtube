@@ -6,6 +6,7 @@ from gi.repository import GLib
 
 # Import internal Enums
 from .enums import ThemeMode, VideoQuality
+from .locales import ResourceManager as Res, StringKey
 from .logger import get_logger
 
 # Module logger
@@ -40,7 +41,9 @@ class ConfigManager:
 
     # --- Default Settings ---
     # We use GLib to find the real Downloads folder
-    _DEFAULT_DOWNLOAD_DIR = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DOWNLOAD) or str(Path.home() / "Downloads")
+    _DEFAULT_DOWNLOAD_DIR = GLib.get_user_special_dir(
+        GLib.UserDirectory.DIRECTORY_DOWNLOAD
+    ) or str(Path.home() / Res.get(StringKey.NAV_DOWNLOADS))
 
     _DEFAULTS = {
         "download_path": str(Path(_DEFAULT_DOWNLOAD_DIR) / "BigTube"),
@@ -73,7 +76,7 @@ class ConfigManager:
         Loads JSON from disk. Auto-recovers if corrupted.
         """
         if not cls.CONFIG_FILE.exists():
-            # print("[Config] File not found. Creating default.")
+            logger.info("File not found. Creating default.")
             cls._data = cls._DEFAULTS.copy()
             cls.save()
             return
@@ -92,7 +95,7 @@ class ConfigManager:
                 cls._data.update(loaded_data)
 
         except (json.JSONDecodeError, ValueError, OSError) as e:
-            logger.warning(f"Config corruption detected ({e}). Resetting to defaults.")
+            logger.warning(f"Config corruption detected ({e}). Resetting...")
             cls._data = cls._DEFAULTS.copy()
             cls.save()
 
@@ -105,7 +108,7 @@ class ConfigManager:
         try:
             with open(cls.CONFIG_FILE, 'w', encoding='utf-8') as f:
                 json.dump(cls._data, f, indent=4, ensure_ascii=False)
-            # print("[Config] Settings saved.")
+            logger.info("Settings saved.")
         except OSError as e:
             logger.error(f"Failed to save config: {e}")
 
@@ -133,7 +136,6 @@ class ConfigManager:
         cls.save()
 
     # --- Helpers for Paths ---
-
     @classmethod
     def get_download_path(cls) -> str:
         """Returns the configured download path as a string."""
@@ -150,4 +152,3 @@ class ConfigManager:
         env = os.environ.copy()
         env["PATH"] = str(cls.BIN_DIR) + os.pathsep + env.get("PATH", "")
         return env
-

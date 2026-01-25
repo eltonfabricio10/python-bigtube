@@ -98,7 +98,6 @@ class SearchResultRow(Gtk.Box):
     # =========================================================================
     # EVENT HANDLERS
     # =========================================================================
-
     def _on_download_clicked(self, button):
         """Emits signal to start download process."""
         if self.video_data:

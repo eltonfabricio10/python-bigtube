@@ -13,12 +13,14 @@ from .locales import ResourceManager as Res, StringKey
 from .logger import get_logger, NetworkError
 from .validators import run_subprocess_with_timeout, Timeouts, retry_with_backoff, sanitize_filename
 
-
 # Module logger
 logger = get_logger(__name__)
 
 # Regex to capture percentage (e.g. "45.6%") from yt-dlp stdout
 PROGRESS_REGEX = re.compile(r'(\d{1,3}\.\d)%')
+
+# Minimum required free space in MB (10MB buffer)
+MIN_FREE_SPACE_MB = 10
 
 
 class VideoDownloader:
@@ -33,7 +35,6 @@ class VideoDownloader:
         self.is_cancelled = False
         self.is_paused = False
 
-
         # Setup environment to ensure internal bin folder is in PATH
         # This is crucial if ffmpeg is bundled in ~/.local/share/bigtube/bin
         self._env = ConfigManager.get_env_with_bin_path()
@@ -41,12 +42,22 @@ class VideoDownloader:
     # =========================================================================
     # METADATA FETCHING
     # =========================================================================
-
-    @retry_with_backoff(max_attempts=3, exceptions=(subprocess.TimeoutExpired, NetworkError))
     def fetch_video_info(self, url: str) -> Optional[Dict]:
         """
-        Retrieves full metadata and available formats for a given URL.
-        Returns a structured dictionary or None if failed.
+        Public wrapper for metadata fetching with auto-retry.
+         Catches final exceptions and returns None for API compatibility.
+        """
+        try:
+            return self._fetch_info_protected(url)
+        except Exception as e:
+            # If we reach here, all retries failed
+            logger.error(f"Failed to fetch metadata after retries: {e}")
+            return None
+
+    @retry_with_backoff(max_attempts=3, exceptions=(subprocess.TimeoutExpired, NetworkError, OSError))
+    def _fetch_info_protected(self, url: str) -> Optional[Dict]:
+        """
+        Internal method that raises exceptions to trigger retries.
         """
         logger.info(f"Fetching metadata for: {url}")
 
@@ -67,21 +78,19 @@ class VideoDownloader:
             )
 
             if return_code != 0:
-                logger.error(f"Failed to fetch metadata: {stderr}")
-                return None
+                # RAISE exception so retry decorator catches it
+                err_lower = stderr.lower()
+                raise NetworkError(f"yt-dlp returned code {return_code}: {stderr.strip()}")
 
             raw_info = json.loads(stdout)
             return self._parse_formats(raw_info)
 
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse metadata JSON: {e}")
-            return None
+            # JSON error might be transient (corrupt output) or permanent. 
+            # We treat it as retriable (NetworkError wrapper) just in case.
+            raise NetworkError(f"Invalid JSON output: {e}")
         except subprocess.SubprocessError as e:
-            logger.error(f"Subprocess error fetching metadata: {e}")
-            return None
-        except Exception as e:
-            logger.exception(f"Unexpected error fetching metadata: {e}")
-            return None
+            raise NetworkError(f"Subprocess call failed: {e}")
 
     def _parse_formats(self, info: dict) -> dict:
         """
@@ -126,7 +135,6 @@ class VideoDownloader:
             size_str = f"{size_mb:.1f} MB" if size_mb > 0 else "? MB"
 
             # --- Classification Logic ---
-
             # Audio Only: vcodec is none/null AND acodec exists
             is_audio_only = (vcodec == 'none' or vcodec is None) and (acodec != 'none' and acodec is not None)
 
@@ -233,9 +241,30 @@ class VideoDownloader:
         return unique
 
     # =========================================================================
+    # DISK SPACE VERIFICATION
+    # =========================================================================
+    def _check_disk_space(self, estimated_size_mb: float, path: str) -> bool:
+        """
+        Verifies if there's enough disk space for the download.
+        Returns True if sufficient space, False otherwise.
+        """
+        try:
+            stat = shutil.disk_usage(path)
+            free_mb = stat.free / (1024 * 1024)
+            # Add 10% safety margin
+            required = estimated_size_mb * 1.1 + MIN_FREE_SPACE_MB
+
+            if free_mb < required:
+                logger.warning(f"Insufficient disk space: {free_mb:.1f}MB free, need {required:.1f}MB")
+                return False
+            return True
+        except OSError as e:
+            logger.warning(f"Could not check disk space: {e}")
+            return True  # Continue if we can't check
+
+    # =========================================================================
     # DOWNLOAD MANAGEMENT
     # =========================================================================
-
     def start_download(self,
                        url: str,
                        format_id: str,
@@ -282,26 +311,26 @@ class VideoDownloader:
             "--newline",
             "--no-playlist",
             "--ignore-config",
-            "--ignore-errors",  # Don't fail the whole download if metadata/subs fail
+            "--ignore-errors",
             "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
             "-o", output_template
         ]
 
         # --- Inject User Preferences (requires ffmpeg) ---
         has_ffmpeg = shutil.which("ffmpeg") is not None
-        
+
         if ConfigManager.get("add_metadata"):
             if has_ffmpeg:
                 cmd.append("--embed-metadata")
             else:
                 logger.warning("ffmpeg not found. Skipping '--embed-metadata'")
-        
+
         if ConfigManager.get("download_subtitles"):
             if has_ffmpeg:
                 cmd.extend([
                     "--write-sub",
                     "--write-auto-sub",
-                    "--sub-langs", "en.*,pt.*",  # Limit to avoid 429 errors
+                    "--sub-langs", "en.*,pt.*,es.*",
                     "--embed-subs"
                 ])
             else:
@@ -397,7 +426,7 @@ class VideoDownloader:
                 # Log the last few lines of yt-dlp output to help debugging
                 error_log = "\n".join(last_log_lines)
                 logger.error(f"yt-dlp output snippet:\n{error_log}")
-                
+
                 error_msg = self._analyze_error(last_log_lines)
                 if progress_callback:
                     progress_callback(Res.get(StringKey.STATUS_ERROR), error_msg)
@@ -429,7 +458,7 @@ class VideoDownloader:
         self._terminate_process("Cancelled")
 
     def pause(self):
-        """Pauses the download by terminating the process (yt-dlp can resume later)."""
+        """Pauses the download by terminating the process."""
         if self.process:
             self.is_paused = True
             self._terminate_process("Paused")
@@ -454,20 +483,17 @@ class VideoDownloader:
         WARNING: This is blocking and should be run in a separate thread.
         """
         if not hasattr(self, '_last_params') or not self._last_params:
-            logger.error("Cannot resume: No previous download parameters stored.")
+            logger.error("Cannot resume: No previous download stored.")
             return False
-        
+
         logger.info("Resuming download...")
-        
-        # IMPORTANT: Disable force_overwrite for resume, otherwise yt-dlp might 
-        # delete the .part file and restart from 0 if it was originally a forced overwrite.
         self._last_params['force_overwrite'] = False
-        
+
         return self.start_download(**self._last_params)
 
     def _analyze_error(self, log_lines: deque) -> str:
         """
-        Analyzes the last log lines to return a LOCALIZED (Translated) error string.
+        Analyzes the last log lines to return a LOCALIZED error string.
         """
         full_log = "\n".join(log_lines).lower()
 

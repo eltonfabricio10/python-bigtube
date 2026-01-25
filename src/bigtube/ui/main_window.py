@@ -114,7 +114,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
         # 1. Core Setup
         ConfigManager.ensure_dirs()
-        self._setup_ui_strings()  # Inject translated text
+        self._setup_ui_strings()
 
         # We keep one downloader instance for metadata fetching
         # Actual downloads will spawn their own instances
@@ -146,7 +146,6 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         )
         self.btn_clear.connect("clicked", self._on_clear_history_clicked)
 
-        # 6. Settings Controller
         # 6. Settings Controller
         settings_widgets = {
             'page': self.settings_page,
@@ -289,11 +288,11 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             # Logic for interrupted downloads (Zombies)
             if raw_status == DownloadStatus.DOWNLOADING:
                 HistoryManager.update_status(item["file_path"], DownloadStatus.INTERRUPTED)
-                row_widget.set_status(Res.get(StringKey.STATUS_INTERRUPTED))
+                row_widget.set_status_label(Res.get(StringKey.STATUS_INTERRUPTED))
                 row_widget.progress_bar.add_css_class("warning")
 
             elif raw_status == DownloadStatus.INTERRUPTED:
-                row_widget.set_status(Res.get(StringKey.STATUS_INTERRUPTED))
+                row_widget.set_status_label(Res.get(StringKey.STATUS_INTERRUPTED))
                 row_widget.progress_bar.add_css_class("warning")
 
     # =========================================================================
@@ -333,7 +332,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             self.main_box.set_sensitive(False)
             self.spinner.start()
 
-            base_text = Res.get(text_key) if text_key else "Loading"
+            base_text = Res.get(text_key) if text_key else Res.get(StringKey.STATUS_PENDING)
             if arg:
                 base_text = f"{base_text} {arg}"
             self.text_animator.base_text = base_text
@@ -434,8 +433,8 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
     def on_download_selected(self, data):
         """Triggered by the download button in search results."""
-        print(f"[UI] Requesting download for: {data.title}")
-        self.set_loading(True, StringKey.STATUS_FETCH)  # "Pending..." as placeholder
+        logger.info(f"Requesting download for: {data.title}")
+        self.set_loading(True, StringKey.STATUS_FETCH)
 
         # Analyze metadata in a background thread
         threading.Thread(
@@ -472,20 +471,25 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         """Selects the best matching format."""
         videos = info.get('videos', [])
         audios = info.get('audios', [])
-        
+
         if pref == VideoQuality.BEST:
-            # First video option (usually Best MKV or Best Original due to sorting/injection)
-            if videos: return videos[0]
-            if audios: return audios[0]
+            # First video option
+            if videos:
+                return videos[0]
+            if audios:
+                return audios[0]
 
         elif pref == VideoQuality.WORST:
             # Last video option
-            if videos: return videos[-1]
-            if audios: return audios[-1]
+            if videos:
+                return videos[-1]
+            if audios:
+                return audios[-1]
 
         elif pref == VideoQuality.AUDIO:
-            if audios: return audios[0] # Best Audio (MP3 Convert usually)
-        
+            if audios:
+                return audios[0]
+
         return None
 
     def _on_metadata_failed(self, title):
@@ -497,7 +501,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         """Shows the format selection dialog."""
         # Stop loading spinner
         self.set_loading(False)
-        
+
         # Show Dialog
         dialog = FormatSelectionDialog(self, info, self.start_download_execution)
         dialog.present()
@@ -595,12 +599,12 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             if self.video_window.is_visible():
                 self.video_window.on_close_request(None)
                 return True
-        
-        # If video window is open but somehow main window has focus (or global hotkeys)
+
+        # If video window is open but somehow main window has focus
         if self.video_window.is_visible():
             self.video_window.mpv_widget.handle_keypress(keyval)
             # We don't return True here necessarily, to allow other handlers
-            
+
         return False
 
 

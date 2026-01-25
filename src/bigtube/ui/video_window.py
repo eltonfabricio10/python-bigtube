@@ -3,6 +3,10 @@ from gi.repository import Gtk, Adw, GObject, Gdk
 
 # Internal Imports
 from .mpv_widget import MpvWidget
+from ..core.logger import get_logger
+
+# Module logger
+logger = get_logger(__name__)
 
 
 class VideoWindow(Adw.Window):
@@ -71,14 +75,14 @@ class VideoWindow(Adw.Window):
         if keyval == Gdk.KEY_Escape:
             self.on_close_request(self)
             return True
-            
+
         # Forward everything else to MPV
         self.mpv_widget.handle_keypress(keyval)
         return False
 
     def on_close_request(self, win):
         """Intercepts close to hide instead of destroy."""
-        print("[VideoWindow] Hiding window (Background playback continues if not stopped explicitly)...")
+        logger.info("Hiding window...")
         self.set_visible(False)
         self.emit('window-hidden')
         return True

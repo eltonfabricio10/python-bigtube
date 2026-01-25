@@ -4,12 +4,15 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Gio, GObject, GLib
 
-# Internal Imports
 from ..core.search import SearchEngine
 from ..core.search_history import SearchHistory
+from ..core.logger import get_logger
 from ..ui.search_result_row import VideoDataObject
 from ..ui.suggestion_popover import SuggestionPopover
 from ..ui.message_manager import MessageManager
+
+# Module logger
+logger = get_logger(__name__)
 
 
 class SearchController(GObject.Object):
@@ -57,11 +60,15 @@ class SearchController(GObject.Object):
 
         # --- AUTOCOMPLETE SETUP ---
         self.popover = SuggestionPopover(self.entry)
-        self.popover.connect('suggestion-selected', self._on_suggestion_clicked)
+        self.popover.connect(
+            'suggestion-selected',
+            self._on_suggestion_clicked
+        )
 
         # State for Smart Switching
-        # Default to 0 (YouTube). Updates when user manually selects YT (0) or SC (1).
-        self.last_provider_idx = 0 
+        # Default to 0 (YouTube).
+        # Updates when user manually selects YT (0) or SC (1).
+        self.last_provider_idx = 0
 
         # --- SIGNAL CONNECTIONS ---
         focus_controller = Gtk.EventControllerFocus()
@@ -70,13 +77,17 @@ class SearchController(GObject.Object):
         self.entry.connect("activate", self.on_search_activate)
         self.btn.connect("clicked", self.on_search_activate)
         self.list_view.connect("activate", self.on_item_activated)
-        
+
         # Track dropdown changes to remember user preference
         self.dropdown.connect("notify::selected", self._on_dropdown_changed)
 
         # Detect when text changes
-        self.entry.connect("search-changed", self.on_search_changed)
+        self.entry.connect("search-changed", self._on_search_changed_debounced)
         self.clicked_suggestions = False
+
+        # Debounce timer for search-changed events
+        self._debounce_timer_id = None
+        self._DEBOUNCE_MS = 300
 
     # =========================================================================
     # PUBLIC METHODS (API)
@@ -134,29 +145,48 @@ class SearchController(GObject.Object):
         """Close popover."""
         self.popover.popdown()
 
+    def _on_search_changed_debounced(self, entry):
+        """Debounced wrapper for search-changed event."""
+        # Cancel previous timer if active
+        if self._debounce_timer_id:
+            GLib.source_remove(self._debounce_timer_id)
+            self._debounce_timer_id = None
+
+        # Schedule the actual handler
+        self._debounce_timer_id = GLib.timeout_add(
+            self._DEBOUNCE_MS,
+            self._do_search_changed
+        )
+
+    def _do_search_changed(self):
+        """Actual search-changed logic (executed after debounce delay)."""
+        self._debounce_timer_id = None
+        self.on_search_changed(self.entry)
+        return False  # Don't repeat GLib timeout
+
     def on_search_changed(self, entry):
         """Handles clearing the list when search box is empty."""
         text = entry.get_text()
 
         # 0. Smart Source Switching
-        # Force "Direct Link" if text looks like URL, otherwise ensure it's a Provider (YT/SC)
-        if text.strip(): # Only if not empty
+        # Force "Direct Link" if text looks like URL
+        if text.strip():
             is_url = self._looks_like_url(text)
             current_idx = self.dropdown.get_selected()
-            
+
             if is_url and current_idx != 2:
                 # Switch to Direct Link (Index 2)
                 self.dropdown.set_selected(2)
-                print("[SearchController] Auto-switched to Direct Link")
-                
+                logger.debug("Switched to Direct Link")
+
             elif not is_url and current_idx == 2:
                 # Restore previous provider (Youtube or Soundcloud)
                 self.dropdown.set_selected(self.last_provider_idx)
-                print(f"[SearchController] Auto-restored provider (Index {self.last_provider_idx})")
+                logger.debug(f"Restored provider: {self.last_provider_idx}")
 
         # 1. Clear List Logic
         if not text or not text.strip():
-            print("[SearchController] Clearing list...")
+            logger.debug("Clearing search list...")
             self.store.remove_all()
             self.current_index = -1
             self.popover.update_suggestions([])
@@ -169,11 +199,11 @@ class SearchController(GObject.Object):
         # 2. Autocomplete Logic
         if not self.clicked_suggestions:
             raw_matches = SearchHistory.get_matches(text)
-            
-            # Determine Source from Dropdown logic (Index 2 matches 'Link Direto' / 'URL')
+
+            # Determine Source from Dropdown logic
             idx = self.dropdown.get_selected()
             is_source_url = (idx == 2)
-            
+
             filtered = []
             for match in raw_matches:
                 match_is_url = self._looks_like_url(match)
@@ -182,10 +212,10 @@ class SearchController(GObject.Object):
                     if match_is_url:
                         filtered.append(match)
                 else:
-                    # If Source is YT/SC, only show Keyword matches (NOT URLs)
+                    # If Source is YT/SC, only show Keyword matches
                     if not match_is_url:
                         filtered.append(match)
-            
+
             self.popover.update_suggestions(filtered)
         else:
             self.clicked_suggestions = False
@@ -198,9 +228,8 @@ class SearchController(GObject.Object):
         if not query:
             return
 
-        # [HISTORY] Save query and hide suggestions
         SearchHistory.add(query)
-        print(f"[SearchController] Query: {query}")
+        logger.info(f"Search query: {query}")
 
         # Lock UI
         self.btn.set_sensitive(False)
@@ -250,14 +279,13 @@ class SearchController(GObject.Object):
     # =========================================================================
     # INTERNAL LOGIC
     # =========================================================================
-
     def _run_search_thread(self, query, source):
         """Worker thread for network request."""
         try:
             results = self.engine.search(query, source=source)
             GLib.idle_add(self._update_ui_with_results, results)
         except Exception as e:
-            print(f"[SearchController] Error: {e}")
+            logger.error(f"Search error: {e}")
             MessageManager.show(str(e), True)
             GLib.idle_add(self._finish_loading)
 
@@ -280,10 +308,8 @@ class SearchController(GObject.Object):
         self.btn.set_sensitive(True)
 
     def _on_dropdown_changed(self, dropdown, param):
-        """Updates the remembered provider whenever the user selects a non-URL source."""
+        """Updates the remembered provider source."""
         idx = dropdown.get_selected()
-        # Only update memory if selecting a Provider (0=YT, 1=SC).
-        # Ignore 2 (URL) because that can be auto-triggered, and we want to remember what was before that.
         if idx == 0 or idx == 1:
             self.last_provider_idx = idx
 

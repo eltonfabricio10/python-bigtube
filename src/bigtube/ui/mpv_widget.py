@@ -60,15 +60,14 @@ class MpvWidget(Gtk.DrawingArea):
             return
 
         logger.info("Initializing MPV core...")
-        self.is_wayland = False  # Will be set in _on_realize
+        self.is_wayland = False
 
         # Initialize MPV
-        # input_default_bindings=True allows standard MPV hotkeys if window has focus
         self.mpv = mpv.MPV(
             vo='null',
-            vid='no',  # Start with video disabled
+            vid='no',
             keep_open='yes',
-            ytdl=True,  # yt-dlp logic in Search/PlayerController
+            ytdl=True,
             hwdec='auto',
             input_default_bindings=False
         )
@@ -82,7 +81,6 @@ class MpvWidget(Gtk.DrawingArea):
     def handle_keypress(self, keyval):
         """
         Manually forwards GTK key events to MPV as command strings.
-        This bypasses mpv's internal X11 key handling which causes >16bit errors.
         """
         if not self.mpv:
             return
@@ -91,8 +89,6 @@ class MpvWidget(Gtk.DrawingArea):
         if not key_name:
             return
 
-        # Simple mapping for common controls
-        # MPV command 'keypress' takes the key name
         try:
             self.mpv.keypress(key_name)
         except Exception as e:
@@ -126,8 +122,6 @@ class MpvWidget(Gtk.DrawingArea):
 
         @self.mpv.property_observer('pause')
         def on_pause(name, value):
-            # Value is True if paused, so state-changed(False) means Paused
-            # But usually UI expects is_playing, so we invert.
             is_playing = not value
             GLib.idle_add(self.emit, 'state-changed', is_playing)
 
@@ -137,7 +131,6 @@ class MpvWidget(Gtk.DrawingArea):
 
         @self.mpv.event_callback('end-file')
         def on_end_file(event):
-            # Check if reason was 'quit' or 'stop'
             try:
                 reason = getattr(event, 'reason', -1)
                 # 3 = MPV_END_FILE_REASON_QUIT
@@ -172,7 +165,7 @@ class MpvWidget(Gtk.DrawingArea):
                 self.mpv.vid = 'auto'
             else:
                 # Wayland: Open MPV in a separate controllable window
-                logger.info("Wayland detected. Using separate MPV window (still controllable).")
+                logger.info("Wayland detected. Using separate MPV window.")
                 self.is_wayland = True
                 self.mpv.force_window = 'yes'
                 self.mpv.vo = 'gpu'  # Works well on Wayland
@@ -194,7 +187,7 @@ class MpvWidget(Gtk.DrawingArea):
         if not self.mpv:
             return
         try:
-            # On Wayland, MPV manages its own window, so we don't need to switch modes
+            # On Wayland, MPV manages its own window
             if not self.is_wayland:
                 self.mpv.vid = 'no'
                 self.mpv.vo = 'null'
@@ -204,7 +197,6 @@ class MpvWidget(Gtk.DrawingArea):
     # =========================================================================
     # PUBLIC API
     # =========================================================================
-
     def play(self, url):
         if not self.mpv:
             return

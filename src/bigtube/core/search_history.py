@@ -78,3 +78,44 @@ class SearchHistory:
                 cls._FILE_PATH.unlink()
             except OSError:
                 cls._save()  # Fallback: overwrite with empty list
+
+
+class SearchCache:
+    """
+    Simple TTL cache for search results.
+    Avoids redundant API calls for repeated searches.
+    """
+    
+    _cache = {}  # {f"{source}:{query}": (results, timestamp)}
+    _TTL_SECONDS = 300  # 5 minutes
+    
+    @classmethod
+    def get(cls, query: str, source: str):
+        """Returns cached results if still valid, None otherwise."""
+        import time
+        key = f"{source}:{query.lower().strip()}"
+        
+        if key in cls._cache:
+            results, timestamp = cls._cache[key]
+            if time.time() - timestamp < cls._TTL_SECONDS:
+                return results
+            # Expired, remove
+            del cls._cache[key]
+        return None
+    
+    @classmethod
+    def set(cls, query: str, source: str, results: list):
+        """Stores search results in cache."""
+        import time
+        key = f"{source}:{query.lower().strip()}"
+        cls._cache[key] = (results, time.time())
+        
+        # Limit cache size to 50 entries
+        while len(cls._cache) > 50:
+            oldest_key = min(cls._cache, key=lambda k: cls._cache[k][1])
+            del cls._cache[oldest_key]
+    
+    @classmethod
+    def clear(cls):
+        """Clears all cached search results."""
+        cls._cache.clear()

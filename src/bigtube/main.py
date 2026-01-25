@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
+import argparse
 
 # --- Environment Configuration ---
 # Force X11/Cairo backend for better compatibility on some systems
@@ -96,6 +97,34 @@ def run():
     """
     Entry point function.
     """
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(
+        description='BigTube - YouTube Video Downloader',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        '--debug', 
+        action='store_true', 
+        help='Enable debug logging'
+    )
+    parser.add_argument(
+        '--version', 
+        action='store_true', 
+        help='Show application version'
+    )
+    args = parser.parse_args()
+    
+    # Handle --version
+    if args.version:
+        from .core.updater import Updater
+        version = Updater.get_local_version() or 'Unknown'
+        print(f"BigTube - yt-dlp version: {version}")
+        sys.exit(0)
+    
+    # Configure logging level
+    log_level = "DEBUG" if args.debug else "INFO"
+    BigTubeLogger.setup(level=log_level, console_output=True)
+    
     app = BigTubeApplication()
     GLib.set_prgname("org.big.bigtube")
 
