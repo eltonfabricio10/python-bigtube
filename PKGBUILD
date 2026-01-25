@@ -16,7 +16,7 @@ depends=(
     'libadwaita'
     'yt-dlp'
     'python-requests'
-    'gst-plugin-gtk'
+    'python-mpv'
 )
 
 makedepends=(
@@ -52,8 +52,8 @@ build() {
 package() {
     cd "${srcdir}/${pkgname}"
     python -m installer --destdir="${pkgdir}" dist/*.whl
-    #install -Dm644 "assets/icon.png" "${pkgdir}/usr/share/pixmaps/${_pkgname}.png"
-    install -Dm644 "assets/${_pkgname}.desktop" "${pkgdir}/usr/share/applications/${_pkgname}.desktop"
+    install -Dm644 "src/bigtube/data/bigtube.png" "${pkgdir}/usr/share/pixmaps/${_pkgname}.png"
+    install -Dm644 "src/bigtube/data/${_pkgname}.desktop" "${pkgdir}/usr/share/applications/${_pkgname}.desktop"
     install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
     install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

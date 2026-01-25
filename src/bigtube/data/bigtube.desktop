@@ -2,8 +2,7 @@
 Type=Application
 Name=BigTube
 Comment=Profissional TubePlayer
-Exec=/caminho/completo/para/poetry run init
-Path=/caminho/completo/para/mediaharbor
+Exec=bigtube
 Icon=bigtube
 Terminal=false
 Categories=Video;AudioVideo;
