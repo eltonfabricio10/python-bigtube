@@ -85,7 +85,7 @@ class VideoDownloader:
             return self._parse_formats(raw_info)
 
         except json.JSONDecodeError as e:
-            # JSON error might be transient (corrupt output) or permanent. 
+            # JSON error might be transient (corrupt output) or permanent.
             # We treat it as retriable (NetworkError wrapper) just in case.
             raise NetworkError(f"Invalid JSON output: {e}")
         except subprocess.SubprocessError as e:

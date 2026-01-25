@@ -144,7 +144,7 @@ class ConfigManager:
         # Prefer local binary if it exists
         if cls.YT_DLP_PATH.exists():
             return str(cls.YT_DLP_PATH)
-            
+
         # Fallback to system install
         system_bin = shutil.which("yt-dlp")
         if system_bin:

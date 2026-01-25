@@ -10,19 +10,19 @@ from gi.repository import GdkPixbuf, GLib, Gtk
 
 class LRUCache:
     """Thread-safe LRU Cache with configurable max size."""
-    
+
     def __init__(self, maxsize: int = 100):
         self._cache = OrderedDict()
         self._maxsize = maxsize
         self._lock = threading.Lock()
-    
+
     def get(self, key: str):
         with self._lock:
             if key in self._cache:
                 self._cache.move_to_end(key)
                 return self._cache[key]
         return None
-    
+
     def set(self, key: str, value):
         with self._lock:
             if key in self._cache:
@@ -30,7 +30,7 @@ class LRUCache:
             self._cache[key] = value
             while len(self._cache) > self._maxsize:
                 self._cache.popitem(last=False)
-    
+
     def clear(self):
         with self._lock:
             self._cache.clear()
@@ -47,7 +47,7 @@ class ImageLoader:
 
     # LRU Memory Cache with max 100 images
     _memory_cache = LRUCache(maxsize=100)
-    
+
     # Disk cache directory
     _cache_dir = Path(GLib.get_user_cache_dir()) / "bigtube" / "thumbnails"
 
@@ -89,19 +89,19 @@ class ImageLoader:
         Background task: Check disk cache -> Download -> Decode -> Resize -> Cache -> Update UI.
         """
         pixbuf = None
-        
+
         try:
             # 1. Check Disk Cache first
             cls._ensure_cache_dir()
             cache_path = cls._get_cache_path(url)
-            
+
             if cache_path.exists():
                 try:
                     pixbuf = GdkPixbuf.Pixbuf.new_from_file(str(cache_path))
                 except Exception:
                     # Corrupted cache file, remove it
                     cache_path.unlink(missing_ok=True)
-            
+
             # 2. Network Request if not in disk cache
             if not pixbuf:
                 req = Request(url, headers={'User-Agent': 'Mozilla/5.0 (compatible; BigTube/1.0)'})
@@ -163,7 +163,7 @@ class ImageLoader:
         """Cleanly shuts down the thread pool and clears caches."""
         cls._executor.shutdown(wait=False, cancel_futures=True)
         cls._memory_cache.clear()
-    
+
     @classmethod
     def clear_disk_cache(cls):
         """Clears all cached thumbnails from disk."""
@@ -173,4 +173,3 @@ class ImageLoader:
                     file.unlink(missing_ok=True)
         except Exception:
             pass
-

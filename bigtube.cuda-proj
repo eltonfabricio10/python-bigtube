@@ -1,0 +1,16 @@
+{
+  "nodes": [
+    "{ProjDir}"
+  ],
+  "vars": [],
+  "mainfile": "",
+  "unfold": [
+    "{ProjDir}",
+    "{ProjDir}/src",
+    "{ProjDir}/src/bigtube",
+    "{ProjDir}/src/bigtube/controllers",
+    "{ProjDir}/src/bigtube/core",
+    "{ProjDir}/src/bigtube/data",
+    "{ProjDir}/src/bigtube/ui"
+  ]
+}

@@ -485,7 +485,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
              # The downloader accepts format_id as a string, which usually acts as the -f argument
              is_audio = "audio" in pref and "video" not in pref
              ext = "mp3" if "mp3" in pref else "m4a" if is_audio else "mp4"
-             
+
              return {
                  'id': pref,
                  'ext': ext,

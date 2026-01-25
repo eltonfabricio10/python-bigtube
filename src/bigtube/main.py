@@ -103,28 +103,28 @@ def run():
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
-        '--debug', 
-        action='store_true', 
+        '--debug',
+        action='store_true',
         help='Enable debug logging'
     )
     parser.add_argument(
-        '--version', 
-        action='store_true', 
+        '--version',
+        action='store_true',
         help='Show application version'
     )
     args = parser.parse_args()
-    
+
     # Handle --version
     if args.version:
         from .core.updater import Updater
         version = Updater.get_local_version() or 'Unknown'
         print(f"BigTube - yt-dlp version: {version}")
         sys.exit(0)
-    
+
     # Configure logging level
     log_level = "DEBUG" if args.debug else "INFO"
     BigTubeLogger.setup(level=log_level, console_output=True)
-    
+
     app = BigTubeApplication()
     GLib.set_prgname("org.big.bigtube")
 

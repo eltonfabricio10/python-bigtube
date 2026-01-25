@@ -176,7 +176,7 @@ class SettingsController:
         # Load Quality
         if 'row_quality' in w:
             val = ConfigManager.get("default_quality")
-            
+
             # Map Enum to index (Default to ASK/0)
             mapping = {
                 VideoQuality.ASK: 0,
@@ -192,7 +192,7 @@ class SettingsController:
                 VideoQuality.AUDIO_MP3: 10,
                 VideoQuality.AUDIO_M4A: 11
             }
-            
+
             idx = mapping.get(val, 0)
             w['row_quality'].set_selected(idx)
 
@@ -221,7 +221,7 @@ class SettingsController:
     def _on_quality_changed(self, row, param):
         idx = row.get_selected()
         mode = VideoQuality.ASK
-        
+
         # Map index to Enum
         mapping = {
             0: VideoQuality.ASK,
@@ -237,7 +237,7 @@ class SettingsController:
             10: VideoQuality.AUDIO_MP3,
             11: VideoQuality.AUDIO_M4A
         }
-        
+
         mode = mapping.get(idx, VideoQuality.ASK)
         ConfigManager.set("default_quality", mode)
 

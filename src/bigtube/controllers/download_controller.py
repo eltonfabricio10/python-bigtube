@@ -51,14 +51,14 @@ class DownloadController:
         child = self.list_box.get_first_child()
         while child:
             next_child = child.get_next_sibling()
-            
+
             # In GTK4 ListBox, children are ListBoxRow wrappers.
             # We need to check the inner widget which is our DownloadRow.
             inner_widget = child.get_child()
-            
+
             if inner_widget and hasattr(inner_widget, 'full_path') and inner_widget.full_path == file_path:
                 self.list_box.remove(child)
                 return True
-                
+
             child = next_child
         return False

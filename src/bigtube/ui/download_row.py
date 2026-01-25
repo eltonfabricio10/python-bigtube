@@ -119,7 +119,7 @@ class DownloadRow(Gtk.Box):
             self.btn_pause.set_tooltip_text(Res.get(StringKey.BTN_PAUSE))
             self.lbl_status.set_label(Res.get(StringKey.STATUS_RESUMING))
             self.progress_bar.remove_css_class("warning")
-            
+
             # Restart the download in a separate thread
             def resume_task():
                 logger.info(f"Starting resume thread for {self.full_path}")
@@ -131,7 +131,7 @@ class DownloadRow(Gtk.Box):
                     GLib.idle_add(self.set_error_state, str(e))
 
             threading.Thread(target=resume_task, daemon=True).start()
-             
+
         else:
             # === PAUSE ===
             self.is_paused = True
@@ -140,7 +140,7 @@ class DownloadRow(Gtk.Box):
             self.btn_pause.set_tooltip_text(Res.get(StringKey.BTN_RESUME))
             self.lbl_status.set_label(Res.get(StringKey.STATUS_PAUSED))
             self.progress_bar.add_css_class("warning")
-            
+
             # Persist Paused state
             HistoryManager.update_status(self.full_path, DownloadStatus.PAUSED)
 
@@ -155,7 +155,7 @@ class DownloadRow(Gtk.Box):
         """
         if self.is_cancelled:
             return
-            
+
         if self.is_paused:
             # Don't update visual progress while paused (avoids flickering)
             return
@@ -248,7 +248,7 @@ class DownloadRow(Gtk.Box):
             # Remove Row from UI
             # We delay slightly to let the animation finish or user see "Cancelled"
             parent = self.get_parent()
-            
+
             # Use traversal to find the ListBox and the Row
             # If we are inside a ListBoxRow (implicit wrapper), we must remove that row from the ListBox
             if isinstance(parent, Gtk.ListBoxRow):
