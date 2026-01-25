@@ -123,7 +123,7 @@ class StringKey(Enum):
 
     # Quality Options
     PREFS_QUALITY_ASK = N_("Ask Every Time")
-    PREFS_QUALITY_BEST_MP4 = N_("Best (MP4/AVC)")
+    PREFS_QUALITY_BEST_MP4 = N_("Best (MKV)")
     PREFS_QUALITY_4K = N_("4K (2160p)")
     PREFS_QUALITY_2K = N_("2K (1440p)")
     PREFS_QUALITY_1080 = N_("Full HD (1080p)")
@@ -136,7 +136,7 @@ class StringKey(Enum):
     PREFS_QUALITY_AUDIO_M4A = N_("Audio (M4A)")
 
     # Status
-    STATUS_FETCH = N_("Searching for information")
+    STATUS_FETCH = N_("Getting information...")
     STATUS_PENDING = N_("Pending")
     STATUS_DOWNLOADING = N_("Downloading...")
     STATUS_DOWNLOADING_PROCESSING = N_("Processing...")
@@ -162,7 +162,8 @@ class StringKey(Enum):
     ERR_FFMPEG = N_("FFmpeg Error - Missing or incompatible")
     ERR_DISK_SPACE = N_("Not enough disk space")
     SEARCH_ERROR = N_("Error searching for video")
-    MSG_FILE_EXISTS = N_("File Already Exists")
+    MSG_FILE_EXISTS = N_("File Already Exists!")
+    MSG_FILE_EXISTS_BODY = N_("Overwrite this file?")
     MSG_FILE_NOT_FOUND_TITLE = N_("File Not Found, Remove from History?")
     MSG_FILE_NOT_FOUND_BODY = N_("The following file exists in history but was not found on disk:\n")
     MSG_HISTORY_ITEM_REMOVED = N_("Item removed from history.")

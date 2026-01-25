@@ -33,12 +33,8 @@ class ConfigManager:
     DATA_DIR = Path(GLib.get_user_data_dir()) / _APP_NAME
     BIN_DIR = DATA_DIR / "bin"
 
-    # Binary Names
-    YT_DLP_NAME = "yt-dlp"
-    DENO_NAME = "deno"
-
-    YT_DLP_PATH = BIN_DIR / YT_DLP_NAME
-    DENO_PATH = BIN_DIR / DENO_NAME
+    YT_DLP_PATH = BIN_DIR / "yt-dlp"
+    DENO_PATH = BIN_DIR / "deno"
 
     # --- Default Settings ---
     # We use GLib to find the real Downloads folder

@@ -10,7 +10,7 @@ from gi.repository import Gtk, Adw, Gdk, GLib
 from ..core.downloader import VideoDownloader
 from ..core.config import ConfigManager
 from ..core.history_manager import HistoryManager
-from ..core.enums import DownloadStatus, AppSection, FileExt, VideoQuality
+from ..core.enums import DownloadStatus, AppSection, VideoQuality
 from ..core.locales import ResourceManager as Res, StringKey
 from ..core.logger import get_logger
 from ..core.validators import sanitize_filename
@@ -527,7 +527,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         if os.path.exists(full_path):
             MessageManager.show_confirmation(
                 title=Res.get(StringKey.MSG_FILE_EXISTS),
-                body=f"{file_name}\n{Res.get(StringKey.MSG_CONFIRM_CLEAR_BODY)}",
+                body=f"{file_name}\n{Res.get(StringKey.MSG_FILE_EXISTS_BODY)}",
                 on_confirm_callback=lambda: self._spawn_download_task(
                                                 video_info,
                                                 format_data,

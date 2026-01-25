@@ -27,7 +27,7 @@ logger = get_logger(__name__)
 class Timeouts:
     """Centralized timeout configuration."""
     SUBPROCESS_DEFAULT = 300  # 5 minutes for downloads
-    SUBPROCESS_METADATA = 120  # 2 minutes for metadata fetch (increased from 60s)
+    SUBPROCESS_METADATA = 60  # 1 minute for metadata fetch
     SUBPROCESS_SEARCH = 45    # 45 seconds for search
     NETWORK_DOWNLOAD = 30     # 30 seconds for binary downloads
     STREAM_EXTRACTION = 30    # 30 seconds for stream URL extraction

@@ -51,8 +51,8 @@ class VideoQuality(str, Enum):
     BEST = "bestvideo[ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo+bestaudio/best"
     
     # Audio Presets
-    AUDIO_MP3 = "bestaudio --extract-audio --audio-quality 0 --audio-format mp3 --embed-thumbnail"
-    AUDIO_M4A = "bestaudio --format-sort acodec:m4a"
+    AUDIO_MP3 = "bestaudio/best --extract-audio --audio-quality 0 --audio-format mp3 --embed-thumbnail"
+    AUDIO_M4A = "bestaudio/best --format-sort acodec:m4a"
 
 
 class FileExt(str, Enum):

@@ -80,7 +80,7 @@ class SearchEngine:
         else:
             # Default to YouTube
             args = [
-                "--extractor-args", "youtube:player_client=android",
+                "--extractor-args", "youtube:player_client=web,android_vr",
                 "--flat-playlist",
                 "--dump-json",
                 f"ytsearch{self.SEARCH_LIMIT}:{clean_query}"
@@ -99,7 +99,7 @@ class SearchEngine:
             "--dump-json",
             "--no-playlist",
             "--skip-download",
-            "--extractor-args", "youtube:player_client=android",
+            "--extractor-args", "youtube:player_client=web,android_vr",
             "--user-agent", "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36"
         ]
 

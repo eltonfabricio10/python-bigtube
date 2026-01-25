@@ -65,7 +65,7 @@ class VideoDownloader:
             self.binary_path,
             "--dump-single-json",
             "--no-warnings",
-            "--extractor-args", "youtube:player_client=tv_embedded,web_embedded",
+            "--extractor-args", "youtube:player_client=web,android_vr",
             url
         ]
 
