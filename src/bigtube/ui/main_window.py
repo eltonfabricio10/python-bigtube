@@ -479,16 +479,19 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             if audios:
                 return audios[0]
 
-        elif pref == VideoQuality.WORST:
-            # Last video option
-            if videos:
-                return videos[-1]
-            if audios:
-                return audios[-1]
-
-        elif pref == VideoQuality.AUDIO:
-            if audios:
-                return audios[0]
+        # Check if pref is one of our detailed presets (contains 'bestvideo' or 'bestaudio')
+        if "bestvideo" in pref or "bestaudio" in pref:
+             # Create a dummy format object that passes this string as 'id'
+             # The downloader accepts format_id as a string, which usually acts as the -f argument
+             is_audio = "audio" in pref and "video" not in pref
+             ext = "mp3" if "mp3" in pref else "m4a" if is_audio else "mp4"
+             
+             return {
+                 'id': pref,
+                 'ext': ext,
+                 'label': "Custom Preset",
+                 'type': "audio" if is_audio else "video"
+             }
 
         return None
 

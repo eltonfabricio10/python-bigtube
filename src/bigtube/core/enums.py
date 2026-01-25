@@ -35,10 +35,24 @@ class ThemeMode(str, Enum):
 
 class VideoQuality(str, Enum):
     """Preferred quality settings."""
-    ASK = "ask"          # Ask every time (Show Dialog)
-    BEST = "best"        # Best Video + Best Audio
-    WORST = "worst"      # Smallest file size
-    AUDIO = "audio_only"  # Convert to MP3/M4A
+    ASK = "ask"
+    
+    # Video Presets (MP4/AVC + M4A)
+    P_144 = "bestvideo[height=144][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=144]+bestaudio"
+    P_240 = "bestvideo[height=240][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=240]+bestaudio"
+    P_360 = "bestvideo[height=360][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=360]+bestaudio"
+    P_480 = "bestvideo[height=480][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=480]+bestaudio"
+    P_720 = "bestvideo[height=720][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=720]+bestaudio"
+    P_1080 = "bestvideo[height=1080][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=1080]+bestaudio"
+    P_1440 = "bestvideo[height=1440][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=1440]+bestaudio"
+    P_2160 = "bestvideo[height=2160][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height=2160]+bestaudio"
+    
+    # Generic Helpers
+    BEST = "bestvideo[ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo+bestaudio/best"
+    
+    # Audio Presets
+    AUDIO_MP3 = "bestaudio --extract-audio --audio-quality 0 --audio-format mp3 --embed-thumbnail"
+    AUDIO_M4A = "bestaudio --format-sort acodec:m4a"
 
 
 class FileExt(str, Enum):

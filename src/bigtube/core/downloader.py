@@ -79,7 +79,6 @@ class VideoDownloader:
 
             if return_code != 0:
                 # RAISE exception so retry decorator catches it
-                err_lower = stderr.lower()
                 raise NetworkError(f"yt-dlp returned code {return_code}: {stderr.strip()}")
 
             raw_info = json.loads(stdout)

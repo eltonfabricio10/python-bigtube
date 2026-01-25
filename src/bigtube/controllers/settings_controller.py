@@ -101,9 +101,17 @@ class SettingsController:
             # Use translated quality names
             quality_names = [
                 Res.get(StringKey.PREFS_QUALITY_ASK),
-                Res.get(StringKey.PREFS_QUALITY_BEST),
-                Res.get(StringKey.PREFS_QUALITY_WORST),
-                Res.get(StringKey.PREFS_QUALITY_AUDIO)
+                Res.get(StringKey.PREFS_QUALITY_BEST_MP4),
+                Res.get(StringKey.PREFS_QUALITY_4K),
+                Res.get(StringKey.PREFS_QUALITY_2K),
+                Res.get(StringKey.PREFS_QUALITY_1080),
+                Res.get(StringKey.PREFS_QUALITY_720),
+                Res.get(StringKey.PREFS_QUALITY_480),
+                Res.get(StringKey.PREFS_QUALITY_360),
+                Res.get(StringKey.PREFS_QUALITY_240),
+                Res.get(StringKey.PREFS_QUALITY_144),
+                Res.get(StringKey.PREFS_QUALITY_AUDIO_MP3),
+                Res.get(StringKey.PREFS_QUALITY_AUDIO_M4A)
             ]
             model = Gtk.StringList.new(quality_names)
             w['row_quality'].set_model(model)
@@ -168,13 +176,24 @@ class SettingsController:
         # Load Quality
         if 'row_quality' in w:
             val = ConfigManager.get("default_quality")
-            idx = 0
-            if val == VideoQuality.BEST:
-                idx = 1
-            elif val == VideoQuality.WORST:
-                idx = 2
-            elif val == VideoQuality.AUDIO:
-                idx = 3
+            
+            # Map Enum to index (Default to ASK/0)
+            mapping = {
+                VideoQuality.ASK: 0,
+                VideoQuality.BEST: 1,
+                VideoQuality.P_2160: 2,
+                VideoQuality.P_1440: 3,
+                VideoQuality.P_1080: 4,
+                VideoQuality.P_720: 5,
+                VideoQuality.P_480: 6,
+                VideoQuality.P_360: 7,
+                VideoQuality.P_240: 8,
+                VideoQuality.P_144: 9,
+                VideoQuality.AUDIO_MP3: 10,
+                VideoQuality.AUDIO_M4A: 11
+            }
+            
+            idx = mapping.get(val, 0)
             w['row_quality'].set_selected(idx)
 
         # Set Version (Async to avoid lag on startup)
@@ -202,12 +221,24 @@ class SettingsController:
     def _on_quality_changed(self, row, param):
         idx = row.get_selected()
         mode = VideoQuality.ASK
-        if idx == 1:
-            mode = VideoQuality.BEST
-        elif idx == 2:
-            mode = VideoQuality.WORST
-        elif idx == 3:
-            mode = VideoQuality.AUDIO
+        
+        # Map index to Enum
+        mapping = {
+            0: VideoQuality.ASK,
+            1: VideoQuality.BEST,
+            2: VideoQuality.P_2160,
+            3: VideoQuality.P_1440,
+            4: VideoQuality.P_1080,
+            5: VideoQuality.P_720,
+            6: VideoQuality.P_480,
+            7: VideoQuality.P_360,
+            8: VideoQuality.P_240,
+            9: VideoQuality.P_144,
+            10: VideoQuality.AUDIO_MP3,
+            11: VideoQuality.AUDIO_M4A
+        }
+        
+        mode = mapping.get(idx, VideoQuality.ASK)
         ConfigManager.set("default_quality", mode)
 
     def _on_clear_data_activated(self, row):

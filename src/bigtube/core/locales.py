@@ -123,9 +123,17 @@ class StringKey(Enum):
 
     # Quality Options
     PREFS_QUALITY_ASK = N_("Ask Every Time")
-    PREFS_QUALITY_BEST = N_("Best Available")
-    PREFS_QUALITY_WORST = N_("Smallest Size")
-    PREFS_QUALITY_AUDIO = N_("Audio Only")
+    PREFS_QUALITY_BEST_MP4 = N_("Best (MP4/AVC)")
+    PREFS_QUALITY_4K = N_("4K (2160p)")
+    PREFS_QUALITY_2K = N_("2K (1440p)")
+    PREFS_QUALITY_1080 = N_("Full HD (1080p)")
+    PREFS_QUALITY_720 = N_("HD (720p)")
+    PREFS_QUALITY_480 = N_("SD (480p)")
+    PREFS_QUALITY_360 = N_("LD (360p)")
+    PREFS_QUALITY_240 = N_("LD (240p)")
+    PREFS_QUALITY_144 = N_("Low (144p)")
+    PREFS_QUALITY_AUDIO_MP3 = N_("Audio (MP3)")
+    PREFS_QUALITY_AUDIO_M4A = N_("Audio (M4A)")
 
     # Status
     STATUS_FETCH = N_("Searching for information")
