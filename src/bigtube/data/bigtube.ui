@@ -171,7 +171,7 @@
                                   <object class="AdwPreferencesGroup" id="group_appearance">
                                     <child>
                                       <object class="AdwComboRow" id="row_theme">
-                                        <property name="icon-name">games-config-theme</property>
+                                        <property name="icon-name">brush-monitor-symbolic</property>
                                         <property name="model">
                                           <object class="GtkStringList" id="theme_list"/>
                                         </property>
@@ -206,7 +206,7 @@
                                     </child>
                                     <child>
                                       <object class="AdwComboRow" id="row_quality">
-                                        <property name="icon-name">bookmark-new-list</property>
+                                        <property name="icon-name">music-playlist-symbolic</property>
                                         <property name="model">
                                           <object class="GtkStringList" id="quality_list"/>
                                         </property>
@@ -214,12 +214,12 @@
                                     </child>
                                     <child>
                                       <object class="AdwSwitchRow" id="row_metadata">
-                                        <property name="icon-name">database-index</property>
+                                        <property name="icon-name">network-server-symbolic</property>
                                       </object>
                                     </child>
                                     <child>
                                       <object class="AdwSwitchRow" id="row_subtitles">
-                                        <property name="icon-name">add-subtitle</property>
+                                        <property name="icon-name">media-view-subtitles-symbolic</property>
                                       </object>
                                     </child>
                                   </object>
@@ -229,21 +229,21 @@
                                     <child>
                                       <object class="AdwSwitchRow" id="row_save_history">
                                         <property name="active">True</property>
-                                        <property name="icon-name">view-history</property>
+                                        <property name="icon-name">document-open-recent-symbolic</property>
                                       </object>
                                     </child>
                                     <child>
                                       <object class="AdwSwitchRow" id="row_auto_clear">
-                                        <property name="icon-name">edit-delete-shred</property>
+                                        <property name="icon-name">xsi-user-trash-symbolic</property>
                                       </object>
                                     </child>
                                     <child>
                                       <object class="AdwActionRow" id="row_clear_data">
-                                        <property name="icon-name">rabbitvcs-clear</property>
+                                        <property name="icon-name">emblem-documents-symbolic</property>
                                         <child>
                                           <object class="GtkButton" id="btn_clear_now">
                                             <property name="css-classes">destructive-action</property>
-                                            <property name="icon-name">edit-clear-history</property>
+                                            <property name="icon-name">user-trash-symbolic</property>
                                             <property name="valign">center</property>
                                           </object>
                                         </child>

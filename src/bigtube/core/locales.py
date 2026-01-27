@@ -108,13 +108,13 @@ class StringKey(Enum):
     PREFS_APPEARANCE = N_("Appearance")
     PREFS_THEME = N_("Theme")
     PREFS_DOWNLOADS = N_("Downloads")
-    PREFS_STORAGE = N_("Storage / History")
-    PREFS_QUALITY = N_("Video Quality")
+    PREFS_STORAGE = N_("Storage | History")
+    PREFS_QUALITY = N_("Presets")
     PREFS_METADATA = N_("Add Metadata")
     PREFS_SUBTITLES = N_("Download Subtitles")
     PREFS_SAVE_HISTORY = N_("Save Download History")
-    PREFS_AUTO_CLEAR = N_("Auto-clear Finished")
-    PREFS_CLEAR_DATA = N_("Clear Application Data")
+    PREFS_AUTO_CLEAR = N_("Auto Clear on Exit")
+    PREFS_CLEAR_DATA = N_("Clear All App Data")
 
     # Theme Options
     PREFS_THEME_SYSTEM = N_("System")
