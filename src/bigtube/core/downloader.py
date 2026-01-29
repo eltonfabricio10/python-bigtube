@@ -12,6 +12,7 @@ from .enums import FileExt
 from .locales import ResourceManager as Res, StringKey
 from .logger import get_logger, NetworkError
 from .validators import run_subprocess_with_timeout, Timeouts, retry_with_backoff, sanitize_filename
+from ..ui.message_manager import MessageManager
 
 # Module logger
 logger = get_logger(__name__)
@@ -255,10 +256,12 @@ class VideoDownloader:
 
             if free_mb < required:
                 logger.warning(f"Insufficient disk space: {free_mb:.1f}MB free, need {required:.1f}MB")
+                MessageManager.show(Res.get(StringKey.MSG_INSUFFICIENT_DISK_SPACE))
                 return False
             return True
         except OSError as e:
             logger.warning(f"Could not check disk space: {e}")
+            MessageManager.show(Res.get(StringKey.MSG_COULD_NOT_CHECK_DISK_SPACE))
             return True  # Continue if we can't check
 
     # =========================================================================
@@ -302,6 +305,7 @@ class VideoDownloader:
         output_template = os.path.join(download_dir, f"{safe_title}.%(ext)s")
 
         logger.info(f"Starting download: {safe_title} -> {ext}")
+        MessageManager.show(Res.get(StringKey.MSG_DOWNLOADING))
 
         # 2. Command Construction
         cmd = [
@@ -311,8 +315,9 @@ class VideoDownloader:
             "--no-playlist",
             "--ignore-config",
             "--ignore-errors",
+            "--extractor-args", "youtube:player_client=android",
             "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-            "-o", output_template
+            "-o", f"{os.path.join(download_dir, safe_title)}.{ext}"
         ]
 
         # --- Inject User Preferences (requires ffmpeg) ---
@@ -322,6 +327,7 @@ class VideoDownloader:
             if has_ffmpeg:
                 cmd.append("--embed-metadata")
             else:
+                MessageManager.show(Res.get(StringKey.MSG_FFMPEG_NOT_FOUND))
                 logger.warning("ffmpeg not found. Skipping '--embed-metadata'")
 
         if ConfigManager.get("download_subtitles"):
@@ -333,34 +339,47 @@ class VideoDownloader:
                     "--embed-subs"
                 ])
             else:
+                MessageManager.show(Res.get(StringKey.MSG_FFMPEG_NOT_FOUND))
                 logger.warning("ffmpeg not found. Skipping subtitle flags")
 
         if force_overwrite:
             cmd.append("--force-overwrites")
 
-        # Format Logic
-        is_audio_conversion = ext in [FileExt.MP3, FileExt.M4A] and "bestaudio" in format_id
+        # Format Logic: Split format_id if it contains extra flags
+        format_parts = format_id.split()
+        actual_format = format_parts[0]
+        extra_flags = format_parts[1:]
+
+        is_audio_conversion = ext in [FileExt.MP3, FileExt.M4A] and "audio" in actual_format
 
         if is_audio_conversion:
             # Audio Extraction Mode
-            cmd.extend([
-                "-f", format_id,
-                "--extract-audio",
-                "--audio-format", ext,
-                "--audio-quality", "0",
-            ])
-        else:
-            # Video Mode
-            if "+bestaudio" not in format_id and "best" not in format_id:
-                # If specific video ID, try to merge best audio
-                cmd.extend(["-f", f"{format_id}+bestaudio/best"])
-            else:
-                cmd.extend(["-f", format_id])
+            cmd.extend(["-f", actual_format])
 
+            # Add extra flags from the preset if not already implicitly handled
+            cmd.extend(extra_flags)
+
+            # Ensure basic audio flags are present if not in preset
+            if "--extract-audio" not in extra_flags:
+                cmd.append("--extract-audio")
+            if "--audio-format" not in extra_flags:
+                cmd.extend(["--audio-format", ext])
+            if "--audio-quality" not in extra_flags:
+                cmd.extend(["--audio-quality", "0"])
+        else:
+            logger.info(f"Format ID: {actual_format} - {ext}")
+            # Video Mode
+            if "+bestaudio" not in actual_format and "/" not in actual_format:
+                 # If specific single video ID, try to merge best audio
+                 cmd.extend(["-f", f"{actual_format}+bestaudio/best"])
+            else:
+                 cmd.extend(["-f", actual_format])
+
+            cmd.extend(extra_flags)
             cmd.extend(["--merge-output-format", ext])
 
         cmd.append(url)
-
+        logger.info(f"Command constructed: {cmd}")
         # 3. Execution Loop
         last_log_lines = deque(maxlen=20)
 
@@ -409,18 +428,22 @@ class VideoDownloader:
             return_code = self.process.wait()
 
             if return_code == 0:
+                MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_COMPLETED))
                 logger.info(f"Download completed successfully: {safe_title}")
+
                 if progress_callback:
                     progress_callback("100%", Res.get(StringKey.STATUS_COMPLETED))
                 return True
 
             elif return_code == -15 or self.is_cancelled:
+                MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_CANCELLED))
                 logger.info("Download cancelled by user")
                 if progress_callback:
                     progress_callback("Cancelled", Res.get(StringKey.STATUS_CANCELLED))
                 return False
 
             else:
+                MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_FAILED))
                 logger.error(f"Download failed with code {return_code}")
                 # Log the last few lines of yt-dlp output to help debugging
                 error_log = "\n".join(last_log_lines)
@@ -432,17 +455,20 @@ class VideoDownloader:
                 return False
 
         except subprocess.TimeoutExpired:
+            MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_TIMED_OUT))
             logger.error("Download timed out")
             if progress_callback:
                 progress_callback(Res.get(StringKey.STATUS_ERROR), "Timeout")
             return False
 
         except subprocess.SubprocessError as e:
+            MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_FAILED))
             logger.error(f"Subprocess error during download: {e}")
             if progress_callback:
                 progress_callback(Res.get(StringKey.STATUS_ERROR), Res.get(StringKey.ERR_UNKNOWN))
             return False
         except Exception as e:
+            MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_FAILED))
             logger.exception(f"Unexpected error during download: {e}")
             if progress_callback:
                 msg = Res.get(StringKey.ERR_CRITICAL) + str(e)
@@ -465,6 +491,7 @@ class VideoDownloader:
     def _terminate_process(self, reason: str):
         """Helper to kill the subprocess safely."""
         if self.process:
+            MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_CANCELLED))
             logger.info(f"Terminating download process: {reason}")
             try:
                 self.process.terminate()
@@ -474,6 +501,7 @@ class VideoDownloader:
                 except subprocess.TimeoutExpired:
                     self.process.kill()
             except OSError as e:
+                MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_FAILED))
                 logger.warning(f"Failed to terminate process: {e}")
 
     def resume(self) -> bool:
@@ -482,9 +510,11 @@ class VideoDownloader:
         WARNING: This is blocking and should be run in a separate thread.
         """
         if not hasattr(self, '_last_params') or not self._last_params:
+            MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_FAILED))
             logger.error("Cannot resume: No previous download stored.")
             return False
 
+        MessageManager.show(Res.get(StringKey.MSG_RESUMING))
         logger.info("Resuming download...")
         self._last_params['force_overwrite'] = False
 

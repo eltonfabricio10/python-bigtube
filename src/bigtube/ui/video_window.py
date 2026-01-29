@@ -92,6 +92,7 @@ class VideoWindow(Adw.Window):
     # =========================================================================
 
     def show_video(self):
+        logger.info("Showing video window...")
         self.set_visible(True)
 
     def stop(self): self.mpv_widget.stop()

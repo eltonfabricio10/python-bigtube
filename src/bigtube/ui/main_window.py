@@ -29,7 +29,6 @@ from .video_window import VideoWindow
 from .format_dialog import FormatSelectionDialog
 from .search_result_row import SearchResultRow
 from .message_manager import MessageManager
-from .top_toast import TopToast
 
 # Path to the .ui file
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -45,8 +44,11 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     # =========================================================================
 
     # Navigation & Overlay
+    toast_overlay = Gtk.Template.Child()
     main_overlay = Gtk.Template.Child()
     main_box = Gtk.Template.Child()
+    main_bar = Gtk.Template.Child()
+    btn_about = Gtk.Template.Child()
     pageview = Gtk.Template.Child()
 
     # Pages
@@ -111,6 +113,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.btn_about.connect("clicked", self.on_about_clicked)
 
         # 1. Core Setup
         ConfigManager.ensure_dirs()
@@ -178,12 +181,23 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
         # 8. Final UI Polish
         self.setup_loading_overlay()
-        self.top_toast = TopToast()
-        self.main_overlay.add_overlay(self.top_toast)
-        MessageManager.init(self.top_toast, self)
+        MessageManager.init(self.toast_overlay, self)
 
         # Load previous session
         self._load_history_ui()
+
+    def on_about_clicked(self, widget, event=None):
+        """Opens the about dialog."""
+        about = Adw.AboutDialog.new()
+        about.set_application_name(Res.get(StringKey.APP_TITLE))
+        about.set_application_icon("bigtube")
+        about.set_developer_name("Elton Fabricio a.k.a eltonff")
+        about.set_version("1.0.0")
+        about.set_license_type(Gtk.License.MIT_X11)
+        about.set_copyright("© 2026 BigTube")
+        about.set_website("https://github.com/eltonfabricio10/python-bigtube")
+        about.set_issue_url("https://github.com/eltonfabricio10/python-bigtube/issues")
+        about.present()
 
     def _setup_ui_strings(self):
         """Injects localized text into the UI elements."""
@@ -260,6 +274,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             listbox.remove(child)
 
         MessageManager.show(Res.get(StringKey.MSG_HISTORY_CLEARED))
+        self.btn_clear.set_sensitive(False)
 
     def _load_history_ui(self):
         """Rebuilds the UI based on JSON history."""

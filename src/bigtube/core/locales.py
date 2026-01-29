@@ -76,7 +76,7 @@ class StringKey(Enum):
     # Search Page
     SEARCH_PLACEHOLDER = N_("Paste URL or type keywords...")
     SEARCH_BTN_LABEL = N_("Search")
-    SEARCH_NO_RESULTS = N_("No results found.")
+    SEARCH_NO_RESULTS = N_("No results found!")
     SEARCH_START = N_("Looking for:")
 
     # Tooltips
@@ -96,7 +96,7 @@ class StringKey(Enum):
     BTN_CLEAR_HISTORY = N_("Clear History")
     MSG_CONFIRM_CLEAR_TITLE = N_("Clear History?")
     MSG_CONFIRM_CLEAR_BODY = N_("This will remove all entries from the list.\nFiles will remain on disk.")
-    MSG_HISTORY_CLEARED = N_("History cleared successfully.")
+    MSG_HISTORY_CLEARED = N_("History cleared successfully!")
     MSG_DOWNLOAD_DATA_ERROR = N_("Failed to get info for")
 
     # Settings
@@ -114,7 +114,7 @@ class StringKey(Enum):
     PREFS_SUBTITLES = N_("Download Subtitles")
     PREFS_SAVE_HISTORY = N_("Save Download History")
     PREFS_AUTO_CLEAR = N_("Auto Clear on Exit")
-    PREFS_CLEAR_DATA = N_("Clear All App Data")
+    PREFS_CLEAR_DATA = N_("Clear All Application Data")
 
     # Theme Options
     PREFS_THEME_SYSTEM = N_("System")
@@ -136,7 +136,7 @@ class StringKey(Enum):
     PREFS_QUALITY_AUDIO_M4A = N_("Audio (M4A)")
 
     # Status
-    STATUS_FETCH = N_("Getting information...")
+    STATUS_FETCH = N_("Getting information")
     STATUS_PENDING = N_("Pending")
     STATUS_DOWNLOADING = N_("Downloading...")
     STATUS_DOWNLOADING_PROCESSING = N_("Processing...")
@@ -155,13 +155,13 @@ class StringKey(Enum):
 
     # Errors
     ERR_CRITICAL = N_("Critical Error: ")
-    ERR_NETWORK = N_("Network Error")
-    ERR_DRM = N_("Content is DRM Protected")
-    ERR_PRIVATE = N_("Video is Private")
-    ERR_UNKNOWN = N_("Unknown Error")
-    ERR_FFMPEG = N_("FFmpeg Error - Missing or incompatible")
-    ERR_DISK_SPACE = N_("Not enough disk space")
-    SEARCH_ERROR = N_("Error searching for video")
+    ERR_NETWORK = N_("Network Error!")
+    ERR_DRM = N_("Content is DRM Protected!")
+    ERR_PRIVATE = N_("Video is Private!")
+    ERR_UNKNOWN = N_("Unknown Error!")
+    ERR_FFMPEG = N_("FFmpeg Error - Missing or incompatible!")
+    ERR_DISK_SPACE = N_("Not enough disk space!")
+    SEARCH_ERROR = N_("Error searching for video!")
     MSG_FILE_EXISTS = N_("File Already Exists!")
     MSG_FILE_EXISTS_BODY = N_("Overwrite this file?")
     MSG_FILE_NOT_FOUND_TITLE = N_("File Not Found, Remove from History?")
@@ -175,6 +175,17 @@ class StringKey(Enum):
     PLAYER_UNKNOWN_ARTIST = N_("Unknown Artist")
     PLAYER_UNKNOWN_TITLE = N_("Unknown Title")
     PLAYER_WINDOW_TITLE = N_("BigTube Player")
+
+    # Messages
+    MSG_INSUFFICIENT_DISK_SPACE = N_("Insufficient disk space!")
+    MSG_COULD_NOT_CHECK_DISK_SPACE = N_("Could not check disk space!")
+    MSG_FFMPEG_NOT_FOUND = N_("FFmpeg not found. Some features will be limited!")
+    MSG_DOWNLOAD_COMPLETED = N_("Download completed successfully!")
+    MSG_DOWNLOAD_CANCELLED = N_("Download cancelled by user!")
+    MSG_DOWNLOAD_FAILED = N_("Download failed!")
+    MSG_DOWNLOAD_TIMED_OUT = N_("Download timed out!")
+    MSG_DOWNLOADING = N_("Starting download...")
+    MSG_RESUMING = N_("Starting resume download...")
 
 
 class ResourceManager:

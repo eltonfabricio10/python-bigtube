@@ -1,5 +1,6 @@
 import gi
-from gi.repository import GLib, Adw
+gi.require_version('Adw', '1')
+from gi.repository import Adw
 
 # Internal Imports
 from ..core.locales import ResourceManager as Res, StringKey
@@ -35,26 +36,16 @@ class MessageManager:
             print("[UI Error] MessageManager not initialized.")
             return
 
-        # 1. Cancel previous hide timer if active (Reset countdown)
-        if cls._timer_id is not None:
-            GLib.source_remove(cls._timer_id)
-            cls._timer_id = None
-
-        # 2. Update Visuals
-        cls._toast_widget.update_style(message, is_error)
-        cls._toast_widget.animate_in()
-
-        # 3. Schedule Hide (5 seconds)
-        # We store the ID to cancel it if a new message arrives quickly
-        cls._timer_id = GLib.timeout_add_seconds(5, cls._on_timeout_hide)
-
-    @classmethod
-    def _on_timeout_hide(cls):
-        """Helper to hide toast and clear timer reference."""
-        if cls._toast_widget:
-            cls._toast_widget.animate_out()
-        cls._timer_id = None
-        return False  # Stop GLib timer
+        if is_error:
+            toast = Adw.Toast.new(message)
+            toast.set_timeout(5)
+            toast.set_priority(Adw.ToastPriority.ERROR)
+            cls._toast_widget.add_toast(toast)
+        else:
+            toast = Adw.Toast.new(message)
+            toast.set_timeout(5)
+            toast.set_priority(Adw.ToastPriority.NORMAL)
+            cls._toast_widget.add_toast(toast)
 
     @classmethod
     def show_confirmation(cls, title: str, body: str, on_confirm_callback):

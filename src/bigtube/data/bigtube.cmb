@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.96.3 -->
-<cambalache-project version="0.96.0" target_tk="gtk-4.0">
-  <ui template-class="BigTubeMainWindow" filename="bigtube.ui" sha256="2fcabef4f1b9cf24a3efb58c6fc75d1d6f88e0d78f8686878a80bc00d9ae6d43"/>
+<!-- Created with Cambalache 0.99.13 -->
+<cambalache-project version="0.99.0" target_tk="gtk-4.0" depends="libadwaita-1,webkitgtk-6.0">
+  <ui template-class="BigTubeMainWindow" filename="bigtube.ui" sha256="3533c9ef3349413dcfafb0c2937674a9f79691620fa4e45a12298f0a1bbf2617"/>
   <ui template-class="SearchResultRow" filename="search_result_row.ui" sha256="874b2f8fdc71acfb6d8763dc1a47ecb151749cd5245f0d6c8252944a4629e65a"/>
   <ui template-class="BigTubeDownloadRow" filename="download_row.ui" sha256="6520770a45e5ece58087924673551030350b1d380c6ab76d01cb03df26dad786"/>
 </cambalache-project>
