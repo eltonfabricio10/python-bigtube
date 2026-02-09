@@ -1,50 +1,893 @@
-.rounded {
-    border-radius: 12px;
-    box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
+/* =============================================================================
+   BigTube Modern Theme Styles
+   Designed to complement GTK4/Adwaita with vibrant accents and smooth transitions
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   CSS Custom Properties (work with both light and dark modes)
+   ----------------------------------------------------------------------------- */
+:root {
+    --bigtube-accent: #3584e4;
+    --bigtube-accent-hover: #1c71d8;
+    --bigtube-success: #2ec27e;
+    --bigtube-warning: #e5a50a;
+    --bigtube-error: #e01b24;
+    --bigtube-glass-bg: alpha(@window_bg_color, 0.75);
 }
 
-.top-toast {
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    border-radius: 24px;
-    padding: 8px 24px;
-    margin-top: 16px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    font-weight: bold;
+/* Dark Theme Overrides */
+.dark {
+    --bigtube-accent: #78aeed;
+    --bigtube-accent-hover: #3584e4;
 }
 
-.top-toast.error {
-    background-color: rgba(224, 27, 36, 0.8);
-    /* Red */
-    color: #fefefe;
+/* Light Theme Overrides */
+.light {
+    --bigtube-accent: #1c71d8;
+    --bigtube-accent-hover: #1a5fb4;
 }
 
-.top-toast.success {
-    background-color: rgba(37, 107, 75, 0.8);
+/* =============================================================================
+   BASIC ACCENT COLORS (Standard Adwaita with Color Swap)
+   ============================================================================= */
+
+/* VIOLET */
+.accent-violet {
+    --bigtube-accent: #c061cb;
+    --bigtube-accent-hover: #9141ac;
+}
+
+.dark .accent-violet {
+    --bigtube-accent: #da79e3;
+    --bigtube-accent-hover: #c061cb;
+}
+
+/* EMERALD */
+.accent-emerald {
+    --bigtube-accent: #2ec27e;
+    --bigtube-accent-hover: #26a269;
+}
+
+.dark .accent-emerald {
+    --bigtube-accent: #33d17a;
+    --bigtube-accent-hover: #2ec27e;
+}
+
+/* SUNBURST (Orange/Amber) */
+.accent-sunburst {
+    --bigtube-accent: #e5a50a;
+    --bigtube-accent-hover: #c68c09;
+}
+
+.dark .accent-sunburst {
+    --bigtube-accent: #f8e45c;
+    --bigtube-accent-hover: #e5a50a;
+}
+
+/* ROSE */
+.accent-rose {
+    --bigtube-accent: #e01b24;
+    --bigtube-accent-hover: #a51d2d;
+}
+
+.dark .accent-rose {
+    --bigtube-accent: #f66151;
+    --bigtube-accent-hover: #e01b24;
+}
+
+/* CYAN */
+.accent-cyan {
+    --bigtube-accent: #33b2a4;
+    /* Teal-ish */
+    --bigtube-accent-hover: #248f81;
+}
+
+.dark .accent-cyan {
+    --bigtube-accent: #4cc7bb;
+    --bigtube-accent-hover: #33b2a4;
+}
+
+/* =============================================================================
+   FULL THEMES (Overrides Backgrounds and Foregrounds)
+   ============================================================================= */
+
+/* 1. NORDIC SNOW */
+.accent-nordic {
+    /* Polar Night */
+    --window-bg-color: #2e3440;
+    --window-fg-color: #d8dee9;
+    --view-bg-color: #3b4252;
+    --view-fg-color: #eceff4;
+    --headerbar-bg-color: #2e3440;
+    --headerbar-fg-color: #eceff4;
+    --popover-bg-color: #3b4252;
+    --card-bg-color: #434c5e;
+
+    /* Frost */
+    --bigtube-accent: #88c0d0;
+    --bigtube-accent-hover: #81a1c1;
+    --bigtube-success: #a3be8c;
+    --bigtube-warning: #ebcb8b;
+    --bigtube-error: #bf616a;
+}
+
+/* 2. GRUVBOX RETRO */
+.accent-gruvbox {
+    /* Dark Mode */
+    --window-bg-color: #282828;
+    --window-fg-color: #ebdbb2;
+    --view-bg-color: #3c3836;
+    --view-fg-color: #fbf1c7;
+    --headerbar-bg-color: #1d2021;
+    --headerbar-fg-color: #ebdbb2;
+    --popover-bg-color: #32302f;
+    --card-bg-color: #504945;
+
+    /* Colors */
+    --bigtube-accent: #d79921;
+    /* Yellow */
+    --bigtube-accent-hover: #fabd2f;
+    --bigtube-success: #98971a;
+    --bigtube-warning: #d65d0e;
+    --bigtube-error: #cc241d;
+}
+
+/* 3. CATPPUCCIN MOCHA */
+.accent-catppuccin {
+    /* Base */
+    --window-bg-color: #1e1e2e;
+    --window-fg-color: #cdd6f4;
+    --view-bg-color: #181825;
+    --view-fg-color: #cdd6f4;
+    --headerbar-bg-color: #11111b;
+    --headerbar-fg-color: #cdd6f4;
+    --popover-bg-color: #313244;
+    --card-bg-color: #45475a;
+
+    --bigtube-accent: #cba6f7;
+    /* Mauve */
+    --bigtube-accent-hover: #b4befe;
+    --bigtube-success: #a6e3a1;
+    --bigtube-warning: #f9e2af;
+    --bigtube-error: #f38ba8;
+}
+
+/* 4. DRACULA DARK */
+.accent-dracula {
+    /* Vampire theme */
+    --window-bg-color: #282a36;
+    --window-fg-color: #f8f8f2;
+    --view-bg-color: #44475a;
+    --view-fg-color: #f8f8f2;
+    --headerbar-bg-color: #282a36;
+    --headerbar-fg-color: #f8f8f2;
+    --popover-bg-color: #44475a;
+    --card-bg-color: #6272a4;
+
+    --bigtube-accent: #bd93f9;
+    /* Purple */
+    --bigtube-accent-hover: #ff79c6;
+    /* Pink */
+    --bigtube-success: #50fa7b;
+    --bigtube-warning: #f1fa8c;
+    --bigtube-error: #ff5555;
+}
+
+/* 5. TOKYO NIGHT */
+.accent-tokyo_night {
+    --window-bg-color: #1a1b26;
+    --window-fg-color: #c0caf5;
+    --view-bg-color: #24283b;
+    --view-fg-color: #c0caf5;
+    --headerbar-bg-color: #16161e;
+    --headerbar-fg-color: #c0caf5;
+    --popover-bg-color: #24283b;
+    --card-bg-color: #414868;
+
+    --bigtube-accent: #7aa2f7;
+    --bigtube-accent-hover: #bb9af7;
+    --bigtube-success: #9ece6a;
+    --bigtube-warning: #e0af68;
+    --bigtube-error: #f7768e;
+}
+
+/* 6. ROSE PINE */
+.accent-rose_pine {
+    --window-bg-color: #191724;
+    --window-fg-color: #e0def4;
+    --view-bg-color: #1f1d2e;
+    --view-fg-color: #e0def4;
+    --headerbar-bg-color: #191724;
+    --headerbar-fg-color: #9ccfd8;
+    /* Foam */
+    --popover-bg-color: #26233a;
+    --card-bg-color: #21202e;
+
+    --bigtube-accent: #ebbcba;
+    /* Rose */
+    --bigtube-accent-hover: #c4a7e7;
+    /* Iris */
+    --bigtube-success: #31748f;
+    /* Pine */
+    --bigtube-warning: #f6c177;
+    /* Gold */
+    --bigtube-error: #eb6f92;
+    /* Love */
+}
+
+/* 7. SOLARIZED DARK */
+.accent-solarized {
+    --window-bg-color: #002b36;
+    --window-fg-color: #839496;
+    --view-bg-color: #073642;
+    --view-fg-color: #93a1a1;
+    --headerbar-bg-color: #002b36;
+    --headerbar-fg-color: #2aa198;
+    --popover-bg-color: #073642;
+    --card-bg-color: #586e75;
+
+    --bigtube-accent: #268bd2;
+    /* Blue */
+    --bigtube-accent-hover: #2aa198;
+    /* Cyan */
+    --bigtube-success: #859900;
+    --bigtube-warning: #b58900;
+    --bigtube-error: #dc322f;
+}
+
+/* 8. MONOKAI PRO */
+.accent-monokai {
+    --window-bg-color: #2d2a2e;
+    --window-fg-color: #fcfcfa;
+    --view-bg-color: #403e41;
+    --view-fg-color: #fcfcfa;
+    --headerbar-bg-color: #221f22;
+    --headerbar-fg-color: #ffd866;
+    --popover-bg-color: #403e41;
+    --card-bg-color: #727072;
+
+    --bigtube-accent: #a9dc76;
     /* Green */
-    color: #fefefe;
+    --bigtube-accent-hover: #78dce8;
+    /* Blue */
+    --bigtube-success: #a9dc76;
+    --bigtube-warning: #ffd866;
+    --bigtube-error: #ff6188;
+}
+
+/* 9. CYBERPUNK NEON */
+.accent-cyberpunk {
+    --window-bg-color: #050505;
+    --window-fg-color: #00ff9d;
+    --view-bg-color: #121212;
+    --view-fg-color: #ff00ff;
+    --headerbar-bg-color: #000000;
+    --headerbar-fg-color: #00ff9d;
+    --popover-bg-color: #1a1a1a;
+    --card-bg-color: #2b2b2b;
+
+    --bigtube-accent: #fee440;
+    /* Yellow */
+    --bigtube-accent-hover: #00b8ff;
+    /* Blue */
+    --bigtube-success: #00ff9d;
+    --bigtube-warning: #ff0055;
+    --bigtube-error: #ff0055;
+
+    /* Extra Cyberpunk Flare */
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* 10. BIGTUBE BRAND */
+.accent-bigtube {
+    --window-bg-color: #150E36;
+    --window-fg-color: #f8f8f2;
+    /* Light text for readability on Indigo */
+    --view-bg-color: #1f1845;
+    /* Slightly lighter Indigo for content areas */
+    --view-fg-color: #f8f8f2;
+    --headerbar-bg-color: #150E36;
+    --headerbar-fg-color: #D474AA;
+    /* Magenta title */
+    --popover-bg-color: #1f1845;
+    --card-bg-color: #241b52;
+
+    --bigtube-accent: #FF9663;
+    /* Coral Orange */
+    --bigtube-accent-hover: #D474AA;
+    /* Magenta Pink */
+    --bigtube-success: #2A83C8;
+    /* Cerulean Blue */
+    --bigtube-warning: #FF9663;
+    --bigtube-error: #FF0055;
+    /* Kept vibrant red/pink for error */
+}
+
+/* =============================================================================
+   LIGHT THEME OVERRIDES FOR CUSTOM THEMES
+   ============================================================================= */
+
+/* 1. NORDIC SNOW (Light) */
+.light.accent-nordic {
+    /* Snow Storm - refined */
+    --window-bg-color: #eceff4;
+    --window-fg-color: #2e3440;
+    --view-bg-color: #e5e9f0;  /* Slightly darker than window for separation */
+    --view-fg-color: #2e3440;
+    --headerbar-bg-color: #eceff4;
+    --headerbar-fg-color: #2e3440;
+    --popover-bg-color: #ffffff;
+    --card-bg-color: #ffffff;
+    --card-fg-color: #2e3440;
+
+    /* Frost */
+    --bigtube-accent: #5e81ac;
+    --bigtube-accent-hover: #81a1c1;
+    --bigtube-success: #a3be8c;
+    --bigtube-warning: #ebcb8b;
+    --bigtube-error: #bf616a;
+}
+
+/* 2. GRUVBOX LIGHT */
+.light.accent-gruvbox {
+    /* Hard light mode for better contrast */
+    --window-bg-color: #f9f5d7;
+    --window-fg-color: #3c3836;
+    --view-bg-color: #fbf1c7;
+    --view-fg-color: #3c3836;
+    --headerbar-bg-color: #f9f5d7;
+    --headerbar-fg-color: #3c3836;
+    --popover-bg-color: #f2e5bc;
+    --card-bg-color: #fbf1c7;
+    --card-fg-color: #3c3836;
+
+    --bigtube-accent: #b57614; /* Darker orange for better text contrast */
+    --bigtube-accent-hover: #d65d0e;
+    --bigtube-success: #79740e;
+    --bigtube-warning: #d79921;
+    --bigtube-error: #9d0006;
+}
+
+/* 3. CATPPUCCIN LATTE (Light) */
+.light.accent-catppuccin {
+    /* Official Late Palette */
+    --window-bg-color: #eff1f5;  /* Base */
+    --window-fg-color: #4c4f69;  /* Text */
+    --view-bg-color: #e6e9ef;    /* Mantle */
+    --view-fg-color: #4c4f69;
+    --headerbar-bg-color: #eff1f5;
+    --headerbar-fg-color: #4c4f69;
+    --popover-bg-color: #e6e9ef;
+    --card-bg-color: #ffffff;    /* Crust/White for cards */
+    --card-fg-color: #4c4f69;
+
+    --bigtube-accent: #8839ef;   /* Mauve */
+    --bigtube-accent-hover: #7287fd; /* Lavender */
+    --bigtube-success: #40a02b;  /* Green */
+    --bigtube-warning: #df8e1d;  /* Yellow */
+    --bigtube-error: #d20f39;    /* Red */
+}
+
+/* 4. DRACULA LIGHT (Pro / Adaptation) */
+.light.accent-dracula {
+    --window-bg-color: #f8f8f2;
+    --window-fg-color: #282a36;
+    --view-bg-color: #f0f0f4;
+    --view-fg-color: #282a36;
+    --headerbar-bg-color: #ffffff;
+    --headerbar-fg-color: #282a36;
+    --popover-bg-color: #ffffff;
+    --card-bg-color: #ffffff;
+    --card-fg-color: #282a36;
+
+    --bigtube-accent: #6272a4;   /* Comment Purple - solid for light mode */
+    --bigtube-accent-hover: #bd93f9;
+    --bigtube-success: #50fa7b;  /* Might need darkening for light mode text */
+    --bigtube-warning: #ffb86c;
+    --bigtube-error: #ff5555;
+
+    /* Ensure borders stand out */
+    border-color: rgba(40, 42, 54, 0.1);
+}
+
+/* 5. TOKYO NIGHT DAY */
+.light.accent-tokyo_night {
+    --window-bg-color: #e1e2e7;
+    --window-fg-color: #3760bf;
+    --view-bg-color: #d5d6db;
+    --view-fg-color: #343b58;
+    --headerbar-bg-color: #e9e9ed;
+    --headerbar-fg-color: #3760bf;
+    --popover-bg-color: #ffffff;
+    --card-bg-color: #ffffff;
+    --card-fg-color: #343b58;
+
+    --bigtube-accent: #2e7de9;
+    --bigtube-accent-hover: #7aa2f7;
+    --bigtube-success: #41a6b5;
+    --bigtube-warning: #8c6c3e;
+    --bigtube-error: #f52a65;
+}
+
+/* 6. ROSE PINE DAWN */
+.light.accent-rose_pine {
+    --window-bg-color: #faf4ed;
+    --window-fg-color: #575279;
+    --view-bg-color: #fffaf3;
+    --view-fg-color: #575279;
+    --headerbar-bg-color: #faf4ed;
+    --headerbar-fg-color: #575279;
+    --popover-bg-color: #ffffff;
+    --card-bg-color: #ffffff;
+    --card-fg-color: #575279;
+
+    --bigtube-accent: #d7827e;   /* Rose */
+    --bigtube-accent-hover: #907aa9; /* Iris */
+    --bigtube-success: #286983;  /* Pine */
+    --bigtube-warning: #ea9d34;  /* Gold */
+    --bigtube-error: #b4637a;    /* Love */
+}
+
+/* 7. SOLARIZED LIGHT */
+.light.accent-solarized {
+    --window-bg-color: #fdf6e3;
+    --window-fg-color: #657b83;
+    --view-bg-color: #eee8d5;
+    --view-fg-color: #657b83;
+    --headerbar-bg-color: #fdf6e3;
+    --headerbar-fg-color: #586e75;
+    --popover-bg-color: #eee8d5;
+    --card-bg-color: #ffffff;
+    --card-fg-color: #586e75;
+
+    --bigtube-accent: #2aa198;
+    --bigtube-accent-hover: #268bd2;
+    --bigtube-success: #859900;
+    --bigtube-warning: #b58900;
+    --bigtube-error: #dc322f;
+}
+
+/* 8. MONOKAI LIGHT (Refined) */
+.light.accent-monokai {
+    --window-bg-color: #fcfcfa;
+    --window-fg-color: #272822;
+    --view-bg-color: #f2f2f2;
+    --view-fg-color: #272822;
+    --headerbar-bg-color: #ffffff;
+    --headerbar-fg-color: #272822; /* Dark text for readability */
+    --popover-bg-color: #ffffff;
+    --card-bg-color: #ffffff;
+    --card-fg-color: #272822;
+
+    --bigtube-accent: #e6db74; /* Yellow - tough on light, using darker shade or pink */
+    /* Switching accent to Monokai Pink for better light mode visibility */
+    --bigtube-accent: #f92672;
+    --bigtube-accent-hover: #fd971f; /* Orange */
+    --bigtube-success: #a6e22e;
+    --bigtube-warning: #fd971f;
+    --bigtube-error: #f92672;
+}
+
+/* 9. CYBERPUNK DAY (High-Tech Lab Look) */
+.light.accent-cyberpunk {
+    --window-bg-color: #ffffff;
+    --window-fg-color: #0d0016;
+    --view-bg-color: #f2f2f2;
+    --view-fg-color: #0d0016;
+    --headerbar-bg-color: #1a1a1a; /* Dark Header for Cyberpunk feel */
+    --headerbar-fg-color: #00ff9d; /* Neon text on dark header */
+    --popover-bg-color: #ffffff;
+    --card-bg-color: #ffffff;
+    --card-fg-color: #0d0016;
+
+    --bigtube-accent: #ff0099;   /* Hot Pink */
+    --bigtube-accent-hover: #00ff9d; /* Neon Green */
+    --bigtube-success: #00bf76;
+    --bigtube-warning: #ff8800;
+    --bigtube-error: #ff0055;
+
+    border: 1px solid #000;
+}
+
+/* 10. BIGTUBE BRAND (Light - Premium) */
+.light.accent-bigtube {
+    --window-bg-color: #ffffff;
+    --window-fg-color: #1a1a2e; /* Deep Navy, softer than black */
+    --view-bg-color: #fcfcfd;   /* Almost white, very subtle cool gray */
+    --view-fg-color: #1a1a2e;
+    --headerbar-bg-color: #ffffff;
+    --headerbar-fg-color: #5c2d91; /* Deep Purple for title */
+    --popover-bg-color: #ffffff;
+    --card-bg-color: #f4f6f9;   /* Light cool gray for cards */
+    --card-fg-color: #1a1a2e;
+
+    --bigtube-accent: #8C4CA3;  /* Orchid Purple */
+    --bigtube-accent-hover: #B86FCC; /* Lighter orchid */
+    --bigtube-success: #2A83C8; /* Cerulean */
+    --bigtube-warning: #FF9663; /* Coral */
+    --bigtube-error: #cf2e2e;   /* Red (Standard) */
+}
+
+/* APPLY GLOBAL VARIABLES WHEN THEME CLASSES ARE PRESENT ON WINDOW */
+
+.accent-nordic,
+.accent-gruvbox,
+.accent-catppuccin,
+.accent-dracula,
+.accent-tokyo_night,
+.accent-rose_pine,
+.accent-solarized,
+.accent-monokai,
+.accent-cyberpunk,
+.accent-bigtube {
+
+    background-color: var(--window-bg-color);
+    color: var(--window-fg-color);
+}
+
+/* Ensure child widgets inherit or use these new variables */
+.accent-nordic window,
+.accent-gruvbox window,
+.accent-catppuccin window,
+.accent-dracula window,
+.accent-tokyo_night window,
+.accent-rose_pine window,
+.accent-solarized window,
+.accent-monokai window,
+.accent-cyberpunk window,
+.accent-bigtube window {
+    background-color: var(--window-bg-color);
+    color: var(--window-fg-color);
+}
+
+/* Header Bars */
+.accent-nordic headerbar,
+.accent-gruvbox headerbar,
+.accent-catppuccin headerbar,
+.accent-dracula headerbar,
+.accent-tokyo_night headerbar,
+.accent-rose_pine headerbar,
+.accent-solarized headerbar,
+.accent-monokai headerbar,
+.accent-cyberpunk headerbar,
+.accent-bigtube headerbar {
+    background-color: var(--headerbar-bg-color);
+    color: var(--headerbar-fg-color);
+    border-bottom: 1px solid alpha(currentColor, 0.1);
+}
+
+/* Cards / Lists */
+.accent-nordic .card,
+.accent-gruvbox .card,
+.accent-catppuccin .card,
+.accent-dracula .card,
+.accent-tokyo_night .card,
+.accent-rose_pine .card,
+.accent-solarized .card,
+.accent-monokai .card,
+.accent-cyberpunk .card,
+.accent-bigtube .card {
+    background-color: var(--card-bg-color);
+    color: var(--view-fg-color);
+}
+
+/* Popovers */
+.accent-nordic popover,
+.accent-gruvbox popover,
+.accent-catppuccin popover,
+.accent-dracula popover,
+.accent-tokyo_night popover,
+.accent-rose_pine popover,
+.accent-solarized popover,
+.accent-monokai popover,
+.accent-cyberpunk popover,
+.accent-bigtube popover {
+    background-color: transparent;
+    color: var(--view-fg-color);
+}
+
+/* Also apply to lists */
+.accent-nordic listview,
+.accent-gruvbox listview,
+.accent-catppuccin listview,
+.accent-dracula listview,
+.accent-tokyo_night listview,
+.accent-rose_pine listview,
+.accent-solarized listview,
+.accent-monokai listview,
+.accent-cyberpunk listview,
+.accent-bigtube listview {
+    background-color: transparent;
+}
+
+
+/* -----------------------------------------------------------------------------
+   AdwBanner specific styling for Themes
+   ----------------------------------------------------------------------------- */
+.accent-nordic banner,
+.accent-gruvbox banner,
+.accent-catppuccin banner,
+.accent-dracula banner,
+.accent-tokyo_night banner,
+.accent-rose_pine banner,
+.accent-solarized banner,
+.accent-monokai banner,
+.accent-cyberpunk banner,
+.accent-bigtube banner {
+    background-color: var(--headerbar-bg-color);
+    color: var(--headerbar-fg-color);
+}
+
+/* -----------------------------------------------------------------------------
+   Sidebar specific styling for Themes
+   ----------------------------------------------------------------------------- */
+.accent-nordic stacksidebar,
+.accent-gruvbox stacksidebar,
+.accent-catppuccin stacksidebar,
+.accent-dracula stacksidebar,
+.accent-tokyo_night stacksidebar,
+.accent-rose_pine stacksidebar,
+.accent-solarized stacksidebar,
+.accent-monokai stacksidebar,
+.accent-cyberpunk stacksidebar,
+.accent-bigtube stacksidebar {
+    background-color: var(--view-bg-color);
+    color: var(--view-fg-color);
+    border-right: 1px solid alpha(currentColor, 0.1);
+}
+
+/* -----------------------------------------------------------------------------
+   Control Box specific styling for Themes
+   ----------------------------------------------------------------------------- */
+.accent-nordic #control_box,
+.accent-gruvbox #control_box,
+.accent-catppuccin #control_box,
+.accent-dracula #control_box,
+.accent-tokyo_night #control_box,
+.accent-rose_pine #control_box,
+.accent-solarized #control_box,
+.accent-monokai #control_box,
+.accent-cyberpunk #control_box,
+.accent-bigtube #control_box {
+    background-color: var(--card-bg-color);
+    /* Match headerbar or card for contrast */
+    color: var(--card-fg-color);
+    border: 1px solid alpha(currentColor, 0.1);
+}
+
+
+/* -----------------------------------------------------------------------------
+   Player Control Bar - Modern Glassmorphism Effect
+   ----------------------------------------------------------------------------- */
+.rounded {
+    border-radius: 16px;
+    box-shadow:
+        0 8px 32px rgba(99, 97, 97, 0.12),
+        0 2px 8px rgba(100, 99, 99, 0.08),
+        inset 0 1px 0 alpha(white, 0.1);
+    transition: all 200ms ease-in-out;
+}
+
+.rounded:hover {
+    box-shadow:
+        0 12px 40px rgba(97, 95, 95, 0.15),
+        0 4px 12px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 alpha(white, 0.15);
+}
+
+/* -----------------------------------------------------------------------------
+   Progress Bars - Modern Rounded Style with Smooth Transitions
+   ----------------------------------------------------------------------------- */
+progressbar>trough {
+    background-color: alpha(@window_fg_color, 0.08);
+    /* Use GTK default or our override if set */
+    border-radius: 100px;
+    min-height: 6px;
 }
 
 progressbar>trough>progress {
-    background-color: rgba(53, 132, 228, 0.8);
-    /* Default */
-    border-radius: 99px;
-    min-height: 8px;
+    background: linear-gradient(90deg, var(--bigtube-accent), shade(#3584e4, 1.15));
+    border-radius: 100px;
+    min-height: 6px;
+    transition: all 300ms ease-out;
 }
 
+/* Override gradient for themes where shade() might fail or look bad, using simple solid or var */
+.accent-nordic progressbar>trough>progress,
+.accent-gruvbox progressbar>trough>progress,
+.accent-catppuccin progressbar>trough>progress,
+.accent-dracula progressbar>trough>progress,
+.accent-tokyo_night progressbar>trough>progress,
+.accent-rose_pine progressbar>trough>progress,
+.accent-solarized progressbar>trough>progress,
+.accent-monokai progressbar>trough>progress,
+.accent-cyberpunk progressbar>trough>progress,
+.accent-bigtube progressbar>trough>progress {
+    background: var(--bigtube-accent);
+}
+
+
 progressbar.success>trough>progress {
-    background-color: rgba(46, 194, 126, 0.8);
-    /* Success */
-    transition: background-color 0.3s ease;
+    background: linear-gradient(90deg, var(--bigtube-success), #2ec27e);
 }
 
 progressbar.warning>trough>progress {
-    background-color: rgba(229, 165, 10, 0.8);
-    /* Warning */
+    background: linear-gradient(90deg, var(--bigtube-warning), #e5a50a);
+}
+
+progressbar.error>trough>progress {
+    background: linear-gradient(90deg, var(--bigtube-error), #e01b24);
+}
+
+/* -----------------------------------------------------------------------------
+   Buttons - Smooth Hover and Active States
+   ----------------------------------------------------------------------------- */
+button.suggested-action {
+    background: linear-gradient(135deg, var(--bigtube-accent), alpha(var(--bigtube-accent), 0.9));
+    transition: all 150ms ease-in-out;
+    color: white;
+    /* Ensure text is readable on accent bg */
+}
+
+button.suggested-action:hover {
+    background: linear-gradient(135deg, var(--bigtube-accent-hover), alpha(var(--bigtube-accent-hover), 0.9));
+    transform: translateY(-1px);
+}
+
+button.suggested-action:active {
+    transform: translateY(0);
+}
+
+/* -----------------------------------------------------------------------------
+   List Rows - Subtle Hover Effects
+   ----------------------------------------------------------------------------- */
+listview>row,
+listbox>row {
+    transition: background-color 150ms ease;
+}
+
+listview>row:hover,
+listbox>row:hover {
+    background-color: alpha(currentColor, 0.08);
+}
+
+listview>row:selected,
+listbox>row:selected {
+    background-color: alpha(var(--bigtube-accent), 0.15);
+    color: var(--bigtube-accent);
+}
+
+/* -----------------------------------------------------------------------------
+   Media Converter - Drop Zone
+   ----------------------------------------------------------------------------- */
+#drop_zone {
+    min-width: 400px;
+    min-height: 200px;
+    border: 2px dashed alpha(currentColor, 0.2);
+    border-radius: 12px;
+    transition: all 200ms ease;
+    background-image: url('resource:///org/gnome/Adwaita/icons/scalable/actions/document-open-symbolic.svg');
+    background-repeat: no-repeat;
+    background-position: center 40px;
+    background-size: 64px;
+    padding-top: 100px; /* Space for the icon */
+}
+
+#drop_zone:drop(active) {
+    border-color: var(--bigtube-accent);
+    background-color: alpha(var(--bigtube-accent), 0.1);
+    transform: scale(1.02);
+}
+
+/* -----------------------------------------------------------------------------
+   Empty State Pages - Centered and Subtle
+   ----------------------------------------------------------------------------- */
+statuspage {
     opacity: 0.8;
 }
 
-progressbar>trough {
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 99px;
+statuspage .icon {
+    opacity: 0.5;
+    -gtk-icon-size: 96px;
+}
+
+/* -----------------------------------------------------------------------------
+   Sidebar Navigation - Clean Selection Highlight
+   ----------------------------------------------------------------------------- */
+stacksidebar row:selected {
+    background-color: alpha(var(--bigtube-accent), 0.15);
+    border-radius: 8px;
+    color: var(--bigtube-accent);
+    font-weight: bold;
+}
+
+stacksidebar row:hover:not(:selected) {
+    background-color: alpha(currentColor, 0.05);
+    border-radius: 8px;
+}
+
+/* -----------------------------------------------------------------------------
+   Scale/Slider - Player Progress Bar Style
+   ----------------------------------------------------------------------------- */
+scale trough {
+    background-color: alpha(@window_fg_color, 0.1);
+    border-radius: 100px;
+    min-height: 4px;
+}
+
+scale highlight {
+    background: var(--bigtube-accent);
+    border-radius: 100px;
+    min-height: 4px;
+}
+
+scale slider {
+    background: var(--bigtube-accent);
+    border-radius: 50%;
+    min-width: 14px;
+    min-height: 14px;
+    margin: -5px;
+    transition: all 150ms ease;
+}
+
+scale slider:hover {
+    background: var(--bigtube-accent-hover);
+    min-width: 16px;
+    min-height: 16px;
+    margin: -6px;
+}
+
+/* -----------------------------------------------------------------------------
+   Standard Widget Overrides (Ensure Accent Coverage)
+   ----------------------------------------------------------------------------- */
+switch:checked {
+    background-color: var(--bigtube-accent);
+    color: white;
+}
+
+switch:checked:hover {
+    background-color: var(--bigtube-accent-hover);
+}
+
+checkbutton:checked check,
+checkbutton:checked radio {
+    background-color: var(--bigtube-accent);
+    color: white;
+}
+
+selection {
+    background-color: alpha(var(--bigtube-accent), 0.3);
+    color: inherit;
+}
+
+entry:focus-within {
+    border-color: var(--bigtube-accent);
+    box-shadow: inset 0 0 0 1px var(--bigtube-accent);
+}
+
+/* -----------------------------------------------------------------------------
+   Drop Zone Style (for converter - future use)
+   ----------------------------------------------------------------------------- */
+.drop-zone {
+    border: 2px dashed alpha(@window_fg_color, 0.25);
+    border-radius: 16px;
+    padding: 48px 24px;
+    transition: all 200ms ease;
+    background: alpha(@window_fg_color, 0.02);
+}
+
+.drop-zone:hover,
+.drop-zone.drag-active {
+    border: 2px dashed var(--bigtube-accent);
+    background: alpha(var(--bigtube-accent), 0.08);
+}
+
+.drop-zone .icon {
+    opacity: 0.4;
+    transition: opacity 200ms ease;
+}
+
+.drop-zone:hover .icon {
+    opacity: 0.7;
 }

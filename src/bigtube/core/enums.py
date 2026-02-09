@@ -9,6 +9,7 @@ class AppSection(str, Enum):
     SEARCH = "search_page"
     DOWNLOADS = "download_page"
     SETTINGS = "settings_page"
+    CONVERTER = "converter_page"
     PLAYER = "control_box"
 
 
@@ -31,6 +32,27 @@ class ThemeMode(str, Enum):
     SYSTEM = "system"
     LIGHT = "light"
     DARK = "dark"
+
+
+class ThemeColor(str, Enum):
+    """Accent color palette preference."""
+    DEFAULT = "default"  # Adwaita Blue
+    VIOLET = "violet"
+    EMERALD = "emerald"
+    SUNBURST = "sunburst"
+    ROSE = "rose"
+    CYAN = "cyan"
+    # Full Themes
+    NORDIC = "nordic"
+    GRUVBOX = "gruvbox"
+    CATPPUCCIN = "catppuccin"
+    DRACULA = "dracula"
+    TOKYO_NIGHT = "tokyo_night"
+    ROSE_PINE = "rose_pine"
+    SOLARIZED = "solarized"
+    MONOKAI = "monokai"
+    CYBERPUNK = "cyberpunk"
+    BIGTUBE = "bigtube"
 
 
 class VideoQuality(str, Enum):

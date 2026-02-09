@@ -37,11 +37,12 @@ class DownloadRow(Gtk.Box):
     btn_cancel = Gtk.Template.Child()
     btn_pause = Gtk.Template.Child()
 
-    def __init__(self, title, filename, full_path, on_play_callback=None):
+    def __init__(self, title, filename, full_path, on_play_callback=None, on_remove_callback=None):
         super().__init__()
 
         self.full_path = full_path
         self.on_play_callback = on_play_callback
+        self.on_remove_callback = on_remove_callback
         self.downloader_instance = None  # Holds the VideoDownloader object
         self.is_cancelled = False
         self.is_paused = False
@@ -258,6 +259,9 @@ class DownloadRow(Gtk.Box):
             elif parent and hasattr(parent, "remove"):
                  # Direct child of a container that supports remove (e.g. Box)
                  parent.remove(self)
+
+            if self.on_remove_callback:
+                self.on_remove_callback()
 
             MessageManager.show(Res.get(StringKey.STATUS_CANCELLED))
 

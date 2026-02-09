@@ -6,7 +6,7 @@ from pathlib import Path
 from gi.repository import GLib
 
 # Import internal Enums
-from .enums import ThemeMode, VideoQuality
+from .enums import ThemeMode, VideoQuality, ThemeColor
 from .locales import ResourceManager as Res, StringKey
 from .logger import get_logger
 
@@ -45,12 +45,16 @@ class ConfigManager:
     _DEFAULTS = {
         "download_path": str(Path(_DEFAULT_DOWNLOAD_DIR) / "BigTube"),
         "theme_mode": ThemeMode.SYSTEM.value,
+        "theme_color": ThemeColor.DEFAULT.value,
         "default_quality": VideoQuality.ASK.value,
         "max_concurrent_downloads": 3,
         "add_metadata": False,
         "download_subtitles": False,
         "save_history": True,
-        "auto_clear_finished": False
+        "save_converter_history": True,
+        "auto_clear_finished": False,
+        "converter_path": str(Path(_DEFAULT_DOWNLOAD_DIR) / "BigTube" / "Converted"),
+        "use_source_folder": False
     }
 
     _data = {}
@@ -131,6 +135,36 @@ class ConfigManager:
 
         cls._data[key] = value
         cls.save()
+
+    @classmethod
+    def reset_all(cls):
+        """
+        PERMANENTLY deletes all configuration and history files.
+        This effectively resets the app to a clean state.
+        """
+        logger.warning("PERFORMING FULL APPLICATION RESET!")
+
+        # 1. Clear In-Memory Data
+        cls._data = cls._DEFAULTS.copy()
+
+        # 2. Delete Config and History files
+        files_to_delete = [
+            cls.CONFIG_FILE,
+            cls.CONFIG_DIR / "history.json",
+            cls.CONFIG_DIR / "search_history.json",
+            cls.CONFIG_DIR / "converter_history.json"
+        ]
+
+        for f in files_to_delete:
+            try:
+                if f.exists():
+                    f.unlink()
+                    logger.info(f"Deleted: {f}")
+            except OSError as e:
+                logger.error(f"Failed to delete {f}: {e}")
+
+        # 3. Re-initialize directories just in case
+        cls.ensure_dirs()
 
     # --- Helpers for Paths ---
     @classmethod

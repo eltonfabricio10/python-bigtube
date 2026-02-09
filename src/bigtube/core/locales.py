@@ -57,12 +57,14 @@ class StringKey(Enum):
     # Navigation titles
     NAV_SEARCH = N_("Search")
     NAV_DOWNLOADS = N_("Downloads")
+    NAV_CONVERTER = N_("Converter")
     NAV_SETTINGS = N_("Settings")
 
     # Banners Pages
     NAV_SEARCH_BANNER = N_("Search Manager")
     NAV_DOWNLOADS_BANNER = N_("Downloads Manager")
     NAV_SETTINGS_BANNER = N_("Settings Manager")
+    NAV_CONVERTER_BANNER = N_("Converter Manager")
 
     # Select Source
     SELECT_SOURCE_YT = N_("YouTube")
@@ -78,6 +80,12 @@ class StringKey(Enum):
     SEARCH_BTN_LABEL = N_("Search")
     SEARCH_NO_RESULTS = N_("No results found!")
     SEARCH_START = N_("Looking for:")
+
+    # Empty States
+    EMPTY_SEARCH_TITLE = N_("No Results")
+    EMPTY_SEARCH_DESC = N_("Search for videos or paste a URL")
+    EMPTY_DOWNLOADS_TITLE = N_("No Downloads")
+    EMPTY_DOWNLOADS_DESC = N_("Your downloads will appear here")
 
     # Tooltips
     TIP_PLAY = N_("Play Video")
@@ -105,16 +113,20 @@ class StringKey(Enum):
     PREFS_VERSION_LABEL = N_("Current Version")
     BTN_CHECK_UPDATES = N_("Check for Updates")
 
-    PREFS_APPEARANCE = N_("Appearance")
-    PREFS_THEME = N_("Theme")
-    PREFS_DOWNLOADS = N_("Downloads")
-    PREFS_STORAGE = N_("Storage | History")
-    PREFS_QUALITY = N_("Presets")
-    PREFS_METADATA = N_("Add Metadata")
-    PREFS_SUBTITLES = N_("Download Subtitles")
-    PREFS_SAVE_HISTORY = N_("Save Download History")
-    PREFS_AUTO_CLEAR = N_("Auto Clear on Exit")
-    PREFS_CLEAR_DATA = N_("Clear All Application Data")
+    PREFS_APPEARANCE_TITLE = N_("Appearance")
+    PREFS_THEME_LABEL = N_("Interface Theme")
+    PREFS_COLOR_SCHEME_LABEL = N_("Color Scheme")
+    PREFS_DOWNLOADS_TITLE = N_("Downloads")
+    PREFS_QUALITY_LABEL = N_("Preferred Quality")
+    PREFS_METADATA_LABEL = N_("Add Metadata to Files")
+    PREFS_SUBTITLES_LABEL = N_("Embed Subtitles")
+    PREFS_STORAGE_TITLE = N_("Storage")
+    PREFS_SAVE_HISTORY_LABEL = N_("Save Download History")
+    PREFS_AUTO_CLEAR_LABEL = N_("Always Clear All Data on Exit")
+    PREFS_CONVERTER_TITLE = N_("Media Converter")
+    PREFS_CONV_FOLDER_LABEL = N_("Default Output Folder")
+    PREFS_CONV_HISTORY_LABEL = N_("Save Conversion History")
+    PREFS_CONV_SAME_FOLDER_LABEL = N_("Use same folder as source file")
 
     # Theme Options
     PREFS_THEME_SYSTEM = N_("System")
@@ -135,6 +147,26 @@ class StringKey(Enum):
     PREFS_QUALITY_AUDIO_MP3 = N_("Audio (MP3)")
     PREFS_QUALITY_AUDIO_M4A = N_("Audio (M4A)")
 
+    # Theme Colors
+    COLOR_DEFAULT = N_("Default Blue")
+    COLOR_VIOLET = N_("Modern Violet")
+    COLOR_EMERALD = N_("Emerald Green")
+    COLOR_SUNBURST = N_("Sunburst Orange")
+    COLOR_ROSE = N_("Vibrant Rose")
+    COLOR_CYAN = N_("Nordic Cyan")
+
+    # Full Themes
+    COLOR_NORDIC = N_("Nordic Snow")
+    COLOR_GRUVBOX = N_("Gruvbox Retro")
+    COLOR_CATPPUCCIN = N_("Catppuccin Mocha")
+    COLOR_DRACULA = N_("Dracula Dark")
+    COLOR_TOKYO_NIGHT = N_("Tokyo Night")
+    COLOR_ROSE_PINE = N_("Rosé Pine")
+    COLOR_SOLARIZED = N_("Solarized Dark")
+    COLOR_MONOKAI = N_("Monokai Pro")
+    COLOR_CYBERPUNK = N_("Cyberpunk Neon")
+    COLOR_BIGTUBE = N_("BigTube Brand")
+
     # Status
     STATUS_FETCH = N_("Getting information")
     STATUS_PENDING = N_("Pending")
@@ -152,6 +184,7 @@ class StringKey(Enum):
     # Buttons
     BTN_PAUSE = N_("Pause")
     BTN_RESUME = N_("Resume")
+    BTN_CANCEL_CONV = N_("Cancel Conversion")
 
     # Errors
     ERR_CRITICAL = N_("Critical Error: ")
@@ -186,6 +219,84 @@ class StringKey(Enum):
     MSG_DOWNLOAD_TIMED_OUT = N_("Download timed out!")
     MSG_DOWNLOADING = N_("Starting download...")
     MSG_RESUMING = N_("Starting resume download...")
+
+    # Startup Checks
+    MSG_NO_INTERNET = N_("No internet connection!")
+    MSG_UPDATE_AVAILABLE = N_("yt-dlp update available:")
+    MSG_CHECKING_UPDATES = N_("Checking for updates...")
+
+    # Converter Page
+    CONVERTER_TITLE = N_("Media Converter")
+    CONVERTER_DESC = N_("Drag and drop files here to convert")
+    CONVERTER_DROP_LABEL = N_("Convert your media files")
+    CONVERTER_URL_PLACEHOLDER = N_("Or paste image URL / File Path")
+    CONVERTER_LABEL_TO = N_("Convert to:")
+    BTN_CONVERT = N_("Convert")
+
+    # Converter Status
+    CONV_STATUS_READY = N_("Ready")
+    CONV_STATUS_SELECTED = N_("Selected: ")
+    CONV_STATUS_DOWNLOADING = N_("Downloading image...")
+    CONV_STATUS_CONVERTING = N_("Converting to")
+    CONV_STATUS_SUCCESS = N_("Success!")
+    CONV_STATUS_CANCELLED = N_("Cancelled")
+    CONV_STATUS_ERROR = N_("Error occurred")
+
+    # Converter Messages
+    MSG_CONV_COMPLETE_TITLE = N_("Conversion Complete")
+    MSG_CONV_SAVED = N_("Saved to:")
+    MSG_CONV_FAILED = N_("Failed:")
+    MSG_CONV_FAILED_PREFIX = N_("Failed:")
+    MSG_CONV_CANCELLED = N_("Conversion Cancelled")
+
+    # New Keys for String Centralization
+    DLG_SELECT_MEDIA_TITLE = N_("Select Media Files")
+    BTN_OPEN = N_("_Open")
+    BTN_CANCEL_LABEL = N_("_Cancel")
+    FILTER_MEDIA_FILES = N_("Media Files")
+
+    # Missing File Handling
+    MSG_CONV_FILE_NOT_FOUND_TITLE = N_("File Not Found")
+    MSG_CONV_FILE_NOT_FOUND_TEXT = N_("The converted file was not found. Would you like to convert it again or remove it from history?")
+    BTN_RECONVERT = N_("Convert Again")
+    BTN_REMOVE_FROM_HISTORY = N_("Remove from History")
+    MSG_CONV_SOURCE_NOT_FOUND_TITLE = N_("Source File Missing")
+    MSG_CONV_SOURCE_NOT_FOUND_TEXT = N_("The source file for this conversion is missing. Would you like to remove it from the list?")
+
+    TIP_ADD_FILES = N_("Add Files")
+    TIP_REMOVE_FROM_LIST = N_("Remove from list")
+    TIP_OPEN_FOLDER = N_("Open Folder")
+    TIP_PLAY_CONVERTED = N_("Play Converted File")
+    TIP_CONVERT_MEDIA = N_("Convert")
+
+    LBL_ADD_METADATA = N_("Add Metadata")
+    LBL_ADD_SUBTITLES = N_("Add Subtitles")
+    LBL_OPTIONS_AVAILABLE = N_("options available")
+    LBL_NO_FORMATS_FOUND = N_("No formats found")
+    LBL_LOCAL_FILE = N_("Local File")
+    LBL_ETA = N_("ETA: ")
+
+    # Final UI Migrations
+    TIP_SELECT_SOURCE = N_("Select source")
+
+    # Player Tooltips
+    TIP_PLAYER_PREV = N_("Previous")
+    TIP_PLAYER_PLAY = N_("Play/Pause")
+    TIP_PLAYER_NEXT = N_("Next")
+    TIP_PLAYER_VIDEO = N_("Toggle Video Window")
+
+    # Dialogs & General Messages
+    MSG_RESET_APP_TITLE = N_("Reset Application to Clean State?")
+    MSG_RESET_APP_BODY = N_("This will PERMANENTLY delete all settings, search history, download history, and converter history. This action cannot be undone.")
+    MSG_DATA_CLEARED = N_("All application data has been cleared. The app will now restart.")
+    MSG_FOLDER_SELECT_ERROR = N_("Failed to select folder")
+    MSG_UPDATE_SUCCESS = N_("Components updated successfully! ✅")
+    MSG_UPDATE_DENO_ONLY = N_("Deno updated, but yt-dlp failed.")
+
+    # Settings Page
+    PREFS_CLEAR_DATA_LABEL = N_("Clear All App Data (Reset)")
+    MSG_UPDATE_FAILED = N_("Update check failed.")
+    MSG_GENERIC_ERROR_PREFIX = N_("Error:")
 
 
 class ResourceManager:

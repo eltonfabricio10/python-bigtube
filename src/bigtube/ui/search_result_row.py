@@ -28,10 +28,10 @@ class VideoDataObject(GObject.Object):
     def __init__(self, data_dict):
         super().__init__()
         # Safely get data with defaults
-        self.title = data_dict.get('title', 'Unknown Title')
+        self.title = data_dict.get('title', Res.get(StringKey.PLAYER_UNKNOWN_TITLE))
         self.url = data_dict.get('url', '')
         self.thumbnail = data_dict.get('thumbnail', '')
-        self.uploader = data_dict.get('uploader', 'Unknown Channel')
+        self.uploader = data_dict.get('uploader', Res.get(StringKey.PLAYER_UNKNOWN_ARTIST))
         self.is_video = data_dict.get('is_video', True)
 
 
@@ -76,11 +76,11 @@ class SearchResultRow(Gtk.Box):
         self.video_data = video_data_obj
 
         # Text Setup
-        full_title = self.video_data.title or 'Untitled'
+        full_title = self.video_data.title or Res.get(StringKey.PLAYER_TITLE)
         self.row_title.set_label(full_title)
         self.row_title.set_tooltip_text(full_title)
 
-        self.row_channel.set_label(self.video_data.uploader or 'Unknown')
+        self.row_channel.set_label(self.video_data.uploader or Res.get(StringKey.PLAYER_ARTIST))
 
         # Async Image Loading
         thumbnail_url = self.video_data.thumbnail

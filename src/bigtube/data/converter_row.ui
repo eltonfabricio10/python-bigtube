@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.99.14 -->
+<interface>
+  <!-- interface-name converter_row.ui -->
+  <requires lib="gtk" version="4.0"/>
+  <template class="BigTubeConverterRow" parent="GtkBox">
+    <property name="css-classes">box-list</property>
+    <property name="margin-bottom">6</property>
+    <property name="margin-end">12</property>
+    <property name="margin-start">12</property>
+    <property name="margin-top">6</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">8</property>
+    <child>
+      <object class="GtkBox" id="header_box">
+        <property name="spacing">12</property>
+        <child>
+          <object class="GtkLabel" id="lbl_filename">
+            <property name="ellipsize">middle</property>
+            <property name="halign">start</property>
+            <property name="hexpand">True</property>
+            <property name="xalign">0</property>
+            <style>
+              <class name="heading"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="convert_actions_box">
+            <property name="halign">end</property>
+            <property name="hexpand">True</property>
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkDropDown" id="combo_format">
+                <property name="margin-end">12</property>
+                <property name="valign">center</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="btn_convert">
+                <property name="icon-name">system-run-symbolic</property>
+                <property name="valign">center</property>
+                <style>
+                  <class name="flat"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="btn_cancel">
+                <property name="icon-name">process-stop-symbolic</property>
+                <property name="valign">center</property>
+                <property name="visible">False</property>
+                <style>
+                  <class name="flat"/>
+                  <class name="destructive-action"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="btn_remove">
+                <property name="icon-name">user-trash-symbolic</property>
+                <property name="valign">center</property>
+                <style>
+                  <class name="flat"/>
+                  <class name="destructive-action"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox" id="footer_box">
+        <property name="spacing">10</property>
+        <child>
+          <object class="GtkLabel" id="lbl_path">
+            <property name="ellipsize">middle</property>
+            <property name="halign">start</property>
+            <property name="hexpand">True</property>
+            <property name="xalign">0</property>
+            <style>
+              <class name="caption"/>
+              <class name="dim-label"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lbl_status">
+            <property name="halign">end</property>
+            <property name="visible">False</property>
+            <style>
+              <class name="caption"/>
+              <class name="dim-label"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="post_convert_actions">
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkButton" id="btn_folder">
+                <property name="icon-name">folder-open-symbolic</property>
+                <property name="valign">center</property>
+                <property name="visible">False</property>
+                <style>
+                  <class name="flat"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="btn_play">
+                <property name="icon-name">media-playback-start-symbolic</property>
+                <property name="valign">center</property>
+                <property name="visible">False</property>
+                <style>
+                  <class name="flat"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox" id="options_box">
+        <property name="halign">center</property>
+        <property name="margin-start">4</property>
+        <property name="spacing">20</property>
+        <child>
+          <object class="GtkCheckButton" id="chk_metadata">
+            <property name="active">True</property>
+            <property name="valign">center</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="chk_subtitles">
+            <property name="active">True</property>
+            <property name="valign">center</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkProgressBar" id="progress_bar">
+        <property name="hexpand">True</property>
+        <property name="margin-top">4</property>
+        <property name="visible">False</property>
+      </object>
+    </child>
+  </template>
+</interface>

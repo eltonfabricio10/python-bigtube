@@ -10,14 +10,16 @@ class DownloadController:
     Acts as a Factory for DownloadRows.
     """
 
-    def __init__(self, list_box_widget: Gtk.ListBox, on_play_callback):
+    def __init__(self, list_box_widget: Gtk.ListBox, on_play_callback, on_remove_callback=None):
         """
         Args:
             list_box_widget: The actual GtkListBox from MainWindow.
             on_play_callback: Function to call when user clicks Play on a row.
+            on_remove_callback: Function to call when a row is removed.
         """
         self.list_box = list_box_widget
         self.on_play_callback = on_play_callback
+        self.on_remove_callback = on_remove_callback
 
     def add_download(self, title, filename, url, format_id, full_path) -> DownloadRow:
         """
@@ -28,7 +30,8 @@ class DownloadController:
             title=title,
             filename=filename,
             full_path=full_path,
-            on_play_callback=self.on_play_callback
+            on_play_callback=self.on_play_callback,
+            on_remove_callback=self.on_remove_callback
         )
 
         # Prepend adds to the TOP of the list (Better UX for new items)

@@ -10,10 +10,12 @@ from gi.repository import Gtk, Adw, Gdk, GLib
 from ..core.downloader import VideoDownloader
 from ..core.config import ConfigManager
 from ..core.history_manager import HistoryManager
-from ..core.enums import DownloadStatus, AppSection, VideoQuality
+from ..core.enums import DownloadStatus, AppSection, VideoQuality, ThemeMode, ThemeColor
 from ..core.locales import ResourceManager as Res, StringKey
 from ..core.logger import get_logger
 from ..core.validators import sanitize_filename
+from ..core.network_checker import check_internet_connection, check_ytdlp_update_available
+from ..core.updater import Updater
 
 logger = get_logger(__name__)
 from ..core.helpers import get_status_label
@@ -22,6 +24,7 @@ from ..core.helpers import get_status_label
 from ..controllers.search_controller import SearchController
 from ..controllers.download_controller import DownloadController
 from ..controllers.settings_controller import SettingsController
+from ..controllers.converter_controller import ConverterController
 from ..controllers.player_controller import PlayerController
 
 # --- UI COMPONENTS ---
@@ -68,6 +71,24 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     search_button = Gtk.Template.Child()
     search_source_dropdown = Gtk.Template.Child()
     search_model = Gtk.Template.Child()
+    search_content_stack = Gtk.Template.Child()
+    search_empty_state = Gtk.Template.Child()
+
+    # Downloads Page
+    downloads_list = Gtk.Template.Child()
+    btn_clear = Gtk.Template.Child()
+    download_content_stack = Gtk.Template.Child()
+    download_empty_state = Gtk.Template.Child()
+
+    # Converter Page
+    converter_page = Gtk.Template.Child()
+    converter_banner = Gtk.Template.Child()
+    converter_outer = Gtk.Template.Child()
+    converter_view_stack = Gtk.Template.Child()
+    converter_empty_state = Gtk.Template.Child()
+    list_converter = Gtk.Template.Child()
+    drop_zone = Gtk.Template.Child()
+    btn_load_files = Gtk.Template.Child()
 
     # Player Bar (Bottom)
     player_title = Gtk.Template.Child()
@@ -82,13 +103,10 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     player_video_toggle_button = Gtk.Template.Child()
     player_volume = Gtk.Template.Child()
 
-    # Downloads Page
-    downloads_list = Gtk.Template.Child()
-    btn_clear = Gtk.Template.Child()
-
     # Settings Page
     group_appearance = Gtk.Template.Child()
     row_theme = Gtk.Template.Child()
+    row_theme_color = Gtk.Template.Child()
     theme_list = Gtk.Template.Child()
     row_version = Gtk.Template.Child()
     btn_update = Gtk.Template.Child()
@@ -106,6 +124,13 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     row_auto_clear = Gtk.Template.Child()
     row_clear_data = Gtk.Template.Child()
     btn_clear_now = Gtk.Template.Child()
+
+    # Converter Settings
+    group_converter = Gtk.Template.Child()
+    row_conv_folder = Gtk.Template.Child()
+    row_conv_history = Gtk.Template.Child()
+    row_conv_use_source = Gtk.Template.Child()
+    btn_select_conv_folder = Gtk.Template.Child()
 
     # =========================================================================
     # INITIALIZATION
@@ -141,28 +166,38 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             on_clear_callback=self.reset_player_state
         )
         self.search_ctrl.connect('loading-state', self.set_loading_searching)
+        self.search_ctrl.connect('results-changed', self._on_search_results_changed)
 
         # 5. Download Controller
         self.download_ctrl = DownloadController(
             list_box_widget=self.downloads_list,
-            on_play_callback=self.play_local_file
+            on_play_callback=self.play_local_file,
+            on_remove_callback=self._update_download_empty_state
         )
         self.btn_clear.connect("clicked", self._on_clear_history_clicked)
 
         # 6. Settings Controller
         settings_widgets = {
-            'page': self.settings_page,
-            'grp_appear': self.group_appearance,
-            'grp_dl': self.group_downloads,
-            'grp_store': self.group_storage,
+            'settings_page': self.settings_page,
+            'group_appearance': self.group_appearance,
+            'group_downloads': self.group_downloads,
+            'group_storage': self.group_storage,
             'row_theme': self.row_theme,
+            'row_theme_color': self.row_theme_color,
             'row_quality': self.row_quality,
-            'row_meta': self.row_metadata,
-            'row_sub': self.row_subtitles,
-            'row_hist': self.row_save_history,
-            'row_auto': self.row_auto_clear,
-            'row_clear': self.row_clear_data,
-            'btn_clear_now': self.btn_clear_now
+            'row_metadata': self.row_metadata,
+            'row_subtitles': self.row_subtitles,
+            'row_save_history': self.row_save_history,
+            'row_auto_clear': self.row_auto_clear,
+            'row_clear_data': self.row_clear_data,
+            'btn_clear_now': self.btn_clear_now,
+
+            # Converter settings
+            'group_converter': self.group_converter,
+            'row_conv_folder': self.row_conv_folder,
+            'row_conv_history': self.row_conv_history,
+            'row_conv_use_source': self.row_conv_use_source,
+            'btn_select_conv_folder': self.btn_select_conv_folder
         }
 
         self.settings_ctrl = SettingsController(
@@ -172,6 +207,20 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             btn_update=self.btn_update,
             window_parent=self,
             text_widgets=settings_widgets
+        )
+
+        # 6.5 Converter Controller
+        converter_widgets = {
+            'view_stack': self.converter_view_stack,
+            'list_converter': self.list_converter,
+            'drop_zone': self.drop_zone,
+            'btn_load_files': self.btn_load_files,
+            'converter_outer': self.converter_outer
+        }
+        self.converter_ctrl = ConverterController(
+            self.converter_outer,
+            converter_widgets,
+            on_play_callback=self.play_local_file
         )
 
         # 7. Global Inputs
@@ -186,32 +235,104 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         # Load previous session
         self._load_history_ui()
 
+        # 9. Startup checks (network + yt-dlp updates) in background
+        threading.Thread(target=self._run_startup_checks, daemon=True).start()
+
+        # 10. Apply persistent theme
+        self.apply_theme(
+            ConfigManager.get("theme_mode"),
+            ConfigManager.get("theme_color")
+        )
+
+    def apply_theme(self, mode_enum, color_enum=None):
+        """
+        Applies the selected theme and accent color to the application.
+        Now delegates to _apply_theme_to_window for consistency.
+        """
+        self._apply_theme_to_window(self, mode_enum, color_enum)
+
+        # Update global StyleManager scheme preference
+        # This part affects the whole app but classes need to be per-window sometimes
+        manager = Adw.StyleManager.get_default()
+        if mode_enum == ThemeMode.SYSTEM:
+            manager.set_color_scheme(Adw.ColorScheme.DEFAULT)
+        elif mode_enum == ThemeMode.LIGHT:
+            manager.set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
+        elif mode_enum == ThemeMode.DARK:
+            manager.set_color_scheme(Adw.ColorScheme.FORCE_DARK)
+
+    def _apply_theme_to_window(self, window_widget, mode_enum=None, color_enum=None):
+        """
+        Applies theme CSS classes to any window (Main, Dialogs, etc).
+        If enums are None, fetches current defaults from Config.
+        """
+        if not mode_enum:
+            mode_enum = ConfigManager.get("theme_mode")
+        if not color_enum:
+             color_enum = ConfigManager.get("theme_color")
+
+        # 1. Handle Light/Dark Class
+        window_widget.remove_css_class("light")
+        window_widget.remove_css_class("dark")
+
+        manager = Adw.StyleManager.get_default()
+        is_dark = manager.get_dark()
+
+        # If we are forcing a mode, apply class accordingly
+        # If system, we check what the system is doing
+        if mode_enum == ThemeMode.LIGHT:
+             window_widget.add_css_class("light")
+        elif mode_enum == ThemeMode.DARK:
+             window_widget.add_css_class("dark")
+        else:
+            # System mode: apply class based on resolved state
+             if is_dark:
+                 window_widget.add_css_class("dark")
+             else:
+                 window_widget.add_css_class("light")
+
+        # 2. Handle Accent Color
+        for color in ThemeColor:
+             window_widget.remove_css_class(f"accent-{color.value}")
+
+        if color_enum:
+             val = color_enum.value if hasattr(color_enum, 'value') else color_enum
+             if val != ThemeColor.DEFAULT.value:
+                  window_widget.add_css_class(f"accent-{val}")
+
     def on_about_clicked(self, widget, event=None):
         """Opens the about dialog."""
         about = Adw.AboutDialog.new()
         about.set_application_name(Res.get(StringKey.APP_TITLE))
         about.set_application_icon("bigtube")
         about.set_developer_name("Elton Fabricio a.k.a eltonff")
-        about.set_version("1.0.0")
+        about.set_version("2.0.0")
         about.set_license_type(Gtk.License.MIT_X11)
         about.set_copyright("© 2026 BigTube")
         about.set_website("https://github.com/eltonfabricio10/python-bigtube")
         about.set_issue_url("https://github.com/eltonfabricio10/python-bigtube/issues")
+
+        # Apply current theme
+        self._apply_theme_to_window(about)
+
         about.present()
 
     def _setup_ui_strings(self):
         """Injects localized text into the UI elements."""
         # 1. Window Title
         self.set_title(Res.get(StringKey.APP_TITLE))
+        self.set_icon_name("bigtube")
 
         # 2. Navigation titles
         self.search_page.set_title(Res.get(StringKey.NAV_SEARCH))
         self.download_page.set_title(Res.get(StringKey.NAV_DOWNLOADS))
+        self.converter_page.set_title(Res.get(StringKey.NAV_CONVERTER))
         self.settings_page.set_title(Res.get(StringKey.NAV_SETTINGS))
 
         # 3 Banners Page
         self.search_banner.set_title(Res.get(StringKey.NAV_SEARCH_BANNER))
         self.download_banner.set_title(Res.get(StringKey.NAV_DOWNLOADS_BANNER))
+        self.converter_banner.set_title(Res.get(StringKey.NAV_CONVERTER_BANNER))
         self.settings_banner.set_title(Res.get(StringKey.NAV_SETTINGS_BANNER))
 
         # 4. Search Page
@@ -220,13 +341,40 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self.search_model.append(Res.get(StringKey.SELECT_SOURCE_SC))
         self.search_model.append(Res.get(StringKey.SELECT_SOURCE_URL))
         self.search_button.set_tooltip_text(Res.get(StringKey.SEARCH_BTN_LABEL))
+        self.search_source_dropdown.set_tooltip_text(Res.get(StringKey.TIP_SELECT_SOURCE))
 
         # 5. Settings Page
-        self.row_folder.set_title(Res.get(StringKey.PREFS_FOLDER_LABEL))
+        # Basic settings elements directly on window
         self.row_version.set_title(Res.get(StringKey.PREFS_VERSION_LABEL))
+        self.row_folder.set_title(Res.get(StringKey.PREFS_FOLDER_LABEL))
+
+        # Note: Detailed settings strings (groups, quality, etc.)
+        # are handled by SettingsController in its initialize method.
 
         # 6. Downloads Page
         self.btn_clear.set_tooltip_text(Res.get(StringKey.BTN_CLEAR_HISTORY))
+
+        # 7. Converter Page
+        self.btn_load_files.set_tooltip_text(Res.get(StringKey.TIP_ADD_FILES))
+
+        # 8. Player Bar
+        self.player_prev_button.set_tooltip_text(Res.get(StringKey.TIP_PLAYER_PREV))
+        self.player_playpause_button.set_tooltip_text(Res.get(StringKey.TIP_PLAYER_PLAY))
+        self.player_next_button.set_tooltip_text(Res.get(StringKey.TIP_PLAYER_NEXT))
+        self.player_video_toggle_button.set_tooltip_text(Res.get(StringKey.TIP_PLAYER_VIDEO))
+
+        # 9. Empty States
+        self.search_empty_state.set_title(Res.get(StringKey.EMPTY_SEARCH_TITLE))
+        self.search_empty_state.set_description(Res.get(StringKey.EMPTY_SEARCH_DESC))
+        self.download_empty_state.set_title(Res.get(StringKey.EMPTY_DOWNLOADS_TITLE))
+        self.download_empty_state.set_description(Res.get(StringKey.EMPTY_DOWNLOADS_DESC))
+        self.converter_empty_state.set_title(Res.get(StringKey.CONVERTER_TITLE))
+        self.converter_empty_state.set_description(Res.get(StringKey.CONVERTER_DESC))
+
+        # Start with empty states visible
+        self.search_content_stack.set_visible_child_name("empty")
+        self.download_content_stack.set_visible_child_name("empty")
+        self.converter_view_stack.set_visible_child_name("empty")
 
     def _init_player_controller(self):
         """Bundles widgets for the player controller."""
@@ -251,8 +399,51 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         )
 
     # =========================================================================
+    # STARTUP CHECKS
+    # =========================================================================
+
+    def _run_startup_checks(self):
+        """
+        Background thread: Checks internet connectivity and yt-dlp updates.
+        Notifies user via toast if issues are detected.
+        """
+        # 1. Check internet connectivity
+        has_internet = check_internet_connection()
+
+        if not has_internet:
+            GLib.idle_add(
+                MessageManager.show,
+                Res.get(StringKey.MSG_NO_INTERNET),
+                True  # is_error
+            )
+            return  # No point checking updates without internet
+
+        # 2. Check for yt-dlp updates
+        local_version = Updater.get_local_version()
+        update_available, remote_version = check_ytdlp_update_available(local_version)
+
+        if update_available and remote_version:
+            msg = f"{Res.get(StringKey.MSG_UPDATE_AVAILABLE)} v{remote_version}"
+            GLib.idle_add(MessageManager.show, msg, False)
+
+    # =========================================================================
     # HISTORY & PERSISTENCE
     # =========================================================================
+
+    def _on_search_results_changed(self, controller, count):
+        """Toggles between empty state and results based on count."""
+        if count > 0:
+            self.search_content_stack.set_visible_child_name("results")
+        else:
+            self.search_content_stack.set_visible_child_name("empty")
+
+    def _update_download_empty_state(self):
+        """Toggles download page between empty state and list based on children."""
+        has_items = self.downloads_list.get_first_child() is not None
+        if has_items:
+            self.download_content_stack.set_visible_child_name("list")
+        else:
+            self.download_content_stack.set_visible_child_name("empty")
 
     def _on_clear_history_clicked(self, btn):
         listbox = self.download_ctrl.list_box
@@ -275,6 +466,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
         MessageManager.show(Res.get(StringKey.MSG_HISTORY_CLEARED))
         self.btn_clear.set_sensitive(False)
+        self._update_download_empty_state()
 
     def _load_history_ui(self):
         """Rebuilds the UI based on JSON history."""
@@ -309,6 +501,9 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             elif raw_status == DownloadStatus.INTERRUPTED:
                 row_widget.set_status_label(Res.get(StringKey.STATUS_INTERRUPTED))
                 row_widget.progress_bar.add_css_class("warning")
+
+        # Update empty state visibility after loading history
+        self._update_download_empty_state()
 
     # =========================================================================
     # LOADING SPINNER
@@ -399,7 +594,10 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             is_local=False
         )
 
-    def play_local_file(self, file_path, title="Local File"):
+    def play_local_file(self, file_path, title=None):
+        if not title:
+            title = Res.get(StringKey.LBL_LOCAL_FILE)
+
         if not os.path.exists(file_path):
             MessageManager.show_confirmation(
                 title=Res.get(StringKey.MSG_FILE_NOT_FOUND_TITLE),
@@ -522,6 +720,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
         # Show Dialog
         dialog = FormatSelectionDialog(self, info, self.start_download_execution)
+        self._apply_theme_to_window(dialog)
         dialog.present()
 
     def start_download_execution(self, video_info, format_data):
@@ -576,6 +775,9 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         # 3. Create ISOLATED Downloader Instance
         task_downloader = VideoDownloader()
         row_widget.set_downloader(task_downloader)
+
+        # Update empty state (show list since we added an item)
+        self._update_download_empty_state()
 
         # Switch view
         self.pageview.set_visible_child_name(AppSection.DOWNLOADS.value)

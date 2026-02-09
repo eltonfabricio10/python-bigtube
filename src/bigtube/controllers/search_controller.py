@@ -26,7 +26,8 @@ class SearchController(GObject.Object):
     __gtype_name__ = 'SearchController'
 
     __gsignals__ = {
-        'loading-state': (GObject.SIGNAL_RUN_FIRST, None, (bool, str))
+        'loading-state': (GObject.SIGNAL_RUN_FIRST, None, (bool, str)),
+        'results-changed': (GObject.SIGNAL_RUN_FIRST, None, (int,))  # item count
     }
 
     def __init__(
@@ -194,6 +195,7 @@ class SearchController(GObject.Object):
 
             if self.on_clear_callback:
                 self.on_clear_callback()
+            self.emit('results-changed', 0)  # Emit empty
             return
 
         # 2. Autocomplete Logic
@@ -300,6 +302,7 @@ class SearchController(GObject.Object):
 
             self.store.append(VideoDataObject(item))
 
+        self.emit('results-changed', self.store.get_n_items())  # Emit count
         self._finish_loading()
 
     def _finish_loading(self):

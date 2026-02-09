@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.13 -->
+<!-- Created with Cambalache 0.99.14 -->
 <interface>
   <!-- interface-name bigtube.ui -->
   <requires lib="gtk" version="4.18"/>
@@ -8,10 +8,10 @@
     <property name="adaptive-preview">False</property>
     <property name="default-height">720</property>
     <property name="default-width">960</property>
+    <property name="gravity">center</property>
     <property name="icon-name">bigtube</property>
     <property name="show-menubar">False</property>
     <property name="startup-id">org.big.bigtube</property>
-    <property name="title">BigTube</property>
     <child>
       <object class="AdwToastOverlay" id="toast_overlay">
         <child>
@@ -109,14 +109,35 @@
                                       </object>
                                     </child>
                                     <child>
-                                      <object class="GtkScrolledWindow" id="search_scroll">
-                                        <property name="child">
-                                          <object class="GtkListView" id="search_results_list">
-                                            <property name="vexpand">True</property>
-                                          </object>
-                                        </property>
+                                      <object class="GtkStack" id="search_content_stack">
                                         <property name="vexpand">True</property>
-                                        <property name="vexpand-set">False</property>
+                                        <child>
+                                          <object class="GtkStackPage" id="search_empty_page">
+                                            <property name="child">
+                                              <object class="AdwStatusPage" id="search_empty_state">
+                                                <property name="icon-name">system-search-symbolic</property>
+                                                <property name="vexpand">True</property>
+                                              </object>
+                                            </property>
+                                            <property name="name">empty</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkStackPage" id="search_results_page">
+                                            <property name="child">
+                                              <object class="GtkScrolledWindow" id="search_scroll">
+                                                <property name="child">
+                                                  <object class="GtkListView" id="search_results_list">
+                                                    <property name="vexpand">True</property>
+                                                  </object>
+                                                </property>
+                                                <property name="vexpand">True</property>
+                                                <property name="vexpand-set">False</property>
+                                              </object>
+                                            </property>
+                                            <property name="name">results</property>
+                                          </object>
+                                        </child>
                                       </object>
                                     </child>
                                   </object>
@@ -128,45 +149,137 @@
                             <child>
                               <object class="GtkStackPage" id="download_page">
                                 <property name="child">
-                                  <object class="GtkScrolledWindow" id="download_scrolled">
-                                    <property name="child">
-                                      <object class="GtkBox" id="download_box">
-                                        <property name="margin-bottom">0</property>
-                                        <property name="margin-top">0</property>
-                                        <property name="orientation">vertical</property>
+                                  <object class="GtkBox" id="download_outer_box">
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="AdwBanner" id="download_banner">
+                                        <property name="css-classes">title-1</property>
+                                        <property name="revealed">True</property>
                                         <child>
-                                          <object class="AdwBanner" id="download_banner">
-                                            <property name="css-classes">title-1</property>
-                                            <property name="revealed">True</property>
-                                            <child>
-                                              <object class="GtkButton" id="btn_clear">
-                                                <property name="halign">end</property>
-                                                <property name="has-frame">False</property>
-                                                <property name="icon-name">list-remove-all-symbolic</property>
-                                                <property name="margin-end">12</property>
-                                                <property name="valign">center</property>
-                                              </object>
-                                            </child>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="GtkListBox" id="downloads_list">
-                                            <property name="css-classes">boxed-list</property>
-                                            <property name="margin-end">3</property>
-                                            <property name="margin-start">3</property>
-                                            <property name="margin-top">3</property>
+                                          <object class="GtkButton" id="btn_clear">
+                                            <property name="halign">end</property>
+                                            <property name="has-frame">False</property>
+                                            <property name="icon-name">list-remove-all-symbolic</property>
+                                            <property name="margin-end">12</property>
+                                            <property name="valign">center</property>
                                           </object>
                                         </child>
                                       </object>
-                                    </property>
-                                    <property name="margin-bottom">0</property>
-                                    <property name="margin-end">0</property>
-                                    <property name="margin-start">0</property>
-                                    <property name="margin-top">0</property>
+                                    </child>
+                                    <child>
+                                      <object class="GtkStack" id="download_content_stack">
+                                        <property name="vexpand">True</property>
+                                        <child>
+                                          <object class="GtkStackPage" id="download_empty_page">
+                                            <property name="child">
+                                              <object class="AdwStatusPage" id="download_empty_state">
+                                                <property name="icon-name">folder-download-symbolic</property>
+                                                <property name="vexpand">True</property>
+                                              </object>
+                                            </property>
+                                            <property name="name">empty</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkStackPage" id="download_list_page">
+                                            <property name="child">
+                                              <object class="GtkScrolledWindow" id="download_scrolled">
+                                                <property name="child">
+                                                  <object class="GtkListBox" id="downloads_list">
+                                                    <property name="css-classes">boxed-list</property>
+                                                    <property name="margin-end">3</property>
+                                                    <property name="margin-start">3</property>
+                                                    <property name="margin-top">3</property>
+                                                    <property name="valign">start</property>
+                                                  </object>
+                                                </property>
+                                                <property name="vexpand">True</property>
+                                              </object>
+                                            </property>
+                                            <property name="name">list</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
                                   </object>
                                 </property>
                                 <property name="icon-name">folder-download-symbolic</property>
                                 <property name="name">download_page</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkStackPage" id="converter_page">
+                                <property name="child">
+                                  <object class="GtkBox" id="converter_outer">
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="AdwBanner" id="converter_banner">
+                                        <property name="css-classes">title-1</property>
+                                        <property name="revealed">True</property>
+                                        <property name="title"/>
+                                        <child>
+                                          <object class="GtkButton" id="btn_load_files">
+                                            <property name="halign">end</property>
+                                            <property name="has-frame">False</property>
+                                            <property name="icon-name">list-add-symbolic</property>
+                                            <property name="margin-end">12</property>
+                                            <property name="valign">center</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkStack" id="converter_view_stack">
+                                        <property name="vexpand">True</property>
+                                        <child>
+                                          <object class="GtkStackPage" id="page_empty_converter">
+                                            <property name="child">
+                                              <object class="AdwStatusPage" id="converter_empty_state">
+                                                <property name="description"/>
+                                                <property name="icon-name">view-refresh-symbolic</property>
+                                                <property name="title"/>
+                                                <child>
+                                                  <object class="GtkBox" id="drop_zone">
+                                                    <property name="halign">center</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <property name="spacing">10</property>
+                                                  </object>
+                                                </child>
+                                              </object>
+                                            </property>
+                                            <property name="name">empty</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkStackPage" id="page_list_converter">
+                                            <property name="child">
+                                              <object class="GtkScrolledWindow">
+                                                <property name="hscrollbar-policy">never</property>
+                                                <property name="vexpand">True</property>
+                                                <child>
+                                                  <object class="GtkListBox" id="list_converter">
+                                                    <property name="margin-bottom">12</property>
+                                                    <property name="margin-end">12</property>
+                                                    <property name="margin-start">12</property>
+                                                    <property name="margin-top">12</property>
+                                                    <property name="selection-mode">none</property>
+                                                    <property name="valign">start</property>
+                                                    <style>
+                                                      <class name="boxed-list"/>
+                                                    </style>
+                                                  </object>
+                                                </child>
+                                              </object>
+                                            </property>
+                                            <property name="name">list</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </property>
+                                <property name="icon-name">view-refresh-symbolic</property>
+                                <property name="name">converter_page</property>
                               </object>
                             </child>
                             <child>
@@ -190,6 +303,15 @@
                                             <property name="model">
                                               <object class="GtkStringList" id="theme_list"/>
                                             </property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="AdwComboRow" id="row_theme_color">
+                                            <property name="icon-name">applications-graphics-symbolic</property>
+                                            <property name="model">
+                                              <object class="GtkStringList" id="theme_color_list"/>
+                                            </property>
+                                            <property name="title">Color Scheme</property>
                                           </object>
                                         </child>
                                         <child>
@@ -237,19 +359,46 @@
                                             <property name="icon-name">media-view-subtitles-symbolic</property>
                                           </object>
                                         </child>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="AdwPreferencesGroup" id="group_storage">
                                         <child>
                                           <object class="AdwSwitchRow" id="row_save_history">
                                             <property name="active">True</property>
                                             <property name="icon-name">document-open-recent-symbolic</property>
                                           </object>
                                         </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="AdwPreferencesGroup" id="group_converter">
+                                        <child>
+                                          <object class="AdwSwitchRow" id="row_conv_use_source">
+                                            <property name="icon-name">folder-symbolic</property>
+                                            <property name="title">Use same folder as source file</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="AdwActionRow" id="row_conv_folder">
+                                            <property name="icon-name">folder-download-symbolic</property>
+                                            <property name="title-selectable">False</property>
+                                            <child>
+                                              <object class="GtkButton" id="btn_select_conv_folder">
+                                                <property name="icon-name">folder-open-symbolic</property>
+                                                <property name="valign">center</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="AdwSwitchRow" id="row_conv_history">
+                                            <property name="icon-name">document-open-recent-symbolic</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="AdwPreferencesGroup" id="group_storage">
                                         <child>
                                           <object class="AdwSwitchRow" id="row_auto_clear">
-                                            <property name="icon-name">xsi-user-trash-symbolic</property>
+                                            <property name="icon-name">user-trash-symbolic</property>
                                           </object>
                                         </child>
                                         <child>
@@ -268,7 +417,7 @@
                                     </child>
                                   </object>
                                 </property>
-                                <property name="icon-name">settings</property>
+                                <property name="icon-name">preferences-system-symbolic</property>
                                 <property name="name">settings_page</property>
                               </object>
                             </child>
@@ -311,7 +460,7 @@
                     <child>
                       <object class="GtkImage" id="player_thumbnail">
                         <property name="halign">center</property>
-                        <property name="icon-name">viewimage</property>
+                        <property name="icon-name">image-x-generic-symbolic</property>
                         <property name="margin-bottom">5</property>
                         <property name="margin-end">5</property>
                         <property name="margin-start">5</property>

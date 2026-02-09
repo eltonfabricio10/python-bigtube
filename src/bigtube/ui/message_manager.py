@@ -39,7 +39,7 @@ class MessageManager:
         if is_error:
             toast = Adw.Toast.new(message)
             toast.set_timeout(5)
-            toast.set_priority(Adw.ToastPriority.ERROR)
+            toast.set_priority(Adw.ToastPriority.HIGH)
             cls._toast_widget.add_toast(toast)
         else:
             toast = Adw.Toast.new(message)
@@ -48,7 +48,7 @@ class MessageManager:
             cls._toast_widget.add_toast(toast)
 
     @classmethod
-    def show_confirmation(cls, title: str, body: str, on_confirm_callback):
+    def show_confirmation(cls, title: str, body: str, on_confirm_callback=None):
         """
         Shows a native Adwaita Alert Dialog for confirmation.
         """
@@ -73,7 +73,7 @@ class MessageManager:
 
         def _callback(dialog, result):
             response = dialog.choose_finish(result)
-            if response == "confirm":
+            if response == "confirm" and on_confirm_callback:
                 on_confirm_callback()
 
         dialog.choose(cls._window, None, _callback)
@@ -99,6 +99,55 @@ class MessageManager:
         dialog.set_close_response("close")
 
         dialog.choose(cls._window, None, cls._on_dialog_response)
+
+    @classmethod
+    def show_info_dialog(cls, title: str, body: str, on_close_callback=None):
+        """
+        Shows a simple information modal with an OK button.
+        """
+        if not cls._window:
+            return
+
+        dialog = Adw.AlertDialog(
+            heading=title,
+            body=body
+        )
+
+        txt_ok = Res.get(StringKey.STATUS_CONFIRM) or "OK"
+        dialog.add_response("ok", txt_ok)
+        dialog.set_default_response("ok")
+        dialog.set_close_response("ok")
+
+        def _callback(dialog, result):
+            dialog.choose_finish(result)
+            if on_close_callback:
+                on_close_callback()
+
+        dialog.choose(cls._window, None, _callback)
+
+    @classmethod
+    def show_custom_dialog(cls, title: str, body: str, responses: dict, on_response_callback=None, destructive_id=None):
+        """
+        Shows a native Adwaita Alert Dialog with multiple custom response buttons.
+        responses: dict of {id: label}
+        """
+        if not cls._window:
+            print("[UI Error] MessageManager missing parent window for dialog.")
+            return
+
+        dialog = Adw.AlertDialog(heading=title, body=body)
+
+        for resp_id, label in responses.items():
+            dialog.add_response(resp_id, label)
+            if resp_id == destructive_id:
+                dialog.set_response_appearance(resp_id, Adw.ResponseAppearance.DESTRUCTIVE)
+
+        def _callback(dialog, result):
+            response = dialog.choose_finish(result)
+            if on_response_callback:
+                on_response_callback(response)
+
+        dialog.choose(cls._window, None, _callback)
 
     @classmethod
     def _on_dialog_response(cls, dialog, result):

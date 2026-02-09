@@ -1,6 +1,7 @@
 import threading
 import os
 import shutil
+import sys
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
@@ -53,34 +54,46 @@ class SettingsController:
         Sets localized titles for UI elements that are empty in the .ui file.
         """
         # Pages & Groups
-        if 'page' in widgets:
-            widgets['page'].set_title(Res.get(StringKey.NAV_SETTINGS))
-        if 'grp_appear' in widgets:
-            widgets['grp_appear'].set_title(Res.get(StringKey.PREFS_APPEARANCE))
-        if 'grp_dl' in widgets:
-            widgets['grp_dl'].set_title(Res.get(StringKey.PREFS_DOWNLOADS))
-        if 'grp_store' in widgets:
-            widgets['grp_store'].set_title(Res.get(StringKey.PREFS_STORAGE))
+        if 'settings_page' in widgets:
+            widgets['settings_page'].set_title(Res.get(StringKey.NAV_SETTINGS))
+        if 'group_appearance' in widgets:
+            widgets['group_appearance'].set_title(Res.get(StringKey.PREFS_APPEARANCE_TITLE))
+        if 'group_downloads' in widgets:
+            widgets['group_downloads'].set_title(Res.get(StringKey.PREFS_DOWNLOADS_TITLE))
+        if 'group_storage' in widgets:
+            widgets['group_storage'].set_title(Res.get(StringKey.PREFS_STORAGE_TITLE))
+        if 'group_converter' in widgets:
+            widgets['group_converter'].set_title(Res.get(StringKey.PREFS_CONVERTER_TITLE))
 
         # Rows
         if 'row_theme' in widgets:
-            widgets['row_theme'].set_title(Res.get(StringKey.PREFS_THEME))
-        self.row_version.set_title(Res.get(StringKey.PREFS_VERSION_LABEL))
+            widgets['row_theme'].set_title(Res.get(StringKey.PREFS_THEME_LABEL))
 
+        if 'row_theme_color' in widgets:
+            widgets['row_theme_color'].set_title(Res.get(StringKey.PREFS_COLOR_SCHEME_LABEL))
+
+        self.row_version.set_title(Res.get(StringKey.PREFS_VERSION_LABEL))
         self.row_folder.set_title(Res.get(StringKey.PREFS_FOLDER_LABEL))
 
         if 'row_quality' in widgets:
-            widgets['row_quality'].set_title(Res.get(StringKey.PREFS_QUALITY))
-        if 'row_meta' in widgets:
-            widgets['row_meta'].set_title(Res.get(StringKey.PREFS_METADATA))
-        if 'row_sub' in widgets:
-            widgets['row_sub'].set_title(Res.get(StringKey.PREFS_SUBTITLES))
-        if 'row_hist' in widgets:
-            widgets['row_hist'].set_title(Res.get(StringKey.PREFS_SAVE_HISTORY))
-        if 'row_auto' in widgets:
-            widgets['row_auto'].set_title(Res.get(StringKey.PREFS_AUTO_CLEAR))
-        if 'row_clear' in widgets:
-            widgets['row_clear'].set_title(Res.get(StringKey.PREFS_CLEAR_DATA))
+            widgets['row_quality'].set_title(Res.get(StringKey.PREFS_QUALITY_LABEL))
+        if 'row_metadata' in widgets:
+            widgets['row_metadata'].set_title(Res.get(StringKey.PREFS_METADATA_LABEL))
+        if 'row_subtitles' in widgets:
+            widgets['row_subtitles'].set_title(Res.get(StringKey.PREFS_SUBTITLES_LABEL))
+        if 'row_save_history' in widgets:
+            widgets['row_save_history'].set_title(Res.get(StringKey.PREFS_SAVE_HISTORY_LABEL))
+        if 'row_auto_clear' in widgets:
+            widgets['row_auto_clear'].set_title(Res.get(StringKey.PREFS_AUTO_CLEAR_LABEL))
+        if 'row_clear_data' in widgets:
+            widgets['row_clear_data'].set_title(Res.get(StringKey.PREFS_CLEAR_DATA_LABEL))
+
+        if 'row_conv_folder' in widgets:
+            widgets['row_conv_folder'].set_title(Res.get(StringKey.PREFS_CONV_FOLDER_LABEL))
+        if 'row_conv_history' in widgets:
+            widgets['row_conv_history'].set_title(Res.get(StringKey.PREFS_CONV_HISTORY_LABEL))
+        if 'row_conv_use_source' in widgets:
+            widgets['row_conv_use_source'].set_title(Res.get(StringKey.PREFS_CONV_SAME_FOLDER_LABEL))
 
     def _setup_bindings(self, w):
         """Connects signals for changes."""
@@ -95,6 +108,31 @@ class SettingsController:
             model = Gtk.StringList.new(theme_names)
             w['row_theme'].set_model(model)
             w['row_theme'].connect("notify::selected", self._on_theme_changed)
+
+        # 1b. Theme Color
+        if 'row_theme_color' in w:
+            # Theme Colors
+            color_names = [
+                Res.get(StringKey.COLOR_DEFAULT),
+                Res.get(StringKey.COLOR_VIOLET),
+                Res.get(StringKey.COLOR_EMERALD),
+                Res.get(StringKey.COLOR_SUNBURST),
+                Res.get(StringKey.COLOR_ROSE),
+                Res.get(StringKey.COLOR_CYAN),
+                Res.get(StringKey.COLOR_NORDIC),
+                Res.get(StringKey.COLOR_GRUVBOX),
+                Res.get(StringKey.COLOR_CATPPUCCIN),
+                Res.get(StringKey.COLOR_DRACULA),
+                Res.get(StringKey.COLOR_TOKYO_NIGHT),
+                Res.get(StringKey.COLOR_ROSE_PINE),
+                Res.get(StringKey.COLOR_SOLARIZED),
+                Res.get(StringKey.COLOR_MONOKAI),
+                Res.get(StringKey.COLOR_CYBERPUNK),
+                Res.get(StringKey.COLOR_BIGTUBE)
+            ]
+            model_c = Gtk.StringList.new(color_names)
+            w['row_theme_color'].set_model(model_c)
+            w['row_theme_color'].connect("notify::selected", self._on_theme_color_changed)
 
         # 2. Quality
         if 'row_quality' in w:
@@ -118,33 +156,58 @@ class SettingsController:
             w['row_quality'].connect("notify::selected", self._on_quality_changed)
 
         # 3. Switches
-        if 'row_meta' in w:
-            w['row_meta'].connect(
+        if 'row_metadata' in w:
+            w['row_metadata'].connect(
                 "notify::active",
                 lambda o, p: ConfigManager.set("add_metadata", o.get_active())
             )
-        if 'row_sub' in w:
-            w['row_sub'].connect(
+        if 'row_subtitles' in w:
+            w['row_subtitles'].connect(
                 "notify::active",
-                lambda o, p: ConfigManager.set("download_subtitles", o.get_active())
+                lambda o, p: ConfigManager.set("embed_subtitles", o.get_active())
             )
-        if 'row_hist' in w:
-            w['row_hist'].connect(
+        if 'row_save_history' in w:
+            w['row_save_history'].connect(
                 "notify::active",
                 lambda o, p: ConfigManager.set("save_history", o.get_active())
             )
-        if 'row_auto' in w:
-            w['row_auto'].connect(
+        if 'row_auto_clear' in w:
+            w['row_auto_clear'].connect(
                 "notify::active",
-                lambda o, p: ConfigManager.set("auto_clear_finished", o.get_active())
+                self._on_auto_clear_toggled
             )
+        if 'row_conv_history' in w:
+            w['row_conv_history'].connect(
+                "notify::active",
+                lambda o, p: ConfigManager.set("save_converter_history", o.get_active())
+            )
+        if 'row_conv_use_source' in w:
+            w['row_conv_use_source'].connect(
+                "notify::active",
+                self._on_conv_use_source_toggled
+            )
+        if 'btn_select_conv_folder' in w:
+            w['btn_select_conv_folder'].connect("clicked", self.on_pick_conv_folder_clicked)
 
         # 4. Clear Data
-        if 'row_clear' in w:
-            w['row_clear'].connect("activated", self._on_clear_data_activated)
+        if 'row_clear_data' in w:
+            w['row_clear_data'].connect("activated", self._on_clear_data_activated)
 
         if 'btn_clear_now' in w:
             w['btn_clear_now'].connect("clicked", self._on_clear_data_clicked)
+
+    def _on_auto_clear_toggled(self, row, pspec):
+        """Disables manual reset button if auto-reset on exit is enabled."""
+        active = row.get_active()
+        ConfigManager.set("auto_clear_finished", active)
+
+        w = self.widgets_map
+        if 'row_clear_data' in w:
+            w['row_clear_data'].set_sensitive(not active)
+
+    def _on_clear_data_activated(self, row):
+        """Called when 'Clear Data' row is clicked."""
+        self._on_clear_data_clicked(None)
 
     def _load_initial_state(self):
         """Populates the UI with current config values."""
@@ -154,16 +217,31 @@ class SettingsController:
 
         # Load Switches
         w = self.widgets_map
-        if 'row_meta' in w:
-            w['row_meta'].set_active(ConfigManager.get("add_metadata"))
-        if 'row_sub' in w:
-            w['row_sub'].set_active(ConfigManager.get("download_subtitles"))
-        if 'row_hist' in w:
-            w['row_hist'].set_active(ConfigManager.get("save_history"))
-        if 'row_auto' in w:
-            w['row_auto'].set_active(ConfigManager.get("auto_clear_finished"))
+        if 'row_metadata' in w:
+            w['row_metadata'].set_active(ConfigManager.get("add_metadata"))
+        if 'row_subtitles' in w:
+            w['row_subtitles'].set_active(ConfigManager.get("embed_subtitles"))
+        if 'row_save_history' in w:
+            w['row_save_history'].set_active(ConfigManager.get("save_history"))
+        if 'row_auto_clear' in w:
+            active_reset = ConfigManager.get("auto_clear_finished")
+            w['row_auto_clear'].set_active(active_reset)
+            if 'row_clear_data' in w:
+                w['row_clear_data'].set_sensitive(not active_reset)
+        if 'row_conv_history' in w:
+            w['row_conv_history'].set_active(ConfigManager.get("save_converter_history"))
+        if 'row_conv_use_source' in w:
+            active = ConfigManager.get("use_source_folder")
+            w['row_conv_use_source'].set_active(active)
+            if 'row_conv_folder' in w:
+                w['row_conv_folder'].set_sensitive(not active)
 
-        # Load Theme
+        # Set Conv Folder Subtitle
+        if 'row_conv_folder' in w:
+            conv_path = ConfigManager.get("converter_path")
+            w['row_conv_folder'].set_subtitle(conv_path)
+
+        # Load Theme Mode
         if 'row_theme' in w:
             val = ConfigManager.get("theme_mode")
             idx = 0
@@ -172,6 +250,32 @@ class SettingsController:
             elif val == ThemeMode.DARK:
                 idx = 2
             w['row_theme'].set_selected(idx)
+
+        # Load Theme Color
+        if 'row_theme_color' in w:
+            from ..core.enums import ThemeColor
+            val_c = ConfigManager.get("theme_color")
+            # Map based on ThemeColor enum order
+            c_map = {
+                ThemeColor.DEFAULT: 0,
+                ThemeColor.VIOLET: 1,
+                ThemeColor.EMERALD: 2,
+                ThemeColor.SUNBURST: 3,
+                ThemeColor.ROSE: 4,
+                ThemeColor.CYAN: 5,
+                ThemeColor.NORDIC: 6,
+                ThemeColor.GRUVBOX: 7,
+                ThemeColor.CATPPUCCIN: 8,
+                ThemeColor.DRACULA: 9,
+                ThemeColor.TOKYO_NIGHT: 10,
+                ThemeColor.ROSE_PINE: 11,
+                ThemeColor.SOLARIZED: 12,
+                ThemeColor.MONOKAI: 13,
+                ThemeColor.CYBERPUNK: 14,
+                ThemeColor.BIGTUBE: 15
+            }
+            w['row_theme_color'].set_selected(c_map.get(val_c, 0))
+
 
         # Load Quality
         if 'row_quality' in w:
@@ -209,14 +313,52 @@ class SettingsController:
 
         ConfigManager.set("theme_mode", mode)
 
-        # Apply theme immediately (Adwaita logic)
-        manager = Adw.StyleManager.get_default()
-        if mode == ThemeMode.SYSTEM:
-            manager.set_color_scheme(Adw.ColorScheme.DEFAULT)
-        elif mode == ThemeMode.LIGHT:
-            manager.set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
-        elif mode == ThemeMode.DARK:
-            manager.set_color_scheme(Adw.ColorScheme.FORCE_DARK)
+        # Apply theme via Main Window logic (handles CSS classes + Adw)
+        if hasattr(self.window, 'apply_theme'):
+            # Grab current color to pass it along
+            curr_color = ConfigManager.get("theme_color")
+            self.window.apply_theme(mode, curr_color)
+        else:
+            # Fallback if window doesn't have the method (during dev/refactor)
+            manager = Adw.StyleManager.get_default()
+            if mode == ThemeMode.SYSTEM:
+                manager.set_color_scheme(Adw.ColorScheme.DEFAULT)
+            elif mode == ThemeMode.LIGHT:
+                manager.set_color_scheme(Adw.ColorScheme.FORCE_LIGHT)
+            elif mode == ThemeMode.DARK:
+                manager.set_color_scheme(Adw.ColorScheme.FORCE_DARK)
+
+    def _on_theme_color_changed(self, row, param):
+        from ..core.enums import ThemeColor
+        idx = row.get_selected()
+
+        # Map index to Enum
+        c_map = {
+            0: ThemeColor.DEFAULT,
+            1: ThemeColor.VIOLET,
+            2: ThemeColor.EMERALD,
+            3: ThemeColor.SUNBURST,
+            4: ThemeColor.ROSE,
+            5: ThemeColor.CYAN,
+            6: ThemeColor.NORDIC,
+            7: ThemeColor.GRUVBOX,
+            8: ThemeColor.CATPPUCCIN,
+            9: ThemeColor.DRACULA,
+            10: ThemeColor.TOKYO_NIGHT,
+            11: ThemeColor.ROSE_PINE,
+            12: ThemeColor.SOLARIZED,
+            13: ThemeColor.MONOKAI,
+            14: ThemeColor.CYBERPUNK,
+            15: ThemeColor.BIGTUBE
+        }
+
+        new_color = c_map.get(idx, ThemeColor.DEFAULT)
+        ConfigManager.set("theme_color", new_color)
+
+        # Apply
+        if hasattr(self.window, 'apply_theme'):
+            curr_mode = ConfigManager.get("theme_mode")
+            self.window.apply_theme(curr_mode, new_color)
 
     def _on_quality_changed(self, row, param):
         idx = row.get_selected()
@@ -247,31 +389,26 @@ class SettingsController:
 
     def _on_clear_data_clicked(self, btn):
         MessageManager.show_confirmation(
-            title="Reset Application?",
-            body="This will verify/reset configuration and clear temporary files. History will be kept.",
+            title=Res.get(StringKey.MSG_RESET_APP_TITLE),
+            body=Res.get(StringKey.MSG_RESET_APP_BODY),
             on_confirm_callback=self._perform_app_reset
         )
 
     def _perform_app_reset(self):
-        # 1. Clear Search History
+        """Wipes all data and exits the app."""
         try:
-            SearchHistory.clear()
-        except Exception as e:
-            pass
+            # 1. Clear all data via ConfigManager
+            ConfigManager.reset_all()
 
-        # 2. Clear Download History & UI
-        try:
-            # Requires public method in MainWindow
-            if hasattr(self.window, 'perform_clear_all_history'):
-                self.window.perform_clear_all_history()
-            else:
-                HistoryManager.clear_all()
+            # 2. Notify user and exit
+            MessageManager.show_info_dialog(
+                title=Res.get(StringKey.MSG_CONV_COMPLETE_TITLE),
+                body=Res.get(StringKey.MSG_DATA_CLEARED),
+                on_close_callback=lambda: sys.exit(0)
+            )
         except Exception as e:
-            pass
-
-        # 3. Clear Caches (~/.cache/bigtube)
-        ConfigManager.ensure_dirs()
-        MessageManager.show("Data cleared successfully.")
+            logger.error(f"Error during app reset: {e}")
+            MessageManager.show(f"Reset failed: {e}", is_error=True)
 
     def _async_load_version(self):
         """Fetches binary version in background."""
@@ -316,7 +453,42 @@ class SettingsController:
         except Exception as e:
             logger.error(f"Error selecting folder: {e}")
             # Optional: Show error toast
-            MessageManager.show("Failed to select folder", is_error=True)
+            MessageManager.show(Res.get(StringKey.MSG_FOLDER_SELECT_ERROR), is_error=True)
+
+    def on_pick_conv_folder_clicked(self, btn):
+        """Opens GTK4 FileDialog to select converter output directory."""
+        dialog = Gtk.FileDialog()
+        dialog.set_title(Res.get(StringKey.PREFS_CONV_FOLDER_LABEL))
+
+        current_path = ConfigManager.get("converter_path")
+        try:
+            if os.path.exists(current_path):
+                f = Gio.File.new_for_path(current_path)
+                dialog.set_initial_folder(f)
+        except Exception as e:
+            logger.error(f"Warning setting initial folder: {e}")
+
+        dialog.select_folder(self.window, None, self._on_conv_folder_selected)
+
+    def _on_conv_folder_selected(self, dialog, result):
+        """Callback for converter folder selection."""
+        try:
+            folder = dialog.select_folder_finish(result)
+            if folder:
+                new_path = folder.get_path()
+                ConfigManager.set("converter_path", new_path)
+                if 'row_conv_folder' in self.widgets_map:
+                    self.widgets_map['row_conv_folder'].set_subtitle(new_path)
+                logger.info(f"New converter path: {new_path}")
+        except Exception as e:
+            logger.error(f"Error selecting converter folder: {e}")
+            MessageManager.show(Res.get(StringKey.MSG_FOLDER_SELECT_ERROR), is_error=True)
+
+    def _on_conv_use_source_toggled(self, row, pspec):
+        active = row.get_active()
+        ConfigManager.set("use_source_folder", active)
+        if 'row_conv_folder' in self.widgets_map:
+            self.widgets_map['row_conv_folder'].set_sensitive(not active)
 
     # =========================================================================
     # UPDATE LOGIC
@@ -356,15 +528,16 @@ class SettingsController:
 
         if ok_bin and ok_deno:
             self.row_version.set_subtitle(f"yt-dlp v{new_ver}")
-            MessageManager.show("Components updated successfully! ✅", is_error=False)
+            MessageManager.show(Res.get(StringKey.MSG_UPDATE_SUCCESS), is_error=False)
         else:
             # If yt-dlp failed but maybe Deno worked
             if ok_deno:
-                MessageManager.show("Deno updated, but yt-dlp failed.", is_error=True)
+                MessageManager.show(Res.get(StringKey.MSG_UPDATE_DENO_ONLY), is_error=True)
             else:
-                MessageManager.show("Update check failed.", is_error=True)
+                MessageManager.show(Res.get(StringKey.MSG_UPDATE_FAILED), is_error=True)
 
     def _on_update_error(self, error_msg):
         """Called on Main Thread if critical error occurs."""
         self.btn_update.set_sensitive(True)
-        MessageManager.show(f"Error: {error_msg}", is_error=True)
+        prefix = Res.get(StringKey.MSG_GENERIC_ERROR_PREFIX)
+        MessageManager.show(f"{prefix} {error_msg}", is_error=True)

@@ -87,7 +87,8 @@ class FormatSelectionDialog(Adw.Window):
         count = len(items)
         group = Adw.PreferencesGroup()
         group.set_title(title)
-        group.set_description(f"{count} options available")
+        options_label = Res.get(StringKey.LBL_OPTIONS_AVAILABLE)
+        group.set_description(f"{count} {options_label}")
         self.page.add(group)
 
         if count > 0:
@@ -96,7 +97,7 @@ class FormatSelectionDialog(Adw.Window):
                 group.add(row)
         else:
             # Empty State
-            row_empty = Adw.ActionRow(title="No formats found")
+            row_empty = Adw.ActionRow(title=Res.get(StringKey.LBL_NO_FORMATS_FOUND))
             group.add(row_empty)
 
     def _create_action_row(self, fmt_data: dict) -> Adw.ActionRow:

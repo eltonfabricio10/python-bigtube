@@ -69,8 +69,6 @@ class BigTubeApplication(Adw.Application):
         win = self.props.active_window
         if not win:
             win = BigTubeMainWindow(application=app)
-            win.set_icon_name("bigtube")
-
             # Connect the close request to handle cleanup
             win.connect("close-request", self.on_app_quit)
 
@@ -79,11 +77,19 @@ class BigTubeApplication(Adw.Application):
     def on_app_quit(self, win):
         """
         Handles application shutdown sequence.
-        Cleans up resources like the ImageLoader thread pool.
+        Cleans up resources and optionally wipes data.
         """
         logger.info("Shutting down application...")
 
-        # Gracefully stop the image loader threads
+        # 1. Check for "Always Clear on Exit" from config
+        try:
+            from .core.config import ConfigManager
+            if ConfigManager.get("auto_clear_finished"):
+                ConfigManager.reset_all()
+        except Exception as e:
+            logger.error(f"Error during shutdown reset: {e}")
+
+        # 2. Gracefully stop the image loader threads
         if hasattr(ImageLoader, 'shutdown'):
             ImageLoader.shutdown()
 
