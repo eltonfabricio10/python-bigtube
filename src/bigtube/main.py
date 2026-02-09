@@ -81,7 +81,14 @@ class BigTubeApplication(Adw.Application):
         """
         logger.info("Shutting down application...")
 
-        # 1. Check for "Always Clear on Exit" from config
+        # 1. Flush any pending history writes
+        try:
+            from .core.history_manager import HistoryManager
+            HistoryManager.flush()
+        except Exception as e:
+            logger.error(f"Error flushing history: {e}")
+
+        # 2. Check for "Always Clear on Exit" from config
         try:
             from .core.config import ConfigManager
             if ConfigManager.get("auto_clear_finished"):
@@ -89,7 +96,7 @@ class BigTubeApplication(Adw.Application):
         except Exception as e:
             logger.error(f"Error during shutdown reset: {e}")
 
-        # 2. Gracefully stop the image loader threads
+        # 3. Gracefully stop the image loader threads
         if hasattr(ImageLoader, 'shutdown'):
             ImageLoader.shutdown()
 

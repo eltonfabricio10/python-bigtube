@@ -79,7 +79,7 @@ class StringKey(Enum):
     SEARCH_PLACEHOLDER = N_("Paste URL or type keywords...")
     SEARCH_BTN_LABEL = N_("Search")
     SEARCH_NO_RESULTS = N_("No results found!")
-    SEARCH_START = N_("Looking for:")
+    SEARCH_START = N_("Searching for:")
 
     # Empty States
     EMPTY_SEARCH_TITLE = N_("No Results")
@@ -141,9 +141,9 @@ class StringKey(Enum):
     PREFS_QUALITY_1080 = N_("Full HD (1080p)")
     PREFS_QUALITY_720 = N_("HD (720p)")
     PREFS_QUALITY_480 = N_("SD (480p)")
-    PREFS_QUALITY_360 = N_("LD (360p)")
-    PREFS_QUALITY_240 = N_("LD (240p)")
-    PREFS_QUALITY_144 = N_("Low (144p)")
+    PREFS_QUALITY_360 = N_("Low Definition (360p)")
+    PREFS_QUALITY_240 = N_("Very Low (240p)")
+    PREFS_QUALITY_144 = N_("Lowest (144p)")
     PREFS_QUALITY_AUDIO_MP3 = N_("Audio (MP3)")
     PREFS_QUALITY_AUDIO_M4A = N_("Audio (M4A)")
 
@@ -187,7 +187,7 @@ class StringKey(Enum):
     BTN_CANCEL_CONV = N_("Cancel Conversion")
 
     # Errors
-    ERR_CRITICAL = N_("Critical Error: ")
+    ERR_CRITICAL = N_("Critical Error:")
     ERR_NETWORK = N_("Network Error!")
     ERR_DRM = N_("Content is DRM Protected!")
     ERR_PRIVATE = N_("Video is Private!")
@@ -218,7 +218,7 @@ class StringKey(Enum):
     MSG_DOWNLOAD_FAILED = N_("Download failed!")
     MSG_DOWNLOAD_TIMED_OUT = N_("Download timed out!")
     MSG_DOWNLOADING = N_("Starting download...")
-    MSG_RESUMING = N_("Starting resume download...")
+    MSG_RESUMING = N_("Resuming download...")
 
     # Startup Checks
     MSG_NO_INTERNET = N_("No internet connection!")
@@ -246,7 +246,6 @@ class StringKey(Enum):
     MSG_CONV_COMPLETE_TITLE = N_("Conversion Complete")
     MSG_CONV_SAVED = N_("Saved to:")
     MSG_CONV_FAILED = N_("Failed:")
-    MSG_CONV_FAILED_PREFIX = N_("Failed:")
     MSG_CONV_CANCELLED = N_("Conversion Cancelled")
 
     # New Keys for String Centralization

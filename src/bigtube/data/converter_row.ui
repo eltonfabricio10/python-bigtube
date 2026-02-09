@@ -124,7 +124,7 @@
     </child>
     <child>
       <object class="GtkBox" id="options_box">
-        <property name="halign">center</property>
+        <property name="halign">start</property>
         <property name="margin-start">4</property>
         <property name="spacing">20</property>
         <child>
