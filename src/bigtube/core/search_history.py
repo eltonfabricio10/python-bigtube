@@ -1,4 +1,6 @@
 import json
+import time
+from collections import OrderedDict
 from pathlib import Path
 from .config import ConfigManager
 
@@ -82,22 +84,24 @@ class SearchHistory:
 
 class SearchCache:
     """
-    Simple TTL cache for search results.
-    Avoids redundant API calls for repeated searches.
+    LRU cache for search results with TTL expiration.
+    Uses OrderedDict for O(1) eviction of oldest entries.
     """
 
-    _cache = {}  # {f"{source}:{query}": (results, timestamp)}
-    _TTL_SECONDS = 300  # 5 minutes
+    _cache = OrderedDict()  # {key: (results, timestamp)}
+    _TTL_SECONDS = 3600     # 1 hour
+    _MAX_SIZE = 50
 
     @classmethod
     def get(cls, query: str, source: str):
         """Returns cached results if still valid, None otherwise."""
-        import time
         key = f"{source}:{query.lower().strip()}"
 
         if key in cls._cache:
             results, timestamp = cls._cache[key]
             if time.time() - timestamp < cls._TTL_SECONDS:
+                # Move to end (most recently used)
+                cls._cache.move_to_end(key)
                 return results
             # Expired, remove
             del cls._cache[key]
@@ -105,15 +109,17 @@ class SearchCache:
 
     @classmethod
     def set(cls, query: str, source: str, results: list):
-        """Stores search results in cache."""
-        import time
+        """Stores search results in cache with LRU eviction."""
         key = f"{source}:{query.lower().strip()}"
+
+        # Update or insert
+        if key in cls._cache:
+            cls._cache.move_to_end(key)
         cls._cache[key] = (results, time.time())
 
-        # Limit cache size to 50 entries
-        while len(cls._cache) > 50:
-            oldest_key = min(cls._cache, key=lambda k: cls._cache[k][1])
-            del cls._cache[oldest_key]
+        # Evict oldest entries if over limit (O(1) per eviction)
+        while len(cls._cache) > cls._MAX_SIZE:
+            cls._cache.popitem(last=False)
 
     @classmethod
     def clear(cls):

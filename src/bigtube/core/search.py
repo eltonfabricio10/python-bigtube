@@ -13,6 +13,7 @@ from .validators import (
     is_valid_url, sanitize_url, sanitize_search_query,
     run_subprocess_with_timeout, Timeouts, retry_with_backoff
 )
+from .helpers import is_youtube_url
 
 # Module logger
 logger = get_logger(__name__)
@@ -95,13 +96,18 @@ class SearchEngine:
         logger.info(f"Processing direct link: {url}")
 
         cmd_args = [
-            url,
             "--dump-json",
             "--no-playlist",
             "--skip-download",
-            "--extractor-args", "youtube:player_client=web,android_vr",
-            "--user-agent", "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36"
         ]
+
+        if is_youtube_url(url):
+            cmd_args.extend(["--extractor-args", "youtube:player_client=web,android_vr"])
+        else:
+            # Generic User-Agent for non-YouTube sites
+            cmd_args.extend(["--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"])
+
+        cmd_args.append(url)
 
         try:
             results = self._run_cli(cmd_args, force_audio=False)

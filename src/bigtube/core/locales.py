@@ -72,8 +72,8 @@ class StringKey(Enum):
     SELECT_SOURCE_URL = N_("Direct Link")
 
     # Player Default
-    PLAYER_TITLE = N_("Untitled")
-    PLAYER_ARTIST = N_("Unknown")
+    PLAYER_TITLE = N_("Unknown Title")
+    PLAYER_ARTIST = N_("Unknown Artist")
 
     # Search Page
     SEARCH_PLACEHOLDER = N_("Paste URL or type keywords...")
@@ -205,8 +205,6 @@ class StringKey(Enum):
     # Player States
     PLAYER_STOPPED = N_("Stopped")
     PLAYER_BUFFERING = N_("Buffering...")
-    PLAYER_UNKNOWN_ARTIST = N_("Unknown Artist")
-    PLAYER_UNKNOWN_TITLE = N_("Unknown Title")
     PLAYER_WINDOW_TITLE = N_("BigTube Player")
 
     # Messages
@@ -296,6 +294,21 @@ class StringKey(Enum):
     PREFS_CLEAR_DATA_LABEL = N_("Clear All App Data (Reset)")
     MSG_UPDATE_FAILED = N_("Update check failed.")
     MSG_GENERIC_ERROR_PREFIX = N_("Error:")
+
+    # Scheduling & Clipboard
+    STATUS_SCHEDULED = N_("Scheduled")
+    STATUS_QUEUED = N_("Queued")
+    DLG_SCHEDULE_TITLE = N_("Schedule Download")
+    DLG_SCHEDULE_DATE_LABEL = N_("Select Date & Time")
+    DLG_SCHEDULE_DATE = N_("Date")
+    DLG_SCHEDULE_TIME_LABEL = N_("Time")
+    DLG_SCHEDULE_TIME_FMT = N_("Time (HH:MM)")
+    BTN_SCHEDULE = N_("Schedule")
+    TIP_SCHEDULE_DOWNLOAD = N_("Schedule Download")
+    MSG_LINK_DETECTED = N_("Link Detected:")
+    MSG_LINK_DETECTED_BODY = N_("Link detected! Paste in search to download.")
+    BTN_DOWNLOAD = N_("Download")
+    LBL_SCHEDULED_PREFIX = N_("Scheduled:")
 
 
 class ResourceManager:

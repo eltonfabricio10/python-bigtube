@@ -342,6 +342,11 @@
                                           </object>
                                         </child>
                                         <child>
+                                          <object class="AdwSwitchRow" id="row_clipboard_monitor">
+                                            <property name="icon-name">edit-paste-symbolic</property>
+                                          </object>
+                                        </child>
+                                        <child>
                                           <object class="AdwComboRow" id="row_quality">
                                             <property name="icon-name">music-playlist-symbolic</property>
                                             <property name="model">

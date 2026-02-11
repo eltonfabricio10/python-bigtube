@@ -6,8 +6,8 @@ import argparse
 
 # --- Environment Configuration ---
 # Force X11/Cairo backend for better compatibility on some systems
-os.environ["GDK_BACKEND"] = "x11"
-os.environ["GSK_RENDERER"] = "cairo"
+#os.environ["GDK_BACKEND"] = "x11"
+#os.environ["GSK_RENDERER"] = "cairo"
 os.environ['GTK_IM_MODULE'] = 'gtk-im-context-simple'
 
 import gi

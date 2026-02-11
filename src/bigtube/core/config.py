@@ -54,7 +54,8 @@ class ConfigManager:
         "save_converter_history": True,
         "auto_clear_finished": False,
         "converter_path": str(Path(_DEFAULT_DOWNLOAD_DIR) / "BigTube" / "Converted"),
-        "use_source_folder": False
+        "use_source_folder": False,
+        "monitor_clipboard": False
     }
 
     _data = {}

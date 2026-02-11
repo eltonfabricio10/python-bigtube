@@ -28,10 +28,10 @@ class VideoDataObject(GObject.Object):
     def __init__(self, data_dict):
         super().__init__()
         # Safely get data with defaults
-        self.title = data_dict.get('title', Res.get(StringKey.PLAYER_UNKNOWN_TITLE))
+        self.title = data_dict.get('title', Res.get(StringKey.PLAYER_TITLE))
         self.url = data_dict.get('url', '')
         self.thumbnail = data_dict.get('thumbnail', '')
-        self.uploader = data_dict.get('uploader', Res.get(StringKey.PLAYER_UNKNOWN_ARTIST))
+        self.uploader = data_dict.get('uploader', Res.get(StringKey.PLAYER_ARTIST))
         self.is_video = data_dict.get('is_video', True)
 
 

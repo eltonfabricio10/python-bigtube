@@ -118,9 +118,9 @@ class PlayerController:
         # 2. Update Metadata
         self.current_url = url
         self.is_video_mode = is_video
-        self.cached_artist_name = artist or Res.get(StringKey.PLAYER_UNKNOWN_ARTIST)
+        self.cached_artist_name = artist or Res.get(StringKey.PLAYER_ARTIST)
 
-        self.ui['lbl_title'].set_label(title or Res.get(StringKey.PLAYER_UNKNOWN_TITLE))
+        self.ui['lbl_title'].set_label(title or Res.get(StringKey.PLAYER_TITLE))
         self.ui['lbl_artist'].set_label(self.cached_artist_name)
 
         # 3. Handle Thumbnail

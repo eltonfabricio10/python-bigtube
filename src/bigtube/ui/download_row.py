@@ -153,6 +153,7 @@ class DownloadRow(Gtk.Box):
         """
         Updates the progress bar and status label.
         Expected format for percent_str: "45.5%" or "100%"
+        If percent_str is None, only updates the status text.
         """
         if self.is_cancelled:
             return
@@ -165,6 +166,12 @@ class DownloadRow(Gtk.Box):
         self.progress_bar.remove_css_class("warning")
         self.progress_bar.remove_css_class("error")
 
+        # Update text regardless of progress value
+        self.lbl_status.set_label(status_text)
+
+        if percent_str is None:
+            return
+
         try:
             # Parse Percentage
             if isinstance(percent_str, str):
@@ -174,7 +181,9 @@ class DownloadRow(Gtk.Box):
                 val = float(percent_str)
 
             self.progress_bar.set_fraction(val)
-            self.lbl_status.set_label(f"{status_text} {int(val * 100)}%")
+            # Optional: Append percentage to status if it's a downloading state
+            if val < 1.0:
+                 self.lbl_status.set_label(f"{status_text} {int(val * 100)}%")
 
             # Check completion
             if val >= 1.0:

@@ -166,6 +166,11 @@ class SettingsController:
                 "notify::active",
                 lambda o, p: ConfigManager.set("embed_subtitles", o.get_active())
             )
+        if 'row_clipboard_monitor' in w:
+             w['row_clipboard_monitor'].connect(
+                "notify::active",
+                self._on_clipboard_monitor_toggled
+            )
         if 'row_save_history' in w:
             w['row_save_history'].connect(
                 "notify::active",
@@ -541,3 +546,12 @@ class SettingsController:
         self.btn_update.set_sensitive(True)
         prefix = Res.get(StringKey.MSG_GENERIC_ERROR_PREFIX)
         MessageManager.show(f"{prefix} {error_msg}", is_error=True)
+
+    def _on_clipboard_monitor_toggled(self, row, pspec):
+        active = row.get_active()
+        ConfigManager.set("monitor_clipboard", active)
+        if hasattr(self.window, 'clipboard_monitor'):
+            if active:
+                self.window.clipboard_monitor.start()
+            else:
+                self.window.clipboard_monitor.stop()

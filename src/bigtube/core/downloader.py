@@ -12,7 +12,7 @@ from .enums import FileExt
 from .locales import ResourceManager as Res, StringKey
 from .logger import get_logger, NetworkError
 from .validators import run_subprocess_with_timeout, Timeouts, retry_with_backoff, sanitize_filename
-from ..ui.message_manager import MessageManager
+from .helpers import is_youtube_url
 
 # Module logger
 logger = get_logger(__name__)
@@ -66,9 +66,15 @@ class VideoDownloader:
             self.binary_path,
             "--dump-single-json",
             "--no-warnings",
-            "--extractor-args", "youtube:player_client=web,android_vr",
-            url
+            "--ignore-no-formats-error",
         ]
+
+        # Only apply YouTube-specific optimizations if it's a YouTube URL
+        if is_youtube_url(url):
+            cmd.extend(["--extractor-args", "youtube:player_client=web,android_vr"])
+            cmd.extend(["--extractor-args", "youtube:player_skip=configs"])
+
+        cmd.append(url)
 
         try:
             # Use utility with timeout
@@ -140,7 +146,8 @@ class VideoDownloader:
 
             # Video: Height is defined
             height = f.get('height')
-            is_video = height is not None and height > 0
+            # Fallback for generic sites that might not report height but are videos
+            is_video = (height is not None and height > 0) or (vcodec != 'none' and vcodec is not None)
 
             # 1. Process Audio
             if is_audio_only:
@@ -196,6 +203,21 @@ class VideoDownloader:
 
         clean_data['audios'] = self._remove_duplicates(clean_data['audios'])
         clean_data['audios'].sort(key=lambda x: (x['quality'], x['size_val']), reverse=True)
+
+        # Fallback if no specific formats were found but we have content
+        if not clean_data['videos'] and not clean_data['audios']:
+            # This happens with some generic sites that return a direct stream but valid JSON
+             clean_data['videos'].append({
+                'id': 'best',
+                'label': "Best Available Quality",
+                'resolution': 0,
+                'fps': 0,
+                'ext': 'mp4',
+                'size': "? MB",
+                'size_val': 0,
+                'type': 'video',
+                'codec': 'unknown'
+            })
 
         # --- Virtual Options Injection ---
         self._inject_virtual_options(clean_data)
@@ -256,12 +278,10 @@ class VideoDownloader:
 
             if free_mb < required:
                 logger.warning(f"Insufficient disk space: {free_mb:.1f}MB free, need {required:.1f}MB")
-                MessageManager.show(Res.get(StringKey.MSG_INSUFFICIENT_DISK_SPACE))
                 return False
             return True
         except OSError as e:
             logger.warning(f"Could not check disk space: {e}")
-            MessageManager.show(Res.get(StringKey.MSG_COULD_NOT_CHECK_DISK_SPACE))
             return True  # Continue if we can't check
 
     # =========================================================================
@@ -305,7 +325,8 @@ class VideoDownloader:
         output_template = os.path.join(download_dir, f"{safe_title}.%(ext)s")
 
         logger.info(f"Starting download: {safe_title} -> {ext}")
-        MessageManager.show(Res.get(StringKey.MSG_DOWNLOADING))
+        if progress_callback:
+            progress_callback(None, Res.get(StringKey.MSG_DOWNLOADING))
 
         # 2. Command Construction
         cmd = [
@@ -315,10 +336,13 @@ class VideoDownloader:
             "--no-playlist",
             "--ignore-config",
             "--ignore-errors",
-            "--extractor-args", "youtube:player_client=android",
-            "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+            "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "--concurrent-fragments", "4",
             "-o", f"{os.path.join(download_dir, safe_title)}.{ext}"
         ]
+
+        if is_youtube_url(url):
+             cmd.extend(["--extractor-args", "youtube:player_client=android"])
 
         # --- Inject User Preferences (requires ffmpeg) ---
         has_ffmpeg = shutil.which("ffmpeg") is not None
@@ -327,7 +351,7 @@ class VideoDownloader:
             if has_ffmpeg:
                 cmd.append("--embed-metadata")
             else:
-                MessageManager.show(Res.get(StringKey.MSG_FFMPEG_NOT_FOUND))
+                progress_callback(None, "FFmpeg not found. Skipping metadata.")
                 logger.warning("ffmpeg not found. Skipping '--embed-metadata'")
 
         if ConfigManager.get("download_subtitles"):
@@ -339,7 +363,7 @@ class VideoDownloader:
                     "--embed-subs"
                 ])
             else:
-                MessageManager.show(Res.get(StringKey.MSG_FFMPEG_NOT_FOUND))
+                progress_callback(None, "FFmpeg not found. Skipping subtitles.")
                 logger.warning("ffmpeg not found. Skipping subtitle flags")
 
         if force_overwrite:
@@ -428,7 +452,6 @@ class VideoDownloader:
             return_code = self.process.wait()
 
             if return_code == 0:
-                MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_COMPLETED))
                 logger.info(f"Download completed successfully: {safe_title}")
 
                 if progress_callback:
@@ -436,14 +459,12 @@ class VideoDownloader:
                 return True
 
             elif return_code == -15 or self.is_cancelled:
-                MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_CANCELLED))
                 logger.info("Download cancelled by user")
                 if progress_callback:
                     progress_callback("Cancelled", Res.get(StringKey.STATUS_CANCELLED))
                 return False
 
             else:
-                MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_FAILED))
                 logger.error(f"Download failed with code {return_code}")
                 # Log the last few lines of yt-dlp output to help debugging
                 error_log = "\n".join(last_log_lines)
@@ -455,20 +476,17 @@ class VideoDownloader:
                 return False
 
         except subprocess.TimeoutExpired:
-            MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_TIMED_OUT))
             logger.error("Download timed out")
             if progress_callback:
                 progress_callback(Res.get(StringKey.STATUS_ERROR), "Timeout")
             return False
 
         except subprocess.SubprocessError as e:
-            MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_FAILED))
             logger.error(f"Subprocess error during download: {e}")
             if progress_callback:
                 progress_callback(Res.get(StringKey.STATUS_ERROR), Res.get(StringKey.ERR_UNKNOWN))
             return False
         except Exception as e:
-            MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_FAILED))
             logger.exception(f"Unexpected error during download: {e}")
             if progress_callback:
                 msg = Res.get(StringKey.ERR_CRITICAL) + str(e)
@@ -491,7 +509,6 @@ class VideoDownloader:
     def _terminate_process(self, reason: str):
         """Helper to kill the subprocess safely."""
         if self.process:
-            MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_CANCELLED))
             logger.info(f"Terminating download process: {reason}")
             try:
                 self.process.terminate()
@@ -501,7 +518,6 @@ class VideoDownloader:
                 except subprocess.TimeoutExpired:
                     self.process.kill()
             except OSError as e:
-                MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_FAILED))
                 logger.warning(f"Failed to terminate process: {e}")
 
     def resume(self) -> bool:
@@ -510,13 +526,15 @@ class VideoDownloader:
         WARNING: This is blocking and should be run in a separate thread.
         """
         if not hasattr(self, '_last_params') or not self._last_params:
-            MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_FAILED))
             logger.error("Cannot resume: No previous download stored.")
             return False
 
-        MessageManager.show(Res.get(StringKey.MSG_RESUMING))
         logger.info("Resuming download...")
         self._last_params['force_overwrite'] = False
+
+        # Notify via callback if possible
+        if 'progress_callback' in self._last_params and self._last_params['progress_callback']:
+             self._last_params['progress_callback'](None, Res.get(StringKey.MSG_RESUMING))
 
         return self.start_download(**self._last_params)
 

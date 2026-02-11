@@ -34,3 +34,10 @@ def get_status_label(status_input) -> str:
 
     # 4. Translate
     return Res.get(string_key)
+
+
+def is_youtube_url(url: str) -> bool:
+    """Checks if the URL belongs to YouTube."""
+    if not url:
+        return False
+    return "youtube.com" in url or "youtu.be" in url

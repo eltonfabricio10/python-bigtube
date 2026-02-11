@@ -40,6 +40,7 @@ class ImageLoader:
     """
     Asynchronous Image Loader with LRU Memory Cache and Disk Cache.
     Prevents UI freezing by offloading network requests to a ThreadPool.
+    Includes request deduplication to avoid loading same URL multiple times.
     """
 
     # Thread Pool: Limits concurrent downloads to avoid network congestion
@@ -50,6 +51,10 @@ class ImageLoader:
 
     # Disk cache directory
     _cache_dir = Path(GLib.get_user_cache_dir()) / "bigtube" / "thumbnails"
+
+    # Pending requests tracker (prevents duplicate concurrent downloads)
+    _pending_urls = set()
+    _pending_lock = threading.Lock()
 
     @classmethod
     def _ensure_cache_dir(cls):
@@ -67,6 +72,7 @@ class ImageLoader:
         """
         Requests an image to be loaded into a Gtk.Image widget.
         Checks memory cache -> disk cache -> network (in order).
+        Skips if URL is already being loaded (deduplication).
         """
         # 1. Validation
         if not url or not isinstance(url, str) or not url.startswith('http'):
@@ -80,7 +86,15 @@ class ImageLoader:
             image_widget.set_from_pixbuf(scaled_pb)
             return
 
-        # 3. Cache Miss - Schedule Download (checks disk cache in thread)
+        # 3. Check if already loading (deduplication)
+        with cls._pending_lock:
+            if url in cls._pending_urls:
+                # Already loading, set placeholder and let the original request handle it
+                cls._set_fallback(image_widget, width)
+                return
+            cls._pending_urls.add(url)
+
+        # 4. Cache Miss - Schedule Download (checks disk cache in thread)
         cls._executor.submit(cls._download_task, url, image_widget, width, height)
 
     @classmethod
@@ -134,6 +148,11 @@ class ImageLoader:
 
         except Exception:
             GLib.idle_add(cls._set_fallback, image_widget, width)
+
+        finally:
+            # Remove from pending set (allows future requests for same URL)
+            with cls._pending_lock:
+                cls._pending_urls.discard(url)
 
     @staticmethod
     def _update_widget_safely(image_widget: Gtk.Image, pixbuf: GdkPixbuf.Pixbuf, fallback_size: int):

@@ -26,6 +26,8 @@ from ..controllers.download_controller import DownloadController
 from ..controllers.settings_controller import SettingsController
 from ..controllers.converter_controller import ConverterController
 from ..controllers.player_controller import PlayerController
+from ..core.download_manager import DownloadManager
+from ..core.clipboard_monitor import ClipboardMonitor
 
 # --- UI COMPONENTS ---
 from .video_window import VideoWindow
@@ -243,6 +245,17 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             ConfigManager.get("theme_mode"),
             ConfigManager.get("theme_color")
         )
+
+        # 11. Clipboard Monitor
+        self.clipboard_monitor = ClipboardMonitor(self._on_clipboard_url_found)
+        if ConfigManager.get("monitor_clipboard"):
+            self.clipboard_monitor.start()
+
+    def _on_clipboard_url_found(self, url):
+        # Notify user with a simple message and autofill
+        # A more complex action would require GAction setup
+        MessageManager.show(f"Link detected! Paste in search to download.", is_error=False)
+        self.search_entry.set_text(url)
 
     def apply_theme(self, mode_enum, color_enum=None):
         """
@@ -492,15 +505,29 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
                 display_label
             )
 
-            # Logic for interrupted downloads (Zombies)
-            if raw_status == DownloadStatus.DOWNLOADING:
-                HistoryManager.update_status(item["file_path"], DownloadStatus.INTERRUPTED)
-                row_widget.set_status_label(Res.get(StringKey.STATUS_INTERRUPTED))
-                row_widget.progress_bar.add_css_class("warning")
+        # 11. Clipboard Monitor
+        self.clipboard_monitor = ClipboardMonitor(self._on_clipboard_url_found)
+        if ConfigManager.get("monitor_clipboard"):
+            self.clipboard_monitor.start()
 
-            elif raw_status == DownloadStatus.INTERRUPTED:
-                row_widget.set_status_label(Res.get(StringKey.STATUS_INTERRUPTED))
-                row_widget.progress_bar.add_css_class("warning")
+    def _on_clipboard_url_found(self, url):
+        # Notify user with a toast action
+        # Create a detailed toast with a button to download
+        toast = Adw.Toast.new(f"Link Detected: {url}")
+        toast.set_timeout(10)
+        toast.set_button_label("Download")
+        toast.set_action_name("app.download-url")
+        toast.set_action_target_value(GLib.Variant.new_string(url))
+        self.toast_overlay.add_toast(toast)
+
+        # We need a proper action for this. Since Adwaita actions are usually GActions,
+        # we might need to register one or just use a simple callback if Toast supports it (it doesn't directly support py callback easily without action).
+        # Alternative: Just show a message saying "Link copied, paste in search?"
+
+        # Simpler approach for now:
+        MessageManager.show(f"Link detected! Paste in search to download.", is_error=False)
+        self.search_entry.set_text(url)
+        # self.on_search_clicked(...) # Optional: Auto-searchoads (Zombies)
 
         # Update empty state visibility after loading history
         self._update_download_empty_state()
@@ -637,6 +664,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self.player_ctrl.stop()
         self.player_title.set_label(title)
         self.player_artist.set_label(artist)
+        self.player_thumbnail.set_from_icon_name('image-x-generic-symbolic')
         if self.video_window.is_visible():
             self.video_window.set_visible(False)
 
@@ -723,8 +751,11 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self._apply_theme_to_window(dialog)
         dialog.present()
 
-    def start_download_execution(self, video_info, format_data):
-        """Handles filename preparation and task spawning."""
+    def start_download_execution(self, video_info, format_data, schedule_time=None):
+        """
+        Handles filename preparation and task spawning.
+        schedule_time: Optional float (timestamp) for scheduled downloads.
+        """
         # Stop loading if not already stopped (e.g. auto download case)
         self.set_loading(False)
 
@@ -746,16 +777,17 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
                                                 video_info,
                                                 format_data,
                                                 full_path,
-                                                True
+                                                True,
+                                                schedule_time
                                             )
             )
         else:
-            self._spawn_download_task(video_info, format_data, full_path, False)
+            self._spawn_download_task(video_info, format_data, full_path, False, schedule_time)
 
-    def _spawn_download_task(self, video_info, format_data, full_path, force_overwrite):
+
+    def _spawn_download_task(self, video_info, format_data, full_path, force_overwrite, schedule_time=None):
         """
-        Creates a new Downloader Instance and starts the process.
-        This allows multiple simultaneous downloads.
+        Submits a download task to the DownloadManager.
         """
 
         # 1. Register in History
@@ -772,9 +804,8 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             full_path=full_path
         )
 
-        # 3. Create ISOLATED Downloader Instance
-        task_downloader = VideoDownloader()
-        row_widget.set_downloader(task_downloader)
+        # Set initial status
+        row_widget.set_status_label(Res.get(StringKey.STATUS_PENDING)) # Ensure this key exists or use "Pending"
 
         # Update empty state (show list since we added an item)
         self._update_download_empty_state()
@@ -782,33 +813,61 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         # Switch view
         self.pageview.set_visible_child_name(AppSection.DOWNLOADS.value)
 
-        # 4. Progress Callback
+        # 3. Progress Callback
         def ui_progress_callback(percent_str, status_text):
             # Update UI on Main Thread
-            GLib.idle_add(
-                row_widget.update_progress,
-                percent_str,
-                status_text
-            )
+            def _update_ui():
+                row_widget.update_progress(percent_str, status_text)
+
+                # Restore Toasts
+                if percent_str == "100%":
+                    MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_COMPLETED))
+                elif percent_str == "Cancelled":
+                    MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_CANCELLED))
+                elif status_text == Res.get(StringKey.STATUS_ERROR):
+                     pass
+
+            GLib.idle_add(_update_ui)
 
             # Update History Logic
-            if "100" in percent_str:
+            if percent_str and "100" in percent_str:
                 HistoryManager.update_status(full_path, DownloadStatus.COMPLETED, 1.0)
             elif status_text == Res.get(StringKey.STATUS_ERROR):
                 HistoryManager.update_status(full_path, DownloadStatus.ERROR)
 
-        # 5. Worker Thread
-        def run_thread():
-            task_downloader.start_download(
+        # 4. Start Callback (Receive the downloader instance)
+        def on_start(downloader_instance):
+            # Update row with the active downloader so it can cancel/pause
+            GLib.idle_add(row_widget.set_downloader, downloader_instance)
+
+        # 5. Submit to Manager
+        if schedule_time:
+            DownloadManager().schedule_download(
+                timestamp=schedule_time,
                 url=video_info['url'],
                 format_id=format_data['id'],
                 title=video_info['title'],
                 ext=format_data['ext'],
                 progress_callback=ui_progress_callback,
-                force_overwrite=force_overwrite
+                force_overwrite=force_overwrite,
+                on_start_callback=on_start
             )
+            # Custom status for scheduled
+            import time
+            from datetime import datetime
+            dt = datetime.fromtimestamp(schedule_time)
+            row_widget.set_status_label(f"Scheduled: {dt.strftime('%H:%M')}")
 
-        threading.Thread(target=run_thread, daemon=True).start()
+        else:
+            DownloadManager().add_download(
+                url=video_info['url'],
+                format_id=format_data['id'],
+                title=video_info['title'],
+                ext=format_data['ext'],
+                progress_callback=ui_progress_callback,
+                force_overwrite=force_overwrite,
+                on_start_callback=on_start
+            )
 
     # =========================================================================
     # GLOBAL EVENTS

@@ -110,9 +110,20 @@ class FormatSelectionDialog(Adw.Window):
         size = fmt_data.get('size', '? MB')
         row.set_subtitle(f"{size} • {codec}")
 
+        # Buttons Box
+        box_btns = Gtk.Box(spacing=6)
+        box_btns.set_valign(Gtk.Align.CENTER)
+
+        # Schedule Button
+        btn_schedule = Gtk.Button()
+        btn_schedule.set_icon_name("alarm-symbolic")
+        btn_schedule.add_css_class("flat")
+        btn_schedule.set_tooltip_text("Schedule Download")
+        btn_schedule.connect("clicked", lambda b, v=fmt_data: self._on_schedule_clicked(v))
+        box_btns.append(btn_schedule)
+
         # Download Button
         btn = Gtk.Button(label=Res.get(StringKey.BTN_START_DOWNLOAD))
-        btn.set_valign(Gtk.Align.CENTER)
         btn.add_css_class("pill")
         btn.add_css_class("suggested-action")
 
@@ -120,7 +131,9 @@ class FormatSelectionDialog(Adw.Window):
         # Using default arg v=fmt_data to capture the specific variable in the loop
         btn.connect("clicked", lambda b, v=fmt_data: self._on_item_clicked(v))
 
-        row.add_suffix(btn)
+        box_btns.append(btn)
+
+        row.add_suffix(box_btns)
         return row
 
     def _on_item_clicked(self, fmt_data):
@@ -128,6 +141,19 @@ class FormatSelectionDialog(Adw.Window):
         self.close()
         if self.callback:
             self.callback(self.video_info, fmt_data)
+
+    def _on_schedule_clicked(self, fmt_data):
+        """Triggered when user clicks Schedule."""
+        # Open Schedule Dialog
+        from .schedule_dialog import ScheduleDialog
+
+        def on_time_selected(timestamp):
+            # Pass timestamp to callback
+            if self.callback:
+                self.callback(self.video_info, fmt_data, timestamp)
+
+        dlg = ScheduleDialog(self, on_time_selected)
+        dlg.present()
 
     def _format_duration(self, seconds):
         """Formats seconds into H:MM:SS."""
