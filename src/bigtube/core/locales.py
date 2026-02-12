@@ -119,14 +119,15 @@ class StringKey(Enum):
     PREFS_DOWNLOADS_TITLE = N_("Downloads")
     PREFS_QUALITY_LABEL = N_("Preferred Quality")
     PREFS_METADATA_LABEL = N_("Add Metadata to Files")
+    PREFS_CLIPBOARD_LABEL = N_("Enable ClipBoard Monitor")
     PREFS_SUBTITLES_LABEL = N_("Embed Subtitles")
     PREFS_STORAGE_TITLE = N_("Storage")
     PREFS_SAVE_HISTORY_LABEL = N_("Save Download History")
-    PREFS_AUTO_CLEAR_LABEL = N_("Always Clear All Data on Exit")
+    PREFS_AUTO_CLEAR_LABEL = N_("Clear All Data on Exit")
     PREFS_CONVERTER_TITLE = N_("Media Converter")
     PREFS_CONV_FOLDER_LABEL = N_("Default Output Folder")
     PREFS_CONV_HISTORY_LABEL = N_("Save Conversion History")
-    PREFS_CONV_SAME_FOLDER_LABEL = N_("Use same folder as source file")
+    PREFS_CONV_SAME_FOLDER_LABEL = N_("Save in Source Directory")
 
     # Theme Options
     PREFS_THEME_SYSTEM = N_("System")
@@ -168,7 +169,7 @@ class StringKey(Enum):
     COLOR_BIGTUBE = N_("BigTube Brand")
 
     # Status
-    STATUS_FETCH = N_("Getting information")
+    STATUS_FETCH = N_("Searching")
     STATUS_PENDING = N_("Pending")
     STATUS_DOWNLOADING = N_("Downloading...")
     STATUS_DOWNLOADING_PROCESSING = N_("Processing...")

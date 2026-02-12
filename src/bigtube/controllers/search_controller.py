@@ -222,7 +222,7 @@ class SearchController(GObject.Object):
         else:
             self.clicked_suggestions = False
 
-    def on_search_activate(self, widget):
+    def on_search_activate(self, widget, url=None):
         """Triggered by Enter key or Search Button."""
         self.popover.set_visible(False)
 

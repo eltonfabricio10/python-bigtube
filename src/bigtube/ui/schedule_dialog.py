@@ -17,7 +17,7 @@ class ScheduleDialog(Adw.Window):
         self.set_transient_for(parent_window)
         self.set_modal(True)
         self.set_title(Res.get(StringKey.DLG_SCHEDULE_TITLE))
-        self.set_default_size(400, 500)
+        self.set_default_size(400, 600)
 
         self.callback = on_confirm_callback
 

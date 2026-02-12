@@ -87,7 +87,8 @@ class SettingsController:
             widgets['row_auto_clear'].set_title(Res.get(StringKey.PREFS_AUTO_CLEAR_LABEL))
         if 'row_clear_data' in widgets:
             widgets['row_clear_data'].set_title(Res.get(StringKey.PREFS_CLEAR_DATA_LABEL))
-
+        if  'row_clipboard_monitor' in widgets:
+            widgets['row_clipboard_monitor'].set_title(Res.get(StringKey.PREFS_CLIPBOARD_LABEL))
         if 'row_conv_folder' in widgets:
             widgets['row_conv_folder'].set_title(Res.get(StringKey.PREFS_CONV_FOLDER_LABEL))
         if 'row_conv_history' in widgets:

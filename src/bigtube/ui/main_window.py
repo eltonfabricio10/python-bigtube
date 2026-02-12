@@ -4,12 +4,14 @@ import mimetypes
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw, Gdk, GLib
+from gi.repository import Gtk, Adw, Gdk, GLib, Gio
 
 # --- CORE ARCHITECTURE ---
 from ..core.downloader import VideoDownloader
 from ..core.config import ConfigManager
 from ..core.history_manager import HistoryManager
+from ..core.download_manager import DownloadManager
+from ..core.clipboard_monitor import ClipboardMonitor
 from ..core.enums import DownloadStatus, AppSection, VideoQuality, ThemeMode, ThemeColor
 from ..core.locales import ResourceManager as Res, StringKey
 from ..core.logger import get_logger
@@ -26,8 +28,6 @@ from ..controllers.download_controller import DownloadController
 from ..controllers.settings_controller import SettingsController
 from ..controllers.converter_controller import ConverterController
 from ..controllers.player_controller import PlayerController
-from ..core.download_manager import DownloadManager
-from ..core.clipboard_monitor import ClipboardMonitor
 
 # --- UI COMPONENTS ---
 from .video_window import VideoWindow
@@ -116,6 +116,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     group_downloads = Gtk.Template.Child()
     row_folder = Gtk.Template.Child()
     btn_select_folder = Gtk.Template.Child()
+    row_clipboard_monitor = Gtk.Template.Child()
     row_quality = Gtk.Template.Child()
     quality_list = Gtk.Template.Child()
     row_metadata = Gtk.Template.Child()
@@ -186,6 +187,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             'group_storage': self.group_storage,
             'row_theme': self.row_theme,
             'row_theme_color': self.row_theme_color,
+            'row_clipboard_monitor': self.row_clipboard_monitor,
             'row_quality': self.row_quality,
             'row_metadata': self.row_metadata,
             'row_subtitles': self.row_subtitles,
@@ -250,12 +252,12 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self.clipboard_monitor = ClipboardMonitor(self._on_clipboard_url_found)
         if ConfigManager.get("monitor_clipboard"):
             self.clipboard_monitor.start()
+        self.last_detected_url = None
 
-    def _on_clipboard_url_found(self, url):
-        # Notify user with a simple message and autofill
-        # A more complex action would require GAction setup
-        MessageManager.show(f"Link detected! Paste in search to download.", is_error=False)
-        self.search_entry.set_text(url)
+        # 12 Clipboard Action
+        download_action = Gio.SimpleAction.new("search-url", GLib.VariantType.new("s"))
+        download_action.connect("activate", self.search_ctrl.on_search_activate)
+        self.add_action(download_action)
 
     def apply_theme(self, mode_enum, color_enum=None):
         """
@@ -360,9 +362,6 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         # Basic settings elements directly on window
         self.row_version.set_title(Res.get(StringKey.PREFS_VERSION_LABEL))
         self.row_folder.set_title(Res.get(StringKey.PREFS_FOLDER_LABEL))
-
-        # Note: Detailed settings strings (groups, quality, etc.)
-        # are handled by SettingsController in its initialize method.
 
         # 6. Downloads Page
         self.btn_clear.set_tooltip_text(Res.get(StringKey.BTN_CLEAR_HISTORY))
@@ -505,29 +504,26 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
                 display_label
             )
 
-        # 11. Clipboard Monitor
-        self.clipboard_monitor = ClipboardMonitor(self._on_clipboard_url_found)
-        if ConfigManager.get("monitor_clipboard"):
-            self.clipboard_monitor.start()
-
     def _on_clipboard_url_found(self, url):
         # Notify user with a toast action
-        # Create a detailed toast with a button to download
-        toast = Adw.Toast.new(f"Link Detected: {url}")
+        if url == self.last_detected_url:
+            return
+
+        self.last_detected_url = url
+
+        display_url = url
+        if len(url) > 40:
+            display_url = url[:30] + "..."
+
+        toast = Adw.Toast.new(Res.get(StringKey.MSG_LINK_DETECTED) + display_url)
+        toast.set_use_markup(False)
         toast.set_timeout(10)
-        toast.set_button_label("Download")
-        toast.set_action_name("app.download-url")
+        toast.set_button_label(Res.get(StringKey.NAV_SEARCH))
+        toast.set_action_name("win.search-url")
         toast.set_action_target_value(GLib.Variant.new_string(url))
+
         self.toast_overlay.add_toast(toast)
-
-        # We need a proper action for this. Since Adwaita actions are usually GActions,
-        # we might need to register one or just use a simple callback if Toast supports it (it doesn't directly support py callback easily without action).
-        # Alternative: Just show a message saying "Link copied, paste in search?"
-
-        # Simpler approach for now:
-        MessageManager.show(f"Link detected! Paste in search to download.", is_error=False)
         self.search_entry.set_text(url)
-        # self.on_search_clicked(...) # Optional: Auto-searchoads (Zombies)
 
         # Update empty state visibility after loading history
         self._update_download_empty_state()
