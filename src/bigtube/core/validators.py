@@ -327,8 +327,9 @@ def sanitize_filename(filename: str, max_length: int = 200) -> str:
     if not filename:
         return "untitled"
 
-    # Remove path components (security)
-    filename = Path(filename).name
+    # Replace slashes and backslashes with hyphens to preserve the full title
+    # while ensuring it's a safe filename (not a path).
+    filename = filename.replace('/', ' - ').replace('\\', ' - ')
 
     # Remove/replace invalid characters
     # Keep alphanumeric, spaces, hyphens, underscores, dots, parentheses

@@ -81,7 +81,11 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     search_empty_state = Gtk.Template.Child()
 
     # Downloads Page
-    downloads_list = Gtk.Template.Child()
+    downloads_groups_box = Gtk.Template.Child()
+    download_status_bar = Gtk.Template.Child()
+    lbl_dl_active = Gtk.Template.Child()
+    lbl_dl_queued = Gtk.Template.Child()
+    lbl_dl_paused = Gtk.Template.Child()
     btn_clear = Gtk.Template.Child()
     download_content_stack = Gtk.Template.Child()
     download_empty_state = Gtk.Template.Child()
@@ -196,9 +200,13 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
         # 5. Download Controller
         self.download_ctrl = DownloadController(
-            list_box_widget=self.downloads_list,
+            groups_box=self.downloads_groups_box,
             on_play_callback=self.play_local_file,
-            on_remove_callback=self._update_download_empty_state
+            on_remove_callback=self._update_download_empty_state,
+            status_bar=self.download_status_bar,
+            lbl_dl_active=self.lbl_dl_active,
+            lbl_dl_queued=self.lbl_dl_queued,
+            lbl_dl_paused=self.lbl_dl_paused
         )
         self.btn_clear.connect("clicked", self._on_clear_history_clicked)
 
@@ -438,6 +446,8 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self.btn_load_files.set_tooltip_text(Res.get(StringKey.TIP_ADD_FILES))
 
         # 8. Player Bar
+        self.player_title.set_label(Res.get(StringKey.PLAYER_TITLE))
+        self.player_artist.set_label(Res.get(StringKey.PLAYER_ARTIST))
         self.player_prev_button.set_tooltip_text(Res.get(StringKey.TIP_PLAYER_PREV))
         self.player_playpause_button.set_tooltip_text(Res.get(StringKey.TIP_PLAYER_PLAY))
         self.player_next_button.set_tooltip_text(Res.get(StringKey.TIP_PLAYER_NEXT))
@@ -583,15 +593,17 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
     def _update_download_empty_state(self):
         """Toggles download page between empty state and list based on children."""
-        has_items = self.downloads_list.get_first_child() is not None
+        has_items = self.downloads_groups_box.get_first_child() is not None
         if has_items:
             self.download_content_stack.set_visible_child_name("list")
         else:
             self.download_content_stack.set_visible_child_name("empty")
 
+        # Update status bar too
+        self.download_ctrl.update_status_bar()
+
     def _on_clear_history_clicked(self, btn):
-        listbox = self.download_ctrl.list_box
-        if not listbox.get_first_child():
+        if not self.downloads_groups_box.get_first_child():
             return
 
         MessageManager.show_confirmation(
@@ -603,10 +615,8 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     def perform_clear_all_history(self):
         HistoryManager.clear_all()
 
-        # Remove UI children one by one
-        listbox = self.download_ctrl.list_box
-        while (child := listbox.get_first_child()) is not None:
-            listbox.remove(child)
+        # Remove UI groups
+        self.download_ctrl.clear_visual_list()
 
         MessageManager.show(Res.get(StringKey.MSG_HISTORY_CLEARED))
         self.btn_clear.set_sensitive(False)
@@ -646,7 +656,8 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
                 filename=os.path.basename(item['file_path']),
                 url=item['url'],
                 format_id=item['format_id'],
-                full_path=item['file_path']
+                full_path=item['file_path'],
+                uploader=item.get('uploader', '')
             )
 
             # Restore Progress State
@@ -657,7 +668,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
         # Ensure UI shows the list if it has items
         self._update_download_empty_state()
-        self.downloads_list.invalidate_sort()
+        self.download_ctrl.invalidate_sort()
 
     def _on_clipboard_url_found(self, url):
         # Notify user with a toast action
@@ -961,7 +972,8 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             filename=file_name,
             url=video_info['url'],
             format_id=format_data['id'],
-            full_path=full_path
+            full_path=full_path,
+            uploader=video_info.get('uploader', '')
         )
 
         # Set initial status
@@ -972,7 +984,8 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
         # Switch view
         self.pageview.set_visible_child_name(AppSection.DOWNLOADS.value)
-        self.downloads_list.invalidate_sort()
+        self.download_ctrl.invalidate_sort()
+        self.download_ctrl.update_status_bar()
 
         # 3. Progress Callback
         def ui_progress_callback(percent_str, status_text):
@@ -993,10 +1006,15 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             # Update History Logic
             if percent_str and "100" in percent_str:
                 HistoryManager.update_status(full_path, DownloadStatus.COMPLETED, 1.0)
-                GLib.idle_add(self.downloads_list.invalidate_sort)
+                GLib.idle_add(self.download_ctrl.invalidate_sort)
+                GLib.idle_add(self.download_ctrl.update_status_bar)
             elif status_text == Res.get(StringKey.STATUS_ERROR):
                 HistoryManager.update_status(full_path, DownloadStatus.ERROR)
-                GLib.idle_add(self.downloads_list.invalidate_sort)
+                GLib.idle_add(self.download_ctrl.invalidate_sort)
+                GLib.idle_add(self.download_ctrl.update_status_bar)
+            else:
+                # Update status bar for in-progress changes (e.g. Pause/Resume)
+                GLib.idle_add(self.download_ctrl.update_status_bar)
 
         # 4. Start Callback (Receive the downloader instance)
         def on_start(downloader_instance):

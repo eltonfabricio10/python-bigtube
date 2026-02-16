@@ -130,6 +130,7 @@ class HistoryManager:
             "title": video_info.get('title', 'Unknown Title'),
             "url": video_info.get('webpage_url', ''),
             "thumbnail": video_info.get('thumbnail', ''),
+            "uploader": video_info.get('uploader', ''),
             "file_path": file_path,
             "format_id": format_data.get('format_id'),
             "ext": format_data.get('ext'),

@@ -202,6 +202,30 @@
                                       </object>
                                     </child>
                                     <child>
+                                      <object class="GtkBox" id="download_status_bar">
+                                        <property name="halign">center</property>
+                                        <property name="margin-bottom">4</property>
+                                        <property name="margin-top">4</property>
+                                        <property name="spacing">16</property>
+                                        <property name="visible">False</property>
+                                        <child>
+                                          <object class="GtkLabel" id="lbl_dl_active">
+                                            <property name="css-classes">dim-label</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="lbl_dl_queued">
+                                            <property name="css-classes">dim-label</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="lbl_dl_paused">
+                                            <property name="css-classes">dim-label</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
                                       <object class="GtkStack" id="download_content_stack">
                                         <property name="vexpand">True</property>
                                         <child>
@@ -220,11 +244,12 @@
                                             <property name="child">
                                               <object class="GtkScrolledWindow" id="download_scrolled">
                                                 <property name="child">
-                                                  <object class="GtkListBox" id="downloads_list">
-                                                    <property name="css-classes">boxed-list</property>
+                                                  <object class="GtkBox" id="downloads_groups_box">
                                                     <property name="margin-end">3</property>
                                                     <property name="margin-start">3</property>
                                                     <property name="margin-top">3</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <property name="spacing">12</property>
                                                     <property name="valign">start</property>
                                                   </object>
                                                 </property>

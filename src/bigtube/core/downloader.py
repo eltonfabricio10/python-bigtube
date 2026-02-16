@@ -17,8 +17,8 @@ from .helpers import is_youtube_url
 # Module logger
 logger = get_logger(__name__)
 
-# Regex to capture percentage (e.g. "45.6%") from yt-dlp stdout
-PROGRESS_REGEX = re.compile(r'(\d{1,3}\.\d)%')
+# Regex to capture percentage (e.g. "45.6%", "100%", " 8.2%") from yt-dlp stdout
+PROGRESS_REGEX = re.compile(r'(\d{1,3}(?:\.\d+)?)\s*%')
 
 # Minimum required free space in MB (10MB buffer)
 MIN_FREE_SPACE_MB = 10
@@ -110,6 +110,7 @@ class VideoDownloader:
             'title': info.get('title', 'Unknown'),
             'url': info.get('webpage_url') or info.get('url'),
             'thumbnail': info.get('thumbnail'),
+            'uploader': info.get('uploader') or info.get('channel') or '',
             'duration': duration,
             'videos': [],
             'audios': []
@@ -424,6 +425,10 @@ class VideoDownloader:
             # Cache localized strings to avoid fetching repeatedly in loop
             status_dl = Res.get(StringKey.STATUS_DOWNLOADING)
             status_proc = Res.get(StringKey.STATUS_DOWNLOADING_PROCESSING)
+            status_merger = Res.get(StringKey.STATUS_MERGING)
+            status_extract = Res.get(StringKey.STATUS_EXTRACTING)
+
+            current_status = status_dl
 
             while True:
                 # Check if process finished
@@ -437,6 +442,16 @@ class VideoDownloader:
                 line = line.strip()
                 last_log_lines.append(line)
 
+                # --- Parsing Status Changes ---
+                if "[Merger]" in line:
+                    current_status = status_merger
+                    if progress_callback:
+                        progress_callback(None, current_status)
+                elif "[ExtractAudio]" in line:
+                    current_status = status_extract
+                    if progress_callback:
+                        progress_callback(None, current_status)
+
                 # --- Parsing Progress ---
                 # yt-dlp --progress-template handles both download and postprocess prefixes
                 if "%" in line:
@@ -445,13 +460,11 @@ class VideoDownloader:
                         percent = match.group(1) + "%"
                         if progress_callback:
                             if "[postprocess]" in line:
-                                progress_callback(percent, status_proc)
+                                # Use specific status if we know it, otherwise generic processing
+                                display_status = current_status if current_status != status_dl else status_proc
+                                progress_callback(percent, display_status)
                             else:
                                 progress_callback(percent, status_dl)
-
-                elif "[Merger]" in line or "[ExtractAudio]" in line:
-                    if progress_callback:
-                        progress_callback("99%", status_proc)
 
             # Process Finished
             return_code = self.process.wait()

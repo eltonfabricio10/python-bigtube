@@ -173,6 +173,8 @@ class StringKey(Enum):
     STATUS_PENDING = N_("Pending")
     STATUS_DOWNLOADING = N_("Downloading...")
     STATUS_DOWNLOADING_PROCESSING = N_("Processing...")
+    STATUS_MERGING = N_("Merging...")
+    STATUS_EXTRACTING = N_("Extracting Audio...")
     STATUS_COMPLETED = N_("Completed")
     STATUS_ERROR = N_("Error")
     STATUS_CANCELLED = N_("Cancelled")
@@ -300,7 +302,7 @@ class StringKey(Enum):
     STATUS_SCHEDULED = N_("Scheduled")
     STATUS_QUEUED = N_("Queued")
     DLG_SCHEDULE_TITLE = N_("Schedule Download")
-    DLG_SCHEDULE_DATE_LABEL = N_("Select Date & Time")
+    DLG_SCHEDULE_DATE_LABEL = N_("Select Date &amp; Time")
     DLG_SCHEDULE_DATE = N_("Date")
     DLG_SCHEDULE_TIME_LABEL = N_("Time")
     DLG_SCHEDULE_TIME_FMT = N_("Time (HH:MM)")
@@ -337,6 +339,12 @@ class StringKey(Enum):
     TIP_DELETE_SUGGESTION = N_("Delete Suggestion")
     PREFS_SEARCH_LIMIT_LABEL = N_("Maximum Search Results")
     PREFS_MAX_SIMULTANEOUS_LABEL = N_("Max Simultaneous Downloads")
+
+    # Download Status Bar
+    DL_STATUS_ACTIVE = N_("{count} downloading")
+    DL_STATUS_QUEUED = N_("{count} queued")
+    DL_STATUS_PAUSED = N_("{count} paused")
+    DL_UNKNOWN_ARTIST = N_("Unknown Artist")
 
     # Help Content
     MSG_HELP_TITLE = N_("BigTube Help")

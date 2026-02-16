@@ -218,7 +218,7 @@ class SearchEngine:
             'title': entry.get('title', 'Untitled'),
             'url': entry.get('webpage_url', entry.get('url', '')),
             'thumbnail': thumb_url,
-            'uploader': entry.get('uploader', 'Unknown'),
+            'uploader': entry.get('uploader') or entry.get('channel') or 'Unknown',
             'duration': entry.get('duration', 0),
             'is_video': is_video
         }

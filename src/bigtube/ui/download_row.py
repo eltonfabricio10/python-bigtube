@@ -38,10 +38,11 @@ class DownloadRow(Gtk.Box):
     btn_cancel = Gtk.Template.Child()
     btn_pause = Gtk.Template.Child()
 
-    def __init__(self, title, filename, full_path, on_play_callback=None, on_remove_callback=None):
+    def __init__(self, title, filename, full_path, on_play_callback=None, on_remove_callback=None, uploader=""):
         super().__init__()
 
         self.full_path = full_path
+        self.uploader = uploader
         self.on_play_callback = on_play_callback
         self.on_remove_callback = on_remove_callback
         self.downloader_instance = None  # Holds the VideoDownloader object
