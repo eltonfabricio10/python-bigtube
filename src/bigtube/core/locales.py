@@ -311,6 +311,37 @@ class StringKey(Enum):
     BTN_DOWNLOAD = N_("Download")
     LBL_SCHEDULED_PREFIX = N_("Scheduled:")
 
+    # Time & Units
+    LBL_HOURS_SHORT = N_("h")
+    LBL_MINUTES_SHORT = N_("m")
+    LBL_SECONDS_SHORT = N_("s")
+
+    # General
+    LBL_COPYRIGHT = N_("© 2026 BigTube")
+    MENU_HELP = N_("Help")
+    MENU_ABOUT = N_("About")
+    MENU_QUIT = N_("Quit")
+
+    # Multi-Selection
+    TIP_SELECTION_MODE = N_("Toggle Selection Mode")
+    BTN_SELECT_TOGGLE = N_("Select All / None")
+    BTN_DOWNLOAD_SELECTED_COUNT = N_("Download Selected ({count})")
+    MSG_BATCH_DOWNLOAD_STARTING = N_("Starting batch download of {count} items...")
+
+    # Extra Settings
+    PREFS_SEARCH_TITLE = N_("Search Settings")
+    PREFS_SAVE_SEARCH_LABEL = N_("Save Search History")
+    PREFS_ENABLE_SUGGESTIONS_LABEL = N_("Enable Search Suggestions")
+    PREFS_MAX_SUGGESTIONS_LABEL = N_("Maximum Suggestions")
+    BTN_CLEAR_SEARCH_HISTORY = N_("Clear Search History")
+    TIP_DELETE_SUGGESTION = N_("Delete Suggestion")
+    PREFS_SEARCH_LIMIT_LABEL = N_("Maximum Search Results")
+    PREFS_MAX_SIMULTANEOUS_LABEL = N_("Max Simultaneous Downloads")
+
+    # Help Content
+    MSG_HELP_TITLE = N_("BigTube Help")
+    MSG_HELP_BODY = N_("To search for a video, paste a URL or type keywords in the search box.\nYou can also drag and drop local media files onto the Converter tab to change their format.\nCheck Settings to change download quality and themes.")
+
 
 class ResourceManager:
     @staticmethod

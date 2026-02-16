@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.14 -->
+<!-- Created with Cambalache 0.99.15 -->
 <interface>
   <!-- interface-name bigtube.ui -->
+  <requires lib="gio" version="2.0"/>
   <requires lib="gtk" version="4.18"/>
   <requires lib="libadwaita" version="1.0"/>
   <template class="BigTubeMainWindow" parent="AdwApplicationWindow">
@@ -30,8 +31,11 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkButton" id="btn_about">
-                        <property name="icon-name">dialog-information-symbolic</property>
+                      <object class="GtkMenuButton" id="btn_menu">
+                        <property name="direction">none</property>
+                        <property name="has-frame">False</property>
+                        <property name="icon-name">open-menu-symbolic</property>
+                        <property name="menu-model">primary_menu</property>
                       </object>
                     </child>
                   </object>
@@ -79,7 +83,6 @@
                                               </object>
                                             </property>
                                             <property name="selected">0</property>
-                                            <property name="tooltip-text">Select source</property>
                                           </object>
                                         </child>
                                         <child>
@@ -104,6 +107,38 @@
                                             <property name="margin-end">0</property>
                                             <property name="margin-start">8</property>
                                             <property name="margin-top">0</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkToggleButton" id="btn_selection_mode">
+                                            <property name="has-frame">False</property>
+                                            <property name="icon-name">selection-mode-symbolic</property>
+                                            <property name="margin-start">4</property>
+                                            <property name="tooltip-text"/>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRevealer" id="bar_batch">
+                                        <property name="reveal-child">False</property>
+                                        <property name="transition-type">slide-down</property>
+                                        <child>
+                                          <object class="GtkBox">
+                                            <property name="css-classes">linked</property>
+                                            <property name="halign">center</property>
+                                            <property name="margin-bottom">8</property>
+                                            <property name="margin-top">4</property>
+                                            <property name="spacing">6</property>
+                                            <child>
+                                              <object class="GtkButton" id="btn_select_all">
+                                              </object>
+                                            </child>
+                                            <child>
+                                              <object class="GtkButton" id="btn_download_selected">
+                                                <property name="css-classes">suggested-action</property>
+                                              </object>
+                                            </child>
                                           </object>
                                         </child>
                                       </object>
@@ -311,7 +346,6 @@
                                             <property name="model">
                                               <object class="GtkStringList" id="theme_color_list"/>
                                             </property>
-                                            <property name="title">Color Scheme</property>
                                           </object>
                                         </child>
                                         <child>
@@ -328,7 +362,87 @@
                                       </object>
                                     </child>
                                     <child>
+                                      <object class="AdwPreferencesGroup" id="group_search">
+                                        <property name="title"/>
+                                        <child>
+                                          <object class="AdwSwitchRow" id="row_save_search">
+                                            <property name="icon-name">edit-find-symbolic</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="AdwSwitchRow" id="row_enable_suggestions">
+                                            <property name="icon-name">format-text-italic-symbolic</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="AdwActionRow" id="row_max_suggestions">
+                                            <property name="icon-name">list-add-symbolic</property>
+                                            <child>
+                                              <object class="GtkSpinButton" id="spin_max_suggestions">
+                                                <property name="adjustment">
+                                                  <object class="GtkAdjustment">
+                                                    <property name="lower">1</property>
+                                                    <property name="step-increment">1</property>
+                                                    <property name="upper">50</property>
+                                                    <property name="value">10</property>
+                                                  </object>
+                                                </property>
+                                                <property name="valign">center</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="AdwActionRow" id="row_clear_search_history">
+                                            <property name="icon-name">edit-clear-all-symbolic</property>
+                                            <child>
+                                              <object class="GtkButton" id="btn_clear_search_now">
+                                                <property name="icon-name">user-trash-symbolic</property>
+                                                <property name="valign">center</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="AdwActionRow" id="row_search_limit">
+                                            <property name="icon-name">list-add-symbolic</property>
+                                            <child>
+                                              <object class="GtkSpinButton" id="spin_search_limit">
+                                                <property name="adjustment">
+                                                  <object class="GtkAdjustment">
+                                                    <property name="lower">5</property>
+                                                    <property name="step-increment">5</property>
+                                                    <property name="upper">100</property>
+                                                    <property name="value">15</property>
+                                                  </object>
+                                                </property>
+                                                <property name="valign">center</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
                                       <object class="AdwPreferencesGroup" id="group_downloads">
+                                        <child>
+                                          <object class="AdwActionRow" id="row_max_downloads">
+                                            <property name="icon-name">folder-download-symbolic</property>
+                                            <child>
+                                              <object class="GtkSpinButton" id="spin_max_downloads">
+                                                <property name="adjustment">
+                                                  <object class="GtkAdjustment">
+                                                    <property name="lower">1</property>
+                                                    <property name="step-increment">1</property>
+                                                    <property name="upper">10</property>
+                                                    <property name="value">3</property>
+                                                  </object>
+                                                </property>
+                                                <property name="valign">center</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
                                         <child>
                                           <object class="AdwActionRow" id="row_folder">
                                             <property name="icon-name">folder-download-symbolic</property>
@@ -377,7 +491,6 @@
                                         <child>
                                           <object class="AdwSwitchRow" id="row_conv_use_source">
                                             <property name="icon-name">folder-symbolic</property>
-                                            <property name="title">Use same folder as source file</property>
                                           </object>
                                         </child>
                                         <child>
@@ -613,4 +726,18 @@
       </object>
     </child>
   </template>
+  <menu id="primary_menu">
+    <item>
+      <attribute name="action">win.help</attribute>
+      <attribute name="label"/>
+    </item>
+    <item>
+      <attribute name="action">win.about</attribute>
+      <attribute name="label"/>
+    </item>
+    <item>
+      <attribute name="action">app.quit</attribute>
+      <attribute name="label"/>
+    </item>
+  </menu>
 </interface>

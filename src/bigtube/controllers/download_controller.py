@@ -2,6 +2,7 @@ from gi.repository import Gtk
 
 # Internal Imports
 from ..ui.download_row import DownloadRow
+from ..core.enums import DownloadStatus
 
 
 class DownloadController:
@@ -20,6 +21,45 @@ class DownloadController:
         self.list_box = list_box_widget
         self.on_play_callback = on_play_callback
         self.on_remove_callback = on_remove_callback
+
+        # Set up Sorting
+        self.list_box.set_sort_func(self._sort_func)
+
+    def _sort_func(self, row_a, row_b):
+        """
+        Sorts rows by priority:
+        1. DOWNLOADING
+        2. PENDING, PAUSED, INTERRUPTED
+        3. COMPLETED, ERROR, CANCELLED
+        """
+        widget_a = row_a.get_child()
+        widget_b = row_b.get_child()
+
+        if not isinstance(widget_a, DownloadRow) or not isinstance(widget_b, DownloadRow):
+            return 0
+
+        # Define priority map
+        prio_map = {
+            DownloadStatus.DOWNLOADING: 0,
+            DownloadStatus.PENDING: 1,
+            DownloadStatus.PAUSED: 1,
+            DownloadStatus.INTERRUPTED: 1,
+            DownloadStatus.COMPLETED: 2,
+            DownloadStatus.ERROR: 2,
+            DownloadStatus.CANCELLED: 2
+        }
+
+        prio_a = prio_map.get(widget_a.status, 2)
+        prio_b = prio_map.get(widget_b.status, 2)
+
+        if prio_a != prio_b:
+            return prio_a - prio_b
+
+        # Tie-breaker: Newer first?
+        # Since we use prepend, the ListBox naturally keeps newer ones first if we return 0.
+        # However, for consistent sorting after status updates, we should ideally have a timestamp.
+        # For now, 0 maintains current relative order.
+        return 0
 
     def add_download(self, title, filename, url, format_id, full_path) -> DownloadRow:
         """

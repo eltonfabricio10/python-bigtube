@@ -64,6 +64,8 @@ class SettingsController:
             widgets['group_storage'].set_title(Res.get(StringKey.PREFS_STORAGE_TITLE))
         if 'group_converter' in widgets:
             widgets['group_converter'].set_title(Res.get(StringKey.PREFS_CONVERTER_TITLE))
+        if 'group_search' in widgets:
+            widgets['group_search'].set_title(Res.get(StringKey.PREFS_SEARCH_TITLE))
 
         # Rows
         if 'row_theme' in widgets:
@@ -77,12 +79,24 @@ class SettingsController:
 
         if 'row_quality' in widgets:
             widgets['row_quality'].set_title(Res.get(StringKey.PREFS_QUALITY_LABEL))
+        if 'row_max_downloads' in widgets:
+            widgets['row_max_downloads'].set_title(Res.get(StringKey.PREFS_MAX_SIMULTANEOUS_LABEL))
         if 'row_metadata' in widgets:
             widgets['row_metadata'].set_title(Res.get(StringKey.PREFS_METADATA_LABEL))
         if 'row_subtitles' in widgets:
             widgets['row_subtitles'].set_title(Res.get(StringKey.PREFS_SUBTITLES_LABEL))
         if 'row_save_history' in widgets:
             widgets['row_save_history'].set_title(Res.get(StringKey.PREFS_SAVE_HISTORY_LABEL))
+        if 'row_save_search' in widgets:
+            widgets['row_save_search'].set_title(Res.get(StringKey.PREFS_SAVE_SEARCH_LABEL))
+        if 'row_search_limit' in widgets:
+            widgets['row_search_limit'].set_title(Res.get(StringKey.PREFS_SEARCH_LIMIT_LABEL))
+        if 'row_enable_suggestions' in widgets:
+            widgets['row_enable_suggestions'].set_title(Res.get(StringKey.PREFS_ENABLE_SUGGESTIONS_LABEL))
+        if 'row_max_suggestions' in widgets:
+            widgets['row_max_suggestions'].set_title(Res.get(StringKey.PREFS_MAX_SUGGESTIONS_LABEL))
+        if 'row_clear_search_history' in widgets:
+            widgets['row_clear_search_history'].set_title(Res.get(StringKey.BTN_CLEAR_SEARCH_HISTORY))
         if 'row_auto_clear' in widgets:
             widgets['row_auto_clear'].set_title(Res.get(StringKey.PREFS_AUTO_CLEAR_LABEL))
         if 'row_clear_data' in widgets:
@@ -177,6 +191,33 @@ class SettingsController:
                 "notify::active",
                 lambda o, p: ConfigManager.set("save_history", o.get_active())
             )
+        if 'row_save_search' in w:
+            w['row_save_search'].connect(
+                "notify::active",
+                lambda o, p: ConfigManager.set("save_search_history", o.get_active())
+            )
+        if 'spin_search_limit' in w:
+            w['spin_search_limit'].connect(
+                "value-changed",
+                lambda o: ConfigManager.set("search_limit", int(o.get_value()))
+            )
+        if 'row_enable_suggestions' in w:
+            w['row_enable_suggestions'].connect(
+                "notify::active",
+                lambda o, p: ConfigManager.set("enable_suggestions", o.get_active())
+            )
+        if 'spin_max_suggestions' in w:
+            w['spin_max_suggestions'].connect(
+                "value-changed",
+                lambda o: ConfigManager.set("max_suggestions", int(o.get_value()))
+            )
+        if 'btn_clear_search_now' in w:
+            w['btn_clear_search_now'].connect("clicked", self._on_clear_search_history_clicked)
+        if 'spin_max_downloads' in w:
+                w['spin_max_downloads'].connect(
+                    "value-changed",
+                    lambda o: ConfigManager.set("max_concurrent_downloads", int(o.get_value()))
+                )
         if 'row_auto_clear' in w:
             w['row_auto_clear'].connect(
                 "notify::active",
@@ -203,13 +244,22 @@ class SettingsController:
             w['btn_clear_now'].connect("clicked", self._on_clear_data_clicked)
 
     def _on_auto_clear_toggled(self, row, pspec):
-        """Disables manual reset button if auto-reset on exit is enabled."""
-        active = row.get_active()
-        ConfigManager.set("auto_clear_finished", active)
+        """Disables manual reset button and history switches if auto-reset on exit is enabled."""
+        active_reset = row.get_active()
+        ConfigManager.set("auto_clear_finished", active_reset)
 
         w = self.widgets_map
         if 'row_clear_data' in w:
-            w['row_clear_data'].set_sensitive(not active)
+            w['row_clear_data'].set_sensitive(not active_reset)
+
+        # UI Requirements: If auto-clear is enabled, history-saving options should be disabled
+        # and effectively set to False since they will be wiped anyway.
+        history_rows = ['row_save_history', 'row_save_search', 'row_conv_history']
+        for key in history_rows:
+            if key in w:
+                w[key].set_sensitive(not active_reset)
+                if active_reset:
+                    w[key].set_active(False)
 
     def _on_clear_data_activated(self, row):
         """Called when 'Clear Data' row is clicked."""
@@ -223,17 +273,36 @@ class SettingsController:
 
         # Load Switches
         w = self.widgets_map
+        if 'row_clipboard_monitor' in w:
+            w['row_clipboard_monitor'].set_active(ConfigManager.get("monitor_clipboard"))
         if 'row_metadata' in w:
             w['row_metadata'].set_active(ConfigManager.get("add_metadata"))
         if 'row_subtitles' in w:
             w['row_subtitles'].set_active(ConfigManager.get("embed_subtitles"))
         if 'row_save_history' in w:
             w['row_save_history'].set_active(ConfigManager.get("save_history"))
+        if 'row_save_search' in w:
+            w['row_save_search'].set_active(ConfigManager.get("save_search_history"))
+        if 'spin_search_limit' in w:
+            w['spin_search_limit'].set_value(ConfigManager.get("search_limit"))
+        if 'row_enable_suggestions' in w:
+            w['row_enable_suggestions'].set_active(ConfigManager.get("enable_suggestions"))
+        if 'spin_max_suggestions' in w:
+            w['spin_max_suggestions'].set_value(ConfigManager.get("max_suggestions"))
+        if 'spin_max_downloads' in w:
+            w['spin_max_downloads'].set_value(ConfigManager.get("max_concurrent_downloads"))
         if 'row_auto_clear' in w:
             active_reset = ConfigManager.get("auto_clear_finished")
             w['row_auto_clear'].set_active(active_reset)
             if 'row_clear_data' in w:
                 w['row_clear_data'].set_sensitive(not active_reset)
+
+            # Apply initial sensitivity for history rows based on auto-clear
+            if active_reset:
+                history_rows = ['row_save_history', 'row_save_search', 'row_conv_history']
+                for key in history_rows:
+                    if key in w:
+                        w[key].set_sensitive(False)
         if 'row_conv_history' in w:
             w['row_conv_history'].set_active(ConfigManager.get("save_converter_history"))
         if 'row_conv_use_source' in w:
@@ -408,13 +477,29 @@ class SettingsController:
 
             # 2. Notify user and exit
             MessageManager.show_info_dialog(
-                title=Res.get(StringKey.MSG_CONV_COMPLETE_TITLE),
+                title=Res.get(StringKey.BTN_CLEAR_HISTORY),
                 body=Res.get(StringKey.MSG_DATA_CLEARED),
                 on_close_callback=lambda: sys.exit(0)
             )
         except Exception as e:
             logger.error(f"Error during app reset: {e}")
             MessageManager.show(f"Reset failed: {e}", is_error=True)
+
+    def _on_clear_search_history_clicked(self, btn):
+        MessageManager.show_confirmation(
+            title=Res.get(StringKey.BTN_CLEAR_SEARCH_HISTORY),
+            body=Res.get(StringKey.MSG_CONFIRM_CLEAR_BODY),
+            on_confirm_callback=self._perform_search_history_reset
+        )
+
+    def _perform_search_history_reset(self):
+        """Clears only the search history."""
+        try:
+            SearchHistory.clear()
+            MessageManager.show(Res.get(StringKey.MSG_HISTORY_CLEARED))
+        except Exception as e:
+            logger.error(f"Error clearing search history: {e}")
+            MessageManager.show(f"Failed: {e}", is_error=True)
 
     def _async_load_version(self):
         """Fetches binary version in background."""

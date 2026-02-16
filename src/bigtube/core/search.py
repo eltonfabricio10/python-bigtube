@@ -25,8 +25,8 @@ class SearchEngine:
     Parses JSON output into clean dictionaries.
     """
 
-    # Maximum number of search results to return
-    SEARCH_LIMIT = 15
+    # Maximum number of search results to return (Default)
+    _DEFAULT_LIMIT = 15
 
     def __init__(self):
         # Ensure dependencies are present (yt-dlp binary)
@@ -37,6 +37,9 @@ class SearchEngine:
 
         # Prepare environment with internal bin path
         self._env = ConfigManager.get_env_with_bin_path()
+
+        # Load search limit from config
+        self.search_limit = ConfigManager.get("search_limit") or 15
 
     def search(self, query: str, source: str = "youtube") -> List[Dict]:
         """
@@ -76,7 +79,7 @@ class SearchEngine:
             args = [
                 "--flat-playlist",
                 "--dump-json",
-                f"scsearch{self.SEARCH_LIMIT}:{query}"
+                f"scsearch{self.search_limit}:{query}"
             ]
         else:
             # Default to YouTube
@@ -84,7 +87,7 @@ class SearchEngine:
                 "--extractor-args", "youtube:player_client=web,android_vr",
                 "--flat-playlist",
                 "--dump-json",
-                f"ytsearch{self.SEARCH_LIMIT}:{clean_query}"
+                f"ytsearch{self.search_limit}:{clean_query}"
             ]
 
         return self._run_cli(args, force_audio=force_audio, query=query, source=source)

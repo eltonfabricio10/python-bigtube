@@ -154,6 +154,9 @@ class DownloadManager:
         """
         Checks if we can start more downloads.
         """
+        # Load latest max_concurrent from config
+        self.max_concurrent = ConfigManager.get("max_concurrent_downloads") or 3
+
         with self.lock:
             active_count = len(self.active_downloads)
             if active_count >= self.max_concurrent:

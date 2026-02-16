@@ -118,7 +118,7 @@ class FormatSelectionDialog(Adw.Window):
         btn_schedule = Gtk.Button()
         btn_schedule.set_icon_name("alarm-symbolic")
         btn_schedule.add_css_class("flat")
-        btn_schedule.set_tooltip_text("Schedule Download")
+        btn_schedule.set_tooltip_text(Res.get(StringKey.TIP_SCHEDULE_DOWNLOAD))
         btn_schedule.connect("clicked", lambda b, v=fmt_data: self._on_schedule_clicked(v))
         box_btns.append(btn_schedule)
 
@@ -167,6 +167,10 @@ class FormatSelectionDialog(Adw.Window):
         m, s = divmod(seconds, 60)
         h, m = divmod(m, 60)
 
+        h_unit = Res.get(StringKey.LBL_HOURS_SHORT)
+        m_unit = Res.get(StringKey.LBL_MINUTES_SHORT)
+        s_unit = Res.get(StringKey.LBL_SECONDS_SHORT)
+
         if h > 0:
-            return f"{h}h {m}m {s}s"
-        return f"{m}m {s}s"
+            return f"{h}{h_unit} {m}{m_unit} {s}{s_unit}"
+        return f"{m}{m_unit} {s}{s_unit}"

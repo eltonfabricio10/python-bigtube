@@ -22,7 +22,7 @@ class HistoryManager:
     _FILE_PATH = os.path.join(_CONFIG_DIR, "history.json")
 
     # Maximum number of items to keep in history
-    MAX_HISTORY_SIZE = 20
+    MAX_HISTORY_SIZE = 100
 
     # Debounce settings (seconds)
     _DEBOUNCE_DELAY = 2.0
@@ -64,8 +64,14 @@ class HistoryManager:
     def _save_to_disk(cls):
         """Internal method to actually write to disk."""
         with cls._cache_lock:
+            # CRITICAL: If cache is None, it means we never loaded history.
+            # Saving now would overwrite the file with an empty list [].
+            if cls._cache is None:
+                logger.debug("Skipping save: Cache is empty/not loaded.")
+                return
+
             cls._pending_save = False
-            data_to_save = cls._cache.copy() if cls._cache else []
+            data_to_save = cls._cache.copy()
 
         cls._ensure_dir_exists()
         try:

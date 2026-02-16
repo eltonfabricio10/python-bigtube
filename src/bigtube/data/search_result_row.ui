@@ -7,6 +7,13 @@
     <property name="css-classes">rounded</property>
     <property name="hexpand">True</property>
     <child>
+      <object class="GtkCheckButton" id="row_checkbox">
+        <property name="margin-start">12</property>
+        <property name="valign">center</property>
+        <property name="visible">False</property>
+      </object>
+    </child>
+    <child>
       <object class="GtkImage" id="row_thumbnail">
         <property name="icon-name">viewimage</property>
         <property name="margin-start">6</property>

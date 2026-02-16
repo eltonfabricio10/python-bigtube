@@ -30,6 +30,7 @@ class DownloadRow(Gtk.Box):
     lbl_path = Gtk.Template.Child()
     progress_bar = Gtk.Template.Child()
     actions_box = Gtk.Template.Child()
+    center_box = Gtk.Template.Child()
 
     # Buttons
     btn_folder = Gtk.Template.Child()
@@ -50,6 +51,8 @@ class DownloadRow(Gtk.Box):
         # Initial UI Setup
         self.lbl_title.set_label(title)
         self.lbl_path.set_label(filename)
+
+        self.status = DownloadStatus.PENDING
 
         # Connect Signals
         self.btn_folder.connect("clicked", self._on_open_folder_clicked)
@@ -75,6 +78,7 @@ class DownloadRow(Gtk.Box):
 
         logger.info(f"Cancelling download: {self.full_path}")
         self.is_cancelled = True
+        self.status = DownloadStatus.CANCELLED
 
         # 1. Stop the Engine
         if self.downloader_instance:
@@ -119,6 +123,7 @@ class DownloadRow(Gtk.Box):
             self.btn_pause.set_icon_name("media-playback-pause-symbolic")
             self.btn_pause.set_tooltip_text(Res.get(StringKey.BTN_PAUSE))
             self.lbl_status.set_label(Res.get(StringKey.STATUS_RESUMING))
+            self.status = DownloadStatus.DOWNLOADING
             self.progress_bar.remove_css_class("warning")
 
             # Restart the download in a separate thread
@@ -140,6 +145,7 @@ class DownloadRow(Gtk.Box):
             self.btn_pause.set_icon_name("media-playback-start-symbolic")
             self.btn_pause.set_tooltip_text(Res.get(StringKey.BTN_RESUME))
             self.lbl_status.set_label(Res.get(StringKey.STATUS_PAUSED))
+            self.status = DownloadStatus.PAUSED
             self.progress_bar.add_css_class("warning")
 
             # Persist Paused state
@@ -168,6 +174,7 @@ class DownloadRow(Gtk.Box):
 
         # Update text regardless of progress value
         self.lbl_status.set_label(status_text)
+        self.status = DownloadStatus.DOWNLOADING
 
         if percent_str is None:
             return
@@ -198,9 +205,17 @@ class DownloadRow(Gtk.Box):
     def set_status_label(self, text: str):
         """Directly sets the status text (e.g. for 'Pending')."""
         self.lbl_status.set_label(text)
+        # Try to infer status from text if it's a common one
+        if text == Res.get(StringKey.STATUS_PENDING):
+            self.status = DownloadStatus.PENDING
+        elif text == Res.get(StringKey.STATUS_QUEUED):
+            self.status = DownloadStatus.PENDING
+        elif text == Res.get(StringKey.STATUS_SCHEDULED):
+            self.status = DownloadStatus.PENDING
 
     def set_error_state(self, error_msg: str):
         """Visual feedback for errors."""
+        self.status = DownloadStatus.ERROR
         self.lbl_status.set_label(Res.get(StringKey.STATUS_ERROR))
         self.lbl_status.add_css_class("error")     # Red text
         self.progress_bar.add_css_class("error")   # Red bar
@@ -211,9 +226,8 @@ class DownloadRow(Gtk.Box):
 
     def _set_success_state(self):
         """Visual feedback for success."""
-        if hasattr(self, 'btn_cancel'):
-            self.btn_cancel.set_sensitive(False)
-        self.btn_pause.set_visible(False)  # Hide pause button on completion
+        self.center_box.set_visible(False)
+        self.status = DownloadStatus.COMPLETED
 
         self.lbl_status.set_label(Res.get(StringKey.STATUS_COMPLETED))
         self.lbl_status.add_css_class("success")

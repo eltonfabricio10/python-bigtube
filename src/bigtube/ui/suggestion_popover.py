@@ -12,11 +12,12 @@ class SuggestionPopover(Gtk.Popover):
     A floating popup that displays search suggestions.
     """
     __gsignals__ = {
-        'suggestion-selected': (GObject.SIGNAL_RUN_FIRST, None, (str,))
+        'suggestion-selected': (GObject.SIGNAL_RUN_FIRST, None, (str,)),
+        'suggestion-removed': (GObject.SIGNAL_RUN_FIRST, None, (str,))
     }
 
-    _ROW_HEIGHT = 50
-    _MAX_HEIGHT = 200
+    _ROW_HEIGHT = 65
+    _MAX_HEIGHT = 220
 
     def __init__(self, parent_entry):
         """
@@ -73,6 +74,8 @@ class SuggestionPopover(Gtk.Popover):
             self.list_box.remove(child)
             self.popdown()
 
+        from ..core.locales import ResourceManager as Res, StringKey
+
         # 3. Populate List
         for text in suggestions:
             row = Gtk.ListBoxRow()
@@ -81,19 +84,34 @@ class SuggestionPopover(Gtk.Popover):
             row.set_focusable(False)
 
             # Layout for the row
-            box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+            box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
 
             # Icon (History symbol)
             icon = Gtk.Image.new_from_icon_name("document-open-recent-symbolic")
             icon.add_css_class("dim-label")
+            icon.set_pixel_size(12)
 
             # Label
             lbl = Gtk.Label(label=text, xalign=0)
             lbl.set_max_width_chars(50)
             lbl.set_ellipsize(3)
+            lbl.set_hexpand(True)
+
+            # Delete Button
+            btn_delete = Gtk.Button.new_from_icon_name("window-close-symbolic")
+            btn_delete.set_has_frame(False)
+            btn_delete.set_tooltip_text(Res.get(StringKey.TIP_DELETE_SUGGESTION))
+            btn_delete.add_css_class("flat")
+            btn_delete.add_css_class("circular")
+            btn_delete.set_can_focus(False)
+            btn_delete.set_focusable(False)
+            btn_delete.set_valign(Gtk.Align.CENTER)
+
+            btn_delete.connect("clicked", self._on_delete_clicked, text)
 
             box.append(icon)
             box.append(lbl)
+            box.append(btn_delete)
 
             row.set_child(box)
             row._suggestion_text = text
@@ -101,6 +119,10 @@ class SuggestionPopover(Gtk.Popover):
             self.list_box.append(row)
 
         self.update_popover()
+
+    def _on_delete_clicked(self, button, text):
+        """Triggered when user clicks the small X on a suggestion."""
+        self.emit('suggestion-removed', text)
 
     def update_popover(self):
         # 4. Width Calculation

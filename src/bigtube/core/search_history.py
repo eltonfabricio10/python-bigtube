@@ -3,6 +3,9 @@ import time
 from collections import OrderedDict
 from pathlib import Path
 from .config import ConfigManager
+from .logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class SearchHistory:
@@ -29,6 +32,10 @@ class SearchHistory:
     @classmethod
     def add(cls, query: str):
         """Adds a query to history."""
+        # Check if saving is enabled
+        if not ConfigManager.get("save_search_history"):
+            return
+
         query = query.strip()
         if not query:
             return
@@ -59,9 +66,25 @@ class SearchHistory:
         if not partial_text:
             return []
 
+        max_sug = ConfigManager.get("max_suggestions")
         partial = partial_text.lower()
+
         # Filter: Case-insensitive match
-        return [q for q in cls._history if partial in q.lower()]
+        matches = [q for q in cls._history if partial in q.lower()]
+
+        # Trim to config limit
+        return matches[:max_sug]
+
+    @classmethod
+    def remove_item(cls, query: str):
+        """Removes a specific query from history."""
+        if not cls._history:
+            cls.load()
+
+        if query in cls._history:
+            cls._history.remove(query)
+            cls._save()
+            logger.info(f"Removed from search history: {query}")
 
     @classmethod
     def _save(cls):

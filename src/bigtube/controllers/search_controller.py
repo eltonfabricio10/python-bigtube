@@ -6,6 +6,7 @@ from gi.repository import Gtk, Gio, GObject, GLib
 
 from ..core.search import SearchEngine
 from ..core.search_history import SearchHistory
+from ..core.config import ConfigManager
 from ..core.logger import get_logger
 from ..ui.search_result_row import VideoDataObject
 from ..ui.suggestion_popover import SuggestionPopover
@@ -29,6 +30,8 @@ class SearchController(GObject.Object):
         'loading-state': (GObject.SIGNAL_RUN_FIRST, None, (bool, str)),
         'results-changed': (GObject.SIGNAL_RUN_FIRST, None, (int,))  # item count
     }
+
+    selection_count = GObject.Property(type=int, default=0)
 
     def __init__(
         self,
@@ -65,6 +68,10 @@ class SearchController(GObject.Object):
             'suggestion-selected',
             self._on_suggestion_clicked
         )
+        self.popover.connect(
+            'suggestion-removed',
+            self._on_suggestion_removed
+        )
 
         # State for Smart Switching
         # Default to 0 (YouTube).
@@ -84,11 +91,74 @@ class SearchController(GObject.Object):
 
         # Detect when text changes
         self.entry.connect("search-changed", self._on_search_changed_debounced)
+        # Immediate sensitivity check (SearchEntry implements Gtk.Editable)
+        self.entry.connect("changed", lambda *args: self._update_button_sensitivity())
+        self._update_button_sensitivity()
         self.clicked_suggestions = False
 
         # Debounce timer for search-changed events
         self._debounce_timer_id = None
         self._DEBOUNCE_MS = 300
+
+        # Multi-Selection State
+        self.selection_mode = False
+        self.is_loading = False
+
+    # =========================================================================
+    # MULTI-SELECTION API
+    # =========================================================================
+    def set_selection_mode(self, enabled: bool):
+        """Toggles selection checkboxes on/off for all rows."""
+        self.selection_mode = enabled
+        for i in range(self.store.get_n_items()):
+            item = self.store.get_item(i)
+            item.selection_mode = enabled
+
+    def toggle_select_all(self):
+        """Intelligently selects all or none based on current count."""
+        total = self.store.get_n_items()
+        if total == 0:
+            return
+
+        # If any are selected, unselect all. Otherwise select all.
+        target = self.selection_count == 0
+        for i in range(total):
+            item = self.store.get_item(i)
+            item.is_selected = target
+
+    def _update_selection_count(self, *args):
+        """Recalculates total selected items."""
+        count = 0
+        for i in range(self.store.get_n_items()):
+            if self.store.get_item(i).is_selected:
+                count += 1
+        self.selection_count = count
+
+    def select_all(self):
+        """Checks all items."""
+        for i in range(self.store.get_n_items()):
+            item = self.store.get_item(i)
+            item.is_selected = True
+
+    def select_none(self):
+        """Unchecks all items."""
+        for i in range(self.store.get_n_items()):
+            item = self.store.get_item(i)
+            item.is_selected = False
+
+    def get_selected_items(self):
+        """Returns list of selected VideoDataObject instances."""
+        selected = []
+        for i in range(self.store.get_n_items()):
+            item = self.store.get_item(i)
+            if item.is_selected:
+                selected.append(item)
+        return selected
+
+    def _update_button_sensitivity(self):
+        """Updates search button visibility based on query text."""
+        has_text = bool(self.entry.get_text().strip())
+        self.btn.set_sensitive(has_text)
 
     # =========================================================================
     # PUBLIC METHODS (API)
@@ -169,6 +239,11 @@ class SearchController(GObject.Object):
         """Handles clearing the list when search box is empty."""
         text = entry.get_text()
 
+        # 0. Suppress suggestions if a search is already active
+        # But allow clearing logic if text is empty
+        if self.is_loading and text.strip():
+            return
+
         # 0. Smart Source Switching
         # Force "Direct Link" if text looks like URL
         if text.strip():
@@ -190,6 +265,7 @@ class SearchController(GObject.Object):
             logger.debug("Clearing search list...")
             self.store.remove_all()
             self.current_index = -1
+            self.clicked_suggestions = False
             self.popover.update_suggestions([])
             self.popover.popdown()
 
@@ -199,7 +275,7 @@ class SearchController(GObject.Object):
             return
 
         # 2. Autocomplete Logic
-        if not self.clicked_suggestions:
+        if not self.clicked_suggestions and ConfigManager.get("enable_suggestions"):
             raw_matches = SearchHistory.get_matches(text)
 
             # Determine Source from Dropdown logic
@@ -224,7 +300,12 @@ class SearchController(GObject.Object):
 
     def on_search_activate(self, widget, url=None):
         """Triggered by Enter key or Search Button."""
-        self.popover.set_visible(False)
+        # Cancel any pending suggestion timers immediately
+        if self._debounce_timer_id:
+            GLib.source_remove(self._debounce_timer_id)
+            self._debounce_timer_id = None
+
+        self.popover.popdown()
 
         query = self.entry.get_text().strip()
         if not query:
@@ -232,8 +313,10 @@ class SearchController(GObject.Object):
 
         SearchHistory.add(query)
         logger.info(f"Search query: {query}")
+        self.clicked_suggestions = False
 
         # Lock UI
+        self.is_loading = True
         self.btn.set_sensitive(False)
         self.emit('loading-state', True, query)
 
@@ -272,6 +355,12 @@ class SearchController(GObject.Object):
         # Trigger immediate search
         self.on_search_activate(self.entry)
 
+    def _on_suggestion_removed(self, popover, text):
+        """Triggered when user clicks the small X on a suggestion."""
+        SearchHistory.remove_item(text)
+        # Refresh the current list of suggestions
+        self.on_search_changed(self.entry)
+
     def _looks_like_url(self, text: str) -> bool:
         """Simple heuristic to detect if text is/intends to be a URL."""
         if not text:
@@ -300,13 +389,19 @@ class SearchController(GObject.Object):
             if "channel" in item.get('url', ''):
                 continue
 
-            self.store.append(VideoDataObject(item))
+            video_obj = VideoDataObject(item)
+            video_obj.selection_mode = self.selection_mode
+            video_obj.connect('notify::is-selected', self._update_selection_count)
+            self.store.append(video_obj)
+
+        self.selection_count = 0
 
         self.emit('results-changed', self.store.get_n_items())  # Emit count
         self._finish_loading()
 
     def _finish_loading(self):
         """Unlocks UI."""
+        self.is_loading = False
         self.emit('loading-state', False, None)
         self.btn.set_sensitive(True)
 

@@ -338,6 +338,7 @@ class VideoDownloader:
             "--ignore-errors",
             "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
             "--concurrent-fragments", "4",
+            "--progress-template", "postprocess:[postprocess] %(progress._percent_str)s",
             "-o", f"{os.path.join(download_dir, safe_title)}.{ext}"
         ]
 
@@ -437,12 +438,16 @@ class VideoDownloader:
                 last_log_lines.append(line)
 
                 # --- Parsing Progress ---
-                if "[download]" in line and "%" in line:
+                # yt-dlp --progress-template handles both download and postprocess prefixes
+                if "%" in line:
                     match = PROGRESS_REGEX.search(line)
                     if match:
                         percent = match.group(1) + "%"
                         if progress_callback:
-                            progress_callback(percent, status_dl)
+                            if "[postprocess]" in line:
+                                progress_callback(percent, status_proc)
+                            else:
+                                progress_callback(percent, status_dl)
 
                 elif "[Merger]" in line or "[ExtractAudio]" in line:
                     if progress_callback:
