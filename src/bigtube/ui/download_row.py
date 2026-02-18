@@ -35,6 +35,7 @@ class DownloadRow(Gtk.Box):
     # Buttons
     btn_folder = Gtk.Template.Child()
     btn_play = Gtk.Template.Child()
+    btn_convert = Gtk.Template.Child()
     btn_cancel = Gtk.Template.Child()
     btn_pause = Gtk.Template.Child()
 
@@ -43,8 +44,10 @@ class DownloadRow(Gtk.Box):
 
         self.full_path = full_path
         self.uploader = uploader
+        self.uploader = uploader
         self.on_play_callback = on_play_callback
         self.on_remove_callback = on_remove_callback
+        self.on_convert_callback = None
         self.downloader_instance = None  # Holds the VideoDownloader object
         self.is_cancelled = False
         self.is_paused = False
@@ -58,6 +61,7 @@ class DownloadRow(Gtk.Box):
         # Connect Signals
         self.btn_folder.connect("clicked", self._on_open_folder_clicked)
         self.btn_play.connect("clicked", self._on_play_clicked)
+        self.btn_convert.connect("clicked", self._on_convert_clicked)
         self.btn_cancel.connect("clicked", self._on_cancel_clicked)
         self.btn_pause.connect("clicked", self._on_pause_clicked)
 
@@ -71,6 +75,9 @@ class DownloadRow(Gtk.Box):
     # =========================================================================
     # ACTIONS
     # =========================================================================
+
+    def set_convert_callback(self, callback):
+        self.on_convert_callback = callback
 
     def _on_cancel_clicked(self, btn):
         """Triggered when the user clicks 'X'."""
@@ -110,6 +117,20 @@ class DownloadRow(Gtk.Box):
 
         if self.on_play_callback:
             self.on_play_callback(self.full_path, self.lbl_title.get_label())
+
+    def _on_convert_clicked(self, btn):
+        """Triggers the convert request."""
+        if not os.path.exists(self.full_path):
+            MessageManager.show_confirmation(
+                title=Res.get(StringKey.MSG_FILE_NOT_FOUND_TITLE),
+                body=f"{Res.get(StringKey.MSG_FILE_NOT_FOUND_BODY)}\n{self.full_path}",
+                on_confirm_callback=self._cleanup_partial_files
+            )
+            return
+
+        if self.on_convert_callback:
+            self.on_convert_callback(self.full_path)
+            MessageManager.show(Res.get(StringKey.TIP_ADD_TO_CONVERTER), is_error=False)
 
     def _on_pause_clicked(self, btn):
         """
@@ -235,6 +256,7 @@ class DownloadRow(Gtk.Box):
         self.progress_bar.add_css_class("success")
 
         # Reveal 'Play' and 'Folder' buttons
+        self.btn_convert.set_tooltip_text(Res.get(StringKey.TIP_ADD_TO_CONVERTER))
         self.actions_box.set_visible(True)
 
     # =========================================================================

@@ -268,6 +268,8 @@ class StringKey(Enum):
     TIP_OPEN_FOLDER = N_("Open Folder")
     TIP_PLAY_CONVERTED = N_("Play Converted File")
     TIP_CONVERT_MEDIA = N_("Convert")
+    TIP_ADD_TO_CONVERTER = N_("Add to Converter")
+    TIP_CONVERT_ALL = N_("Convert All")
 
     LBL_ADD_METADATA = N_("Add Metadata")
     LBL_ADD_SUBTITLES = N_("Add Subtitles")

@@ -99,6 +99,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     list_converter = Gtk.Template.Child()
     drop_zone = Gtk.Template.Child()
     btn_load_files = Gtk.Template.Child()
+    btn_convert_all = Gtk.Template.Child()
 
     # Player Bar (Bottom)
     player_title = Gtk.Template.Child()
@@ -206,7 +207,8 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             status_bar=self.download_status_bar,
             lbl_dl_active=self.lbl_dl_active,
             lbl_dl_queued=self.lbl_dl_queued,
-            lbl_dl_paused=self.lbl_dl_paused
+            lbl_dl_paused=self.lbl_dl_paused,
+            on_convert_callback=self._add_to_converter
         )
         self.btn_clear.connect("clicked", self._on_clear_history_clicked)
 
@@ -265,6 +267,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             'list_converter': self.list_converter,
             'drop_zone': self.drop_zone,
             'btn_load_files': self.btn_load_files,
+            'btn_convert_all': self.btn_convert_all,
             'converter_outer': self.converter_outer
         }
         self.converter_ctrl = ConverterController(
@@ -796,6 +799,14 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             )
             return
 
+        if not os.path.exists(file_path):
+            MessageManager.show_confirmation(
+                title=Res.get(StringKey.MSG_FILE_NOT_FOUND_TITLE),
+                body=f"{Res.get(StringKey.MSG_FILE_NOT_FOUND_BODY)}\n{file_path}",
+                on_confirm_callback=lambda: self._remove_missing_file_entry(file_path)
+            )
+            return
+
         mime_type, _ = mimetypes.guess_type(file_path)
         is_audio = mime_type and mime_type.startswith('audio')
 
@@ -807,6 +818,12 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             is_video=not is_audio,
             is_local=True
         )
+
+    def _add_to_converter(self, file_path):
+        """Callback to add a file from downloads to the converter."""
+        # Optionally switch to converter tab? Users might prefer to stay in downloads.
+        self.pageview.set_visible_child(self.converter_page.get_child())
+        self.converter_ctrl.add_file(file_path)
 
     def _remove_missing_file_entry(self, file_path):
         HistoryManager.remove_entry(file_path)

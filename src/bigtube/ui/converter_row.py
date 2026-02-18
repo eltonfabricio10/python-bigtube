@@ -3,7 +3,7 @@ import threading
 import mimetypes
 import subprocess
 import shutil
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk, GLib, Gdk, GObject
 
 # Internal Imports
 from ..core.converter import MediaConverter
@@ -41,15 +41,20 @@ class ConverterRow(Gtk.Box):
     convert_actions_box = Gtk.Template.Child()
     options_box = Gtk.Template.Child()
 
-    def __init__(self, file_path, on_remove_callback=None, on_play_callback=None, initial_output_path=None):
+    def __init__(self, file_path, on_remove_callback=None, on_play_callback=None, initial_output_path=None, on_conversion_requested=None, on_conversion_finished=None):
         super().__init__()
 
         self.source_path = file_path # Keep original
         self.file_path = initial_output_path or file_path   # Points to latest result
+        self.file_path = initial_output_path or file_path   # Points to latest result
         self.on_remove_callback = on_remove_callback
         self.on_play_callback = on_play_callback
+        self.on_conversion_requested = on_conversion_requested
+        self.on_conversion_finished = on_conversion_finished
         self.is_converting = False
         self.cancel_event = threading.Event()
+
+        self._setup_drag_source()
 
         # Detect Media Type (Video vs Audio)
         mime_type, _ = mimetypes.guess_type(file_path)
@@ -85,6 +90,25 @@ class ConverterRow(Gtk.Box):
         self.btn_remove.connect("clicked", self._on_remove_clicked)
         self.btn_cancel.connect("clicked", self._on_cancel_clicked)
 
+    # =========================================================================
+    # DRAG AND DROP (Source)
+    # =========================================================================
+    def _setup_drag_source(self):
+        self.drag_source = Gtk.DragSource.new()
+        self.drag_source.set_actions(Gdk.DragAction.MOVE)
+        self.drag_source.connect("prepare", self._on_drag_prepare)
+        self.drag_source.connect("drag-begin", self._on_drag_begin)
+        self.add_controller(self.drag_source)
+
+    def _on_drag_prepare(self, source, x, y):
+        # We pass a string ID: "row::{source_path}"
+        value = GObject.Value(str, f"row::{self.source_path}")
+        return Gdk.ContentProvider.new_for_value(value)
+
+    def _on_drag_begin(self, source, drag):
+        paintable = Gtk.WidgetPaintable.new(self)
+        source.set_icon(paintable, 0, 0)
+
     def _populate_formats(self):
         model = Gtk.StringList()
         if self.is_video:
@@ -98,6 +122,10 @@ class ConverterRow(Gtk.Box):
             model.append(f)
         self.combo_format.set_model(model)
         self.combo_format.set_selected(0) # Default to first valid
+
+    def trigger_conversion(self):
+        """Programmatically triggers the conversion using current UI settings."""
+        self._on_convert_clicked(None)
 
     def _on_convert_clicked(self, btn):
         if self.is_converting:
@@ -126,6 +154,23 @@ class ConverterRow(Gtk.Box):
         add_metadata = self.chk_metadata.get_active()
         add_subtitles = self.chk_subtitles.get_active() if self.is_video else False
 
+        # If controlled externally, request start
+        if self.on_conversion_requested:
+            self.on_conversion_requested(self, target_format, add_metadata, add_subtitles)
+        else:
+            # Fallback for standalone usage (if any)
+            self.start_conversion(target_format, add_metadata, add_subtitles)
+
+    def set_status_text(self, text, is_active=False):
+        """External control for status label (e.g. 'Queued')."""
+        self.lbl_status.set_visible(True)
+        self.lbl_status.set_label(text)
+        if is_active:
+             self.progress_bar.set_visible(True)
+             self._set_converting(True)
+
+    def start_conversion(self, target_format, add_metadata, add_subtitles):
+        """Starts the actual conversion thread."""
         self._set_converting(True)
         self.cancel_event.clear()
 
@@ -207,10 +252,16 @@ class ConverterRow(Gtk.Box):
 
         MessageManager.show(Res.get(StringKey.CONV_STATUS_SUCCESS))
 
+        if self.on_conversion_finished:
+            self.on_conversion_finished(self, True)
+
     def _on_error(self, error_msg):
         self._set_converting(False)
         failed_prefix = Res.get(StringKey.MSG_CONV_FAILED_PREFIX)
         MessageManager.show(f"{failed_prefix} {error_msg}", is_error=True)
+
+        if self.on_conversion_finished:
+            self.on_conversion_finished(self, False)
 
     def _on_cancel_clicked(self, btn):
         if self.is_converting:
@@ -221,6 +272,9 @@ class ConverterRow(Gtk.Box):
         self._set_converting(False)
         self.btn_cancel.set_sensitive(True)
         MessageManager.show(Res.get(StringKey.CONV_STATUS_CANCELLED))
+
+        if self.on_conversion_finished:
+            self.on_conversion_finished(self, False)
 
     def _on_remove_clicked(self, btn):
         if self.on_remove_callback:

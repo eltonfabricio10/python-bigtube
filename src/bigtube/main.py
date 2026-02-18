@@ -5,9 +5,6 @@ import os
 import argparse
 
 # --- Environment Configuration ---
-# Force X11/Cairo backend for better compatibility on some systems
-#os.environ["GDK_BACKEND"] = "x11"
-#os.environ["GSK_RENDERER"] = "cairo"
 os.environ['GTK_IM_MODULE'] = 'gtk-im-context-simple'
 
 import gi
@@ -125,7 +122,7 @@ def run():
     """
     # Parse command line arguments
     parser = argparse.ArgumentParser(
-        description='BigTube - YouTube Video Downloader',
+        description='BigTube - Audio/Video Downloader',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
@@ -149,7 +146,7 @@ def run():
 
     # Configure logging level
     log_level = "DEBUG" if args.debug else "INFO"
-    BigTubeLogger.setup(level=log_level, console_output=True)
+    BigTubeLogger.setup(level="DEBUG", console_output=True)
 
     app = BigTubeApplication()
     GLib.set_prgname("org.big.bigtube")

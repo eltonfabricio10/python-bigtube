@@ -16,8 +16,7 @@ class SuggestionPopover(Gtk.Popover):
         'suggestion-removed': (GObject.SIGNAL_RUN_FIRST, None, (str,))
     }
 
-    _ROW_HEIGHT = 65
-    _MAX_HEIGHT = 220
+    _MAX_HEIGHT = 190
 
     def __init__(self, parent_entry):
         """
@@ -35,20 +34,21 @@ class SuggestionPopover(Gtk.Popover):
         self.set_can_focus(False)
         self.set_focusable(False)
         self.set_mnemonics_visible(False)
-        self.add_css_class("menu")
+        self.add_css_class("search-popover")
 
         # --- SCROLL CONTAINER ---
         self.scrolled = Gtk.ScrolledWindow()
         self.scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        self.scrolled.set_propagate_natural_height(False)
+        self.scrolled.set_propagate_natural_height(True)
         self.scrolled.set_propagate_natural_width(True)
+        self.scrolled.set_max_content_height(self._MAX_HEIGHT)
 
         # --- LIST ---
         self.list_box = Gtk.ListBox()
         self.list_box.set_selection_mode(Gtk.SelectionMode.SINGLE)
         self.list_box.set_can_focus(False)
         self.list_box.set_focusable(False)
-        self.list_box.add_css_class("navigation-sidebar")
+        self.list_box.add_css_class("suggestion-list")
 
         self.list_box.connect("row-activated", self._on_row_clicked)
         self.scrolled.set_child(self.list_box)
@@ -84,7 +84,7 @@ class SuggestionPopover(Gtk.Popover):
             row.set_focusable(False)
 
             # Layout for the row
-            box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+            box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
             # Icon (History symbol)
             icon = Gtk.Image.new_from_icon_name("document-open-recent-symbolic")
@@ -126,22 +126,17 @@ class SuggestionPopover(Gtk.Popover):
 
     def update_popover(self):
         # 4. Width Calculation
-        count = len(self.suggestions)
-        target_height = count * self._ROW_HEIGHT
-        final_height = min(target_height, self._MAX_HEIGHT)
-
         entry_width = self.parent_entry.get_allocated_width()
         if entry_width < 50:
             entry_width = 300
 
-        logger.debug(f"Popover size: {count} items, height={final_height}")
+        self.set_size_request(entry_width, -1)
 
-        self.set_size_request(entry_width, final_height)
-
-        if target_height > self._MAX_HEIGHT:
-            self.scrolled.set_min_content_height(self._MAX_HEIGHT)
+        # strict check: if list is small, don't even allow AUTOMATIC policy
+        if len(self.suggestions) < 6:
+            self.scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.NEVER)
         else:
-            self.scrolled.set_min_content_height(final_height)
+            self.scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
         # 5. Show
         self.popup()

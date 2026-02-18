@@ -17,6 +17,7 @@ class DownloadController:
         groups_box: Gtk.Box,
         on_play_callback,
         on_remove_callback=None,
+        on_convert_callback=None,
         status_bar: Gtk.Box = None,
         lbl_dl_active: Gtk.Label = None,
         lbl_dl_queued: Gtk.Label = None,
@@ -35,6 +36,7 @@ class DownloadController:
         self.groups_box = groups_box
         self.on_play_callback = on_play_callback
         self.on_remove_callback = on_remove_callback
+        self.on_convert_callback = on_convert_callback
 
         # Status bar widgets
         self.status_bar = status_bar
@@ -127,6 +129,8 @@ class DownloadController:
             on_remove_callback=self.on_remove_callback,
             uploader=uploader
         )
+        if self.on_convert_callback:
+            row.set_convert_callback(self.on_convert_callback)
 
         listbox = self._get_or_create_section(uploader)
         listbox.prepend(row)

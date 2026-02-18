@@ -313,7 +313,8 @@
     /* Snow Storm - refined */
     --window-bg-color: #eceff4;
     --window-fg-color: #2e3440;
-    --view-bg-color: #e5e9f0;  /* Slightly darker than window for separation */
+    --view-bg-color: #e5e9f0;
+    /* Slightly darker than window for separation */
     --view-fg-color: #2e3440;
     --headerbar-bg-color: #eceff4;
     --headerbar-fg-color: #2e3440;
@@ -342,7 +343,8 @@
     --card-bg-color: #fbf1c7;
     --card-fg-color: #3c3836;
 
-    --bigtube-accent: #b57614; /* Darker orange for better text contrast */
+    --bigtube-accent: #b57614;
+    /* Darker orange for better text contrast */
     --bigtube-accent-hover: #d65d0e;
     --bigtube-success: #79740e;
     --bigtube-warning: #d79921;
@@ -352,21 +354,30 @@
 /* 3. CATPPUCCIN LATTE (Light) */
 .light.accent-catppuccin {
     /* Official Late Palette */
-    --window-bg-color: #eff1f5;  /* Base */
-    --window-fg-color: #4c4f69;  /* Text */
-    --view-bg-color: #e6e9ef;    /* Mantle */
+    --window-bg-color: #eff1f5;
+    /* Base */
+    --window-fg-color: #4c4f69;
+    /* Text */
+    --view-bg-color: #e6e9ef;
+    /* Mantle */
     --view-fg-color: #4c4f69;
     --headerbar-bg-color: #eff1f5;
     --headerbar-fg-color: #4c4f69;
     --popover-bg-color: #e6e9ef;
-    --card-bg-color: #ffffff;    /* Crust/White for cards */
+    --card-bg-color: #ffffff;
+    /* Crust/White for cards */
     --card-fg-color: #4c4f69;
 
-    --bigtube-accent: #8839ef;   /* Mauve */
-    --bigtube-accent-hover: #7287fd; /* Lavender */
-    --bigtube-success: #40a02b;  /* Green */
-    --bigtube-warning: #df8e1d;  /* Yellow */
-    --bigtube-error: #d20f39;    /* Red */
+    --bigtube-accent: #8839ef;
+    /* Mauve */
+    --bigtube-accent-hover: #7287fd;
+    /* Lavender */
+    --bigtube-success: #40a02b;
+    /* Green */
+    --bigtube-warning: #df8e1d;
+    /* Yellow */
+    --bigtube-error: #d20f39;
+    /* Red */
 }
 
 /* 4. DRACULA LIGHT (Pro / Adaptation) */
@@ -381,9 +392,11 @@
     --card-bg-color: #ffffff;
     --card-fg-color: #282a36;
 
-    --bigtube-accent: #6272a4;   /* Comment Purple - solid for light mode */
+    --bigtube-accent: #6272a4;
+    /* Comment Purple - solid for light mode */
     --bigtube-accent-hover: #bd93f9;
-    --bigtube-success: #50fa7b;  /* Might need darkening for light mode text */
+    --bigtube-success: #50fa7b;
+    /* Might need darkening for light mode text */
     --bigtube-warning: #ffb86c;
     --bigtube-error: #ff5555;
 
@@ -422,11 +435,16 @@
     --card-bg-color: #ffffff;
     --card-fg-color: #575279;
 
-    --bigtube-accent: #d7827e;   /* Rose */
-    --bigtube-accent-hover: #907aa9; /* Iris */
-    --bigtube-success: #286983;  /* Pine */
-    --bigtube-warning: #ea9d34;  /* Gold */
-    --bigtube-error: #b4637a;    /* Love */
+    --bigtube-accent: #d7827e;
+    /* Rose */
+    --bigtube-accent-hover: #907aa9;
+    /* Iris */
+    --bigtube-success: #286983;
+    /* Pine */
+    --bigtube-warning: #ea9d34;
+    /* Gold */
+    --bigtube-error: #b4637a;
+    /* Love */
 }
 
 /* 7. SOLARIZED LIGHT */
@@ -455,15 +473,18 @@
     --view-bg-color: #f2f2f2;
     --view-fg-color: #272822;
     --headerbar-bg-color: #ffffff;
-    --headerbar-fg-color: #272822; /* Dark text for readability */
+    --headerbar-fg-color: #272822;
+    /* Dark text for readability */
     --popover-bg-color: #ffffff;
     --card-bg-color: #ffffff;
     --card-fg-color: #272822;
 
-    --bigtube-accent: #e6db74; /* Yellow - tough on light, using darker shade or pink */
+    --bigtube-accent: #e6db74;
+    /* Yellow - tough on light, using darker shade or pink */
     /* Switching accent to Monokai Pink for better light mode visibility */
     --bigtube-accent: #f92672;
-    --bigtube-accent-hover: #fd971f; /* Orange */
+    --bigtube-accent-hover: #fd971f;
+    /* Orange */
     --bigtube-success: #a6e22e;
     --bigtube-warning: #fd971f;
     --bigtube-error: #f92672;
@@ -475,14 +496,18 @@
     --window-fg-color: #0d0016;
     --view-bg-color: #f2f2f2;
     --view-fg-color: #0d0016;
-    --headerbar-bg-color: #1a1a1a; /* Dark Header for Cyberpunk feel */
-    --headerbar-fg-color: #00ff9d; /* Neon text on dark header */
+    --headerbar-bg-color: #1a1a1a;
+    /* Dark Header for Cyberpunk feel */
+    --headerbar-fg-color: #00ff9d;
+    /* Neon text on dark header */
     --popover-bg-color: #ffffff;
     --card-bg-color: #ffffff;
     --card-fg-color: #0d0016;
 
-    --bigtube-accent: #ff0099;   /* Hot Pink */
-    --bigtube-accent-hover: #00ff9d; /* Neon Green */
+    --bigtube-accent: #ff0099;
+    /* Hot Pink */
+    --bigtube-accent-hover: #00ff9d;
+    /* Neon Green */
     --bigtube-success: #00bf76;
     --bigtube-warning: #ff8800;
     --bigtube-error: #ff0055;
@@ -493,20 +518,29 @@
 /* 10. BIGTUBE BRAND (Light - Premium) */
 .light.accent-bigtube {
     --window-bg-color: #ffffff;
-    --window-fg-color: #1a1a2e; /* Deep Navy, softer than black */
-    --view-bg-color: #fcfcfd;   /* Almost white, very subtle cool gray */
+    --window-fg-color: #1a1a2e;
+    /* Deep Navy, softer than black */
+    --view-bg-color: #fcfcfd;
+    /* Almost white, very subtle cool gray */
     --view-fg-color: #1a1a2e;
     --headerbar-bg-color: #ffffff;
-    --headerbar-fg-color: #5c2d91; /* Deep Purple for title */
+    --headerbar-fg-color: #5c2d91;
+    /* Deep Purple for title */
     --popover-bg-color: #ffffff;
-    --card-bg-color: #f4f6f9;   /* Light cool gray for cards */
+    --card-bg-color: #f4f6f9;
+    /* Light cool gray for cards */
     --card-fg-color: #1a1a2e;
 
-    --bigtube-accent: #8C4CA3;  /* Orchid Purple */
-    --bigtube-accent-hover: #B86FCC; /* Lighter orchid */
-    --bigtube-success: #2A83C8; /* Cerulean */
-    --bigtube-warning: #FF9663; /* Coral */
-    --bigtube-error: #cf2e2e;   /* Red (Standard) */
+    --bigtube-accent: #8C4CA3;
+    /* Orchid Purple */
+    --bigtube-accent-hover: #B86FCC;
+    /* Lighter orchid */
+    --bigtube-success: #2A83C8;
+    /* Cerulean */
+    --bigtube-warning: #FF9663;
+    /* Coral */
+    --bigtube-error: #cf2e2e;
+    /* Red (Standard) */
 }
 
 /* APPLY GLOBAL VARIABLES WHEN THEME CLASSES ARE PRESENT ON WINDOW */
@@ -771,7 +805,8 @@ listbox>row:selected {
     background-repeat: no-repeat;
     background-position: center 40px;
     background-size: 64px;
-    padding-top: 100px; /* Space for the icon */
+    padding-top: 100px;
+    /* Space for the icon */
 }
 
 #drop_zone:drop(active) {
@@ -890,4 +925,30 @@ entry:focus-within {
 
 .drop-zone:hover .icon {
     opacity: 0.7;
+}
+
+/* -----------------------------------------------------------------------------
+   Search Suggestions
+   ----------------------------------------------------------------------------- */
+.suggestion-list row {
+    min-height: 32px;
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.suggestion-list row:selected {
+    border-radius: 8px;
+    background-color: alpha(var(--bigtube-accent), 0.15);
+}
+
+/* Force remove internal spacing from the suggestion popover's scrolled window */
+.search-popover>contents {
+    padding: 2px;
+}
+
+.suggestion-list {
+    padding: 0px;
+    margin: 0px;
+    background-color: transparent;
+    border-radius: 8px;
 }
