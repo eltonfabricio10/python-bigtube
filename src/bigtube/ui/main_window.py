@@ -406,7 +406,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             modal=True,
             application_name="BigTube",
             developer_name="Elton Fabricio a.k.a eltonff",
-            version="2.0.0",
+            version="1.0.0",
             license_type=Gtk.License.MIT_X11,
             copyright=Res.get(StringKey.LBL_COPYRIGHT),
             website="https://github.com/eltonfabricio10/python-bigtube",
