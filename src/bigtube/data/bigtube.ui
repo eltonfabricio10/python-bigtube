@@ -22,23 +22,7 @@
                 <property name="orientation">vertical</property>
                 <property name="vexpand">False</property>
                 <child>
-                  <object class="AdwHeaderBar" id="main_bar">
-                    <child>
-                      <object class="GtkImage" id="main_icon">
-                        <property name="icon-name">bigtube</property>
-                        <property name="margin-start">6</property>
-                        <property name="pixel-size">24</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuButton" id="btn_menu">
-                        <property name="direction">none</property>
-                        <property name="has-frame">False</property>
-                        <property name="icon-name">open-menu-symbolic</property>
-                        <property name="menu-model">primary_menu</property>
-                      </object>
-                    </child>
-                  </object>
+                  <object class="AdwHeaderBar" id="main_bar"/>
                 </child>
                 <child>
                   <object class="AdwNavigationSplitView" id="view">
@@ -278,10 +262,10 @@
                                         <property name="title"/>
                                         <child>
                                           <object class="GtkBox">
-                                            <property name="spacing">6</property>
-                                            <property name="margin-end">12</property>
-                                            <property name="valign">center</property>
                                             <property name="halign">end</property>
+                                            <property name="margin-end">12</property>
+                                            <property name="spacing">6</property>
+                                            <property name="valign">center</property>
                                             <child>
                                               <object class="GtkButton" id="btn_convert_all">
                                                 <property name="has-frame">False</property>
@@ -762,18 +746,4 @@
       </object>
     </child>
   </template>
-  <menu id="primary_menu">
-    <item>
-      <attribute name="action">win.help</attribute>
-      <attribute name="label"/>
-    </item>
-    <item>
-      <attribute name="action">win.about</attribute>
-      <attribute name="label"/>
-    </item>
-    <item>
-      <attribute name="action">app.quit</attribute>
-      <attribute name="label"/>
-    </item>
-  </menu>
 </interface>

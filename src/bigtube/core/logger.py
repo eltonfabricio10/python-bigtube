@@ -56,7 +56,7 @@ class BigTubeLogger:
 
         # Get root logger for the application
         root_logger = logging.getLogger("bigtube")
-        root_logger.setLevel(cls.LEVELS.get(level.upper(), logging.INFO))
+        root_logger.setLevel(logging.DEBUG)
 
         # Formatter
         formatter = logging.Formatter(cls._FORMAT, datefmt=cls._DATE_FORMAT)

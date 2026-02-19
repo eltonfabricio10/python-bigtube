@@ -53,7 +53,6 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     main_overlay = Gtk.Template.Child()
     main_box = Gtk.Template.Child()
     main_bar = Gtk.Template.Child()
-    btn_menu = Gtk.Template.Child()
     pageview = Gtk.Template.Child()
 
     # Pages
@@ -199,6 +198,21 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self.btn_download_selected.connect('clicked', self._on_batch_download_clicked)
         self.search_ctrl.connect('notify::selection-count', self._on_selection_count_changed)
 
+        # 4.5 Converter Controller
+        converter_widgets = {
+            'view_stack': self.converter_view_stack,
+            'list_converter': self.list_converter,
+            'drop_zone': self.drop_zone,
+            'btn_load_files': self.btn_load_files,
+            'btn_convert_all': self.btn_convert_all,
+            'converter_outer': self.converter_outer
+        }
+        self.converter_ctrl = ConverterController(
+            self.converter_outer,
+            converter_widgets,
+            on_play_callback=self.play_local_file
+        )
+
         # 5. Download Controller
         self.download_ctrl = DownloadController(
             groups_box=self.downloads_groups_box,
@@ -261,20 +275,6 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             text_widgets=settings_widgets
         )
 
-        # 6.5 Converter Controller
-        converter_widgets = {
-            'view_stack': self.converter_view_stack,
-            'list_converter': self.list_converter,
-            'drop_zone': self.drop_zone,
-            'btn_load_files': self.btn_load_files,
-            'btn_convert_all': self.btn_convert_all,
-            'converter_outer': self.converter_outer
-        }
-        self.converter_ctrl = ConverterController(
-            self.converter_outer,
-            converter_widgets,
-            on_play_callback=self.play_local_file
-        )
 
         # 7. Global Inputs
         key_controller = Gtk.EventControllerKey()
@@ -381,7 +381,12 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         menu.append(Res.get(StringKey.MENU_HELP), "win.help")
         menu.append(Res.get(StringKey.MENU_ABOUT), "win.about")
         menu.append(Res.get(StringKey.MENU_QUIT), "app.quit")
-        self.btn_menu.set_menu_model(menu)
+
+        menu_button = Gtk.MenuButton()
+        menu_button.set_icon_name("open-menu-symbolic")
+        menu_button.set_menu_model(menu)
+        menu_button.add_css_class("flat")
+        self.main_bar.pack_end(menu_button)
 
     def _on_help_action(self, action, param):
         """Shows a basic help message."""

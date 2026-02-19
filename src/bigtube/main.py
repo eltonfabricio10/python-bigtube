@@ -18,7 +18,6 @@ from .core.image_loader import ImageLoader
 from .core.logger import get_logger, BigTubeLogger
 
 # Initialize logging system
-BigTubeLogger.setup(level="INFO", console_output=True)
 logger = get_logger(__name__)
 
 
@@ -30,7 +29,7 @@ class BigTubeApplication(Adw.Application):
     def __init__(self, **kwargs):
         super().__init__(
             application_id='org.big.bigtube',
-            flags=Gio.ApplicationFlags.FLAGS_NONE,
+            flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE,
             **kwargs
         )
         self.connect('activate', self.on_activate)
@@ -40,6 +39,13 @@ class BigTubeApplication(Adw.Application):
         quit_action = Gio.SimpleAction.new("quit", None)
         quit_action.connect("activate", lambda a, p: self.on_app_quit(None))
         self.add_action(quit_action)
+
+    def do_command_line(self, command_line):
+        """
+        Handles command line arguments.
+        """
+        self.activate()
+        return 0
 
     def on_startup(self, app):
         """
@@ -72,6 +78,7 @@ class BigTubeApplication(Adw.Application):
         if not win:
             win = BigTubeMainWindow(application=app)
             # Connect the close request to handle cleanup
+            win.set_default_icon_name("bigtube")
             win.connect("close-request", self.on_app_quit)
 
         win.present()
@@ -144,15 +151,22 @@ def run():
         print(f"BigTube - yt-dlp version: {version}")
         sys.exit(0)
 
-    # Configure logging level
-    log_level = "DEBUG" if args.debug else "INFO"
-    BigTubeLogger.setup(level="DEBUG", console_output=True)
+    if args.debug:
+        import logging
+        bt_logger = logging.getLogger("bigtube")
+        bt_logger.setLevel(logging.DEBUG)
+        bt_logger.addHandler(logging.StreamHandler())
+    else:
+        import logging
+        bt_logger = logging.getLogger("bigtube")
+        bt_logger.setLevel(logging.INFO)
+        bt_logger.addHandler(logging.StreamHandler())
 
     app = BigTubeApplication()
     GLib.set_prgname("org.big.bigtube")
 
     # Run the application loop
-    sys.exit(app.run(sys.argv))
+    sys.exit(app.run(sys.argv[0]))
 
 
 if __name__ == '__main__':

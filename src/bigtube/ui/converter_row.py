@@ -41,12 +41,19 @@ class ConverterRow(Gtk.Box):
     convert_actions_box = Gtk.Template.Child()
     options_box = Gtk.Template.Child()
 
-    def __init__(self, file_path, on_remove_callback=None, on_play_callback=None, initial_output_path=None, on_conversion_requested=None, on_conversion_finished=None):
+    def __init__(
+        self,
+        file_path,
+        on_remove_callback=None,
+        on_play_callback=None,
+        initial_output_path=None,
+        on_conversion_requested=None,
+        on_conversion_finished=None
+    ):
         super().__init__()
 
-        self.source_path = file_path # Keep original
-        self.file_path = initial_output_path or file_path   # Points to latest result
-        self.file_path = initial_output_path or file_path   # Points to latest result
+        self.source_path = file_path
+        self.file_path = initial_output_path or file_path
         self.on_remove_callback = on_remove_callback
         self.on_play_callback = on_play_callback
         self.on_conversion_requested = on_conversion_requested
@@ -62,7 +69,7 @@ class ConverterRow(Gtk.Box):
 
         # Initial UI Setup
         self.lbl_filename.set_label(os.path.basename(file_path))
-        self.lbl_path.set_label(self.file_path) # Show current result or source
+        self.lbl_path.set_label(self.file_path)
         self.chk_subtitles.set_visible(self.is_video)
 
         # Visibility from history
@@ -121,7 +128,7 @@ class ConverterRow(Gtk.Box):
         for f in formats:
             model.append(f)
         self.combo_format.set_model(model)
-        self.combo_format.set_selected(0) # Default to first valid
+        self.combo_format.set_selected(0)
 
     def trigger_conversion(self):
         """Programmatically triggers the conversion using current UI settings."""
@@ -161,13 +168,18 @@ class ConverterRow(Gtk.Box):
             # Fallback for standalone usage (if any)
             self.start_conversion(target_format, add_metadata, add_subtitles)
 
-    def set_status_text(self, text, is_active=False):
+    def set_status_text(self, text, is_active=False, is_queued=False):
         """External control for status label (e.g. 'Queued')."""
         self.lbl_status.set_visible(True)
         self.lbl_status.set_label(text)
+
         if is_active:
              self.progress_bar.set_visible(True)
              self._set_converting(True)
+        elif is_queued:
+             self.btn_convert.set_sensitive(False)
+             self.combo_format.set_sensitive(False)
+             self.btn_remove.set_sensitive(True)
 
     def start_conversion(self, target_format, add_metadata, add_subtitles):
         """Starts the actual conversion thread."""
@@ -223,12 +235,19 @@ class ConverterRow(Gtk.Box):
 
     def _set_converting(self, converting):
         self.is_converting = converting
+
         self.btn_convert.set_visible(not converting)
         self.btn_cancel.set_visible(converting)
+
+        if not converting:
+            self.btn_convert.set_sensitive(True)
+            self.combo_format.set_sensitive(True)
+
         self.btn_remove.set_sensitive(not converting)
         self.combo_format.set_sensitive(not converting)
         self.progress_bar.set_visible(converting)
         self.lbl_status.set_visible(converting)
+
         if converting:
             self.progress_bar.set_fraction(0.0)
             self.lbl_status.set_label("0%")
