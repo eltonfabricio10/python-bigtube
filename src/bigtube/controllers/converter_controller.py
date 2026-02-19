@@ -37,7 +37,6 @@ class ConverterController:
         self._connect_signals()
 
         # Load history if enabled
-        # Load history if enabled
         if ConfigManager.get("save_converter_history"):
             self._load_history()
 
