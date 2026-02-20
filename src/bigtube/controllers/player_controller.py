@@ -96,6 +96,7 @@ class PlayerController:
         self.video_window.connect('video-ended', self.on_video_ended)
         self.video_window.connect('video-ready', self.on_video_ready)
         self.video_window.connect('window-hidden', self.on_window_hidden)
+        self.video_window.connect('window-shown', self.on_window_shown)
 
     # =========================================================================
     # PUBLIC API
@@ -254,6 +255,9 @@ class PlayerController:
 
     def on_window_hidden(self, win):
         self.ui['btn_video'].set_icon_name("video-display-symbolic")
+
+    def on_window_shown(self, win):
+        self.ui['btn_video'].set_icon_name("view-conceal-symbolic")
 
     # =========================================================================
     # UI HANDLERS
