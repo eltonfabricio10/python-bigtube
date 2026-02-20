@@ -1114,20 +1114,26 @@ class TextAnimator:
         self.timer_id = None
         self.dots_count = 0
 
+    def _get_display_text(self):
+        """Truncates base_text if over 30 chars."""
+        if len(self.base_text) > 40:
+            return self.base_text[:40]
+        return self.base_text
+
     def start(self):
         if self.timer_id is None:
             self.dots_count = 0
-            self.label.set_label(self.base_text)
+            self.label.set_label(self._get_display_text())
             self.timer_id = GLib.timeout_add(self.interval, self._animate_step)
 
     def stop(self):
         if self.timer_id is not None:
             GLib.source_remove(self.timer_id)
             self.timer_id = None
-            self.label.set_label(self.base_text)
+            self.label.set_label(self._get_display_text())
 
     def _animate_step(self):
         self.dots_count = (self.dots_count + 1) % 4
-        text = f"{self.base_text}{'.' * self.dots_count}"
+        text = f"{self._get_display_text()}{'.' * self.dots_count}"
         self.label.set_label(text)
         return True
