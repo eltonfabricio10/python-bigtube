@@ -952,3 +952,27 @@ entry:focus-within {
     background-color: transparent;
     border-radius: 8px;
 }
+
+/* -----------------------------------------------------------------------------
+   Integrated Video Player Styling
+   ----------------------------------------------------------------------------- */
+#main_overlay,
+#main_box,
+#content_overlay,
+#video_revealer,
+#video_container_box,
+#video_player_placeholder,
+.video-placeholder {
+    background-color: #000;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+#main_box {
+    background-color: #000;
+}
+
+#video_container_box {
+    box-shadow: none;
+}

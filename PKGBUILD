@@ -17,6 +17,11 @@ depends=(
     'yt-dlp'
     'python-requests'
     'python-mpv'
+    'gst-plugins-base'
+    'gst-plugins-good'
+    'gst-plugins-bad'
+    'gst-plugins-ugly'
+    'gst-libav'
 )
 
 makedepends=(
@@ -44,8 +49,8 @@ build() {
 package() {
     cd "${srcdir}/${pkgname}"
     python -m installer --destdir="${pkgdir}" dist/*.whl
-    install -Dm644 "src/bigtube/data/bigtube.png" "${pkgdir}/usr/share/pixmaps/${_pkgname}.png"
-    install -Dm644 "src/bigtube/data/${_pkgname}.desktop" "${pkgdir}/usr/share/applications/${_pkgname}.desktop"
+    install -Dm644 "src/bigtube/data/bigtube.png" "${pkgdir}/usr/share/icons/hicolor/256x256/apps/bigtube.png"
+    install -Dm644 "src/bigtube/data/${_pkgname}.desktop" "${pkgdir}/usr/share/applications/org.big.bigtube.desktop"
     install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
     install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

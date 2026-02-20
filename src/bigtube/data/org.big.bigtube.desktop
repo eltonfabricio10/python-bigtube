@@ -8,3 +8,4 @@ Terminal=false
 Categories=Video;AudioVideo;
 DBusActivatable=true
 StartupNotify=true
+StartupWMClass=org.big.bigtube

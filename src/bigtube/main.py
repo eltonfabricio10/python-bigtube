@@ -10,12 +10,16 @@ os.environ['GTK_IM_MODULE'] = 'gtk-im-context-simple'
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw, Gio, GLib, Gdk
+gi.require_version('Gst', '1.0')
+from gi.repository import Gtk, Adw, Gio, GLib, Gdk, Gst
+
+# Initialize GStreamer early
+Gst.init(None)
 
 # Internal Imports
 from .ui.main_window import BigTubeMainWindow
 from .core.image_loader import ImageLoader
-from .core.logger import get_logger, BigTubeLogger
+from .core.logger import get_logger
 
 # Initialize logging system
 logger = get_logger(__name__)

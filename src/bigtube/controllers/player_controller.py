@@ -269,11 +269,11 @@ class PlayerController:
         self.video_window.set_volume(value)
 
     def on_toggle_video_window(self, btn):
+        # We check both window visibility and common sense (is url loaded?)
         if self.video_window.is_visible():
             self.video_window.on_close_request(self.video_window)
         else:
             self.video_window.show_video()
-            btn.set_icon_name("view-reveal-symbolic")
 
     # =========================================================================
     # STATIC HELPERS (Stream Extraction)

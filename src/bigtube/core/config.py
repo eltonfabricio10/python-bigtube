@@ -130,6 +130,7 @@ class ConfigManager:
         """
         Updates a setting and saves immediately.
         Handles Enum conversion automatically.
+        Only saves if the value has actually changed.
         """
         if not cls._data:
             cls.load()
@@ -137,6 +138,10 @@ class ConfigManager:
         # If an Enum object is passed, store its string value
         if hasattr(value, 'value'):
             value = value.value
+
+        # Optimization: Only save if the value is different
+        if cls._data.get(key) == value:
+            return
 
         cls._data[key] = value
         cls.save()

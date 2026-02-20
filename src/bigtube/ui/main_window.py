@@ -51,6 +51,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     # Navigation & Overlay
     toast_overlay = Gtk.Template.Child()
     main_overlay = Gtk.Template.Child()
+    content_overlay = Gtk.Template.Child()
     main_box = Gtk.Template.Child()
     main_bar = Gtk.Template.Child()
     pageview = Gtk.Template.Child()
@@ -112,6 +113,9 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     player_next_button = Gtk.Template.Child()
     player_video_toggle_button = Gtk.Template.Child()
     player_volume = Gtk.Template.Child()
+    video_revealer = Gtk.Template.Child()
+    video_container_box = Gtk.Template.Child()
+    video_player_placeholder = Gtk.Template.Child()
 
     # Settings Page
     group_appearance = Gtk.Template.Child()
@@ -176,6 +180,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self.video_window.set_transient_for(self)
 
         # 3. Player Controller
+        self._setup_integrated_player()
         self._init_player_controller()
 
         # 4. Search Controller
@@ -274,7 +279,6 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             window_parent=self,
             text_widgets=settings_widgets
         )
-
 
         # 7. Global Inputs
         key_controller = Gtk.EventControllerKey()
@@ -555,6 +559,10 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             on_prev_callback=self.request_prev_video
         )
 
+        # Connect additional signals for integrated player
+        self.video_window.connect("window-hidden", lambda w: self.video_revealer.set_reveal_child(False))
+        self.video_window.connect("window-shown", lambda w: self.video_revealer.set_reveal_child(True))
+
     # =========================================================================
     # STARTUP CHECKS
     # =========================================================================
@@ -780,6 +788,13 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     # =========================================================================
     # NAVIGATION & PLAYBACK
     # =========================================================================
+
+
+    def _setup_integrated_player(self):
+        """Moves the MPV widget from the separate window to the overlay if possible."""
+        widget = self.video_window.main_stack
+        self.video_window.set_content(None)
+        self.video_player_placeholder.set_child(widget)
 
     def play_video_from_search(self, video_obj):
         self.search_ctrl.set_current_by_item(video_obj)
@@ -1084,7 +1099,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
         # If video window is open but somehow main window has focus
         if self.video_window.is_visible():
-            self.video_window.mpv_widget.handle_keypress(keyval)
+            self.video_window.handle_keypress(keyval)
             # We don't return True here necessarily, to allow other handlers
 
         return False
