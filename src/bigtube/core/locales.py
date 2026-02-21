@@ -8,9 +8,16 @@ from pathlib import Path
 # --- CONFIGURATION ---
 
 # 1. Define locale directory path
-# (Go up 4 levels from src/bigtube/core to reach root project folder)
+# Priority: System path (/usr/share/locale) -> Local path (for development)
+SYSTEM_LOCALE_DIR = Path("/usr/share/locale")
 BASE_DIR = Path(__file__).parent.parent.parent.parent
-LOCALE_DIR = BASE_DIR / "locales"
+LOCAL_LOCALE_DIR = BASE_DIR / "locales"
+
+if SYSTEM_LOCALE_DIR.exists():
+    LOCALE_DIR = SYSTEM_LOCALE_DIR
+else:
+    LOCALE_DIR = LOCAL_LOCALE_DIR
+
 APP_DOMAIN = "bigtube"
 
 
