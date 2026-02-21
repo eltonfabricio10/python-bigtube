@@ -1,0 +1,668 @@
+# Traducción de BigTube al Español.
+msgid ""
+msgstr ""
+"Project-Id-Version: BigTube 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-20 20:59-0300\n"
+"PO-Revision-Date: 2026-02-20 21:00-0300\n"
+"Last-Translator: Traductor Técnico\n"
+"Language-Team: Spanish\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "BigTube"
+msgstr "BigTube"
+
+msgid "Search"
+msgstr "Buscar"
+
+msgid "Downloads"
+msgstr "Descargas"
+
+msgid "Converter"
+msgstr "Convertidor"
+
+msgid "Settings"
+msgstr "Ajustes"
+
+msgid "Search Manager"
+msgstr "Gestor de Búsqueda"
+
+msgid "Downloads Manager"
+msgstr "Gestor de Descargas"
+
+msgid "Settings Manager"
+msgstr "Gestor de Ajustes"
+
+msgid "Converter Manager"
+msgstr "Gestor del Convertidor"
+
+msgid "YouTube"
+msgstr "YouTube"
+
+msgid "SoundCloud"
+msgstr "SoundCloud"
+
+msgid "Direct Link"
+msgstr "Enlace Directo"
+
+msgid "Unknown Title"
+msgstr "Título Desconocido"
+
+msgid "Unknown Artist"
+msgstr "Artista Desconocido"
+
+msgid "Paste URL or type keywords..."
+msgstr "Pegue la URL o escriba palabras clave..."
+
+msgid "No results found!"
+msgstr "¡No se encontraron resultados!"
+
+msgid "Searching for:"
+msgstr "Buscando:"
+
+msgid "No Results"
+msgstr "Sin Resultados"
+
+msgid "Search for videos or paste a URL"
+msgstr "Busque vídeos o pegue una URL"
+
+msgid "No Downloads"
+msgstr "Sin Descargas"
+
+msgid "Your downloads will appear here"
+msgstr "Sus descargas aparecerán aquí"
+
+msgid "Play Video"
+msgstr "Reproducir Vídeo"
+
+msgid "Download"
+msgstr "Descargar"
+
+msgid "Copy Link"
+msgstr "Copiar Enlace"
+
+msgid "Link Copied!"
+msgstr "¡Enlace Copiado!"
+
+msgid "Select Quality"
+msgstr "Seleccionar Calidad"
+
+msgid "Video Formats"
+msgstr "Formatos de Vídeo"
+
+msgid "Duration:"
+msgstr "Duración:"
+
+msgid "Audio Only"
+msgstr "Solo Audio"
+
+msgid "Clear History"
+msgstr "Borrar Historial"
+
+msgid "Clear History?"
+msgstr "¿Borrar Historial?"
+
+msgid ""
+"This will remove all entries from the list.\n"
+"Files will remain on disk."
+msgstr ""
+"Esto eliminará todas las entradas de la lista.\n"
+"Los archivos permanecerán en el disco."
+
+msgid "History cleared successfully!"
+msgstr "¡Historial borrado con éxito!"
+
+msgid "Failed to get info for"
+msgstr "Error al obtener información para"
+
+msgid "Download Folder"
+msgstr "Carpeta de Descargas"
+
+msgid "Pick Folder"
+msgstr "Elegir Carpeta"
+
+msgid "Current Version"
+msgstr "Versión Actual"
+
+msgid "Check for Updates"
+msgstr "Buscar Actualizaciones"
+
+msgid "Appearance"
+msgstr "Apariencia"
+
+msgid "Interface Theme"
+msgstr "Tema de la Interfaz"
+
+msgid "Color Scheme"
+msgstr "Esquema de Colores"
+
+msgid "Preferred Quality"
+msgstr "Calidad Preferida"
+
+msgid "Add Metadata to Files"
+msgstr "Añadir Metadatos a los Archivos"
+
+msgid "Enable ClipBoard Monitor"
+msgstr "Activar Monitor del Portapapeles"
+
+msgid "Embed Subtitles"
+msgstr "Incrustar Subtítulos"
+
+msgid "Storage"
+msgstr "Almacenamiento"
+
+msgid "Save Download History"
+msgstr "Guardar Historial de Descargas"
+
+msgid "Clear All Data on Exit"
+msgstr "Borrar Todos los Datos al Salir"
+
+msgid "Media Converter"
+msgstr "Convertidor Multimedia"
+
+msgid "Default Output Folder"
+msgstr "Carpeta de Salida Predeterminada"
+
+msgid "Save Conversion History"
+msgstr "Guardar Historial de Conversión"
+
+msgid "Save in Source Directory"
+msgstr "Guardar en el Directorio de Origen"
+
+msgid "System"
+msgstr "Sistema"
+
+msgid "Light"
+msgstr "Claro"
+
+msgid "Dark"
+msgstr "Oscuro"
+
+msgid "Ask Every Time"
+msgstr "Preguntar Siempre"
+
+msgid "Best (MKV)"
+msgstr "Mejor (MKV)"
+
+msgid "4K (2160p)"
+msgstr "4K (2160p)"
+
+msgid "2K (1440p)"
+msgstr "2K (1440p)"
+
+msgid "Full HD (1080p)"
+msgstr "Full HD (1080p)"
+
+msgid "HD (720p)"
+msgstr "HD (720p)"
+
+msgid "SD (480p)"
+msgstr "SD (480p)"
+
+msgid "Low Definition (360p)"
+msgstr "Baja Definición (360p)"
+
+msgid "Very Low (240p)"
+msgstr "Muy Baja (240p)"
+
+msgid "Lowest (144p)"
+msgstr "La Más Baja (144p)"
+
+msgid "Audio (MP3)"
+msgstr "Audio (MP3)"
+
+msgid "Audio (M4A)"
+msgstr "Audio (M4A)"
+
+msgid "Default Blue"
+msgstr "Azul Predeterminado"
+
+msgid "Modern Violet"
+msgstr "Violeta Moderno"
+
+msgid "Emerald Green"
+msgstr "Verde Esmeralda"
+
+msgid "Sunburst Orange"
+msgstr "Naranja Sunburst"
+
+msgid "Vibrant Rose"
+msgstr "Rosa Vibrante"
+
+msgid "Nordic Cyan"
+msgstr "Cian Nórdico"
+
+msgid "Nordic Snow"
+msgstr "Nieve Nórdica"
+
+msgid "Gruvbox Retro"
+msgstr "Gruvbox Retro"
+
+msgid "Catppuccin Mocha"
+msgstr "Catppuccin Mocha"
+
+msgid "Dracula Dark"
+msgstr "Drácula Oscuro"
+
+msgid "Tokyo Night"
+msgstr "Noche de Tokio"
+
+msgid "Rosé Pine"
+msgstr "Rosé Pine"
+
+msgid "Solarized Dark"
+msgstr "Solarizado Oscuro"
+
+msgid "Monokai Pro"
+msgstr "Monokai Pro"
+
+msgid "Cyberpunk Neon"
+msgstr "Neón Cyberpunk"
+
+msgid "BigTube Brand"
+msgstr "Marca BigTube"
+
+msgid "Searching"
+msgstr "Buscando"
+
+msgid "Pending"
+msgstr "Pendiente"
+
+msgid "Downloading..."
+msgstr "Descargando..."
+
+msgid "Processing..."
+msgstr "Procesando..."
+
+msgid "Merging..."
+msgstr "Fusionando..."
+
+msgid "Extracting Audio..."
+msgstr "Extrayendo Audio..."
+
+msgid "Completed"
+msgstr "Completado"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Cancelled"
+msgstr "Cancelado"
+
+msgid "Confirm"
+msgstr "Confirmar"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Interrupted"
+msgstr "Interrumpido"
+
+msgid "Paused"
+msgstr "Pausado"
+
+msgid "Resuming..."
+msgstr "Reanudando..."
+
+msgid "Pause"
+msgstr "Pausa"
+
+msgid "Resume"
+msgstr "Reanudar"
+
+msgid "Cancel Conversion"
+msgstr "Cancelar Conversión"
+
+msgid "Critical Error:"
+msgstr "Error Crítico:"
+
+msgid "Network Error!"
+msgstr "¡Error de Red!"
+
+msgid "Content is DRM Protected!"
+msgstr "¡El contenido está protegido por DRM!"
+
+msgid "Video is Private!"
+msgstr "¡El vídeo es Privado!"
+
+msgid "Unknown Error!"
+msgstr "¡Error Desconocido!"
+
+msgid "FFmpeg Error - Missing or incompatible!"
+msgstr "Error de FFmpeg - ¡Falta o es incompatible!"
+
+msgid "Not enough disk space!"
+msgstr "¡No hay suficiente espacio en el disco!"
+
+msgid "Error searching for video!"
+msgstr "¡Error al buscar el vídeo!"
+
+msgid "File Already Exists!"
+msgstr "¡El Archivo Ya Existe!"
+
+msgid "Overwrite this file?"
+msgstr "¿Sobrescribir este archivo?"
+
+msgid "File Not Found, Remove from History?"
+msgstr "Archivo No Encontrado, ¿Eliminar del Historial?"
+
+msgid "The following file exists in history but was not found on disk:\n"
+msgstr "El siguiente archivo existe en el historial, pero no se encontró en el disco:\n"
+
+msgid "Item removed from history."
+msgstr "Elemento eliminado del historial."
+
+msgid "Invalid URL format"
+msgstr "Formato de URL no válido"
+
+msgid "Stopped"
+msgstr "Detenido"
+
+msgid "Buffering..."
+msgstr "Cargando..."
+
+msgid "BigTube Player"
+msgstr "Reproductor BigTube"
+
+msgid "Insufficient disk space!"
+msgstr "¡Espacio en disco insuficiente!"
+
+msgid "Could not check disk space!"
+msgstr "¡No se pudo comprobar el espacio en disco!"
+
+msgid "FFmpeg not found. Some features will be limited!"
+msgstr "No se encontró FFmpeg. ¡Algunas funciones estarán limitadas!"
+
+msgid "Download completed successfully!"
+msgstr "¡Descarga completada con éxito!"
+
+msgid "Download cancelled by user!"
+msgstr "¡Descarga cancelada por el usuario!"
+
+msgid "Download failed!"
+msgstr "¡La descarga falló!"
+
+msgid "Download timed out!"
+msgstr "¡Se agotó el tiempo de espera de la descarga!"
+
+msgid "Starting download..."
+msgstr "Iniciando descarga..."
+
+msgid "Resuming download..."
+msgstr "Reanudando descarga..."
+
+msgid "No internet connection!"
+msgstr "¡No hay conexión a internet!"
+
+msgid "yt-dlp update available:"
+msgstr "Actualización de yt-dlp disponible:"
+
+msgid "Checking for updates..."
+msgstr "Buscando actualizaciones..."
+
+msgid "Drag and drop files here to convert"
+msgstr "Arrastre y suelte archivos aquí para convertir"
+
+msgid "Convert your media files"
+msgstr "Convierta sus archivos multimedia"
+
+msgid "Or paste image URL / File Path"
+msgstr "O pegue la URL de la imagen / Ruta del Archivo"
+
+msgid "Convert to:"
+msgstr "Convertir a:"
+
+msgid "Convert"
+msgstr "Convertir"
+
+msgid "Ready"
+msgstr "Listo"
+
+msgid "Selected: "
+msgstr "Seleccionado: "
+
+msgid "Downloading image..."
+msgstr "Descargando imagen..."
+
+msgid "Converting to"
+msgstr "Convirtiendo a"
+
+msgid "Success!"
+msgstr "¡Éxito!"
+
+msgid "Error occurred"
+msgstr "Ocurrió un error"
+
+msgid "Conversion Complete"
+msgstr "Conversión Completada"
+
+msgid "Saved to:"
+msgstr "Guardado en:"
+
+msgid "Failed:"
+msgstr "Falló:"
+
+msgid "Conversion Cancelled"
+msgstr "Conversión Cancelada"
+
+msgid "Select Media Files"
+msgstr "Seleccionar Archivos Multimedia"
+
+msgid "_Open"
+msgstr "_Abrir"
+
+msgid "_Cancel"
+msgstr "_Cancelar"
+
+msgid "Media Files"
+msgstr "Archivos Multimedia"
+
+msgid "File Not Found"
+msgstr "Archivo No Encontrado"
+
+msgid "The converted file was not found. Would you like to convert it again or remove it from history?"
+msgstr "No se encontró el archivo convertido. ¿Desea convertirlo de nuevo o eliminarlo del historial?"
+
+msgid "Convert Again"
+msgstr "Convertir de Nuevo"
+
+msgid "Remove from History"
+msgstr "Eliminar del Historial"
+
+msgid "Source File Missing"
+msgstr "Falta el Archivo de Origen"
+
+msgid "The source file for this conversion is missing. Would you like to remove it from the list?"
+msgstr "Falta el archivo de origen para esta conversión. ¿Desea eliminarlo de la lista?"
+
+msgid "Add Files"
+msgstr "Añadir Archivos"
+
+msgid "Remove from list"
+msgstr "Eliminar de la lista"
+
+msgid "Open Folder"
+msgstr "Abrir Carpeta"
+
+msgid "Play Converted File"
+msgstr "Reproducir Archivo Convertido"
+
+msgid "Add to Converter"
+msgstr "Añadir al Convertidor"
+
+msgid "Convert All"
+msgstr "Convertir Todo"
+
+msgid "Add Metadata"
+msgstr "Añadir Metadatos"
+
+msgid "Add Subtitles"
+msgstr "Añadir Subtítulos"
+
+msgid "options available"
+msgstr "opciones disponibles"
+
+msgid "No formats found"
+msgstr "No se encontraron formatos"
+
+msgid "Local File"
+msgstr "Archivo Local"
+
+msgid "ETA: "
+msgstr "Tiempo Estimado: "
+
+msgid "Select source"
+msgstr "Seleccionar origen"
+
+msgid "Previous"
+msgstr "Anterior"
+
+msgid "Play/Pause"
+msgstr "Reproducir/Pausar"
+
+msgid "Next"
+msgstr "Siguiente"
+
+msgid "Toggle Video Window"
+msgstr "Alternar Ventana de Vídeo"
+
+msgid "Reset Application to Clean State?"
+msgstr "¿Restablecer la aplicación al estado inicial?"
+
+msgid "This will PERMANENTLY delete all settings, search history, download history, and converter history. This action cannot be undone."
+msgstr "Esto eliminará PERMANENTEMENTE todos los ajustes, el historial de búsqueda, el historial de descargas y el historial del convertidor. Esta acción no se puede deshacer."
+
+msgid "All application data has been cleared. The app will now restart."
+msgstr "Todos los datos de la aplicación han sido borrados. La aplicación se reiniciará ahora."
+
+msgid "Failed to select folder"
+msgstr "Error al seleccionar la carpeta"
+
+msgid "Components updated successfully! ✅"
+msgstr "¡Componentes actualizados con éxito! ✅"
+
+msgid "Deno updated, but yt-dlp failed."
+msgstr "Deno actualizado, pero yt-dlp falló."
+
+msgid "Clear All App Data (Reset)"
+msgstr "Borrar Todos los Datos de la Aplicación (Restablecer)"
+
+msgid "Update check failed."
+msgstr "Error al buscar actualizaciones."
+
+msgid "Error:"
+msgstr "Error:"
+
+msgid "Scheduled"
+msgstr "Programado"
+
+msgid "Queued"
+msgstr "En cola"
+
+msgid "Schedule Download"
+msgstr "Programar Descarga"
+
+msgid "Select Date &amp; Time"
+msgstr "Seleccionar Fecha &amp; Hora"
+
+msgid "Date"
+msgstr "Fecha"
+
+msgid "Time"
+msgstr "Hora"
+
+msgid "Time (HH:MM)"
+msgstr "Hora (HH:MM)"
+
+msgid "Schedule"
+msgstr "Programar"
+
+msgid "Link Detected:"
+msgstr "Enlace Detectado:"
+
+msgid "Link detected! Paste in search to download."
+msgstr "¡Enlace detectado! Péguelo en la búsqueda para descargar."
+
+msgid "Scheduled:"
+msgstr "Programado:"
+
+msgid "h"
+msgstr "h"
+
+msgid "m"
+msgstr "m"
+
+msgid "s"
+msgstr "s"
+
+msgid "© 2026 BigTube"
+msgstr "© 2026 BigTube"
+
+msgid "Help"
+msgstr "Ayuda"
+
+msgid "About"
+msgstr "Acerca de"
+
+msgid "Quit"
+msgstr "Salir"
+
+msgid "Toggle Selection Mode"
+msgstr "Alternar Modo de Selección"
+
+msgid "Select All / None"
+msgstr "Seleccionar Todo / Nada"
+
+msgid "Download Selected ({count})"
+msgstr "Descargar Seleccionados ({count})"
+
+msgid "Starting batch download of {count} items..."
+msgstr "Iniciando descarga por lotes de {count} elementos..."
+
+msgid "Search Settings"
+msgstr "Ajustes de Búsqueda"
+
+msgid "Save Search History"
+msgstr "Guardar Historial de Búsqueda"
+
+msgid "Enable Search Suggestions"
+msgstr "Activar Sugerencias de Búsqueda"
+
+msgid "Maximum Suggestions"
+msgstr "Sugerencias Máximas"
+
+msgid "Clear Search History"
+msgstr "Borrar Historial de Búsqueda"
+
+msgid "Delete Suggestion"
+msgstr "Eliminar Sugerencia"
+
+msgid "Maximum Search Results"
+msgstr "Máximo de Resultados de Búsqueda"
+
+msgid "Max Simultaneous Downloads"
+msgstr "Máximo de Descargas Simultáneas"
+
+msgid "{count} downloading"
+msgstr "{count} descargando"
+
+msgid "{count} queued"
+msgstr "{count} en cola"
+
+msgid "{count} paused"
+msgstr "{count} en pausa"
+
+msgid "BigTube Help"
+msgstr "Ayuda de BigTube"
+
+msgid ""
+"To search for a video, paste a URL or type keywords in the search box.\n"
+"You can also drag and drop local media files onto the Converter tab to change their format.\n"
+"Check Settings to change download quality and themes."
+msgstr ""
+"Para buscar un vídeo, pegue una URL o escriba palabras clave en el cuadro de búsqueda.\n"
+"También puede arrastrar y soltar archivos multimedia locales en la pestaña del Convertidor para cambiar su formato.\n"
+"Verifique los Ajustes para cambiar la calidad de las descargas y los temas."

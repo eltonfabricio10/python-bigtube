@@ -30,6 +30,7 @@ makedepends=(
     'python-wheel'
     'python-setuptools'
     'git'
+    'gettext'
 )
 
 optdepends=('ffmpeg')
@@ -44,6 +45,11 @@ prepare() {
 build() {
     cd "${srcdir}/${pkgname}"
     python -m build --wheel --no-isolation
+
+    # Compilar traduções (.po -> .mo)
+    for po in locales/*.po; do
+        msgfmt "$po" -o "${po%.po}.mo"
+    done
 }
 
 package() {
@@ -53,6 +59,12 @@ package() {
     install -Dm644 "src/bigtube/data/org.big.bigtube.desktop" "${pkgdir}/usr/share/applications/org.big.bigtube.desktop"
     install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
     install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+    # Instalar traduções
+    for mo in locales/*.mo; do
+        _lang=$(basename "$mo" .mo)
+        install -Dm644 "$mo" "${pkgdir}/usr/share/locale/${_lang}/LC_MESSAGES/bigtube.mo"
+    done
 }
 
 post_install() {
