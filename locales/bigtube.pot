@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-20 20:59-0300\n"
+"POT-Creation-Date: 2026-02-20 22:23-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,889 +17,938 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:55
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:62
 msgid "BigTube"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:58
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:80
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:65
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:87
 msgid "Search"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:59
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:119
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:66
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:126
 msgid "Downloads"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:60
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:67
 msgid "Converter"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:61
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:68
 msgid "Settings"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:64
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:71
 msgid "Search Manager"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:65
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:72
 msgid "Downloads Manager"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:66
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:73
 msgid "Settings Manager"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:67
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:74
 msgid "Converter Manager"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:70
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:77
 msgid "YouTube"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:71
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:78
 msgid "SoundCloud"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:72
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:79
 msgid "Direct Link"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:75
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:82
 msgid "Unknown Title"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:76
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:349
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:83
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:356
 msgid "Unknown Artist"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:79
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:86
 msgid "Paste URL or type keywords..."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:81
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:88
 msgid "No results found!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:82
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:89
 msgid "Searching for:"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:85
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:92
 msgid "No Results"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:86
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:93
 msgid "Search for videos or paste a URL"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:87
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:94
 msgid "No Downloads"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:88
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:95
 msgid "Your downloads will appear here"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:91
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:98
 msgid "Play Video"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:92
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:101
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:315
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:99
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:108
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:322
 msgid "Download"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:93
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:100
 msgid "Copy Link"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:94
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:101
 msgid "Link Copied!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:97
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:104
 msgid "Select Quality"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:98
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:105
 msgid "Video Formats"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:99
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:106
 msgid "Duration:"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:100
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:107
 msgid "Audio Only"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:104
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:111
 msgid "Clear History"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:105
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:112
 msgid "Clear History?"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:106
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:113
 msgid ""
 "This will remove all entries from the list.\n"
 "Files will remain on disk."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:107
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:114
 msgid "History cleared successfully!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:108
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:115
 msgid "Failed to get info for"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:111
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:118
 msgid "Download Folder"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:112
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:119
 msgid "Pick Folder"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:113
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:120
 msgid "Current Version"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:114
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:121
 msgid "Check for Updates"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:116
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:123
 msgid "Appearance"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:117
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:124
 msgid "Interface Theme"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:118
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:125
 msgid "Color Scheme"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:120
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:127
 msgid "Preferred Quality"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:121
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:128
 msgid "Add Metadata to Files"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:122
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:129
 msgid "Enable ClipBoard Monitor"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:123
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:130
 msgid "Embed Subtitles"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:124
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:131
 msgid "Storage"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:125
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:132
 msgid "Save Download History"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:126
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:133
 msgid "Clear All Data on Exit"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:127
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:230
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:134
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:237
 msgid "Media Converter"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:128
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:135
 msgid "Default Output Folder"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:129
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:136
 msgid "Save Conversion History"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:130
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:137
 msgid "Save in Source Directory"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:133
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:140
 msgid "System"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:134
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:141
 msgid "Light"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:135
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:142
 msgid "Dark"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:138
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:145
 msgid "Ask Every Time"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:139
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:146
 msgid "Best (MKV)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:140
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:147
 msgid "4K (2160p)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:141
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:148
 msgid "2K (1440p)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:142
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:149
 msgid "Full HD (1080p)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:143
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:150
 msgid "HD (720p)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:144
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:151
 msgid "SD (480p)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:145
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:152
 msgid "Low Definition (360p)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:146
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:153
 msgid "Very Low (240p)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:147
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:154
 msgid "Lowest (144p)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:148
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:155
 msgid "Audio (MP3)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:149
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:156
 msgid "Audio (M4A)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:152
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:159
 msgid "Default Blue"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:153
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:160
 msgid "Modern Violet"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:154
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:161
 msgid "Emerald Green"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:155
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:162
 msgid "Sunburst Orange"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:156
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:163
 msgid "Vibrant Rose"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:157
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:164
 msgid "Nordic Cyan"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:160
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:167
 msgid "Nordic Snow"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:161
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:168
 msgid "Gruvbox Retro"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:162
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:169
 msgid "Catppuccin Mocha"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:163
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:170
 msgid "Dracula Dark"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:164
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:171
 msgid "Tokyo Night"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:165
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:172
 msgid "Rosé Pine"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:166
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:173
 msgid "Solarized Dark"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:167
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:174
 msgid "Monokai Pro"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:168
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:175
 msgid "Cyberpunk Neon"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:169
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:176
 msgid "BigTube Brand"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:172
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:179
 msgid "Searching"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:173
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:180
 msgid "Pending"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:174
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:181
 msgid "Downloading..."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:175
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:182
 msgid "Processing..."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:176
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:183
 msgid "Merging..."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:177
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:184
 msgid "Extracting Audio..."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:178
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:185
 msgid "Completed"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:179
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:186
 msgid "Error"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:180
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:243
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:187
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:250
 msgid "Cancelled"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:181
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:188
 msgid "Confirm"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:182
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:189
 msgid "Cancel"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:183
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:190
 msgid "Interrupted"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:184
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:191
 msgid "Paused"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:185
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:192
 msgid "Resuming..."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:188
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:195
 msgid "Pause"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:189
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:196
 msgid "Resume"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:190
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:197
 msgid "Cancel Conversion"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:193
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:200
 msgid "Critical Error:"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:194
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:201
 msgid "Network Error!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:195
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:202
 msgid "Content is DRM Protected!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:196
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:203
 msgid "Video is Private!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:197
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:204
 msgid "Unknown Error!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:198
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:205
 msgid "FFmpeg Error - Missing or incompatible!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:199
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:206
 msgid "Not enough disk space!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:200
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:207
 msgid "Error searching for video!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:201
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:208
 msgid "File Already Exists!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:202
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:209
 msgid "Overwrite this file?"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:203
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:210
 msgid "File Not Found, Remove from History?"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:204
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:211
 msgid "The following file exists in history but was not found on disk:\n"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:205
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:212
 msgid "Item removed from history."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:206
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:213
 msgid "Invalid URL format"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:209
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:216
 msgid "Stopped"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:210
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:217
 msgid "Buffering..."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:211
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:218
 msgid "BigTube Player"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:214
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:221
 msgid "Insufficient disk space!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:215
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:222
 msgid "Could not check disk space!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:216
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:223
 msgid "FFmpeg not found. Some features will be limited!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:217
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:224
 msgid "Download completed successfully!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:218
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:225
 msgid "Download cancelled by user!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:219
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:226
 msgid "Download failed!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:220
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:227
 msgid "Download timed out!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:221
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:228
 msgid "Starting download..."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:222
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:229
 msgid "Resuming download..."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:225
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:232
 msgid "No internet connection!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:226
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:233
 msgid "yt-dlp update available:"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:227
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:234
 msgid "Checking for updates..."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:231
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:238
 msgid "Drag and drop files here to convert"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:232
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:239
 msgid "Convert your media files"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:233
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:240
 msgid "Or paste image URL / File Path"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:234
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:241
 msgid "Convert to:"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:235
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:270
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:242
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:277
 msgid "Convert"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:238
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:245
 msgid "Ready"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:239
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:246
 msgid "Selected: "
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:240
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:247
 msgid "Downloading image..."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:241
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:248
 msgid "Converting to"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:242
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:249
 msgid "Success!"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:244
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:251
 msgid "Error occurred"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:247
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:254
 msgid "Conversion Complete"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:248
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:255
 msgid "Saved to:"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:249
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:256
 msgid "Failed:"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:250
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:257
 msgid "Conversion Cancelled"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:253
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:260
 msgid "Select Media Files"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:254
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:261
 msgid "_Open"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:255
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:262
 msgid "_Cancel"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:256
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:263
 msgid "Media Files"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:259
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:266
 msgid "File Not Found"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:260
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:267
 msgid ""
 "The converted file was not found. Would you like to convert it again or "
 "remove it from history?"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:261
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:268
 msgid "Convert Again"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:262
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:269
 msgid "Remove from History"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:263
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:270
 msgid "Source File Missing"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:264
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:271
 msgid ""
 "The source file for this conversion is missing. Would you like to remove it "
 "from the list?"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:266
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:273
 msgid "Add Files"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:267
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:274
 msgid "Remove from list"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:268
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:275
 msgid "Open Folder"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:269
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:276
 msgid "Play Converted File"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:271
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:278
 msgid "Add to Converter"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:272
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/data/bigtube.ui:275
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:279
 msgid "Convert All"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:274
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:281
 msgid "Add Metadata"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:275
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:282
 msgid "Add Subtitles"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:276
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:283
 msgid "options available"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:277
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:284
 msgid "No formats found"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:278
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:285
 msgid "Local File"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:279
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:286
 msgid "ETA: "
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:282
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:289
 msgid "Select source"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:285
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:292
 msgid "Previous"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:286
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:293
 msgid "Play/Pause"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:287
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:294
 msgid "Next"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:288
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:295
 msgid "Toggle Video Window"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:291
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:298
 msgid "Reset Application to Clean State?"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:292
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:299
 msgid ""
 "This will PERMANENTLY delete all settings, search history, download history, "
 "and converter history. This action cannot be undone."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:293
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:300
 msgid "All application data has been cleared. The app will now restart."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:294
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:301
 msgid "Failed to select folder"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:295
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:302
 msgid "Components updated successfully! ✅"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:296
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:303
 msgid "Deno updated, but yt-dlp failed."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:299
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:306
 msgid "Clear All App Data (Reset)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:300
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:307
 msgid "Update check failed."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:301
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:308
 msgid "Error:"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:304
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:311
 msgid "Scheduled"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:305
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:312
 msgid "Queued"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:306
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:312
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:313
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:319
 msgid "Schedule Download"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:307
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:314
 msgid "Select Date &amp; Time"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:308
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:315
 msgid "Date"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:309
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:316
 msgid "Time"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:310
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:317
 msgid "Time (HH:MM)"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:311
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:318
 msgid "Schedule"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:313
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:320
 msgid "Link Detected:"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:314
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:321
 msgid "Link detected! Paste in search to download."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:316
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:323
 msgid "Scheduled:"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:319
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:326
 msgid "h"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:320
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:327
 msgid "m"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:321
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:328
 msgid "s"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:324
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:331
 msgid "© 2026 BigTube"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:325
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:332
 msgid "Help"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:326
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:333
 msgid "About"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:327
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:334
 msgid "Quit"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:330
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:337
 msgid "Toggle Selection Mode"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:331
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:338
 msgid "Select All / None"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:332
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:339
 #, python-brace-format
 msgid "Download Selected ({count})"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:333
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:340
 #, python-brace-format
 msgid "Starting batch download of {count} items..."
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:336
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:343
 msgid "Search Settings"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:337
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:344
 msgid "Save Search History"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:338
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:345
 msgid "Enable Search Suggestions"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:339
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:346
 msgid "Maximum Suggestions"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:340
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:347
 msgid "Clear Search History"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:341
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:348
 msgid "Delete Suggestion"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:342
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:349
 msgid "Maximum Search Results"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:343
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:350
 msgid "Max Simultaneous Downloads"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:346
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:353
 #, python-brace-format
 msgid "{count} downloading"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:347
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:354
 #, python-brace-format
 msgid "{count} queued"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:348
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:355
 #, python-brace-format
 msgid "{count} paused"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:352
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:359
 msgid "BigTube Help"
 msgstr ""
 
-#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:353
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:360
 msgid ""
 "To search for a video, paste a URL or type keywords in the search box.\n"
 "You can also drag and drop local media files onto the Converter tab to "
 "change their format.\n"
 "Check Settings to change download quality and themes."
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:363
+msgid "Untitled"
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:364
+msgid "Unknown"
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:365
+msgid "Best Available Quality"
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:366
+#, python-brace-format
+msgid "MKV - Best Quality ({resolution}p)"
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:367
+msgid "Audio MP3 (Convert)"
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:368
+#, python-brace-format
+msgid "Audio {ext} - {kbps}kbps"
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:369
+msgid "yt-dlp v"
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:370
+msgid "FFmpeg not found. Skipping metadata."
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:371
+msgid "FFmpeg not found. Skipping subtitles."
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:372
+msgid "OK"
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:373
+msgid "yt-dlp missing"
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:374
+msgid "Timeout"
 msgstr ""
