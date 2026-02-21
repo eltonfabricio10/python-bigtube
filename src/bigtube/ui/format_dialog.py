@@ -61,7 +61,7 @@ class FormatSelectionDialog(Adw.Window):
         self.page.add(group)
 
         # Title Label (Large & Wrapped)
-        lbl_title = Gtk.Label(label=self.video_info.get('title', 'Untitled'))
+        lbl_title = Gtk.Label(label=self.video_info.get('title', Res.get(StringKey.LBL_UNTITLED)))
         lbl_title.set_wrap(True)
         lbl_title.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
         lbl_title.set_justify(Gtk.Justification.CENTER)

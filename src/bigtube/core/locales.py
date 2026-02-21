@@ -359,6 +359,20 @@ class StringKey(Enum):
     MSG_HELP_TITLE = N_("BigTube Help")
     MSG_HELP_BODY = N_("To search for a video, paste a URL or type keywords in the search box.\nYou can also drag and drop local media files onto the Converter tab to change their format.\nCheck Settings to change download quality and themes.")
 
+    # New Keys for Centralization
+    LBL_UNTITLED = N_("Untitled")
+    LBL_UNKNOWN = N_("Unknown")
+    LBL_BEST_QUALITY = N_("Best Available Quality")
+    LBL_MKV_BEST = N_("MKV - Best Quality ({resolution}p)")
+    LBL_AUDIO_MP3_CONVERT = N_("Audio MP3 (Convert)")
+    LBL_AUDIO_EXT_KBP = N_("Audio {ext} - {kbps}kbps")
+    LBL_VERSION_PREFIX = N_("yt-dlp v")
+    MSG_FFMPEG_MISSING_METADATA = N_("FFmpeg not found. Skipping metadata.")
+    MSG_FFMPEG_MISSING_SUBTITLES = N_("FFmpeg not found. Skipping subtitles.")
+    BTN_OK = N_("OK")
+    ERR_YTDLP_MISSING = N_("yt-dlp missing")
+    ERR_TIMEOUT = N_("Timeout")
+
 
 class ResourceManager:
     @staticmethod

@@ -107,7 +107,7 @@ class VideoDownloader:
 
         clean_data = {
             'id': info.get('id'),
-            'title': info.get('title', 'Unknown'),
+            'title': info.get('title', Res.get(StringKey.LBL_UNTITLED)),
             'url': info.get('webpage_url') or info.get('url'),
             'thumbnail': info.get('thumbnail'),
             'uploader': info.get('uploader') or info.get('channel') or '',
@@ -155,7 +155,7 @@ class VideoDownloader:
                 abr = f.get('abr') or 0
                 clean_data['audios'].append({
                     'id': fmt_id,
-                    'label': f"Audio {ext.upper()} - {int(abr)}kbps",
+                    'label': Res.get(StringKey.LBL_AUDIO_EXT_KBP).format(ext=ext.upper(), kbps=int(abr)),
                     'ext': ext,
                     'size': size_str,
                     'size_val': size_mb,
@@ -210,7 +210,7 @@ class VideoDownloader:
             # This happens with some generic sites that return a direct stream but valid JSON
              clean_data['videos'].append({
                 'id': 'best',
-                'label': "Best Available Quality",
+                'label': Res.get(StringKey.LBL_BEST_QUALITY),
                 'resolution': 0,
                 'fps': 0,
                 'ext': 'mp4',
@@ -233,7 +233,7 @@ class VideoDownloader:
             mkv_opt = best.copy()
             mkv_opt.update({
                 'id': 'bestvideo+bestaudio/best',
-                'label': f"MKV - Best Quality ({best['resolution']}p)",
+                'label': Res.get(StringKey.LBL_MKV_BEST).format(resolution=best['resolution']),
                 'ext': FileExt.MKV.value,
                 'codec': 'mkv_merge'
             })
@@ -245,7 +245,7 @@ class VideoDownloader:
             mp3_opt = best.copy()
             mp3_opt.update({
                 'id': 'bestaudio/best',
-                'label': 'Audio MP3 (Convert)',
+                'label': Res.get(StringKey.LBL_AUDIO_MP3_CONVERT),
                 'ext': FileExt.MP3.value,
                 'codec': 'mp3_convert',
                 'quality': 999
@@ -353,7 +353,7 @@ class VideoDownloader:
             if has_ffmpeg:
                 cmd.append("--embed-metadata")
             else:
-                progress_callback(None, "FFmpeg not found. Skipping metadata.")
+                progress_callback(None, Res.get(StringKey.MSG_FFMPEG_MISSING_METADATA))
                 logger.warning("ffmpeg not found. Skipping '--embed-metadata'")
 
         if ConfigManager.get("download_subtitles"):
@@ -365,7 +365,7 @@ class VideoDownloader:
                     "--embed-subs"
                 ])
             else:
-                progress_callback(None, "FFmpeg not found. Skipping subtitles.")
+                progress_callback(None, Res.get(StringKey.MSG_FFMPEG_MISSING_SUBTITLES))
                 logger.warning("ffmpeg not found. Skipping subtitle flags")
 
         if force_overwrite:
@@ -496,7 +496,7 @@ class VideoDownloader:
         except subprocess.TimeoutExpired:
             logger.error("Download timed out")
             if progress_callback:
-                progress_callback(Res.get(StringKey.STATUS_ERROR), "Timeout")
+                progress_callback(Res.get(StringKey.STATUS_ERROR), Res.get(StringKey.ERR_TIMEOUT))
             return False
 
         except subprocess.SubprocessError as e:

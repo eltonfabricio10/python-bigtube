@@ -92,7 +92,8 @@ class MessageManager:
         )
 
         # "Close" or "OK" button
-        dialog.add_response("close", "OK")
+        txt_ok = Res.get(StringKey.BTN_OK)
+        dialog.add_response("close", txt_ok)
         dialog.set_response_appearance("close", Adw.ResponseAppearance.DEFAULT)
 
         dialog.set_default_response("close")

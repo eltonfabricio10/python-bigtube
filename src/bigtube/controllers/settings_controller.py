@@ -503,9 +503,9 @@ class SettingsController:
 
     def _async_load_version(self):
         """Fetches binary version in background."""
-        ver = Updater.get_local_version() or "Unknown"
+        v_prefix = Res.get(StringKey.LBL_VERSION_PREFIX)
         # Always update UI on Main Thread
-        GLib.idle_add(self.row_version.set_subtitle, f"yt-dlp v{ver}")
+        GLib.idle_add(self.row_version.set_subtitle, f"{v_prefix}{ver}")
 
     # =========================================================================
     # FOLDER SELECTION LOGIC

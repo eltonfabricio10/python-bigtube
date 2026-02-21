@@ -124,7 +124,7 @@ class SearchEngine:
             raise  # Re-raise SearchError as-is
         except Exception as e:
             logger.exception(f"Error processing direct link: {e}")
-            raise SearchError(str(e))
+            raise SearchError(str(e) or Res.get(StringKey.ERR_UNKNOWN))
 
     def _run_cli(self, args: List[str], is_search: bool = True, force_audio: bool = False, query: str = None, source: str = None) -> List[Dict]:
         """
@@ -167,10 +167,10 @@ class SearchEngine:
 
         except FileNotFoundError:
             logger.error("yt-dlp binary not found")
-            raise SearchError(Res.get(StringKey.ERR_CRITICAL) + "yt-dlp missing")
+            raise SearchError(Res.get(StringKey.ERR_CRITICAL) + " " + Res.get(StringKey.ERR_YTDLP_MISSING))
         except subprocess.TimeoutExpired:
             logger.error("Search timed out")
-            raise SearchError(Res.get(StringKey.ERR_NETWORK) + " (Timeout)")
+            raise SearchError(Res.get(StringKey.ERR_NETWORK) + " (" + Res.get(StringKey.ERR_TIMEOUT) + ")")
         except subprocess.SubprocessError as e:
             logger.error(f"Subprocess error during search: {e}")
             raise SearchError(Res.get(StringKey.SEARCH_ERROR))
@@ -215,10 +215,10 @@ class SearchEngine:
             is_video = False
 
         return {
-            'title': entry.get('title', 'Untitled'),
+            'title': entry.get('title', Res.get(StringKey.LBL_UNTITLED)),
             'url': entry.get('webpage_url', entry.get('url', '')),
             'thumbnail': thumb_url,
-            'uploader': entry.get('uploader') or entry.get('channel') or 'Unknown',
+            'uploader': entry.get('uploader') or entry.get('channel') or Res.get(StringKey.LBL_UNKNOWN),
             'duration': entry.get('duration', 0),
             'is_video': is_video
         }

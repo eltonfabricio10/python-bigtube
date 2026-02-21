@@ -446,7 +446,11 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self.search_button.set_tooltip_text(Res.get(StringKey.SEARCH_BTN_LABEL))
         self.search_source_dropdown.set_tooltip_text(Res.get(StringKey.TIP_SELECT_SOURCE))
 
-        # 5. Settings Page
+        # 5. Converter Page
+        self.btn_convert_all.set_tooltip_text(Res.get(StringKey.TIP_CONVERT_ALL))
+        self.btn_load_files.set_tooltip_text(Res.get(StringKey.TIP_ADD_FILES))
+
+        # 6. Settings Page
         # Basic settings elements directly on window
         self.row_version.set_title(Res.get(StringKey.PREFS_VERSION_LABEL))
         self.row_folder.set_title(Res.get(StringKey.PREFS_FOLDER_LABEL))

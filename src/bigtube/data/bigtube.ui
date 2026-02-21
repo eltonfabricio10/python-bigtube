@@ -61,10 +61,6 @@
                                             <property name="model">
                                               <object class="GtkStringList" id="search_model">
                                                 <items>
-                                                  <item translatable="yes"/>
-                                                  <item translatable="yes"/>
-                                                  <item/>
-                                                  <item translatable="yes"/>
                                                 </items>
                                               </object>
                                             </property>
@@ -272,7 +268,6 @@
                                               <object class="GtkButton" id="btn_convert_all">
                                                 <property name="has-frame">False</property>
                                                 <property name="icon-name">media-playlist-shuffle-symbolic</property>
-                                                <property name="tooltip-text" translatable="yes">Convert All</property>
                                               </object>
                                             </child>
                                             <child>
