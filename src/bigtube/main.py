@@ -156,13 +156,11 @@ def run():
         sys.exit(0)
 
     if args.debug:
-        import logging
-        bt_logger = logging.getLogger("bigtube")
-        bt_logger.setLevel(logging.DEBUG)
+        from .core.logger import BigTubeLogger
+        BigTubeLogger.setup("DEBUG")
     else:
-        import logging
-        bt_logger = logging.getLogger("bigtube")
-        bt_logger.setLevel(logging.INFO)
+        from .core.logger import BigTubeLogger
+        BigTubeLogger.setup("INFO")
 
     app = BigTubeApplication()
     GLib.set_prgname("org.big.bigtube")

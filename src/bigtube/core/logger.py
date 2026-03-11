@@ -29,6 +29,7 @@ class BigTubeLogger:
     _initialized = False
     _log_dir = Path(GLib.get_user_data_dir()) / "bigtube" / "logs"
     _log_file = _log_dir / "bigtube.log"
+    _console_handler = None
 
     # Log format
     _FORMAT = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
@@ -49,6 +50,8 @@ class BigTubeLogger:
         Should be called once at application startup.
         """
         if cls._initialized:
+            if cls._console_handler:
+                cls._console_handler.setLevel(cls.LEVELS.get(level.upper(), logging.INFO))
             return
 
         # Ensure log directory exists
@@ -74,10 +77,10 @@ class BigTubeLogger:
 
         # Console Handler (only if enabled)
         if console_output:
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setLevel(cls.LEVELS.get(level.upper(), logging.INFO))
-            console_handler.setFormatter(formatter)
-            root_logger.addHandler(console_handler)
+            cls._console_handler = logging.StreamHandler(sys.stdout)
+            cls._console_handler.setLevel(cls.LEVELS.get(level.upper(), logging.INFO))
+            cls._console_handler.setFormatter(formatter)
+            root_logger.addHandler(cls._console_handler)
 
         cls._initialized = True
         root_logger.info("Logging system initialized")
