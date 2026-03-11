@@ -139,16 +139,26 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     row_folder = Gtk.Template.Child()
     btn_select_folder = Gtk.Template.Child()
     row_clipboard_monitor = Gtk.Template.Child()
+    row_system_notifications = Gtk.Template.Child()
     row_max_downloads = Gtk.Template.Child()
     spin_max_downloads = Gtk.Template.Child()
     row_quality = Gtk.Template.Child()
     quality_list = Gtk.Template.Child()
     row_metadata = Gtk.Template.Child()
     row_subtitles = Gtk.Template.Child()
+    row_fragments = Gtk.Template.Child()
+    spin_fragments = Gtk.Template.Child()
+    row_rate_limit = Gtk.Template.Child()
+    spin_rate_limit = Gtk.Template.Child()
+    row_post_process = Gtk.Template.Child()
 
     group_storage = Gtk.Template.Child()
     row_save_history = Gtk.Template.Child()
     row_auto_clear = Gtk.Template.Child()
+    row_export_history = Gtk.Template.Child()
+    btn_export_history = Gtk.Template.Child()
+    row_import_history = Gtk.Template.Child()
+    btn_import_history = Gtk.Template.Child()
     row_clear_data = Gtk.Template.Child()
     btn_clear_now = Gtk.Template.Child()
 
@@ -167,6 +177,8 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         super().__init__(**kwargs)
         self._setup_actions()
         self._setup_menu()
+
+        self._active_playlist = 'search'
 
         # 1. Core Setup
         ConfigManager.ensure_dirs()
@@ -221,7 +233,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         # 5. Download Controller
         self.download_ctrl = DownloadController(
             groups_box=self.downloads_groups_box,
-            on_play_callback=self.play_local_file,
+            on_play_callback=self._play_downloaded_file,
             on_remove_callback=self._update_download_empty_state,
             status_bar=self.download_status_bar,
             lbl_dl_active=self.lbl_dl_active,
@@ -240,11 +252,16 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             'row_theme': self.row_theme,
             'row_theme_color': self.row_theme_color,
             'row_clipboard_monitor': self.row_clipboard_monitor,
+            'row_system_notifications': self.row_system_notifications,
             'row_quality': self.row_quality,
             'row_metadata': self.row_metadata,
             'row_subtitles': self.row_subtitles,
             'row_save_history': self.row_save_history,
             'row_auto_clear': self.row_auto_clear,
+            'row_export_history': self.row_export_history,
+            'btn_export_history': self.btn_export_history,
+            'row_import_history': self.row_import_history,
+            'btn_import_history': self.btn_import_history,
             'row_clear_data': self.row_clear_data,
             'btn_clear_now': self.btn_clear_now,
 
@@ -268,7 +285,12 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
             # Additional download settings
             'row_max_downloads': self.row_max_downloads,
-            'spin_max_downloads': self.spin_max_downloads
+            'spin_max_downloads': self.spin_max_downloads,
+            'row_fragments': self.row_fragments,
+            'spin_fragments': self.spin_fragments,
+            'row_rate_limit': self.row_rate_limit,
+            'spin_rate_limit': self.spin_rate_limit,
+            'row_post_process': self.row_post_process
         }
 
         self.settings_ctrl = SettingsController(
@@ -611,6 +633,18 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
         self.btn_selection_mode.set_sensitive(has_results)
 
+    def _send_system_notification(self, title: str, body: str):
+        """Sends an OS-level notification using Gio.Notification."""
+        app = self.get_application()
+        if app:
+            from gi.repository import Gio
+            notification = Gio.Notification.new(title)
+            notification.set_body(body)
+            # Use a symbolic icon to prevent oversized notification icons
+            icon = Gio.ThemedIcon.new("folder-download-symbolic")
+            notification.set_icon(icon)
+            app.send_notification(f"bigtube-dl-{hash(body)}", notification)
+
     def _update_download_empty_state(self):
         """Toggles download page between empty state and list based on children."""
         has_items = self.downloads_groups_box.get_first_child() is not None
@@ -801,6 +835,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self.video_player_placeholder.set_child(widget)
 
     def play_video_from_search(self, video_obj):
+        self._active_playlist = 'search'
         self.search_ctrl.set_current_by_item(video_obj)
         self.player_ctrl.play_media(
             url=video_obj.url,
@@ -811,17 +846,14 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             is_local=False
         )
 
+    def _play_downloaded_file(self, row_obj):
+        self._active_playlist = 'downloads'
+        self.download_ctrl.set_current_playing_row(row_obj)
+        self.play_local_file(row_obj.full_path, row_obj.lbl_title.get_label())
+
     def play_local_file(self, file_path, title=None):
         if not title:
             title = Res.get(StringKey.LBL_LOCAL_FILE)
-
-        if not os.path.exists(file_path):
-            MessageManager.show_confirmation(
-                title=Res.get(StringKey.MSG_FILE_NOT_FOUND_TITLE),
-                body=f"{Res.get(StringKey.MSG_FILE_NOT_FOUND_BODY)}\n{file_path}",
-                on_confirm_callback=lambda: self._remove_missing_file_entry(file_path)
-            )
-            return
 
         if not os.path.exists(file_path):
             MessageManager.show_confirmation(
@@ -855,10 +887,34 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         MessageManager.show(Res.get(StringKey.MSG_HISTORY_ITEM_REMOVED))
 
     def request_next_video(self):
+        if self._active_playlist == 'downloads':
+            if self.download_ctrl.play_next():
+                return
+            
+            if self.search_ctrl.has_items():
+                self._active_playlist = 'search'
+            else:
+                # No search items, loop back to start of downloads
+                self.download_ctrl.set_current_playing_row(None)
+                self.download_ctrl.play_next()
+                return
+
         if self.search_ctrl.has_items():
             self.search_ctrl.play_next()
 
     def request_prev_video(self):
+        if self._active_playlist == 'downloads':
+            if self.download_ctrl.play_previous():
+                return
+            
+            if self.search_ctrl.has_items():
+                self._active_playlist = 'search'
+            else:
+                # No search items, loop back to end of downloads
+                self.download_ctrl.set_current_playing_row(None)
+                self.download_ctrl.play_previous()
+                return
+
         if self.search_ctrl.has_items():
             self.search_ctrl.play_previous()
 
@@ -1036,11 +1092,15 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
                 # Restore Toasts
                 if percent_str == "100%":
-                    MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_COMPLETED))
+                    if ConfigManager.get("system_notifications"):
+                        self._send_system_notification(Res.get(StringKey.MSG_DOWNLOAD_COMPLETED), video_info['title'])
+                    else:
+                        MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_COMPLETED))
                 elif percent_str == "Cancelled":
                     MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_CANCELLED))
                 elif status_text == Res.get(StringKey.STATUS_ERROR):
-                     pass
+                     if ConfigManager.get("system_notifications"):
+                         self._send_system_notification(Res.get(StringKey.STATUS_ERROR), video_info['title'])
 
             GLib.idle_add(_update_ui)
 

@@ -1,5 +1,6 @@
 import os
 import subprocess
+import threading
 import requests
 import shutil
 import time
@@ -121,6 +122,7 @@ class MediaConverter:
             universal_newlines=True
         )
 
+        us = 0  # Track last known output time in microseconds
         try:
             # Parse real-time progress
             if process.stdout:

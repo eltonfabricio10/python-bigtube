@@ -95,15 +95,19 @@ class DownloadController:
         if key in self._artist_sections:
             return self._artist_sections[key]['listbox']
 
-        # Create new group section
-        group = Adw.PreferencesGroup()
-        group.set_title(key)
+        group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        group.set_margin_bottom(12)
+
+        lbl_title = Gtk.Label(label=key)
+        lbl_title.set_halign(Gtk.Align.CENTER)
+        lbl_title.add_css_class("title-4")
+        group.append(lbl_title)
 
         listbox = Gtk.ListBox()
         listbox.add_css_class("boxed-list")
         listbox.set_sort_func(self._sort_func)
 
-        group.add(listbox)
+        group.append(listbox)
         self.groups_box.append(group)
 
         self._artist_sections[key] = {
@@ -112,6 +116,70 @@ class DownloadController:
         }
 
         return listbox
+
+    # =========================================================================
+    # PLAYBACK QUEUE API
+    # =========================================================================
+    def play_next(self):
+        """Advances to the next downloaded file and plays it."""
+        return self._advance_playback(1)
+
+    def play_previous(self):
+        """Advances to the previous downloaded file and plays it."""
+        return self._advance_playback(-1)
+
+    def _get_flat_completed_list(self):
+        """Creates a flattened list of all completed DownloadRow widgets."""
+        completed_rows = []
+        for section in self._artist_sections.values():
+            child = section['listbox'].get_first_child()
+            while child:
+                row = child.get_child()
+                if isinstance(row, DownloadRow) and row.status == DownloadStatus.COMPLETED:
+                    completed_rows.append(row)
+                child = child.get_next_sibling()
+        return completed_rows
+
+    def set_current_playing_row(self, row):
+        # 1. Deselect everything in all sections
+        for section in self._artist_sections.values():
+            section['listbox'].select_row(None)
+
+        self._current_playing_row = row
+
+        # 2. Select the new row if provided
+        if row:
+            parent_row = row.get_parent()
+            if isinstance(parent_row, Gtk.ListBoxRow):
+                # Find which listbox owns this row
+                for section in self._artist_sections.values():
+                    if section['listbox'] == parent_row.get_parent():
+                        section['listbox'].select_row(parent_row)
+                        parent_row.grab_focus()
+                        break
+
+    def _advance_playback(self, direction):
+        completed_rows = self._get_flat_completed_list()
+        if not completed_rows:
+            return False
+
+        if not hasattr(self, '_current_playing_row') or self._current_playing_row not in completed_rows:
+            # Nothing currently playing, or what was playing was removed. Play first item.
+            idx = 0 if direction == 1 else len(completed_rows) - 1
+        else:
+            idx = completed_rows.index(self._current_playing_row)
+            idx += direction
+
+        # Boundary check
+        if idx >= len(completed_rows) or idx < 0:
+            return False
+
+        next_row = completed_rows[idx]
+        self._current_playing_row = next_row
+        if self.on_play_callback:
+            self.on_play_callback(next_row)
+            return True
+        return False
 
     # =========================================================================
     # PUBLIC API

@@ -16,7 +16,7 @@ class MessageManager:
 
     _toast_widget = None
     _window = None
-    _timer_id = None
+    _active_toast = None
 
     @classmethod
     def init(cls, toast_widget, window=None):
@@ -36,16 +36,20 @@ class MessageManager:
             print("[UI Error] MessageManager not initialized.")
             return
 
+        if cls._active_toast:
+            cls._active_toast.dismiss()
+
         if is_error:
             toast = Adw.Toast.new(message)
             toast.set_timeout(5)
             toast.set_priority(Adw.ToastPriority.HIGH)
-            cls._toast_widget.add_toast(toast)
         else:
             toast = Adw.Toast.new(message)
             toast.set_timeout(5)
             toast.set_priority(Adw.ToastPriority.NORMAL)
-            cls._toast_widget.add_toast(toast)
+            
+        cls._active_toast = toast
+        cls._toast_widget.add_toast(toast)
 
     @classmethod
     def show_confirmation(cls, title: str, body: str, on_confirm_callback=None):

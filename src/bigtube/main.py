@@ -159,12 +159,10 @@ def run():
         import logging
         bt_logger = logging.getLogger("bigtube")
         bt_logger.setLevel(logging.DEBUG)
-        bt_logger.addHandler(logging.StreamHandler())
     else:
         import logging
         bt_logger = logging.getLogger("bigtube")
         bt_logger.setLevel(logging.INFO)
-        bt_logger.addHandler(logging.StreamHandler())
 
     app = BigTubeApplication()
     GLib.set_prgname("org.big.bigtube")

@@ -1,5 +1,7 @@
 
 import threading
+import time
+import uuid
 from typing import Dict, List, Optional, Callable
 from collections import deque
 from .downloader import VideoDownloader
@@ -24,14 +26,6 @@ class DownloadManager:
                     cls._instance._initialized = False
         return cls._instance
 
-    _instance = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(DownloadManager, cls).__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
-
     def __init__(self):
         if self._initialized:
             return
@@ -39,9 +33,10 @@ class DownloadManager:
         self._initialized = True
         self.max_concurrent = 3
         self.active_downloads: Dict[str, VideoDownloader] = {} # Map ID -> Downloader
-        self.pending_queue = deque() # Queue of download tasks (dicts)
+        self.pending_queue = [] # Queue of download tasks (dicts, sorted by priority)
         self.scheduled_tasks = [] # List of (timestamp, task_dict)
         self.lock = threading.Lock()
+        self._schedule_event = threading.Event()
 
         # Start Scheduler Loop
         threading.Thread(target=self._scheduler_loop, daemon=True).start()
@@ -59,11 +54,11 @@ class DownloadManager:
                           ext: str,
                           progress_callback: Callable,
                           force_overwrite: bool = False,
-                          on_start_callback: Callable = None) -> str:
+                          on_start_callback: Callable = None,
+                          priority: int = 0) -> str:
         """
         Schedules a download for a specific unix timestamp.
         """
-        import uuid
         task_id = str(uuid.uuid4())
 
         task = {
@@ -75,7 +70,8 @@ class DownloadManager:
             'progress_callback': progress_callback,
             'force_overwrite': force_overwrite,
             'on_start_callback': on_start_callback,
-            'scheduled_time': timestamp
+            'scheduled_time': timestamp,
+            'priority': priority
         }
 
         with self.lock:
@@ -87,6 +83,9 @@ class DownloadManager:
             if progress_callback:
                 progress_callback(None, Res.get(StringKey.STATUS_SCHEDULED))
 
+        # Wake up scheduler immediately
+        self._schedule_event.set()
+
         return task_id
 
     def add_download(self,
@@ -96,12 +95,12 @@ class DownloadManager:
                      ext: str,
                      progress_callback: Callable,
                      force_overwrite: bool = False,
-                     on_start_callback: Callable = None) -> str:
+                     on_start_callback: Callable = None,
+                     priority: int = 0) -> str:
         """
         Adds a download to the queue.
         Returns a unique ID for the download task.
         """
-        import uuid
         task_id = str(uuid.uuid4())
 
         task = {
@@ -112,7 +111,8 @@ class DownloadManager:
             'ext': ext,
             'progress_callback': progress_callback,
             'force_overwrite': force_overwrite,
-            'on_start_callback': on_start_callback # Called when download actually starts
+            'on_start_callback': on_start_callback, # Called when download actually starts
+            'priority': priority
         }
 
         self._enqueue_task(task)
@@ -121,17 +121,29 @@ class DownloadManager:
     def _enqueue_task(self, task):
         with self.lock:
             self.pending_queue.append(task)
-            logger.info(f"Added download to queue: {task['title']} (Queue size: {len(self.pending_queue)})")
+            # Sort queue by priority (highest first)
+            self.pending_queue.sort(key=lambda x: x.get('priority', 0), reverse=True)
+            
+            logger.info(f"Added download to queue: {task['title']} "
+                        f"(Priority: {task.get('priority', 0)}, Queue size: {len(self.pending_queue)})")
             if task.get('progress_callback'):
                  task['progress_callback'](None, Res.get(StringKey.STATUS_QUEUED))
 
         self._process_queue()
 
     def _scheduler_loop(self):
-        """Checks for due tasks every few seconds."""
-        import time
+        """Checks for due tasks, waking up on new schedules or every 5s."""
         while True:
-            time.sleep(5) # Check every 5 seconds
+            # Calculate dynamic wait time based on next scheduled task
+            wait_timeout = 5.0
+            with self.lock:
+                if self.scheduled_tasks:
+                    next_time = min(t['scheduled_time'] for t in self.scheduled_tasks)
+                    wait_timeout = max(0.1, next_time - time.time())
+
+            self._schedule_event.wait(timeout=min(wait_timeout, 5.0))
+            self._schedule_event.clear()
+
             now = time.time()
             due_tasks = []
 
@@ -165,7 +177,7 @@ class DownloadManager:
             slots_available = self.max_concurrent - active_count
 
             while slots_available > 0 and self.pending_queue:
-                task = self.pending_queue.popleft()
+                task = self.pending_queue.pop(0) # pop from front (highest priority)
                 self._start_task(task)
                 slots_available -= 1
 

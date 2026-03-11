@@ -70,45 +70,100 @@ class SettingsController:
         # Rows
         if 'row_theme' in widgets:
             widgets['row_theme'].set_title(Res.get(StringKey.PREFS_THEME_LABEL))
+            widgets['row_theme'].set_subtitle(Res.get(StringKey.PREFS_THEME_DESC))
 
         if 'row_theme_color' in widgets:
             widgets['row_theme_color'].set_title(Res.get(StringKey.PREFS_COLOR_SCHEME_LABEL))
+            widgets['row_theme_color'].set_subtitle(Res.get(StringKey.PREFS_COLOR_SCHEME_DESC))
 
         self.row_version.set_title(Res.get(StringKey.PREFS_VERSION_LABEL))
         self.row_folder.set_title(Res.get(StringKey.PREFS_FOLDER_LABEL))
 
         if 'row_quality' in widgets:
             widgets['row_quality'].set_title(Res.get(StringKey.PREFS_QUALITY_LABEL))
+            widgets['row_quality'].set_subtitle(Res.get(StringKey.PREFS_QUALITY_DESC))
+
         if 'row_max_downloads' in widgets:
             widgets['row_max_downloads'].set_title(Res.get(StringKey.PREFS_MAX_SIMULTANEOUS_LABEL))
+            widgets['row_max_downloads'].set_subtitle(Res.get(StringKey.PREFS_MAX_SIMULTANEOUS_DESC))
+
         if 'row_metadata' in widgets:
             widgets['row_metadata'].set_title(Res.get(StringKey.PREFS_METADATA_LABEL))
+            widgets['row_metadata'].set_subtitle(Res.get(StringKey.PREFS_METADATA_DESC))
+
         if 'row_subtitles' in widgets:
             widgets['row_subtitles'].set_title(Res.get(StringKey.PREFS_SUBTITLES_LABEL))
+            widgets['row_subtitles'].set_subtitle(Res.get(StringKey.PREFS_SUBTITLES_DESC))
+
+        if 'row_system_notifications' in widgets:
+            widgets['row_system_notifications'].set_title(Res.get(StringKey.PREFS_NOTIFICATIONS_LABEL))
+            widgets['row_system_notifications'].set_subtitle(Res.get(StringKey.PREFS_NOTIFICATIONS_DESC))
+
         if 'row_save_history' in widgets:
             widgets['row_save_history'].set_title(Res.get(StringKey.PREFS_SAVE_HISTORY_LABEL))
+            widgets['row_save_history'].set_subtitle(Res.get(StringKey.PREFS_SAVE_HISTORY_DESC))
+
+        if 'row_export_history' in widgets:
+            widgets['row_export_history'].set_title(Res.get(StringKey.PREFS_EXPORT_HISTORY))
+            widgets['row_export_history'].set_subtitle(Res.get(StringKey.PREFS_EXPORT_HISTORY_DESC))
+
+        if 'row_import_history' in widgets:
+            widgets['row_import_history'].set_title(Res.get(StringKey.PREFS_IMPORT_HISTORY))
+            widgets['row_import_history'].set_subtitle(Res.get(StringKey.PREFS_IMPORT_HISTORY_DESC))
+
         if 'row_save_search' in widgets:
             widgets['row_save_search'].set_title(Res.get(StringKey.PREFS_SAVE_SEARCH_LABEL))
+            widgets['row_save_search'].set_subtitle(Res.get(StringKey.PREFS_SAVE_SEARCH_DESC))
+
         if 'row_search_limit' in widgets:
             widgets['row_search_limit'].set_title(Res.get(StringKey.PREFS_SEARCH_LIMIT_LABEL))
+            widgets['row_search_limit'].set_subtitle(Res.get(StringKey.PREFS_SEARCH_LIMIT_DESC))
+
         if 'row_enable_suggestions' in widgets:
             widgets['row_enable_suggestions'].set_title(Res.get(StringKey.PREFS_ENABLE_SUGGESTIONS_LABEL))
+            widgets['row_enable_suggestions'].set_subtitle(Res.get(StringKey.PREFS_ENABLE_SUGGESTIONS_DESC))
+
         if 'row_max_suggestions' in widgets:
             widgets['row_max_suggestions'].set_title(Res.get(StringKey.PREFS_MAX_SUGGESTIONS_LABEL))
+            widgets['row_max_suggestions'].set_subtitle(Res.get(StringKey.PREFS_MAX_SUGGESTIONS_DESC))
+
         if 'row_clear_search_history' in widgets:
             widgets['row_clear_search_history'].set_title(Res.get(StringKey.BTN_CLEAR_SEARCH_HISTORY))
+            widgets['row_clear_search_history'].set_subtitle(Res.get(StringKey.BTN_CLEAR_SEARCH_HISTORY_DESC))
+
         if 'row_auto_clear' in widgets:
             widgets['row_auto_clear'].set_title(Res.get(StringKey.PREFS_AUTO_CLEAR_LABEL))
+            widgets['row_auto_clear'].set_subtitle(Res.get(StringKey.PREFS_AUTO_CLEAR_DESC))
+
         if 'row_clear_data' in widgets:
             widgets['row_clear_data'].set_title(Res.get(StringKey.PREFS_CLEAR_DATA_LABEL))
+            widgets['row_clear_data'].set_subtitle(Res.get(StringKey.PREFS_CLEAR_DATA_DESC))
+
         if  'row_clipboard_monitor' in widgets:
             widgets['row_clipboard_monitor'].set_title(Res.get(StringKey.PREFS_CLIPBOARD_LABEL))
+            widgets['row_clipboard_monitor'].set_subtitle(Res.get(StringKey.PREFS_CLIPBOARD_DESC))
+
         if 'row_conv_folder' in widgets:
             widgets['row_conv_folder'].set_title(Res.get(StringKey.PREFS_CONV_FOLDER_LABEL))
+            # Subtitle set dynamically
+
         if 'row_conv_history' in widgets:
             widgets['row_conv_history'].set_title(Res.get(StringKey.PREFS_CONV_HISTORY_LABEL))
+            widgets['row_conv_history'].set_subtitle(Res.get(StringKey.PREFS_CONV_HISTORY_DESC))
+
         if 'row_conv_use_source' in widgets:
             widgets['row_conv_use_source'].set_title(Res.get(StringKey.PREFS_CONV_SAME_FOLDER_LABEL))
+            widgets['row_conv_use_source'].set_subtitle(Res.get(StringKey.PREFS_CONV_SAME_FOLDER_DESC))
+
+        if 'row_fragments' in widgets:
+            widgets['row_fragments'].set_title(Res.get(StringKey.PREFS_FRAGMENTS_LABEL))
+            widgets['row_fragments'].set_subtitle(Res.get(StringKey.PREFS_FRAGMENTS_DESC))
+        if 'row_rate_limit' in widgets:
+            widgets['row_rate_limit'].set_title(Res.get(StringKey.PREFS_RATE_LIMIT_LABEL))
+            widgets['row_rate_limit'].set_subtitle(Res.get(StringKey.PREFS_RATE_LIMIT_DESC))
+        if 'row_post_process' in widgets:
+            widgets['row_post_process'].set_title(Res.get(StringKey.PREFS_POST_PROCESS_LABEL))
+            widgets['row_post_process'].set_tooltip_text(Res.get(StringKey.PREFS_POST_PROCESS_DESC))
 
     def _setup_bindings(self, w):
         """Connects signals for changes."""
@@ -181,6 +236,11 @@ class SettingsController:
                 "notify::active",
                 lambda o, p: ConfigManager.set("embed_subtitles", o.get_active())
             )
+        if 'row_system_notifications' in w:
+            w['row_system_notifications'].connect(
+                "notify::active",
+                lambda o, p: ConfigManager.set("system_notifications", o.get_active())
+            )
         if 'row_clipboard_monitor' in w:
              w['row_clipboard_monitor'].connect(
                 "notify::active",
@@ -235,6 +295,25 @@ class SettingsController:
             )
         if 'btn_select_conv_folder' in w:
             w['btn_select_conv_folder'].connect("clicked", self.on_pick_conv_folder_clicked)
+        if 'btn_export_history' in w:
+            w['btn_export_history'].connect("clicked", self.on_export_history_clicked)
+        if 'btn_import_history' in w:
+            w['btn_import_history'].connect("clicked", self.on_import_history_clicked)
+        if 'spin_fragments' in w:
+            w['spin_fragments'].connect(
+                "value-changed",
+                lambda o: ConfigManager.set("concurrent_fragments", int(o.get_value()))
+            )
+        if 'spin_rate_limit' in w:
+            w['spin_rate_limit'].connect(
+                "value-changed",
+                lambda o: ConfigManager.set("rate_limit", int(o.get_value()))
+            )
+        if 'row_post_process' in w:
+            w['row_post_process'].connect(
+                "apply",
+                lambda o: ConfigManager.set("post_process_cmd", o.get_text())
+            )
 
         # 4. Clear Data
         if 'row_clear_data' in w:
@@ -279,6 +358,8 @@ class SettingsController:
             w['row_metadata'].set_active(ConfigManager.get("add_metadata"))
         if 'row_subtitles' in w:
             w['row_subtitles'].set_active(ConfigManager.get("embed_subtitles"))
+        if 'row_system_notifications' in w:
+            w['row_system_notifications'].set_active(ConfigManager.get("system_notifications"))
         if 'row_save_history' in w:
             w['row_save_history'].set_active(ConfigManager.get("save_history"))
         if 'row_save_search' in w:
@@ -315,6 +396,16 @@ class SettingsController:
         if 'row_conv_folder' in w:
             conv_path = ConfigManager.get("converter_path")
             w['row_conv_folder'].set_subtitle(conv_path)
+
+        # Load Fragments
+        if 'spin_fragments' in w:
+            w['spin_fragments'].set_value(ConfigManager.get("concurrent_fragments") or 4)
+        # Load Rate Limit
+        if 'spin_rate_limit' in w:
+            w['spin_rate_limit'].set_value(ConfigManager.get("rate_limit") or 0)
+        # Load Post Process Cmd
+        if 'row_post_process' in w:
+            w['row_post_process'].set_text(ConfigManager.get("post_process_cmd") or "")
 
         # Load Theme Mode
         if 'row_theme' in w:
@@ -504,12 +595,57 @@ class SettingsController:
     def _async_load_version(self):
         """Fetches binary version in background."""
         v_prefix = Res.get(StringKey.LBL_VERSION_PREFIX)
+        ver = Updater.get_local_version() or "v?"
         # Always update UI on Main Thread
         GLib.idle_add(self.row_version.set_subtitle, f"{v_prefix}{ver}")
 
     # =========================================================================
     # FOLDER SELECTION LOGIC
     # =========================================================================
+    # FILE DIALOGS
+    # =========================================================================
+    def on_export_history_clicked(self, btn):
+        dialog = Gtk.FileDialog()
+        dialog.set_title(Res.get(StringKey.PREFS_EXPORT_HISTORY))
+        dialog.set_initial_name("bigtube_history.json")
+        dialog.save(self.window, None, self._on_export_history_selected)
+
+    def _on_export_history_selected(self, dialog, result):
+        try:
+            f = dialog.save_finish(result)
+            if f:
+                path = f.get_path()
+                history_data = HistoryManager.load()
+                with open(path, 'w', encoding='utf-8') as out:
+                    import json
+                    json.dump(history_data, out, indent=4)
+                MessageManager.show(Res.get(StringKey.MSG_HISTORY_EXPORTED))
+        except Exception as e:
+            logger.error(f"Error exporting history: {e}")
+
+    def on_import_history_clicked(self, btn):
+        dialog = Gtk.FileDialog()
+        dialog.set_title(Res.get(StringKey.PREFS_IMPORT_HISTORY))
+        dialog.open(self.window, None, self._on_import_history_selected)
+
+    def _on_import_history_selected(self, dialog, result):
+        try:
+            f = dialog.open_finish(result)
+            if f:
+                path = f.get_path()
+                with open(path, 'r', encoding='utf-8') as src:
+                    import json
+                    data = json.load(src)
+                if isinstance(data, list):
+                    HistoryManager._cache = data
+                    HistoryManager.force_save()
+                    MessageManager.show(Res.get(StringKey.MSG_HISTORY_IMPORTED))
+                else:
+                    MessageManager.show("Invalid history file format", is_error=True)
+        except Exception as e:
+            logger.error(f"Error importing history: {e}")
+            MessageManager.show("Error importing history file", is_error=True)
+
     def on_pick_folder_clicked(self, btn):
         """Opens GTK4 FileDialog to select download directory."""
         dialog = Gtk.FileDialog()

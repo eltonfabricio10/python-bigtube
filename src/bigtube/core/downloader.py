@@ -318,6 +318,12 @@ class VideoDownloader:
         if not os.path.exists(download_dir):
             os.makedirs(download_dir, exist_ok=True)
 
+        # 1b. Check disk space before proceeding
+        if not self._check_disk_space(500, download_dir):  # 500MB estimated
+            if progress_callback:
+                progress_callback(None, Res.get(StringKey.ERR_DISK_SPACE))
+            return False
+
         # Sanitize filename (secure)
         safe_title = sanitize_filename(title)
         if not safe_title:
@@ -338,13 +344,23 @@ class VideoDownloader:
             "--ignore-config",
             "--ignore-errors",
             "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-            "--concurrent-fragments", "4",
+            "--concurrent-fragments", str(ConfigManager.get("concurrent_fragments") or 4),
             "--progress-template", "postprocess:[postprocess] %(progress._percent_str)s",
             "-o", f"{os.path.join(download_dir, safe_title)}.{ext}"
         ]
 
         if is_youtube_url(url):
              cmd.extend(["--extractor-args", "youtube:player_client=android"])
+
+        # Apply rate limit if configured
+        rate_limit = ConfigManager.get("rate_limit")
+        if rate_limit and int(rate_limit) > 0:
+            cmd.extend(["--rate-limit", f"{int(rate_limit)}K"])
+
+        # Apply custom post-processing command
+        pp_cmd = ConfigManager.get("post_process_cmd")
+        if pp_cmd and str(pp_cmd).strip():
+            cmd.extend(["--exec", str(pp_cmd).strip()])
 
         # --- Inject User Preferences (requires ffmpeg) ---
         has_ffmpeg = shutil.which("ffmpeg") is not None

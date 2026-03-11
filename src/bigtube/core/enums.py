@@ -1,5 +1,14 @@
 from enum import Enum
 
+# Application constants
+APP_ID = "org.big.bigtube"
+APP_NAME = "bigtube"
+
+# Stack child name constants
+STACK_RESULTS = "results"
+STACK_EMPTY = "empty"
+STACK_LIST = "list"
+
 
 class AppSection(str, Enum):
     """

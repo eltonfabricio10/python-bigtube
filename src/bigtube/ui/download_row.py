@@ -9,6 +9,7 @@ from gi.repository import Gtk, GLib
 from ..core.locales import ResourceManager as Res, StringKey
 from ..core.enums import DownloadStatus
 from ..core.history_manager import HistoryManager
+from ..core.config import ConfigManager
 from ..core.logger import get_logger
 from .message_manager import MessageManager
 
@@ -116,7 +117,7 @@ class DownloadRow(Gtk.Box):
             return
 
         if self.on_play_callback:
-            self.on_play_callback(self.full_path, self.lbl_title.get_label())
+            self.on_play_callback(self)
 
     def _on_convert_clicked(self, btn):
         """Triggers the convert request."""
@@ -244,7 +245,8 @@ class DownloadRow(Gtk.Box):
 
         # Show error detail in the path label or via toast
         self.lbl_path.set_label(error_msg)
-        MessageManager.show(error_msg, is_error=True)
+        if not ConfigManager.get("system_notifications"):
+            MessageManager.show(error_msg, is_error=True)
 
     def _set_success_state(self):
         """Visual feedback for success."""

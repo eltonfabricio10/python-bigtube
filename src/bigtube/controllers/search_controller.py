@@ -103,6 +103,7 @@ class SearchController(GObject.Object):
         # Multi-Selection State
         self.selection_mode = False
         self.is_loading = False
+        self._last_searched_query = None
 
     # =========================================================================
     # MULTI-SELECTION API
@@ -239,6 +240,13 @@ class SearchController(GObject.Object):
         """Handles clearing the list when search box is empty."""
         text = entry.get_text()
 
+        # Prevent GTK's delayed search-changed signal from reopening popover after a search
+        if getattr(self, '_last_searched_query', None) == text:
+            return
+
+        # User typed something else, clear the block so they can get suggestions again
+        self._last_searched_query = None
+
         # 0. Suppress suggestions if a search is already active
         # But allow clearing logic if text is empty
         if self.is_loading and text.strip():
@@ -307,9 +315,12 @@ class SearchController(GObject.Object):
 
         self.popover.popdown()
 
-        query = self.entry.get_text().strip()
+        raw_text = self.entry.get_text()
+        query = raw_text.strip()
         if not query:
             return
+
+        self._last_searched_query = raw_text
 
         SearchHistory.add(query)
         logger.info(f"Search query: {query}")

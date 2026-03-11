@@ -8,7 +8,7 @@ from gi.repository import GLib
 # Import internal Enums
 from .enums import ThemeMode, VideoQuality, ThemeColor
 from .locales import ResourceManager as Res, StringKey
-from .logger import get_logger
+from .logger import get_logger, BinaryNotFoundError
 
 # Module logger
 logger = get_logger(__name__)
@@ -59,7 +59,11 @@ class ConfigManager:
         "auto_clear_finished": False,
         "converter_path": str(Path(_DEFAULT_DOWNLOAD_DIR) / "BigTube" / "Converted"),
         "use_source_folder": False,
-        "monitor_clipboard": False
+        "monitor_clipboard": False,
+        "concurrent_fragments": 4,
+        "rate_limit": 0,
+        "system_notifications": True,
+        "post_process_cmd": ""
     }
 
     _data = {}
@@ -119,14 +123,14 @@ class ConfigManager:
             logger.error(f"Failed to save config: {e}")
 
     @classmethod
-    def get(cls, key: str):
+    def get(cls, key: str) -> 'Any':
         """Retrieves a value. Returns default if missing."""
         if not cls._data:
             cls.load()
         return cls._data.get(key, cls._DEFAULTS.get(key))
 
     @classmethod
-    def set(cls, key: str, value):
+    def set(cls, key: str, value: 'Union[str, int, bool, float, Enum]') -> None:
         """
         Updates a setting and saves immediately.
         Handles Enum conversion automatically.
@@ -145,6 +149,23 @@ class ConfigManager:
 
         cls._data[key] = value
         cls.save()
+
+    @classmethod
+    def set_batch(cls, updates: dict):
+        """Applies multiple setting changes with a single save to disk."""
+        if not cls._data:
+            cls.load()
+
+        changed = False
+        for key, value in updates.items():
+            if hasattr(value, 'value'):
+                value = value.value
+            if cls._data.get(key) != value:
+                cls._data[key] = value
+                changed = True
+
+        if changed:
+            cls.save()
 
     @classmethod
     def reset_all(cls):
@@ -194,9 +215,14 @@ class ConfigManager:
         if system_bin:
             return system_bin
 
+        raise BinaryNotFoundError("yt-dlp")
+
+    _cached_env = None
+
     @classmethod
     def get_env_with_bin_path(cls) -> dict:
-        """Returns a copy of os.environ with BIN_DIR prepended to PATH."""
-        env = os.environ.copy()
-        env["PATH"] = str(cls.BIN_DIR) + os.pathsep + env.get("PATH", "")
-        return env
+        """Returns a cached copy of os.environ with BIN_DIR prepended to PATH."""
+        if cls._cached_env is None:
+            cls._cached_env = os.environ.copy()
+            cls._cached_env["PATH"] = str(cls.BIN_DIR) + os.pathsep + cls._cached_env.get("PATH", "")
+        return cls._cached_env
