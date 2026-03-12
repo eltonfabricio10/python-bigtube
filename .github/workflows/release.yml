@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   # =========================================================
   # JOB 1: Compilação Padrão (Traduções + Wheel + Tar.gz)
