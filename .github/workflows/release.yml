@@ -52,6 +52,7 @@ jobs:
       - name: Publish Standard Release
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
           files: |
             dist/*.whl
@@ -98,6 +99,7 @@ jobs:
       - name: Publish Arch Package to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           # Anexa o ficheiro final (.pkg.tar.zst) na release criada pelo Job 1
           files: "*.pkg.tar.zst"
 
