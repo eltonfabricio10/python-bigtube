@@ -67,6 +67,13 @@ jobs:
 
       - name: Prepare Arch Environment & Build
         run: |
+          # 0. Extrair a versão da Tag (ex: tira o 'v' de v1.0.2 e guarda '1.0.2')
+          PKGVER=${GITHUB_REF#refs/tags/v}
+
+          # 0.1 Injetar a versão correta no PKGBUILD ANTES de compilar
+          sed -i "s/^pkgver=.*/pkgver=${PKGVER}/" PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
+
           # 1. Atualizar o sistema e garantir que o sudo/git estão instalados
           pacman -Syu --noconfirm git sudo
 
@@ -77,7 +84,7 @@ jobs:
           # 3. Dar permissões ao novo utilizador sobre a pasta de trabalho
           chown -R builduser:builduser .
 
-          # 4. Executar o makepkg (Ele lerá o PKGBUILD, baixará o tar.gz da tag e fará tudo sozinho)
+          # 4. Executar o makepkg na pasta correta do GitHub
           su - builduser -c "cd $PWD && makepkg -s --noconfirm"
 
       - name: Publish Arch Package to GitHub Release
