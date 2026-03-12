@@ -1,0 +1,1101 @@
+# Slovak translations for PACKAGE package.
+# Copyright (C) 2026 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-11 23:04-0300\n"
+"PO-Revision-Date: 2026-03-11 23:04-0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: sk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:62
+msgid "BigTube"
+msgstr "BigTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:65
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:87
+msgid "Search"
+msgstr "Hľadať"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:66
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:126
+msgid "Downloads"
+msgstr "sťahovanie"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:67
+msgid "Converter"
+msgstr "Konvertor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:68
+msgid "Settings"
+msgstr "Nastavenia"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:71
+msgid "Search Manager"
+msgstr "Správca vyhľadávania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:72
+msgid "Downloads Manager"
+msgstr "Správca sťahovania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:73
+msgid "Settings Manager"
+msgstr "Správca nastavení"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:74
+msgid "Converter Manager"
+msgstr "Správca prevodníkov"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:77
+msgid "YouTube"
+msgstr "YouTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:78
+msgid "SoundCloud"
+msgstr "SoundCloud"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:79
+msgid "Direct Link"
+msgstr "Priamy odkaz"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:82
+msgid "Unknown Title"
+msgstr "Neznámy názov"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:83
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:392
+msgid "Unknown Artist"
+msgstr "Neznámy umelec"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:86
+msgid "Paste URL or type keywords..."
+msgstr "Prilepte adresu URL alebo zadajte kľúčové slová..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:88
+msgid "No results found!"
+msgstr "Nenašli sa žiadne výsledky!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:89
+msgid "Searching for:"
+msgstr "Hľadá sa:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:92
+msgid "No Results"
+msgstr "Žiadne výsledky"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:93
+msgid "Search for videos or paste a URL"
+msgstr "Vyhľadajte videá alebo prilepte adresu URL"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:94
+msgid "No Downloads"
+msgstr "Žiadne sťahovanie"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:95
+msgid "Your downloads will appear here"
+msgstr "Tu sa zobrazia vaše stiahnuté súbory"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:98
+msgid "Play Video"
+msgstr "Prehrať video"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:99
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:108
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:322
+msgid "Download"
+msgstr "Stiahnuť"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:100
+msgid "Copy Link"
+msgstr "Kopírovať odkaz"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:101
+msgid "Link Copied!"
+msgstr "Odkaz bol skopírovaný!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:104
+msgid "Select Quality"
+msgstr "Vyberte položku Kvalita"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:105
+msgid "Video Formats"
+msgstr "Video formáty"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:106
+msgid "Duration:"
+msgstr "Trvanie:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:107
+msgid "Audio Only"
+msgstr "Iba zvuk"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:111
+msgid "Clear History"
+msgstr "Vymazať históriu"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:112
+msgid "Clear History?"
+msgstr "Vymazať históriu?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:113
+msgid ""
+"This will remove all entries from the list.\n"
+"Files will remain on disk."
+msgstr ""
+"Tým sa odstránia všetky položky zo zoznamu.\n"
+"Súbory zostanú na disku."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:114
+msgid "History cleared successfully!"
+msgstr "História bola úspešne vymazaná!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:115
+msgid "Failed to get info for"
+msgstr "Nepodarilo sa získať informácie pre"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:118
+msgid "Download Folder"
+msgstr "Priečinok na stiahnutie"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:119
+msgid "Pick Folder"
+msgstr "Vyberte priečinok"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:120
+msgid "Current Version"
+msgstr "Aktuálna verzia"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:121
+msgid "Check for Updates"
+msgstr "Skontrolujte aktualizácie"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:123
+msgid "Appearance"
+msgstr "Vzhľad"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:124
+msgid "Interface Theme"
+msgstr "Téma rozhrania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:125
+msgid "Color Scheme"
+msgstr "Farebná schéma"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:127
+msgid "Preferred Quality"
+msgstr "Preferovaná kvalita"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:128
+msgid "Add Metadata to Files"
+msgstr "Pridajte metadáta do súborov"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:129
+msgid "Enable ClipBoard Monitor"
+msgstr "Povoliť sledovanie schránky"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:130
+msgid "Embed Subtitles"
+msgstr "Vložiť titulky"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:131
+msgid "Storage"
+msgstr "Skladovanie"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:132
+msgid "Save Download History"
+msgstr "Uložiť históriu sťahovania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:133
+msgid "Clear All Data on Exit"
+msgstr "Pri ukončení vymazať všetky údaje"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:134
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:237
+msgid "Media Converter"
+msgstr "Media Converter"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:135
+msgid "Default Output Folder"
+msgstr "Predvolený výstupný priečinok"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:136
+msgid "Save Conversion History"
+msgstr "Uložiť históriu konverzií"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:137
+msgid "Save in Source Directory"
+msgstr "Uložiť do zdrojového adresára"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:140
+msgid "System"
+msgstr "Systém"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:141
+msgid "Light"
+msgstr "Svetlo"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:142
+msgid "Dark"
+msgstr "Tmavý"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:145
+msgid "Ask Every Time"
+msgstr "Opýtajte sa zakaždým"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:146
+msgid "Best (MKV)"
+msgstr "Najlepšie (MKV)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:147
+msgid "4K (2160p)"
+msgstr "4K (2160p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:148
+msgid "2K (1440p)"
+msgstr "2K (1440p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:149
+msgid "Full HD (1080p)"
+msgstr "Full HD (1080p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:150
+msgid "HD (720p)"
+msgstr "HD (720p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:151
+msgid "SD (480p)"
+msgstr "SD (480p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:152
+msgid "Low Definition (360p)"
+msgstr "Nízke rozlíšenie (360p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:153
+msgid "Very Low (240p)"
+msgstr "Veľmi nízka (240p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:154
+msgid "Lowest (144p)"
+msgstr "Najnižšia (144p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:155
+msgid "Audio (MP3)"
+msgstr "Zvuk (MP3)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:156
+msgid "Audio (M4A)"
+msgstr "Zvuk (M4A)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:159
+msgid "Default Blue"
+msgstr "Predvolená modrá"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:160
+msgid "Modern Violet"
+msgstr "Moderná fialová"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:161
+msgid "Emerald Green"
+msgstr "Smaragdovo zelená"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:162
+msgid "Sunburst Orange"
+msgstr "Sunburst Orange"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:163
+msgid "Vibrant Rose"
+msgstr "Živá ruža"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:164
+msgid "Nordic Cyan"
+msgstr "Severská azúrová"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:167
+msgid "Nordic Snow"
+msgstr "Severský sneh"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:168
+msgid "Gruvbox Retro"
+msgstr "Gruvbox Retro"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:169
+msgid "Catppuccin Mocha"
+msgstr "Catpuccin Mocha"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:170
+msgid "Dracula Dark"
+msgstr "Dracula Dark"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:171
+msgid "Tokyo Night"
+msgstr "Tokijská noc"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:172
+msgid "Rosé Pine"
+msgstr "Ružová borovica"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:173
+msgid "Solarized Dark"
+msgstr "Solarized Dark"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:174
+msgid "Monokai Pro"
+msgstr "Monokai Pro"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:175
+msgid "Cyberpunk Neon"
+msgstr "Cyberpunk Neon"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:176
+msgid "BigTube Brand"
+msgstr "Značka BigTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:179
+msgid "Searching"
+msgstr "Hľadá sa"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:180
+msgid "Pending"
+msgstr "Čaká na spracovanie"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:181
+msgid "Downloading..."
+msgstr "Sťahuje sa..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:182
+msgid "Processing..."
+msgstr "Spracováva sa..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:183
+msgid "Merging..."
+msgstr "Zlučovanie..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:184
+msgid "Extracting Audio..."
+msgstr "Extrahuje sa zvuk..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:185
+msgid "Completed"
+msgstr "Dokončené"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:186
+msgid "Error"
+msgstr "Chyba"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:187
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:250
+msgid "Cancelled"
+msgstr "Zrušené"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:188
+msgid "Confirm"
+msgstr "Potvrďte"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:189
+msgid "Cancel"
+msgstr "Zrušiť"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:190
+msgid "Interrupted"
+msgstr "Prerušený"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:191
+msgid "Paused"
+msgstr "Pozastavené"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:192
+msgid "Resuming..."
+msgstr "Obnovuje sa..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:195
+msgid "Pause"
+msgstr "Pauza"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:196
+msgid "Resume"
+msgstr "Obnoviť"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:197
+msgid "Cancel Conversion"
+msgstr "Zrušiť konverziu"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:200
+msgid "Critical Error:"
+msgstr "Kritická chyba:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:201
+msgid "Network Error!"
+msgstr "Chyba siete!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:202
+msgid "Content is DRM Protected!"
+msgstr "Obsah je chránený DRM!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:203
+msgid "Video is Private!"
+msgstr "Video je súkromné!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:204
+msgid "Unknown Error!"
+msgstr "Neznáma chyba!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:205
+msgid "FFmpeg Error - Missing or incompatible!"
+msgstr "FFmpeg Error – Chýba alebo je nekompatibilný!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:206
+msgid "Not enough disk space!"
+msgstr "Nedostatok miesta na disku!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:207
+msgid "Error searching for video!"
+msgstr "Chyba pri vyhľadávaní videa!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:208
+msgid "File Already Exists!"
+msgstr "Súbor už existuje!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:209
+msgid "Overwrite this file?"
+msgstr "Prepísať tento súbor?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:210
+msgid "File Not Found, Remove from History?"
+msgstr "Súbor sa nenašiel, odstrániť z histórie?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:211
+msgid "The following file exists in history but was not found on disk:\n"
+msgstr "Nasledujúci súbor existuje v histórii, ale nebol nájdený na disku:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:212
+msgid "Item removed from history."
+msgstr "Položka bola odstránená z histórie."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:213
+msgid "Invalid URL format"
+msgstr "Neplatný formát adresy URL"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:216
+msgid "Stopped"
+msgstr "Zastavené"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:217
+msgid "Buffering..."
+msgstr ""
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:218
+msgid "BigTube Player"
+msgstr "Prehrávač BigTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:221
+msgid "Insufficient disk space!"
+msgstr "Nedostatok miesta na disku!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:222
+msgid "Could not check disk space!"
+msgstr "Nepodarilo sa skontrolovať miesto na disku!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:223
+msgid "FFmpeg not found. Some features will be limited!"
+msgstr "FFmpeg sa nenašiel. Niektoré funkcie budú obmedzené!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:224
+msgid "Download completed successfully!"
+msgstr "Sťahovanie bolo úspešne dokončené!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:225
+msgid "Download cancelled by user!"
+msgstr "Sťahovanie bolo zrušené používateľom!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:226
+msgid "Download failed!"
+msgstr "Sťahovanie zlyhalo!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:227
+msgid "Download timed out!"
+msgstr "Časový limit sťahovania vypršal!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:228
+msgid "Starting download..."
+msgstr "Spúšťa sa sťahovanie..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:229
+msgid "Resuming download..."
+msgstr "Obnovuje sa sťahovanie..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:232
+msgid "No internet connection!"
+msgstr "Žiadne internetové pripojenie!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:233
+msgid "yt-dlp update available:"
+msgstr "Dostupná aktualizácia yt-dlp:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:234
+msgid "Checking for updates..."
+msgstr "Kontrolujú sa aktualizácie..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:238
+msgid "Drag and drop files here to convert"
+msgstr "Presuňte sem súbory na konverziu"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:239
+msgid "Convert your media files"
+msgstr "Preveďte svoje mediálne súbory"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:240
+msgid "Or paste image URL / File Path"
+msgstr "Alebo vložte adresu URL obrázka / cestu k súboru"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:241
+msgid "Convert to:"
+msgstr "Konvertovať na:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:242
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:277
+msgid "Convert"
+msgstr "Konvertovať"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:245
+msgid "Ready"
+msgstr "Pripravený"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:246
+msgid "Selected: "
+msgstr "Vybrané:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:247
+msgid "Downloading image..."
+msgstr "Sťahuje sa obrázok..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:248
+msgid "Converting to"
+msgstr "Konverzia na"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:249
+msgid "Success!"
+msgstr "Úspech!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:251
+msgid "Error occurred"
+msgstr "Vyskytla sa chyba"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:254
+msgid "Conversion Complete"
+msgstr "Konverzia dokončená"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:255
+msgid "Saved to:"
+msgstr "Uložené do:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:256
+msgid "Failed:"
+msgstr "Neúspešné:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:257
+msgid "Conversion Cancelled"
+msgstr "Konverzia bola zrušená"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:260
+msgid "Select Media Files"
+msgstr "Vyberte položku Mediálne súbory"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:261
+msgid "_Open"
+msgstr "_OTVORENÉ"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:262
+msgid "_Cancel"
+msgstr "_Zrušiť"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:263
+msgid "Media Files"
+msgstr "Mediálne súbory"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:266
+msgid "File Not Found"
+msgstr "Súbor sa nenašiel"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:267
+msgid ""
+"The converted file was not found. Would you like to convert it again or "
+"remove it from history?"
+msgstr ""
+"Skonvertovaný súbor sa nenašiel. Chcete ho znova skonvertovať alebo "
+"odstrániť z histórie?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:268
+msgid "Convert Again"
+msgstr "Znova previesť"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:269
+msgid "Remove from History"
+msgstr "Odstrániť z histórie"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:270
+msgid "Source File Missing"
+msgstr "Chýba zdrojový súbor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:271
+msgid ""
+"The source file for this conversion is missing. Would you like to remove it "
+"from the list?"
+msgstr ""
+"Chýba zdrojový súbor pre túto konverziu. Chcete ho odstrániť zo zoznamu?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:273
+msgid "Add Files"
+msgstr "Pridať súbory"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:274
+msgid "Remove from list"
+msgstr "Odstrániť zo zoznamu"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:275
+msgid "Open Folder"
+msgstr "Otvorte priečinok"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:276
+msgid "Play Converted File"
+msgstr "Prehrať konvertovaný súbor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:278
+msgid "Add to Converter"
+msgstr "Pridať do konvertora"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:279
+msgid "Convert All"
+msgstr "Previesť všetko"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:281
+msgid "Add Metadata"
+msgstr "Pridajte metadáta"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:282
+msgid "Add Subtitles"
+msgstr "Pridať titulky"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:283
+msgid "options available"
+msgstr "dostupné možnosti"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:284
+msgid "No formats found"
+msgstr "Nenašli sa žiadne formáty"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:285
+msgid "Local File"
+msgstr "Miestny súbor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:286
+msgid "ETA: "
+msgstr "ETA:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:289
+msgid "Select source"
+msgstr "Vyberte zdroj"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:292
+msgid "Previous"
+msgstr "Predchádzajúce"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:293
+msgid "Play/Pause"
+msgstr "Prehrať/Pozastaviť"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:294
+msgid "Next"
+msgstr "Ďalej"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:295
+msgid "Toggle Video Window"
+msgstr "Prepnúť video okno"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:298
+msgid "Reset Application to Clean State?"
+msgstr "Resetovať aplikáciu do čistého stavu?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:299
+msgid ""
+"This will PERMANENTLY delete all settings, search history, download history,"
+" and converter history. This action cannot be undone."
+msgstr ""
+"Týmto sa NATRVALO odstránia všetky nastavenia, história vyhľadávania, "
+"história sťahovania a história prevodníkov. Túto akciu nie je možné vrátiť "
+"späť."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:300
+msgid "All application data has been cleared. The app will now restart."
+msgstr "Všetky údaje aplikácie boli vymazané. Aplikácia sa teraz reštartuje."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:301
+msgid "Failed to select folder"
+msgstr "Priečinok sa nepodarilo vybrať"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:302
+msgid "Components updated successfully! ✅"
+msgstr "Komponenty boli úspešne aktualizované! ✅"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:303
+msgid "Deno updated, but yt-dlp failed."
+msgstr "Deno bolo aktualizované, ale yt-dlp zlyhal."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:306
+msgid "Clear All App Data (Reset)"
+msgstr "Vymazať všetky údaje aplikácie (resetovať)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:307
+msgid "Update check failed."
+msgstr "Kontrola aktualizácie zlyhala."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:308
+msgid "Error:"
+msgstr "Chyba:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:311
+msgid "Scheduled"
+msgstr "Naplánované"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:312
+msgid "Queued"
+msgstr "Vo fronte"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:313
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:319
+msgid "Schedule Download"
+msgstr "Plán sťahovania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:314
+msgid "Select Date &amp; Time"
+msgstr "Vyberte Dátum &amp; Čas"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:315
+msgid "Date"
+msgstr "Dátum"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:316
+msgid "Time"
+msgstr "Čas"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:317
+msgid "Time (HH:MM)"
+msgstr "Čas (HH:MM)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:318
+msgid "Schedule"
+msgstr "Rozvrh"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:320
+msgid "Link Detected:"
+msgstr "Zistený odkaz:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:321
+msgid "Link detected! Paste in search to download."
+msgstr "Odkaz bol nájdený! Na stiahnutie vložte do vyhľadávania."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:323
+msgid "Scheduled:"
+msgstr "Naplánované:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:326
+msgid "h"
+msgstr "h"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:327
+msgid "m"
+msgstr "m"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:328
+msgid "s"
+msgstr "s"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:331
+msgid "© 2026 BigTube"
+msgstr "© 2026 BigTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:332
+msgid "Help"
+msgstr "Pomoc"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:333
+msgid "About"
+msgstr "O"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:334
+msgid "Quit"
+msgstr "Ukončite"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:337
+msgid "Toggle Selection Mode"
+msgstr "Prepnúť režim výberu"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:338
+msgid "Select All / None"
+msgstr "Vyberte Všetky / Žiadne"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:339
+#, python-brace-format
+msgid "Download Selected ({count})"
+msgstr "Stiahnuť vybraté ({count})"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:340
+#, python-brace-format
+msgid "Starting batch download of {count} items..."
+msgstr "Spúšťa sa hromadné sťahovanie {count} položiek..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:343
+msgid "Search Settings"
+msgstr "Nastavenia vyhľadávania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:344
+msgid "Save Search History"
+msgstr "Uložiť históriu vyhľadávania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:345
+msgid "Enable Search Suggestions"
+msgstr "Povoliť návrhy vyhľadávania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:346
+msgid "Maximum Suggestions"
+msgstr "Maximálny počet návrhov"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:347
+msgid "Clear Search History"
+msgstr "Vymazať históriu vyhľadávania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:348
+msgid "Delete Suggestion"
+msgstr "Odstrániť návrh"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:349
+msgid "Maximum Search Results"
+msgstr "Maximálny počet výsledkov vyhľadávania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:350
+msgid "Max Simultaneous Downloads"
+msgstr "Maximálny počet simultánnych sťahovaní"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:351
+msgid "Concurrent Fragments"
+msgstr "Súbežné fragmenty"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:352
+msgid "Number of parallel fragments per download (1-16)"
+msgstr "Počet paralelných fragmentov na stiahnutie (1 – 16)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:353
+msgid "Download Speed Limit (KB/s)"
+msgstr "Limit rýchlosti sťahovania (kB/s)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:354
+msgid "Set to 0 for unlimited"
+msgstr "Nastavte na 0 pre neobmedzené"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:355
+msgid "System Notifications"
+msgstr "Systémové upozornenia"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:356
+msgid "Export History"
+msgstr "História exportu"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:357
+msgid "Import History"
+msgstr "História importu"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:358
+msgid "Post-Processing Command"
+msgstr "Príkaz na následné spracovanie"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:359
+#, python-brace-format
+msgid "Command to run after download. Use {} for filename."
+msgstr "Príkaz na spustenie po stiahnutí. Ako názov súboru použite {}."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:360
+msgid "History exported successfully!"
+msgstr "História bola úspešne exportovaná!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:361
+msgid "History imported successfully!"
+msgstr "História bola úspešne importovaná!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:364
+msgid "Toggle between light, dark, or system theme"
+msgstr "Prepínajte medzi svetlou, tmavou alebo systémovou témou"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:365
+msgid "Select a custom accent color for the interface"
+msgstr "Vyberte vlastnú zvýrazňujúcu farbu pre rozhranie"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:366
+msgid "Check for updates to yt-dlp and components"
+msgstr "Skontrolujte aktualizácie yt-dlp a komponentov"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:367
+msgid "Directory where downloads will be saved"
+msgstr "Adresár, do ktorého sa budú ukladať stiahnuté súbory"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:368
+msgid "Default resolution or format for new downloads"
+msgstr "Predvolené rozlíšenie alebo formát pre nové stiahnuté súbory"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:369
+msgid "How many videos can download at the same time"
+msgstr "Koľko videí je možné stiahnuť súčasne"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:370
+msgid "Add artist, album, and covers to downloaded files"
+msgstr "Pridajte interpreta, album a obaly k stiahnutým súborom"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:371
+msgid "Attempt to fetch and embed subtitles if found"
+msgstr "Ak sa nájdu titulky, pokúste sa ich načítať a vložiť"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:372
+msgid "Show system-level alerts for download events"
+msgstr "Zobrazovať upozornenia na úrovni systému pre udalosti sťahovania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:373
+msgid "Automatically detect video links in your clipboard"
+msgstr "Automaticky zisťovať odkazy na videá vo vašej schránke"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:374
+msgid "Keep a log of your past downloads locally"
+msgstr "Lokálne si uchovávajte záznamy o minulých stiahnutiach"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:375
+msgid "Wipe all history and temporary data on exit"
+msgstr "Pri ukončení vymažte celú históriu a dočasné údaje"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:376
+msgid "Save your download history to a file"
+msgstr "Uložte si históriu sťahovania do súboru"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:377
+msgid "Restore history from a backup file"
+msgstr "Obnovte históriu zo záložného súboru"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:378
+msgid "Permanently delete all settings and history"
+msgstr "Natrvalo odstrániť všetky nastavenia a históriu"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:379
+msgid "Keep track of your search queries locally"
+msgstr "Majte prehľad o svojich vyhľadávacích dopytoch lokálne"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:380
+msgid "Maximum number of items in search results"
+msgstr "Maximálny počet položiek vo výsledkoch vyhľadávania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:381
+msgid "Show suggestions while typing in search bar"
+msgstr "Zobrazovať návrhy pri písaní do vyhľadávacieho panela"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:382
+msgid "Number of suggestions to display at once"
+msgstr "Počet návrhov na zobrazenie naraz"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:383
+msgid "Delete all previous search entries"
+msgstr "Vymažte všetky predchádzajúce záznamy vyhľadávania"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:384
+msgid "Target directory for converted files"
+msgstr "Cieľový adresár pre konvertované súbory"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:385
+msgid "Keep a history of converted media files"
+msgstr "Uchovávajte históriu konvertovaných mediálnych súborov"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:386
+msgid "Save converted files next to originals"
+msgstr "Uložte skonvertované súbory vedľa originálov"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:389
+#, python-brace-format
+msgid "{count} downloading"
+msgstr "{count} sťahovanie"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:390
+#, python-brace-format
+msgid "{count} queued"
+msgstr "{count} v poradí"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:391
+#, python-brace-format
+msgid "{count} paused"
+msgstr "{count} pozastavené"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:395
+msgid "BigTube Help"
+msgstr "Pomocník BigTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:396
+msgid ""
+"To search for a video, paste a URL or type keywords in the search box.\n"
+"You can also drag and drop local media files onto the Converter tab to change their format.\n"
+"Check Settings to change download quality and themes."
+msgstr ""
+"Ak chcete vyhľadať video, prilepte adresu URL alebo zadajte kľúčové slová do vyhľadávacieho poľa.\n"
+"Miestne mediálne súbory môžete tiež presunúť myšou na kartu Konvertor a zmeniť ich formát.\n"
+"Ak chcete zmeniť kvalitu sťahovania a motívy, začiarknite políčko Nastavenia."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:399
+msgid "Untitled"
+msgstr "Bez názvu"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:400
+msgid "Unknown"
+msgstr "Neznámy"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:401
+msgid "Best Available Quality"
+msgstr "Najlepšia dostupná kvalita"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:402
+#, python-brace-format
+msgid "MKV - Best Quality ({resolution}p)"
+msgstr "MKV – Najlepšia kvalita ({resolution}p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:403
+msgid "Audio MP3 (Convert)"
+msgstr "Audio MP3 (konvertovať)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:404
+#, python-brace-format
+msgid "Audio {ext} - {kbps}kbps"
+msgstr "Zvuk {ext} – {kbps}kb/s"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:405
+msgid "yt-dlp v"
+msgstr "yt-dlp v"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:406
+msgid "FFmpeg not found. Skipping metadata."
+msgstr "FFmpeg sa nenašiel. Preskakovanie metadát."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:407
+msgid "FFmpeg not found. Skipping subtitles."
+msgstr "FFmpeg sa nenašiel. Preskakovanie titulkov."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:408
+msgid "OK"
+msgstr "OK"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:409
+msgid "yt-dlp missing"
+msgstr "yt-dlp chýba"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:410
+msgid "Timeout"
+msgstr "Časový limit"

@@ -1,0 +1,1103 @@
+# Romanian translations for PACKAGE package.
+# Copyright (C) 2026 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-11 23:04-0300\n"
+"PO-Revision-Date: 2026-03-11 23:04-0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2;\n"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:62
+msgid "BigTube"
+msgstr "BigTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:65
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:87
+msgid "Search"
+msgstr "Căutare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:66
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:126
+msgid "Downloads"
+msgstr "Descărcări"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:67
+msgid "Converter"
+msgstr "Convertor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:68
+msgid "Settings"
+msgstr "Setări"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:71
+msgid "Search Manager"
+msgstr "Manager de căutare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:72
+msgid "Downloads Manager"
+msgstr "Manager de descărcări"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:73
+msgid "Settings Manager"
+msgstr "Manager de setări"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:74
+msgid "Converter Manager"
+msgstr "Manager de conversie"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:77
+msgid "YouTube"
+msgstr "YouTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:78
+msgid "SoundCloud"
+msgstr "SoundCloud"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:79
+msgid "Direct Link"
+msgstr "Legătură directă"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:82
+msgid "Unknown Title"
+msgstr "Titlu necunoscut"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:83
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:392
+msgid "Unknown Artist"
+msgstr "Artist necunoscut"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:86
+msgid "Paste URL or type keywords..."
+msgstr "Inserați adresa URL sau introduceți cuvinte cheie..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:88
+msgid "No results found!"
+msgstr "Nu s-au găsit rezultate!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:89
+msgid "Searching for:"
+msgstr "Căutând:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:92
+msgid "No Results"
+msgstr "Niciun rezultat"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:93
+msgid "Search for videos or paste a URL"
+msgstr "Căutați videoclipuri sau inserați o adresă URL"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:94
+msgid "No Downloads"
+msgstr "Fără descărcări"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:95
+msgid "Your downloads will appear here"
+msgstr "Descărcările dvs. vor apărea aici"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:98
+msgid "Play Video"
+msgstr "Redați videoclipul"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:99
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:108
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:322
+msgid "Download"
+msgstr "Descărcați"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:100
+msgid "Copy Link"
+msgstr "Copiați linkul"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:101
+msgid "Link Copied!"
+msgstr "Link copiat!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:104
+msgid "Select Quality"
+msgstr "Selectați Calitate"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:105
+msgid "Video Formats"
+msgstr "Formate video"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:106
+msgid "Duration:"
+msgstr "Durată:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:107
+msgid "Audio Only"
+msgstr "Numai audio"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:111
+msgid "Clear History"
+msgstr "Ștergeți istoricul"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:112
+msgid "Clear History?"
+msgstr "Ștergeți istoricul?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:113
+msgid ""
+"This will remove all entries from the list.\n"
+"Files will remain on disk."
+msgstr ""
+"Aceasta va elimina toate intrările din listă.\n"
+"Fișierele vor rămâne pe disc."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:114
+msgid "History cleared successfully!"
+msgstr "Istoricul a fost șters cu succes!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:115
+msgid "Failed to get info for"
+msgstr "Nu s-au putut obține informații pentru"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:118
+msgid "Download Folder"
+msgstr "Descărcați folderul"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:119
+msgid "Pick Folder"
+msgstr "Alegeți Folder"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:120
+msgid "Current Version"
+msgstr "Versiunea curentă"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:121
+msgid "Check for Updates"
+msgstr "Verificați actualizările"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:123
+msgid "Appearance"
+msgstr "Aspect"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:124
+msgid "Interface Theme"
+msgstr "Tema interfeței"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:125
+msgid "Color Scheme"
+msgstr "Schema de culori"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:127
+msgid "Preferred Quality"
+msgstr "Calitate preferată"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:128
+msgid "Add Metadata to Files"
+msgstr "Adăugați metadate la fișiere"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:129
+msgid "Enable ClipBoard Monitor"
+msgstr "Activați monitorul ClipBoard"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:130
+msgid "Embed Subtitles"
+msgstr "Încorporați subtitrări"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:131
+msgid "Storage"
+msgstr "Depozitare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:132
+msgid "Save Download History"
+msgstr "Salvați istoricul descărcărilor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:133
+msgid "Clear All Data on Exit"
+msgstr "Ștergeți toate datele la ieșire"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:134
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:237
+msgid "Media Converter"
+msgstr "Media Converter"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:135
+msgid "Default Output Folder"
+msgstr "Folder de ieșire implicit"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:136
+msgid "Save Conversion History"
+msgstr "Salvați istoricul conversiilor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:137
+msgid "Save in Source Directory"
+msgstr "Salvați în directorul sursă"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:140
+msgid "System"
+msgstr "Sistem"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:141
+msgid "Light"
+msgstr "Aprinde"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:142
+msgid "Dark"
+msgstr "Întuneric"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:145
+msgid "Ask Every Time"
+msgstr "Întrebați de fiecare dată"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:146
+msgid "Best (MKV)"
+msgstr "Cel mai bun (MKV)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:147
+msgid "4K (2160p)"
+msgstr "4K (2160p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:148
+msgid "2K (1440p)"
+msgstr "2K (1440p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:149
+msgid "Full HD (1080p)"
+msgstr "Full HD (1080p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:150
+msgid "HD (720p)"
+msgstr "HD (720p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:151
+msgid "SD (480p)"
+msgstr "SD (480p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:152
+msgid "Low Definition (360p)"
+msgstr "Definiție joasă (360p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:153
+msgid "Very Low (240p)"
+msgstr "Foarte scăzut (240p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:154
+msgid "Lowest (144p)"
+msgstr "Cel mai mic (144p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:155
+msgid "Audio (MP3)"
+msgstr "Audio (MP3)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:156
+msgid "Audio (M4A)"
+msgstr "Audio (M4A)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:159
+msgid "Default Blue"
+msgstr "Albastru implicit"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:160
+msgid "Modern Violet"
+msgstr "Violet modern"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:161
+msgid "Emerald Green"
+msgstr "Verde smarald"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:162
+msgid "Sunburst Orange"
+msgstr "Sunburst Orange"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:163
+msgid "Vibrant Rose"
+msgstr "Trandafir Vibrant"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:164
+msgid "Nordic Cyan"
+msgstr "Nordic Cyan"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:167
+msgid "Nordic Snow"
+msgstr "Zăpadă nordică"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:168
+msgid "Gruvbox Retro"
+msgstr "Gruvbox Retro"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:169
+msgid "Catppuccin Mocha"
+msgstr "Catpuccin Mocha"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:170
+msgid "Dracula Dark"
+msgstr "Dracula Dark"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:171
+msgid "Tokyo Night"
+msgstr "Noaptea Tokyo"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:172
+msgid "Rosé Pine"
+msgstr "Pin Rosé"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:173
+msgid "Solarized Dark"
+msgstr "Întuneric solarizat"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:174
+msgid "Monokai Pro"
+msgstr "Monokai Pro"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:175
+msgid "Cyberpunk Neon"
+msgstr "Cyberpunk Neon"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:176
+msgid "BigTube Brand"
+msgstr "Marca BigTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:179
+msgid "Searching"
+msgstr "Căutând"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:180
+msgid "Pending"
+msgstr "În așteptare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:181
+msgid "Downloading..."
+msgstr "Se descarcă..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:182
+msgid "Processing..."
+msgstr "Prelucrare..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:183
+msgid "Merging..."
+msgstr "Fuzionarea..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:184
+msgid "Extracting Audio..."
+msgstr "Se extrage sunetul..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:185
+msgid "Completed"
+msgstr "Terminat"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:186
+msgid "Error"
+msgstr "Eroare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:187
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:250
+msgid "Cancelled"
+msgstr "Anulat"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:188
+msgid "Confirm"
+msgstr "Confirma"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:189
+msgid "Cancel"
+msgstr "Anula"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:190
+msgid "Interrupted"
+msgstr "Întrerupt"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:191
+msgid "Paused"
+msgstr "Întrerupt"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:192
+msgid "Resuming..."
+msgstr "Se reia..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:195
+msgid "Pause"
+msgstr "Pauză"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:196
+msgid "Resume"
+msgstr "Relua"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:197
+msgid "Cancel Conversion"
+msgstr "Anulați conversia"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:200
+msgid "Critical Error:"
+msgstr "Eroare critică:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:201
+msgid "Network Error!"
+msgstr "Eroare de rețea!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:202
+msgid "Content is DRM Protected!"
+msgstr "Conținutul este protejat prin DRM!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:203
+msgid "Video is Private!"
+msgstr "Videoclipul este privat!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:204
+msgid "Unknown Error!"
+msgstr "Eroare necunoscută!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:205
+msgid "FFmpeg Error - Missing or incompatible!"
+msgstr "Eroare FFmpeg - Lipsă sau incompatibilă!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:206
+msgid "Not enough disk space!"
+msgstr "Nu este suficient spațiu pe disc!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:207
+msgid "Error searching for video!"
+msgstr "Eroare la căutarea videoclipului!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:208
+msgid "File Already Exists!"
+msgstr "Fișierul există deja!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:209
+msgid "Overwrite this file?"
+msgstr "Suprascrieți acest fișier?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:210
+msgid "File Not Found, Remove from History?"
+msgstr "Fișierul nu a fost găsit, eliminați din istoric?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:211
+msgid "The following file exists in history but was not found on disk:\n"
+msgstr "Următorul fișier există în istoric, dar nu a fost găsit pe disc:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:212
+msgid "Item removed from history."
+msgstr "Element eliminat din istoric."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:213
+msgid "Invalid URL format"
+msgstr "Format URL nevalid"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:216
+msgid "Stopped"
+msgstr "oprit"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:217
+msgid "Buffering..."
+msgstr "Se tamponează..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:218
+msgid "BigTube Player"
+msgstr "Player BigTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:221
+msgid "Insufficient disk space!"
+msgstr "Spațiu insuficient pe disc!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:222
+msgid "Could not check disk space!"
+msgstr "Nu s-a putut verifica spațiul pe disc!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:223
+msgid "FFmpeg not found. Some features will be limited!"
+msgstr "FFmpeg nu a fost găsit. Unele caracteristici vor fi limitate!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:224
+msgid "Download completed successfully!"
+msgstr "Descărcarea a fost finalizată cu succes!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:225
+msgid "Download cancelled by user!"
+msgstr "Descărcarea a fost anulată de utilizator!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:226
+msgid "Download failed!"
+msgstr "Descărcarea a eșuat!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:227
+msgid "Download timed out!"
+msgstr "Descărcarea a expirat!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:228
+msgid "Starting download..."
+msgstr "Se începe descărcarea..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:229
+msgid "Resuming download..."
+msgstr "Se reia descărcarea..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:232
+msgid "No internet connection!"
+msgstr "Fără conexiune la internet!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:233
+msgid "yt-dlp update available:"
+msgstr "Actualizare yt-dlp disponibilă:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:234
+msgid "Checking for updates..."
+msgstr "Se verifică actualizări..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:238
+msgid "Drag and drop files here to convert"
+msgstr "Trageți și plasați fișiere aici pentru a le converti"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:239
+msgid "Convert your media files"
+msgstr "Convertiți fișierele media"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:240
+msgid "Or paste image URL / File Path"
+msgstr "Sau inserați adresa URL a imaginii / Calea fișierului"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:241
+msgid "Convert to:"
+msgstr "Convertiți în:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:242
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:277
+msgid "Convert"
+msgstr "Convertit"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:245
+msgid "Ready"
+msgstr "Gata"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:246
+msgid "Selected: "
+msgstr "Selectat:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:247
+msgid "Downloading image..."
+msgstr "Se descarcă imaginea..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:248
+msgid "Converting to"
+msgstr "Convertirea în"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:249
+msgid "Success!"
+msgstr "Succes!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:251
+msgid "Error occurred"
+msgstr "A apărut o eroare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:254
+msgid "Conversion Complete"
+msgstr "Conversie finalizată"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:255
+msgid "Saved to:"
+msgstr "Salvat în:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:256
+msgid "Failed:"
+msgstr "A eșuat:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:257
+msgid "Conversion Cancelled"
+msgstr "Conversie anulată"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:260
+msgid "Select Media Files"
+msgstr "Selectați Fișiere media"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:261
+msgid "_Open"
+msgstr "_Deschide"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:262
+msgid "_Cancel"
+msgstr "_Anula"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:263
+msgid "Media Files"
+msgstr "Fișiere media"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:266
+msgid "File Not Found"
+msgstr "Fișierul nu a fost găsit"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:267
+msgid ""
+"The converted file was not found. Would you like to convert it again or "
+"remove it from history?"
+msgstr ""
+"Fișierul convertit nu a fost găsit. Doriți să îl convertiți din nou sau să "
+"îl eliminați din istoric?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:268
+msgid "Convert Again"
+msgstr "Convertiți din nou"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:269
+msgid "Remove from History"
+msgstr "Eliminați din Istoric"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:270
+msgid "Source File Missing"
+msgstr "Fișierul sursă lipsește"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:271
+msgid ""
+"The source file for this conversion is missing. Would you like to remove it "
+"from the list?"
+msgstr ""
+"Fișierul sursă pentru această conversie lipsește. Doriți să-l eliminați din "
+"listă?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:273
+msgid "Add Files"
+msgstr "Adăugați fișiere"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:274
+msgid "Remove from list"
+msgstr "Eliminați din listă"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:275
+msgid "Open Folder"
+msgstr "Deschideți folderul"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:276
+msgid "Play Converted File"
+msgstr "Redați fișierul convertit"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:278
+msgid "Add to Converter"
+msgstr "Adăugați la convertizor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:279
+msgid "Convert All"
+msgstr "Convertiți totul"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:281
+msgid "Add Metadata"
+msgstr "Adăugați metadate"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:282
+msgid "Add Subtitles"
+msgstr "Adăugați subtitrări"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:283
+msgid "options available"
+msgstr "opțiuni disponibile"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:284
+msgid "No formats found"
+msgstr "Nu s-au găsit formate"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:285
+msgid "Local File"
+msgstr "Fișier local"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:286
+msgid "ETA: "
+msgstr "ETA:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:289
+msgid "Select source"
+msgstr "Selectați sursa"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:292
+msgid "Previous"
+msgstr "Anterior"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:293
+msgid "Play/Pause"
+msgstr "Redare/Pauză"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:294
+msgid "Next"
+msgstr "Următorul"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:295
+msgid "Toggle Video Window"
+msgstr "Comutați fereastra video"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:298
+msgid "Reset Application to Clean State?"
+msgstr "Resetați aplicația la starea curată?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:299
+msgid ""
+"This will PERMANENTLY delete all settings, search history, download history,"
+" and converter history. This action cannot be undone."
+msgstr ""
+"Aceasta va șterge PERMANENT toate setările, istoricul căutărilor, istoricul "
+"descărcărilor și istoricul convertizorului. Această acțiune nu poate fi "
+"anulată."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:300
+msgid "All application data has been cleared. The app will now restart."
+msgstr "Toate datele aplicației au fost șterse. Aplicația va reporni acum."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:301
+msgid "Failed to select folder"
+msgstr "Nu s-a putut selecta folderul"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:302
+msgid "Components updated successfully! ✅"
+msgstr "Componentele au fost actualizate cu succes! ✅"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:303
+msgid "Deno updated, but yt-dlp failed."
+msgstr "Deno a fost actualizat, dar yt-dlp a eșuat."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:306
+msgid "Clear All App Data (Reset)"
+msgstr "Ștergeți toate datele aplicației (resetare)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:307
+msgid "Update check failed."
+msgstr "Verificarea actualizării a eșuat."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:308
+msgid "Error:"
+msgstr "Eroare:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:311
+msgid "Scheduled"
+msgstr "Programat"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:312
+msgid "Queued"
+msgstr "În coadă"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:313
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:319
+msgid "Schedule Download"
+msgstr "Programați descărcarea"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:314
+msgid "Select Date &amp; Time"
+msgstr "Selectați data și amp; Timp"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:315
+msgid "Date"
+msgstr "Data"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:316
+msgid "Time"
+msgstr "Timp"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:317
+msgid "Time (HH:MM)"
+msgstr "Ora (HH:MM)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:318
+msgid "Schedule"
+msgstr "Programa"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:320
+msgid "Link Detected:"
+msgstr "Link detectat:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:321
+msgid "Link detected! Paste in search to download."
+msgstr "Link detectat! Lipiți în căutare pentru a descărca."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:323
+msgid "Scheduled:"
+msgstr "Programat:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:326
+msgid "h"
+msgstr "h"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:327
+msgid "m"
+msgstr "m"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:328
+msgid "s"
+msgstr "s"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:331
+msgid "© 2026 BigTube"
+msgstr "© 2026 BigTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:332
+msgid "Help"
+msgstr "Ajutor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:333
+msgid "About"
+msgstr "Despre"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:334
+msgid "Quit"
+msgstr "Renunță"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:337
+msgid "Toggle Selection Mode"
+msgstr "Comutați modul de selecție"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:338
+msgid "Select All / None"
+msgstr "Selectați Toate / Nici unul"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:339
+#, python-brace-format
+msgid "Download Selected ({count})"
+msgstr "Descărcați selectat ({count})"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:340
+#, python-brace-format
+msgid "Starting batch download of {count} items..."
+msgstr "Se începe descărcarea lotului de {count} articole..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:343
+msgid "Search Settings"
+msgstr "Setări de căutare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:344
+msgid "Save Search History"
+msgstr "Salvați istoricul căutărilor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:345
+msgid "Enable Search Suggestions"
+msgstr "Activați Sugestiile de căutare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:346
+msgid "Maximum Suggestions"
+msgstr "Sugestii maxime"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:347
+msgid "Clear Search History"
+msgstr "Ștergeți istoricul căutărilor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:348
+msgid "Delete Suggestion"
+msgstr "Ștergeți sugestia"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:349
+msgid "Maximum Search Results"
+msgstr "Rezultate maxime de căutare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:350
+msgid "Max Simultaneous Downloads"
+msgstr "Max descărcări simultane"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:351
+msgid "Concurrent Fragments"
+msgstr "Fragmente concurente"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:352
+msgid "Number of parallel fragments per download (1-16)"
+msgstr "Numărul de fragmente paralele per descărcare (1-16)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:353
+msgid "Download Speed Limit (KB/s)"
+msgstr "Limită de viteză de descărcare (KB/s)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:354
+msgid "Set to 0 for unlimited"
+msgstr "Setați la 0 pentru nelimitat"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:355
+msgid "System Notifications"
+msgstr "Notificări de sistem"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:356
+msgid "Export History"
+msgstr "Istoricul exportului"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:357
+msgid "Import History"
+msgstr "Istoricul importurilor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:358
+msgid "Post-Processing Command"
+msgstr "Comanda post-procesare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:359
+#, python-brace-format
+msgid "Command to run after download. Use {} for filename."
+msgstr ""
+"Comandă de rulat după descărcare. Utilizați {} pentru numele fișierului."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:360
+msgid "History exported successfully!"
+msgstr "Istoricul a fost exportat cu succes!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:361
+msgid "History imported successfully!"
+msgstr "Istoricul a fost importat cu succes!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:364
+msgid "Toggle between light, dark, or system theme"
+msgstr "Comutați între tema deschisă, întunecată sau de sistem"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:365
+msgid "Select a custom accent color for the interface"
+msgstr "Selectați o culoare de accent personalizată pentru interfață"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:366
+msgid "Check for updates to yt-dlp and components"
+msgstr "Verificați actualizările pentru yt-dlp și componente"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:367
+msgid "Directory where downloads will be saved"
+msgstr "Director în care vor fi salvate descărcările"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:368
+msgid "Default resolution or format for new downloads"
+msgstr "Rezoluție sau format implicit pentru descărcări noi"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:369
+msgid "How many videos can download at the same time"
+msgstr "Câte videoclipuri se pot descărca în același timp"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:370
+msgid "Add artist, album, and covers to downloaded files"
+msgstr "Adăugați artist, album și coperți la fișierele descărcate"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:371
+msgid "Attempt to fetch and embed subtitles if found"
+msgstr "Încercați să preluați și să încorporați subtitrări dacă sunt găsite"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:372
+msgid "Show system-level alerts for download events"
+msgstr "Afișați alerte la nivel de sistem pentru evenimentele de descărcare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:373
+msgid "Automatically detect video links in your clipboard"
+msgstr "Detectează automat linkurile video în clipboard"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:374
+msgid "Keep a log of your past downloads locally"
+msgstr "Păstrați un jurnal al descărcărilor anterioare la nivel local"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:375
+msgid "Wipe all history and temporary data on exit"
+msgstr "Ștergeți toate istoricul și datele temporare la ieșire"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:376
+msgid "Save your download history to a file"
+msgstr "Salvați istoricul descărcărilor într-un fișier"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:377
+msgid "Restore history from a backup file"
+msgstr "Restaurați istoricul dintr-un fișier de rezervă"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:378
+msgid "Permanently delete all settings and history"
+msgstr "Ștergeți definitiv toate setările și istoricul"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:379
+msgid "Keep track of your search queries locally"
+msgstr "Urmăriți interogările dvs. de căutare la nivel local"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:380
+msgid "Maximum number of items in search results"
+msgstr "Numărul maxim de articole în rezultatele căutării"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:381
+msgid "Show suggestions while typing in search bar"
+msgstr "Afișați sugestii în timp ce introduceți text în bara de căutare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:382
+msgid "Number of suggestions to display at once"
+msgstr "Numărul de sugestii de afișat simultan"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:383
+msgid "Delete all previous search entries"
+msgstr "Ștergeți toate intrările de căutare anterioare"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:384
+msgid "Target directory for converted files"
+msgstr "Directorul țintă pentru fișierele convertite"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:385
+msgid "Keep a history of converted media files"
+msgstr "Păstrați un istoric al fișierelor media convertite"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:386
+msgid "Save converted files next to originals"
+msgstr "Salvați fișierele convertite lângă originale"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:389
+#, python-brace-format
+msgid "{count} downloading"
+msgstr "{count} se descarcă"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:390
+#, python-brace-format
+msgid "{count} queued"
+msgstr "{count} pus în coadă"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:391
+#, python-brace-format
+msgid "{count} paused"
+msgstr "{count} întrerupt"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:395
+msgid "BigTube Help"
+msgstr "Ajutor BigTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:396
+msgid ""
+"To search for a video, paste a URL or type keywords in the search box.\n"
+"You can also drag and drop local media files onto the Converter tab to change their format.\n"
+"Check Settings to change download quality and themes."
+msgstr ""
+"Pentru a căuta un videoclip, inserați o adresă URL sau introduceți cuvinte cheie în caseta de căutare.\n"
+"De asemenea, puteți trage și plasa fișiere media locale în fila Convertor pentru a le schimba formatul.\n"
+"Verificați Setări pentru a schimba calitatea și temele de descărcare."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:399
+msgid "Untitled"
+msgstr "Fără titlu"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:400
+msgid "Unknown"
+msgstr "Necunoscut"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:401
+msgid "Best Available Quality"
+msgstr "Cea mai bună calitate disponibilă"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:402
+#, python-brace-format
+msgid "MKV - Best Quality ({resolution}p)"
+msgstr "MKV - Cea mai bună calitate ({resolution}p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:403
+msgid "Audio MP3 (Convert)"
+msgstr "Audio MP3 (convertire)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:404
+#, python-brace-format
+msgid "Audio {ext} - {kbps}kbps"
+msgstr "Audio {ext} - {kbps}kbps"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:405
+msgid "yt-dlp v"
+msgstr "yt-dlp v"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:406
+msgid "FFmpeg not found. Skipping metadata."
+msgstr "FFmpeg nu a fost găsit. Se omite metadatele."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:407
+msgid "FFmpeg not found. Skipping subtitles."
+msgstr "FFmpeg nu a fost găsit. Omiterea subtitrarilor."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:408
+msgid "OK"
+msgstr "Bine"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:409
+msgid "yt-dlp missing"
+msgstr "yt-dlp lipsește"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:410
+msgid "Timeout"
+msgstr "Pauză"

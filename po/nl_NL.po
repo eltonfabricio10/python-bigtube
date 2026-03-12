@@ -1,0 +1,1106 @@
+# Dutch translations for PACKAGE package.
+# Copyright (C) 2026 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-11 23:04-0300\n"
+"PO-Revision-Date: 2026-03-11 23:04-0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:62
+msgid "BigTube"
+msgstr "Grote Tube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:65
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:87
+msgid "Search"
+msgstr "Zoekopdracht"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:66
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:126
+msgid "Downloads"
+msgstr "Downloads"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:67
+msgid "Converter"
+msgstr "Omvormer"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:68
+msgid "Settings"
+msgstr "Instellingen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:71
+msgid "Search Manager"
+msgstr "Zoekmanager"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:72
+msgid "Downloads Manager"
+msgstr "Downloadbeheer"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:73
+msgid "Settings Manager"
+msgstr "Instellingenbeheer"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:74
+msgid "Converter Manager"
+msgstr "Converter-manager"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:77
+msgid "YouTube"
+msgstr "YouTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:78
+msgid "SoundCloud"
+msgstr "GeluidCloud"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:79
+msgid "Direct Link"
+msgstr "Directe link"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:82
+msgid "Unknown Title"
+msgstr "Onbekende titel"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:83
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:392
+msgid "Unknown Artist"
+msgstr "Onbekende artiest"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:86
+msgid "Paste URL or type keywords..."
+msgstr "Plak de URL of typ trefwoorden..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:88
+msgid "No results found!"
+msgstr "Geen resultaten gevonden!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:89
+msgid "Searching for:"
+msgstr "Zoeken naar:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:92
+msgid "No Results"
+msgstr "Geen resultaten"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:93
+msgid "Search for videos or paste a URL"
+msgstr "Zoek naar video's of plak een URL"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:94
+msgid "No Downloads"
+msgstr "Geen downloads"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:95
+msgid "Your downloads will appear here"
+msgstr "Je downloads verschijnen hier"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:98
+msgid "Play Video"
+msgstr "Speel video af"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:99
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:108
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:322
+msgid "Download"
+msgstr "Downloaden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:100
+msgid "Copy Link"
+msgstr "Kopieer link"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:101
+msgid "Link Copied!"
+msgstr "Link gekopieerd!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:104
+msgid "Select Quality"
+msgstr "Selecteer Kwaliteit"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:105
+msgid "Video Formats"
+msgstr "Videoformaten"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:106
+msgid "Duration:"
+msgstr "Duur:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:107
+msgid "Audio Only"
+msgstr "Alleen audio"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:111
+msgid "Clear History"
+msgstr "Geschiedenis wissen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:112
+msgid "Clear History?"
+msgstr "Geschiedenis wissen?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:113
+msgid ""
+"This will remove all entries from the list.\n"
+"Files will remain on disk."
+msgstr ""
+"Hierdoor worden alle vermeldingen uit de lijst verwijderd.\n"
+"Bestanden blijven op schijf staan."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:114
+msgid "History cleared successfully!"
+msgstr "Geschiedenis succesvol gewist!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:115
+msgid "Failed to get info for"
+msgstr "Het is niet gelukt om informatie op te halen voor"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:118
+msgid "Download Folder"
+msgstr "Map downloaden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:119
+msgid "Pick Folder"
+msgstr "Kies map"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:120
+msgid "Current Version"
+msgstr "Huidige versie"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:121
+msgid "Check for Updates"
+msgstr "Controleer op updates"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:123
+msgid "Appearance"
+msgstr "Verschijning"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:124
+msgid "Interface Theme"
+msgstr "Interface-thema"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:125
+msgid "Color Scheme"
+msgstr "Kleurenschema"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:127
+msgid "Preferred Quality"
+msgstr "Voorkeurskwaliteit"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:128
+msgid "Add Metadata to Files"
+msgstr "Metagegevens aan bestanden toevoegen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:129
+msgid "Enable ClipBoard Monitor"
+msgstr "Schakel Klembordmonitor in"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:130
+msgid "Embed Subtitles"
+msgstr "Ondertitels insluiten"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:131
+msgid "Storage"
+msgstr "Opslag"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:132
+msgid "Save Download History"
+msgstr "Downloadgeschiedenis opslaan"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:133
+msgid "Clear All Data on Exit"
+msgstr "Wis alle gegevens bij afsluiten"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:134
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:237
+msgid "Media Converter"
+msgstr "Mediaconverter"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:135
+msgid "Default Output Folder"
+msgstr "Standaarduitvoermap"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:136
+msgid "Save Conversion History"
+msgstr "Bewaar conversiegeschiedenis"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:137
+msgid "Save in Source Directory"
+msgstr "Opslaan in bronmap"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:140
+msgid "System"
+msgstr "Systeem"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:141
+msgid "Light"
+msgstr "Licht"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:142
+msgid "Dark"
+msgstr "Donker"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:145
+msgid "Ask Every Time"
+msgstr "Vraag het elke keer"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:146
+msgid "Best (MKV)"
+msgstr "Beste (MKV)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:147
+msgid "4K (2160p)"
+msgstr "4K (2160p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:148
+msgid "2K (1440p)"
+msgstr "2K (1440p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:149
+msgid "Full HD (1080p)"
+msgstr "Volledig HD (1080p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:150
+msgid "HD (720p)"
+msgstr "HD (720p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:151
+msgid "SD (480p)"
+msgstr "SD (480p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:152
+msgid "Low Definition (360p)"
+msgstr "Lage definitie (360p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:153
+msgid "Very Low (240p)"
+msgstr "Zeer laag (240p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:154
+msgid "Lowest (144p)"
+msgstr "Laagste (144p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:155
+msgid "Audio (MP3)"
+msgstr "Audio (MP3)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:156
+msgid "Audio (M4A)"
+msgstr "Audio (M4A)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:159
+msgid "Default Blue"
+msgstr "Standaard blauw"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:160
+msgid "Modern Violet"
+msgstr "Modern viooltje"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:161
+msgid "Emerald Green"
+msgstr "Smaragdgroen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:162
+msgid "Sunburst Orange"
+msgstr "Zonnestraal oranje"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:163
+msgid "Vibrant Rose"
+msgstr "Levendige roos"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:164
+msgid "Nordic Cyan"
+msgstr "Noords cyaan"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:167
+msgid "Nordic Snow"
+msgstr "Noordse sneeuw"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:168
+msgid "Gruvbox Retro"
+msgstr "Gruvbox Retro"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:169
+msgid "Catppuccin Mocha"
+msgstr "Catppuccin mokka"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:170
+msgid "Dracula Dark"
+msgstr "Dracula donker"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:171
+msgid "Tokyo Night"
+msgstr "Tokio nacht"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:172
+msgid "Rosé Pine"
+msgstr "Rosé Pijnboom"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:173
+msgid "Solarized Dark"
+msgstr "Gesolariseerd donker"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:174
+msgid "Monokai Pro"
+msgstr "Monokai Pro"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:175
+msgid "Cyberpunk Neon"
+msgstr "Cyberpunk-neon"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:176
+msgid "BigTube Brand"
+msgstr "BigTube-merk"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:179
+msgid "Searching"
+msgstr "Zoeken"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:180
+msgid "Pending"
+msgstr "In behandeling"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:181
+msgid "Downloading..."
+msgstr "Downloaden..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:182
+msgid "Processing..."
+msgstr "Verwerken..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:183
+msgid "Merging..."
+msgstr "Samenvoegen..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:184
+msgid "Extracting Audio..."
+msgstr "Audio extraheren..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:185
+msgid "Completed"
+msgstr "Voltooid"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:186
+msgid "Error"
+msgstr "Fout"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:187
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:250
+msgid "Cancelled"
+msgstr "Geannuleerd"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:188
+msgid "Confirm"
+msgstr "Bevestigen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:189
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:190
+msgid "Interrupted"
+msgstr "Onderbroken"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:191
+msgid "Paused"
+msgstr "Gepauzeerd"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:192
+msgid "Resuming..."
+msgstr "Hervatten..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:195
+msgid "Pause"
+msgstr "Pauze"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:196
+msgid "Resume"
+msgstr "Cv"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:197
+msgid "Cancel Conversion"
+msgstr "Conversie annuleren"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:200
+msgid "Critical Error:"
+msgstr "Kritieke fout:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:201
+msgid "Network Error!"
+msgstr "Netwerkfout!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:202
+msgid "Content is DRM Protected!"
+msgstr "Inhoud is DRM-beveiligd!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:203
+msgid "Video is Private!"
+msgstr "Video is privé!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:204
+msgid "Unknown Error!"
+msgstr "Onbekende fout!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:205
+msgid "FFmpeg Error - Missing or incompatible!"
+msgstr "FFmpeg-fout - Ontbrekend of incompatibel!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:206
+msgid "Not enough disk space!"
+msgstr "Niet genoeg schijfruimte!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:207
+msgid "Error searching for video!"
+msgstr "Fout bij zoeken naar video!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:208
+msgid "File Already Exists!"
+msgstr "Bestand bestaat al!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:209
+msgid "Overwrite this file?"
+msgstr "Dit bestand overschrijven?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:210
+msgid "File Not Found, Remove from History?"
+msgstr "Bestand niet gevonden, verwijderen uit geschiedenis?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:211
+msgid "The following file exists in history but was not found on disk:\n"
+msgstr ""
+"Het volgende bestand bestaat in de geschiedenis, maar is niet op schijf "
+"gevonden:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:212
+msgid "Item removed from history."
+msgstr "Item verwijderd uit de geschiedenis."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:213
+msgid "Invalid URL format"
+msgstr "Ongeldig URL-formaat"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:216
+msgid "Stopped"
+msgstr "Gestopt"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:217
+msgid "Buffering..."
+msgstr "Bufferen..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:218
+msgid "BigTube Player"
+msgstr "BigTube-speler"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:221
+msgid "Insufficient disk space!"
+msgstr "Onvoldoende schijfruimte!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:222
+msgid "Could not check disk space!"
+msgstr "Kan schijfruimte niet controleren!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:223
+msgid "FFmpeg not found. Some features will be limited!"
+msgstr "FFmpeg niet gevonden. Sommige functies zullen beperkt zijn!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:224
+msgid "Download completed successfully!"
+msgstr "Downloaden succesvol voltooid!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:225
+msgid "Download cancelled by user!"
+msgstr "Download geannuleerd door gebruiker!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:226
+msgid "Download failed!"
+msgstr "Downloaden mislukt!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:227
+msgid "Download timed out!"
+msgstr "Er is een time-out voor het downloaden opgetreden!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:228
+msgid "Starting download..."
+msgstr "Downloaden starten..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:229
+msgid "Resuming download..."
+msgstr "Downloaden hervatten..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:232
+msgid "No internet connection!"
+msgstr "Geen internetverbinding!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:233
+msgid "yt-dlp update available:"
+msgstr "yt-dlp-update beschikbaar:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:234
+msgid "Checking for updates..."
+msgstr "Controleren op updates..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:238
+msgid "Drag and drop files here to convert"
+msgstr "Sleep bestanden hierheen om ze te converteren"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:239
+msgid "Convert your media files"
+msgstr "Converteer uw mediabestanden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:240
+msgid "Or paste image URL / File Path"
+msgstr "Of plak de afbeeldings-URL/bestandspad"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:241
+msgid "Convert to:"
+msgstr "Converteren naar:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:242
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:277
+msgid "Convert"
+msgstr "Overzetten"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:245
+msgid "Ready"
+msgstr "Klaar"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:246
+msgid "Selected: "
+msgstr "Gekozen:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:247
+msgid "Downloading image..."
+msgstr "Afbeelding downloaden..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:248
+msgid "Converting to"
+msgstr "Converteren naar"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:249
+msgid "Success!"
+msgstr "Succes!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:251
+msgid "Error occurred"
+msgstr "Er is een fout opgetreden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:254
+msgid "Conversion Complete"
+msgstr "Conversie voltooid"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:255
+msgid "Saved to:"
+msgstr "Opgeslagen in:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:256
+msgid "Failed:"
+msgstr "Mislukt:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:257
+msgid "Conversion Cancelled"
+msgstr "Conversie geannuleerd"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:260
+msgid "Select Media Files"
+msgstr "Selecteer Mediabestanden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:261
+msgid "_Open"
+msgstr "_Open"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:262
+msgid "_Cancel"
+msgstr "_Annuleren"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:263
+msgid "Media Files"
+msgstr "Mediabestanden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:266
+msgid "File Not Found"
+msgstr "Bestand niet gevonden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:267
+msgid ""
+"The converted file was not found. Would you like to convert it again or "
+"remove it from history?"
+msgstr ""
+"Het geconverteerde bestand is niet gevonden. Wilt u het opnieuw converteren "
+"of uit de geschiedenis verwijderen?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:268
+msgid "Convert Again"
+msgstr "Opnieuw converteren"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:269
+msgid "Remove from History"
+msgstr "Verwijderen uit de geschiedenis"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:270
+msgid "Source File Missing"
+msgstr "Bronbestand ontbreekt"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:271
+msgid ""
+"The source file for this conversion is missing. Would you like to remove it "
+"from the list?"
+msgstr ""
+"Het bronbestand voor deze conversie ontbreekt. Wilt u deze uit de lijst "
+"verwijderen?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:273
+msgid "Add Files"
+msgstr "Bestanden toevoegen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:274
+msgid "Remove from list"
+msgstr "Verwijderen uit de lijst"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:275
+msgid "Open Folder"
+msgstr "Map openen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:276
+msgid "Play Converted File"
+msgstr "Speel geconverteerd bestand af"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:278
+msgid "Add to Converter"
+msgstr "Toevoegen aan converter"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:279
+msgid "Convert All"
+msgstr "Alles converteren"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:281
+msgid "Add Metadata"
+msgstr "Metagegevens toevoegen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:282
+msgid "Add Subtitles"
+msgstr "Voeg ondertitels toe"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:283
+msgid "options available"
+msgstr "beschikbare opties"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:284
+msgid "No formats found"
+msgstr "Geen formaten gevonden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:285
+msgid "Local File"
+msgstr "Lokaal bestand"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:286
+msgid "ETA: "
+msgstr "verwachte aankomsttijd:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:289
+msgid "Select source"
+msgstr "Selecteer bron"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:292
+msgid "Previous"
+msgstr "Vorig"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:293
+msgid "Play/Pause"
+msgstr "Afspelen/pauzeren"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:294
+msgid "Next"
+msgstr "Volgende"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:295
+msgid "Toggle Video Window"
+msgstr "Schakel het videovenster in"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:298
+msgid "Reset Application to Clean State?"
+msgstr "Toepassing opnieuw instellen op schone status?"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:299
+msgid ""
+"This will PERMANENTLY delete all settings, search history, download history,"
+" and converter history. This action cannot be undone."
+msgstr ""
+"Hiermee worden PERMANENT alle instellingen, zoekgeschiedenis, "
+"downloadgeschiedenis en conversiegeschiedenis verwijderd. Deze actie kan "
+"niet ongedaan worden gemaakt."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:300
+msgid "All application data has been cleared. The app will now restart."
+msgstr "Alle applicatiegegevens zijn gewist. De app zal nu opnieuw opstarten."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:301
+msgid "Failed to select folder"
+msgstr "Kan map niet selecteren"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:302
+msgid "Components updated successfully! ✅"
+msgstr "Componenten zijn succesvol bijgewerkt! ✅"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:303
+msgid "Deno updated, but yt-dlp failed."
+msgstr "Deno is bijgewerkt, maar yt-dlp is mislukt."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:306
+msgid "Clear All App Data (Reset)"
+msgstr "Wis alle app-gegevens (reset)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:307
+msgid "Update check failed."
+msgstr "Updatecontrole mislukt."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:308
+msgid "Error:"
+msgstr "Fout:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:311
+msgid "Scheduled"
+msgstr "Gepland"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:312
+msgid "Queued"
+msgstr "In de wachtrij"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:313
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:319
+msgid "Schedule Download"
+msgstr "Schema downloaden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:314
+msgid "Select Date &amp; Time"
+msgstr "Selecteer Datum &amp; Tijd"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:315
+msgid "Date"
+msgstr "Datum"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:316
+msgid "Time"
+msgstr "Tijd"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:317
+msgid "Time (HH:MM)"
+msgstr "Tijd (UU:MM)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:318
+msgid "Schedule"
+msgstr "Schema"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:320
+msgid "Link Detected:"
+msgstr "Link gedetecteerd:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:321
+msgid "Link detected! Paste in search to download."
+msgstr "Link gedetecteerd! Plak in de zoekopdracht om te downloaden."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:323
+msgid "Scheduled:"
+msgstr "Gepland:"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:326
+msgid "h"
+msgstr "H"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:327
+msgid "m"
+msgstr "M"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:328
+msgid "s"
+msgstr "S"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:331
+msgid "© 2026 BigTube"
+msgstr "© 2026 BigTube"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:332
+msgid "Help"
+msgstr "Hulp"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:333
+msgid "About"
+msgstr "Over"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:334
+msgid "Quit"
+msgstr "Ontslag nemen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:337
+msgid "Toggle Selection Mode"
+msgstr "Schakel de selectiemodus in"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:338
+msgid "Select All / None"
+msgstr "Selecteer Alles / Geen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:339
+#, python-brace-format
+msgid "Download Selected ({count})"
+msgstr "Geselecteerde download ({count})"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:340
+#, python-brace-format
+msgid "Starting batch download of {count} items..."
+msgstr "Batchdownload van {count} items starten..."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:343
+msgid "Search Settings"
+msgstr "Zoekinstellingen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:344
+msgid "Save Search History"
+msgstr "Zoekgeschiedenis opslaan"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:345
+msgid "Enable Search Suggestions"
+msgstr "Zoeksuggesties inschakelen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:346
+msgid "Maximum Suggestions"
+msgstr "Maximale suggesties"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:347
+msgid "Clear Search History"
+msgstr "Zoekgeschiedenis wissen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:348
+msgid "Delete Suggestion"
+msgstr "Suggestie verwijderen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:349
+msgid "Maximum Search Results"
+msgstr "Maximale zoekresultaten"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:350
+msgid "Max Simultaneous Downloads"
+msgstr "Maximaal gelijktijdige downloads"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:351
+msgid "Concurrent Fragments"
+msgstr "Gelijktijdige fragmenten"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:352
+msgid "Number of parallel fragments per download (1-16)"
+msgstr "Aantal parallelle fragmenten per download (1-16)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:353
+msgid "Download Speed Limit (KB/s)"
+msgstr "Downloadsnelheidslimiet (KB/s)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:354
+msgid "Set to 0 for unlimited"
+msgstr "Stel in op 0 voor onbeperkt"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:355
+msgid "System Notifications"
+msgstr "Systeemmeldingen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:356
+msgid "Export History"
+msgstr "Geschiedenis exporteren"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:357
+msgid "Import History"
+msgstr "Geschiedenis importeren"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:358
+msgid "Post-Processing Command"
+msgstr "Nabewerkingscommando"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:359
+#, python-brace-format
+msgid "Command to run after download. Use {} for filename."
+msgstr ""
+"Commando om uit te voeren na het downloaden. Gebruik {} voor de "
+"bestandsnaam."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:360
+msgid "History exported successfully!"
+msgstr "Geschiedenis succesvol geëxporteerd!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:361
+msgid "History imported successfully!"
+msgstr "Geschiedenis geïmporteerd!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:364
+msgid "Toggle between light, dark, or system theme"
+msgstr "Schakel tussen licht, donker of systeemthema"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:365
+msgid "Select a custom accent color for the interface"
+msgstr "Selecteer een aangepaste accentkleur voor de interface"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:366
+msgid "Check for updates to yt-dlp and components"
+msgstr "Controleer op updates voor yt-dlp en componenten"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:367
+msgid "Directory where downloads will be saved"
+msgstr "Directory waar downloads worden opgeslagen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:368
+msgid "Default resolution or format for new downloads"
+msgstr "Standaardresolutie of formaat voor nieuwe downloads"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:369
+msgid "How many videos can download at the same time"
+msgstr "Hoeveel video's kunnen tegelijkertijd worden gedownload"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:370
+msgid "Add artist, album, and covers to downloaded files"
+msgstr "Voeg artiest, album en covers toe aan gedownloade bestanden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:371
+msgid "Attempt to fetch and embed subtitles if found"
+msgstr "Probeer ondertitels op te halen en in te sluiten, indien gevonden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:372
+msgid "Show system-level alerts for download events"
+msgstr "Toon waarschuwingen op systeemniveau voor downloadgebeurtenissen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:373
+msgid "Automatically detect video links in your clipboard"
+msgstr "Detecteer automatisch videolinks op uw klembord"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:374
+msgid "Keep a log of your past downloads locally"
+msgstr "Houd lokaal een logboek bij van uw eerdere downloads"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:375
+msgid "Wipe all history and temporary data on exit"
+msgstr "Wis alle geschiedenis en tijdelijke gegevens bij het afsluiten"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:376
+msgid "Save your download history to a file"
+msgstr "Sla uw downloadgeschiedenis op in een bestand"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:377
+msgid "Restore history from a backup file"
+msgstr "Herstel de geschiedenis vanuit een back-upbestand"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:378
+msgid "Permanently delete all settings and history"
+msgstr "Verwijder definitief alle instellingen en geschiedenis"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:379
+msgid "Keep track of your search queries locally"
+msgstr "Houd uw zoekopdrachten lokaal bij"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:380
+msgid "Maximum number of items in search results"
+msgstr "Maximaal aantal items in zoekresultaten"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:381
+msgid "Show suggestions while typing in search bar"
+msgstr "Toon suggesties tijdens het typen in de zoekbalk"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:382
+msgid "Number of suggestions to display at once"
+msgstr "Aantal suggesties dat in één keer moet worden weergegeven"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:383
+msgid "Delete all previous search entries"
+msgstr "Verwijder alle eerdere zoekopdrachten"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:384
+msgid "Target directory for converted files"
+msgstr "Doelmap voor geconverteerde bestanden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:385
+msgid "Keep a history of converted media files"
+msgstr "Houd een geschiedenis bij van geconverteerde mediabestanden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:386
+msgid "Save converted files next to originals"
+msgstr "Bewaar geconverteerde bestanden naast de originelen"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:389
+#, python-brace-format
+msgid "{count} downloading"
+msgstr "{count} downloaden"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:390
+#, python-brace-format
+msgid "{count} queued"
+msgstr "{count} staat in de wachtrij"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:391
+#, python-brace-format
+msgid "{count} paused"
+msgstr "{count} gepauzeerd"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:395
+msgid "BigTube Help"
+msgstr "BigTube-hulp"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:396
+msgid ""
+"To search for a video, paste a URL or type keywords in the search box.\n"
+"You can also drag and drop local media files onto the Converter tab to change their format.\n"
+"Check Settings to change download quality and themes."
+msgstr ""
+"Om naar een video te zoeken, plakt u een URL of typt u trefwoorden in het zoekvak.\n"
+"U kunt ook lokale mediabestanden naar het tabblad Converteren slepen en neerzetten om hun formaat te wijzigen.\n"
+"Controleer Instellingen om de downloadkwaliteit en thema's te wijzigen."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:399
+msgid "Untitled"
+msgstr "Zonder titel"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:400
+msgid "Unknown"
+msgstr "Onbekend"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:401
+msgid "Best Available Quality"
+msgstr "Beste beschikbare kwaliteit"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:402
+#, python-brace-format
+msgid "MKV - Best Quality ({resolution}p)"
+msgstr "MKV - Beste kwaliteit ({resolution}p)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:403
+msgid "Audio MP3 (Convert)"
+msgstr "Audio MP3 (converteren)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:404
+#, python-brace-format
+msgid "Audio {ext} - {kbps}kbps"
+msgstr "Audio {ext} - {kbps}kbps"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:405
+msgid "yt-dlp v"
+msgstr "yt-dlp v"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:406
+msgid "FFmpeg not found. Skipping metadata."
+msgstr "FFmpeg niet gevonden. Metagegevens overslaan."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:407
+msgid "FFmpeg not found. Skipping subtitles."
+msgstr "FFmpeg niet gevonden. Ondertiteling overslaan."
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:408
+msgid "OK"
+msgstr "OK"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:409
+msgid "yt-dlp missing"
+msgstr "yt-dlp ontbreekt"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:410
+msgid "Timeout"
+msgstr "Time-out"

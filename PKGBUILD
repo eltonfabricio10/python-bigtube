@@ -1,10 +1,10 @@
 # Maintainer: eltonff <eltonfabricio10@gmail.com>
 
-_pkgname=bigtube
-pkgname="python-${_pkgname}"
+pkgname=bigtube
+_pkgname=python-bigtube
 pkgver=1.0.0
 pkgrel=1
-pkgdesc="Gerenciador de downloads de vídeos com interface GTK4 e Adwaita"
+pkgdesc="Universal Multimedia Downloader"
 arch=('any')
 url="https://github.com/eltonfabricio10/python-bigtube"
 license=('MIT')
@@ -27,55 +27,41 @@ depends=(
 makedepends=(
     'python-build'
     'python-installer'
-    'python-wheel'
-    'python-setuptools'
-    'git'
+    'python-poetry-core'
     'gettext'
 )
 
-optdepends=('ffmpeg')
-source=("git+${url}.git")
+optdepends=('ffmpeg: Convert Files')
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/eltonfabricio10/python-bigtube/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('SKIP')
 
-prepare() {
-    cd "${srcdir}/${pkgname}"
-    rm -rvf build dist *.egg-info
-}
-
 build() {
-    cd "${srcdir}/${pkgname}"
-    python -m build --wheel --no-isolation
+    cd "${_pkgname}-${pkgver}"
 
-    # Compilar traduções (.po -> .mo)
-    for po in locales/*.po; do
-        msgfmt "$po" -o "${po%.po}.mo"
+    for po_file in po/*.po; do
+        if [[ -f "$po_file" ]]; then
+            _lang=$(basename "$po_file" .po)
+            msgfmt "$po_file" -o "po/${_lang}.mo"
+        fi
     done
+
+    python -m build --wheel --no-isolation
 }
 
 package() {
-    cd "${srcdir}/${pkgname}"
+    cd "${_pkgname}-${pkgver}"
+
     python -m installer --destdir="${pkgdir}" dist/*.whl
+
     install -Dm644 "src/bigtube/data/bigtube.png" "${pkgdir}/usr/share/icons/hicolor/256x256/apps/bigtube.png"
     install -Dm644 "src/bigtube/data/org.big.bigtube.desktop" "${pkgdir}/usr/share/applications/org.big.bigtube.desktop"
     install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
     install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 
-    # Instalar traduções
-    for mo in locales/*.mo; do
-        _lang=$(basename "$mo" .mo)
-        install -Dm644 "$mo" "${pkgdir}/usr/share/locale/${_lang}/LC_MESSAGES/bigtube.mo"
+    for mo_file in po/*.mo; do
+        if [[ -f "$mo_file" ]]; then
+            _lang=$(basename "$mo_file" .mo)
+            install -Dm644 "$mo_file" "${pkgdir}/usr/share/locale/${_lang}/LC_MESSAGES/bigtube.mo"
+        fi
     done
-}
-
-post_install() {
-    gtk-update-icon-cache -qtf usr/share/icons/hicolor
-    update-desktop-database -q
-}
-
-post_upgrade() {
-    post_install
-}
-
-post_remove() {
-    post_install
 }

@@ -1,0 +1,120 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  # =========================================================
+  # JOB 1: Compilação Padrão (Traduções + Wheel + Tar.gz)
+  # =========================================================
+  build-and-release:
+    name: Build and Publish Standard Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install System Dependencies
+        run: sudo apt-get update && sudo apt-get install -y gettext
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+
+      - name: Compile Translations
+        run: |
+          LOCALES_DIR="src/bigtube/data/locales"
+          for po_file in po/*.po; do
+            LANG=$(basename "$po_file" .po)
+            mkdir -p "$LOCALES_DIR/$LANG/LC_MESSAGES"
+            msgfmt "$po_file" -o "$LOCALES_DIR/$LANG/LC_MESSAGES/bigtube.mo"
+          done
+
+      - name: Build Project Packages
+        run: poetry build
+
+      - name: Publish Standard Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+
+  # =========================================================
+  # JOB 2: Compilação Arch Linux (PKGBUILD)
+  # =========================================================
+  build-arch-package:
+    name: Build Arch Linux Package
+    needs: build-and-release
+    runs-on: ubuntu-latest
+
+    # Executa todo o processo dentro de um sistema Arch Linux puro
+    container:
+      image: archlinux:base-devel
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Prepare Arch Environment & Build
+        run: |
+          # 1. Atualizar o sistema e garantir que o sudo/git estão instalados
+          pacman -Syu --noconfirm git sudo
+
+          # 2. Criar um utilizador "dummy" sem privilégios (exigência de segurança do makepkg)
+          useradd -m builduser
+          echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser
+
+          # 3. Dar permissões ao novo utilizador sobre a pasta de trabalho
+          chown -R builduser:builduser .
+
+          # 4. Executar o makepkg (Ele lerá o PKGBUILD, baixará o tar.gz da tag e fará tudo sozinho)
+          su - builduser -c "makepkg -s --noconfirm"
+
+      - name: Publish Arch Package to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          # Anexa o ficheiro final (.pkg.tar.zst) na release criada pelo Job 1
+          files: "*.pkg.tar.zst"
+
+  # =========================================================
+  # JOB 3: Publicação Automática no AUR
+  # =========================================================
+  deploy-aur:
+    name: Deploy to Arch User Repository
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract Version from Tag
+        run: echo "PKGVER=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Update PKGBUILD Version dynamically
+        run: |
+          # Substitui a versão no PKGBUILD com a versão da Tag atual
+          sed -i "s/^pkgver=.*/pkgver=${PKGVER}/" PKGBUILD
+          sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
+
+      - name: Publish to AUR
+        uses: KSXGitHub/github-actions-deploy-aur@v3.0.1
+        with:
+          pkgname: bigtube
+          pkgbuild: ./PKGBUILD
+          commit_username: ${{ github.actor }}
+          commit_email: ${{ github.actor }}@users.noreply.github.com
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: "Atualização automática para a versão ${{ env.PKGVER }}"
+          force_push: true
