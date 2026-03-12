@@ -476,7 +476,7 @@ msgstr "Bestand niet gevonden, verwijderen uit geschiedenis?"
 msgid "The following file exists in history but was not found on disk:\n"
 msgstr ""
 "Het volgende bestand bestaat in de geschiedenis, maar is niet op schijf "
-"gevonden:"
+"gevonden:\n"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:212
 msgid "Item removed from history."

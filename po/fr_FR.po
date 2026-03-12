@@ -82,11 +82,11 @@ msgstr "Collez l'URL ou saisissez des mots-clés..."
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:88
 msgid "No results found!"
-msgstr "Aucun résultat trouvé !"
+msgstr "Aucun résultat trouvé !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:89
 msgid "Searching for:"
-msgstr "Recherche de :"
+msgstr "Recherche de :"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:92
 msgid "No Results"
@@ -144,7 +144,7 @@ msgstr "Effacer l'historique"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:112
 msgid "Clear History?"
-msgstr "Effacer l'historique ?"
+msgstr "Effacer l'historique ?"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:113
 msgid ""
@@ -156,7 +156,7 @@ msgstr ""
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:114
 msgid "History cleared successfully!"
-msgstr "L'historique a été effacé avec succès !"
+msgstr "L'historique a été effacé avec succès !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:115
 msgid "Failed to get info for"
@@ -430,53 +430,53 @@ msgstr "Annuler la conversion"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:200
 msgid "Critical Error:"
-msgstr "Erreur critique :"
+msgstr "Erreur critique :"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:201
 msgid "Network Error!"
-msgstr "Erreur réseau !"
+msgstr "Erreur réseau !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:202
 msgid "Content is DRM Protected!"
-msgstr "Le contenu est protégé par DRM !"
+msgstr "Le contenu est protégé par DRM !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:203
 msgid "Video is Private!"
-msgstr "La vidéo est privée !"
+msgstr "La vidéo est privée !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:204
 msgid "Unknown Error!"
-msgstr "Erreur inconnue !"
+msgstr "Erreur inconnue !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:205
 msgid "FFmpeg Error - Missing or incompatible!"
-msgstr "Erreur FFmpeg – Manquant ou incompatible !"
+msgstr "Erreur FFmpeg – Manquant ou incompatible !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:206
 msgid "Not enough disk space!"
-msgstr "Pas assez d'espace disque !"
+msgstr "Pas assez d'espace disque !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:207
 msgid "Error searching for video!"
-msgstr "Erreur lors de la recherche de vidéo !"
+msgstr "Erreur lors de la recherche de vidéo !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:208
 msgid "File Already Exists!"
-msgstr "Le fichier existe déjà !"
+msgstr "Le fichier existe déjà !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:209
 msgid "Overwrite this file?"
-msgstr "Écraser ce fichier ?"
+msgstr "Écraser ce fichier ?"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:210
 msgid "File Not Found, Remove from History?"
-msgstr "Fichier introuvable, supprimer de l'historique ?"
+msgstr "Fichier introuvable, supprimer de l'historique ?"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:211
 msgid "The following file exists in history but was not found on disk:\n"
 msgstr ""
 "Le fichier suivant existe dans l'historique mais n'a pas été trouvé sur le "
-"disque :"
+"disque :\n"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:212
 msgid "Item removed from history."
@@ -500,31 +500,31 @@ msgstr "Lecteur BigTube"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:221
 msgid "Insufficient disk space!"
-msgstr "Espace disque insuffisant !"
+msgstr "Espace disque insuffisant !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:222
 msgid "Could not check disk space!"
-msgstr "Impossible de vérifier l'espace disque !"
+msgstr "Impossible de vérifier l'espace disque !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:223
 msgid "FFmpeg not found. Some features will be limited!"
-msgstr "FFmpeg introuvable. Certaines fonctionnalités seront limitées !"
+msgstr "FFmpeg introuvable. Certaines fonctionnalités seront limitées !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:224
 msgid "Download completed successfully!"
-msgstr "Téléchargement terminé avec succès !"
+msgstr "Téléchargement terminé avec succès !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:225
 msgid "Download cancelled by user!"
-msgstr "Téléchargement annulé par l'utilisateur !"
+msgstr "Téléchargement annulé par l'utilisateur !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:226
 msgid "Download failed!"
-msgstr "Le téléchargement a échoué !"
+msgstr "Le téléchargement a échoué !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:227
 msgid "Download timed out!"
-msgstr "Le téléchargement a expiré !"
+msgstr "Le téléchargement a expiré !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:228
 msgid "Starting download..."
@@ -540,7 +540,7 @@ msgstr "Pas de connexion internet !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:233
 msgid "yt-dlp update available:"
-msgstr "Mise à jour yt-dlp disponible :"
+msgstr "Mise à jour yt-dlp disponible :"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:234
 msgid "Checking for updates..."
@@ -560,7 +560,7 @@ msgstr "Ou collez l'URL de l'image/le chemin du fichier"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:241
 msgid "Convert to:"
-msgstr "Convertir en :"
+msgstr "Convertir en :"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:242
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:277
@@ -597,7 +597,7 @@ msgstr "Conversion terminée"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:255
 msgid "Saved to:"
-msgstr "Enregistré dans :"
+msgstr "Enregistré dans :"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:256
 msgid "Failed:"
@@ -633,7 +633,7 @@ msgid ""
 "remove it from history?"
 msgstr ""
 "Le fichier converti n'a pas été trouvé. Souhaitez-vous le reconvertir ou le "
-"supprimer de l'historique ?"
+"supprimer de l'historique ?"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:268
 msgid "Convert Again"
@@ -653,7 +653,7 @@ msgid ""
 "from the list?"
 msgstr ""
 "Le fichier source de cette conversion est manquant. Souhaitez-vous le "
-"supprimer de la liste ?"
+"supprimer de la liste ?"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:273
 msgid "Add Files"
@@ -701,7 +701,7 @@ msgstr "Fichier local"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:286
 msgid "ETA: "
-msgstr "ETA :"
+msgstr "ETA :"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:289
 msgid "Select source"
@@ -725,7 +725,7 @@ msgstr "Basculer la fenêtre vidéo"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:298
 msgid "Reset Application to Clean State?"
-msgstr "Réinitialiser l'application à l'état propre ?"
+msgstr "Réinitialiser l'application à l'état propre ?"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:299
 msgid ""
@@ -748,7 +748,7 @@ msgstr "Échec de la sélection du dossier"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:302
 msgid "Components updated successfully! ✅"
-msgstr "Composants mis à jour avec succès ! ✅"
+msgstr "Composants mis à jour avec succès ! ✅"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:303
 msgid "Deno updated, but yt-dlp failed."
@@ -801,11 +801,11 @@ msgstr "Calendrier"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:320
 msgid "Link Detected:"
-msgstr "Lien détecté :"
+msgstr "Lien détecté :"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:321
 msgid "Link detected! Paste in search to download."
-msgstr "Lien détecté ! Collez dans la recherche pour télécharger."
+msgstr "Lien détecté ! Collez dans la recherche pour télécharger."
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:323
 msgid "Scheduled:"
@@ -930,11 +930,11 @@ msgstr ""
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:360
 msgid "History exported successfully!"
-msgstr "Historique exporté avec succès !"
+msgstr "Historique exporté avec succès !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:361
 msgid "History imported successfully!"
-msgstr "Historique importé avec succès !"
+msgstr "Historique importé avec succès !"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:364
 msgid "Toggle between light, dark, or system theme"

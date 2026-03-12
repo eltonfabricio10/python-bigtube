@@ -474,7 +474,7 @@ msgstr "Soubor nenalezen, odstranit z historie?"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:211
 msgid "The following file exists in history but was not found on disk:\n"
-msgstr "Následující soubor existuje v historii, ale nebyl nalezen na disku:"
+msgstr "Následující soubor existuje v historii, ale nebyl nalezen na disku:\n"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:212
 msgid "Item removed from history."

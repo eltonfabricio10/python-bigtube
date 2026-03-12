@@ -475,7 +475,7 @@ msgstr "File non trovato, rimuovere dalla cronologia?"
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:211
 msgid "The following file exists in history but was not found on disk:\n"
 msgstr ""
-"Il seguente file esiste nella cronologia ma non è stato trovato sul disco:"
+"Il seguente file esiste nella cronologia ma non è stato trovato sul disco:\n"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:212
 msgid "Item removed from history."

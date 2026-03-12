@@ -476,7 +476,7 @@ msgstr "Datei nicht gefunden, aus dem Verlauf entfernen?"
 msgid "The following file exists in history but was not found on disk:\n"
 msgstr ""
 "Die folgende Datei existiert im Verlauf, wurde aber nicht auf der Festplatte"
-" gefunden:"
+" gefunden:\n"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:212
 msgid "Item removed from history."
