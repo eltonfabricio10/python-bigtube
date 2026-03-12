@@ -38,6 +38,8 @@ sha256sums=('SKIP')
 build() {
     cd "${_pkgname}-${pkgver}"
 
+    sed -i "s/^version = .*/version = \"${pkgver}\"/" pyproject.toml
+
     for po_file in po/*.po; do
         if [[ -f "$po_file" ]]; then
             _lang=$(basename "$po_file" .po)

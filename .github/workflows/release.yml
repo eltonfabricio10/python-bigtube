@@ -29,6 +29,14 @@ jobs:
         with:
           version: latest
 
+      - name: Set App Version from Git Tag
+        run: |
+          # Extrai a versão (ex: v1.0.5 -> 1.0.5)
+          PKGVER=${GITHUB_REF#refs/tags/v}
+          echo "Atualizando pyproject.toml para a versão $PKGVER"
+          # O Poetry altera a linha 'version = ...' automaticamente
+          poetry version $PKGVER
+
       - name: Compile Translations
         run: |
           LOCALES_DIR="src/bigtube/data/locales"

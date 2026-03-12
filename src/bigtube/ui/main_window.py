@@ -5,6 +5,13 @@ import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw, Gdk, GLib, Gio
+from importlib.metadata import version, PackageNotFoundError
+
+def get_app_version():
+    try:
+        return version("python-bigtube")
+    except PackageNotFoundError:
+        return "dev"
 
 # --- CORE ARCHITECTURE ---
 from ..core.downloader import VideoDownloader
@@ -432,7 +439,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             modal=True,
             application_name="BigTube",
             developer_name="Elton Fabricio a.k.a eltonff",
-            version="1.0.0",
+            version=get_app_version(),
             license_type=Gtk.License.MIT_X11,
             copyright=Res.get(StringKey.LBL_COPYRIGHT),
             website="https://github.com/eltonfabricio10/python-bigtube",
@@ -890,7 +897,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         if self._active_playlist == 'downloads':
             if self.download_ctrl.play_next():
                 return
-            
+
             if self.search_ctrl.has_items():
                 self._active_playlist = 'search'
             else:
@@ -906,7 +913,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         if self._active_playlist == 'downloads':
             if self.download_ctrl.play_previous():
                 return
-            
+
             if self.search_ctrl.has_items():
                 self._active_playlist = 'search'
             else:
