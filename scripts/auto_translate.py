@@ -156,6 +156,12 @@ def translate_po_file(file_path, target_lang_code):
                     # 3. Restore variables
                     final_translation = restore_placeholders(translated_safe, placeholders)
 
+                    # 4. FIX: Preserve trailing and leading newlines for msgfmt strictness
+                    if original_text.endswith('\n') and not final_translation.endswith('\n'):
+                        final_translation += '\n'
+                    if original_text.startswith('\n') and not final_translation.startswith('\n'):
+                        final_translation = '\n' + final_translation
+
                     entry.msgstr = final_translation
                     translated_count += 1
 

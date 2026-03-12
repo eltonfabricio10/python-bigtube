@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "python-bigtube"
-version = "1.0.0"
+version = "1.0.1"
 description = "Universal Multimedia Downloader"
 authors = ["eltonff <eltonfabricio10@gmail.com>"]
 license = "MIT"
