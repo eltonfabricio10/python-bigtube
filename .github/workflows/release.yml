@@ -78,7 +78,7 @@ jobs:
           chown -R builduser:builduser .
 
           # 4. Executar o makepkg (Ele lerá o PKGBUILD, baixará o tar.gz da tag e fará tudo sozinho)
-          su - builduser -c "makepkg -s --noconfirm"
+          su - builduser -c "cd $PWD && makepkg -s --noconfirm"
 
       - name: Publish Arch Package to GitHub Release
         uses: softprops/action-gh-release@v2
