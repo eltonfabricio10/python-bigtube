@@ -10,8 +10,9 @@ from .updater import Updater
 from .logger import get_logger, SearchError
 from .search_history import SearchCache
 from .validators import (
-    is_valid_url, sanitize_url, sanitize_search_query,
-    run_subprocess_with_timeout, Timeouts, retry_with_backoff
+    is_valid_url, is_playlist_url, 
+    sanitize_url, sanitize_search_query,
+    run_subprocess_with_timeout, Timeouts
 )
 from .helpers import is_youtube_url
 
@@ -98,11 +99,16 @@ class SearchEngine:
         """
         logger.info(f"Processing direct link: {url}")
 
-        cmd_args = [
-            "--dump-json",
-            "--no-playlist",
-            "--skip-download",
-        ]
+        # If this is a playlist URL, return the full playlist entries.
+        # For a single video URL inside a playlist, the user expectation is usually
+        # "expand the playlist", not just the current item.
+        is_playlist = is_playlist_url(url)
+
+        cmd_args = ["--dump-json", "--skip-download"]
+        if is_playlist:
+            cmd_args.insert(0, "--flat-playlist")
+        else:
+            cmd_args.append("--no-playlist")
 
         if is_youtube_url(url):
             cmd_args.extend(["--extractor-args", "youtube:player_client=web,android_vr"])
@@ -115,6 +121,13 @@ class SearchEngine:
         try:
             results = self._run_cli(cmd_args, force_audio=False)
             if results:
+                if is_playlist:
+                    # yt-dlp --flat-playlist may emit IDs in "url" instead of full links.
+                    # Normalize to a usable webpage URL when needed.
+                    for item in results:
+                        u = (item.get("url") or "").strip()
+                        if u and not u.startswith(("http://", "https://")) and is_youtube_url(url):
+                            item["url"] = f"https://www.youtube.com/watch?v={u}"
                 return results
             else:
                 # If no data returned but no crash, raise generic error
@@ -153,9 +166,17 @@ class SearchEngine:
 
                 try:
                     data = json.loads(line)
-                    parsed = self._parse_entry(data, force_audio)
-                    if parsed:
-                        json_outputs.append(parsed)
+                    # yt-dlp may emit a single playlist object with an `entries` list.
+                    entries = data.get("entries")
+                    if isinstance(entries, list):
+                        for entry in entries:
+                            parsed = self._parse_entry(entry, force_audio)
+                            if parsed:
+                                json_outputs.append(parsed)
+                    else:
+                        parsed = self._parse_entry(data, force_audio)
+                        if parsed:
+                            json_outputs.append(parsed)
                 except json.JSONDecodeError:
                     pass
 

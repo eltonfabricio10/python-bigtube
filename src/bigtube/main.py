@@ -166,7 +166,7 @@ def run():
     GLib.set_prgname("org.big.bigtube")
 
     # Run the application loop
-    sys.exit(app.run(sys.argv[0]))
+    sys.exit(app.run(sys.argv))
 
 
 if __name__ == '__main__':

@@ -12,7 +12,7 @@ import re
 import time
 import functools
 from typing import Callable, TypeVar, Optional
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 from .logger import get_logger
 
@@ -116,6 +116,43 @@ def is_valid_url(url: str) -> bool:
     for pattern in URL_PATTERNS:
         if re.match(pattern, url, re.IGNORECASE):
             return True
+
+    return False
+
+
+def is_playlist_url(url: str) -> bool:
+    """
+    Returns True if the URL looks like a playlist/collection link.
+
+    Currently focused on YouTube playlists, including:
+    - https://www.youtube.com/playlist?list=...
+    - https://www.youtube.com/watch?v=...&list=...
+    - https://youtu.be/<id>?list=...
+    - https://music.youtube.com/watch?v=...&list=...
+    """
+    if not url or not isinstance(url, str):
+        return False
+
+    try:
+        parsed = urlparse(url.strip())
+    except Exception:
+        return False
+
+    host = (parsed.netloc or "").lower()
+    path = (parsed.path or "").lower()
+    qs = parse_qs(parsed.query or "")
+
+    # A list= query parameter usually indicates a playlist context on YouTube.
+    has_list = bool(qs.get("list"))
+
+    if "youtube.com" in host or "music.youtube.com" in host:
+        if path.startswith("/playlist"):
+            return has_list
+        if path.startswith("/watch"):
+            return has_list
+
+    if "youtu.be" in host:
+        return has_list
 
     return False
 
@@ -231,7 +268,7 @@ def retry_with_backoff(
                     last_exception = e
 
                     if attempt == max_attempts:
-                        logger.error(
+                        logger.error(    # noqa: P101
                             f"All {max_attempts} attempts failed for {func.__name__}: {e}"
                         )
                         raise RetryError(
@@ -245,7 +282,7 @@ def retry_with_backoff(
                         max_delay
                     )
 
-                    logger.warning(
+                    logger.warning(  # noqa: P101
                         f"Attempt {attempt}/{max_attempts} failed for {func.__name__}: {e}. "
                         f"Retrying in {delay:.1f}s..."
                     )

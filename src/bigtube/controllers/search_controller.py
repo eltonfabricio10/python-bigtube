@@ -1,7 +1,8 @@
-import threading
+"""Search Controller for BigTube."""
 import gi
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
+
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
 from gi.repository import Gtk, Gio, GObject, GLib
 
 from ..core.search import SearchEngine
@@ -11,6 +12,7 @@ from ..core.logger import get_logger
 from ..ui.search_result_row import VideoDataObject
 from ..ui.suggestion_popover import SuggestionPopover
 from ..ui.message_manager import MessageManager
+from ..ui.async_utils import run_in_background
 
 # Module logger
 logger = get_logger(__name__)
@@ -182,6 +184,7 @@ class SearchController(GObject.Object):
                 break
 
     def has_items(self):
+        """Checks if the search controller has any items."""
         return self.store.get_n_items() > 0
 
     def play_next(self):
@@ -288,7 +291,7 @@ class SearchController(GObject.Object):
 
             # Determine Source from Dropdown logic
             idx = self.dropdown.get_selected()
-            is_source_url = (idx == 2)
+            is_source_url = idx == 2
 
             filtered = []
             for match in raw_matches:
@@ -344,12 +347,12 @@ class SearchController(GObject.Object):
         else:
             source = "youtube"
 
-        # Run in background
-        threading.Thread(
-            target=self._run_search_thread,
-            args=(query, source),
-            daemon=True
-        ).start()
+        # Run in background; UI updates are scheduled on the main thread via run_in_background
+        run_in_background(
+            fn=lambda: self.engine.search(query, source=source),
+            on_success=self._update_ui_with_results,
+            on_error=self._on_search_error,
+        )
 
     def on_item_activated(self, list_view, position):
         """Triggered by double-click or Enter on list item."""
@@ -381,15 +384,11 @@ class SearchController(GObject.Object):
     # =========================================================================
     # INTERNAL LOGIC
     # =========================================================================
-    def _run_search_thread(self, query, source):
-        """Worker thread for network request."""
-        try:
-            results = self.engine.search(query, source=source)
-            GLib.idle_add(self._update_ui_with_results, results)
-        except Exception as e:
-            logger.error(f"Search error: {e}")
-            MessageManager.show(str(e), True)
-            GLib.idle_add(self._finish_loading)
+    def _on_search_error(self, exc: Exception) -> None:
+        """Called on main thread when search fails."""
+        logger.error("Search error: %s", exc)
+        MessageManager.show(str(exc), True)
+        self._finish_loading()
 
     def _update_ui_with_results(self, results):
         """Updates ListStore on the Main Thread."""
