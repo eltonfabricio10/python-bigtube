@@ -1,13 +1,13 @@
+"""
+Locales module for managing translations.
+"""
 import gettext
 import locale
-import sys
 import os
 from enum import Enum
 from pathlib import Path
 
-# --- CONFIGURATION ---
-
-# 1. Define locale directory path
+# Define locale directory path
 # Priority: System path (/usr/share/locale) -> Local path (for development)
 SYSTEM_LOCALE_DIR = Path("/usr/share/locale")
 BASE_DIR = Path(__file__).parent.parent.parent.parent
@@ -26,16 +26,23 @@ APP_DOMAIN = "bigtube"
 # This function does nothing at runtime (it just returns the string),
 # but it tells xgettext that this string needs to be translated later.
 def N_(message):
+    """
+    Dummy function for marking strings for extraction.
+    """
     return message
 
 
 # 3. Detect system language
 try:
-    sys_lang = locale.getdefaultlocale()[0]
-    if not sys_lang:
-        sys_lang = 'en_US'
-except Exception:
-    sys_lang = 'en_US'
+    SYS_LANG = locale.getlocale(locale.LC_MESSAGES)[0]
+    if not SYS_LANG:
+        raw = os.environ.get("LANG", "") or os.environ.get("LC_ALL", "")
+        SYS_LANG = raw.split(".")[0].strip() if raw else ""
+    if not SYS_LANG:
+        SYS_LANG = "en_US"
+except (TypeError, AttributeError, ValueError, OSError) as e:
+    print(f"[Locales] Warning: ({e}). Using Fallback (English).")
+    SYS_LANG = "en_US"
 
 # 4. Initialize the real Translator
 try:
@@ -43,15 +50,16 @@ try:
     translator = gettext.translation(
         APP_DOMAIN,
         localedir=LOCALE_DIR,
-        languages=[sys_lang],
+        languages=[SYS_LANG],
         fallback=True
     )
     # The real translation function
     _ = translator.gettext
-except Exception as e:
-    print(f"[Locales] Warning: ({e}). Using Fallback (English).")
-    # Fallback: identity function
-    _ = lambda s: s
+except (OSError, TypeError, AttributeError, ValueError) as e:
+    print(f"[Locales] Error: ({e}). Using Fallback (English).")
+
+    def _(s):
+        return s
 
 
 class StringKey(Enum):
@@ -411,6 +419,9 @@ class StringKey(Enum):
 
 
 class ResourceManager:
+    """
+    ResourceManager class for managing translations.
+    """
     @staticmethod
     def get(key: StringKey) -> str:
         """
