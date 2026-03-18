@@ -107,6 +107,7 @@ class StringKey(Enum):
     TIP_DOWNLOAD = N_("Download")
     TIP_COPY_LINK = N_("Copy Link")
     MSG_LINK_COPIED = N_("Link Copied!")
+    MSG_CLI_IGNORED = N_("Ignored input:")
 
     # Dialog
     DIALOG_FORMAT_TITLE = N_("Select Quality")

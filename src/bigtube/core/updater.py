@@ -1,12 +1,9 @@
+import io
 import os
 import stat
-import urllib.request
 import subprocess
+import urllib.request
 import zipfile
-import io
-import sys
-from typing import Optional, Tuple
-from pathlib import Path
 
 # Internal Imports
 from .config import ConfigManager
@@ -27,7 +24,7 @@ class Updater:
     _DENO_URL = "https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip"
 
     @staticmethod
-    def get_local_version() -> Optional[str]:
+    def get_local_version() -> str | None:
         """
         Queries the local yt-dlp binary for its version.
         Returns the version string (e.g., '2023.10.13') or None if missing/error.
@@ -53,7 +50,7 @@ class Updater:
             return "Error"
 
     @staticmethod
-    def update_yt_dlp() -> Tuple[bool, str]:
+    def update_yt_dlp() -> tuple[bool, str]:
         """
         Downloads the latest yt-dlp binary from GitHub.
         Returns: (Success: bool, Version/Error: str)

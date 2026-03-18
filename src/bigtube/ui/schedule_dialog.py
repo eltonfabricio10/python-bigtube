@@ -1,12 +1,16 @@
-
-import gi
+# ruff: noqa: E402
 import time
 from datetime import datetime
+
+import gi
+
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw, GLib
+from gi.repository import Adw, Gtk
 
-from ..core.locales import ResourceManager as Res, StringKey
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
+
 
 class ScheduleDialog(Adw.Window):
     """

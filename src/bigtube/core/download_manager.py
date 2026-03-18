@@ -2,12 +2,14 @@
 import threading
 import time
 import uuid
-from typing import Dict, List, Optional, Callable
 from collections import deque
-from .downloader import VideoDownloader
-from .logger import get_logger
+from collections.abc import Callable
+
 from .config import ConfigManager
-from .locales import ResourceManager as Res, StringKey
+from .downloader import VideoDownloader
+from .locales import ResourceManager as Res
+from .locales import StringKey
+from .logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -22,7 +24,7 @@ class DownloadManager:
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
-                    cls._instance = super(DownloadManager, cls).__new__(cls)
+                    cls._instance = super().__new__(cls)
                     cls._instance._initialized = False
         return cls._instance
 
@@ -32,7 +34,7 @@ class DownloadManager:
 
         self._initialized = True
         self.max_concurrent = 3
-        self.active_downloads: Dict[str, VideoDownloader] = {} # Map ID -> Downloader
+        self.active_downloads: dict[str, VideoDownloader] = {} # Map ID -> Downloader
         self.pending_queue = [] # Queue of download tasks (dicts, sorted by priority)
         self.scheduled_tasks = [] # List of (timestamp, task_dict)
         self.lock = threading.Lock()
@@ -123,7 +125,7 @@ class DownloadManager:
             self.pending_queue.append(task)
             # Sort queue by priority (highest first)
             self.pending_queue.sort(key=lambda x: x.get('priority', 0), reverse=True)
-            
+
             logger.info(f"Added download to queue: {task['title']} "
                         f"(Priority: {task.get('priority', 0)}, Queue size: {len(self.pending_queue)})")
             if task.get('progress_callback'):

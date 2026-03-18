@@ -1,10 +1,10 @@
-import gi
-from gi.repository import Gtk, Adw, GObject, Gdk
+from gi.repository import Adw, Gdk, GLib, GObject, Gtk
+
+from ..core.logger import get_logger
+from .gst_widget import GstWidget
 
 # Internal Imports
 from .mpv_widget import MpvWidget
-from .gst_widget import GstWidget
-from ..core.logger import get_logger
 
 # Module logger
 logger = get_logger(__name__)

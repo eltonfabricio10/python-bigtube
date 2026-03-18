@@ -1,10 +1,12 @@
 import os
-from gi.repository import Gtk, GObject, Gdk
+
+from gi.repository import Gdk, GObject, Gtk
 
 # Internal Imports
 from ..core.image_loader import ImageLoader
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
 from .message_manager import MessageManager
-from ..core.locales import StringKey, ResourceManager as Res
 
 # Path to the .ui file
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

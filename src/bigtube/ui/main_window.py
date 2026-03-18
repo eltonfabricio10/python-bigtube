@@ -1,11 +1,16 @@
+# ruff: noqa: E402
+import mimetypes
 import os
 import threading
-import mimetypes
+
 import gi
+
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw, Gdk, GLib, Gio
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import PackageNotFoundError, version
+
+from gi.repository import Adw, Gdk, Gio, GLib, Gtk
+
 
 def get_app_version():
     try:
@@ -14,37 +19,39 @@ def get_app_version():
         return "dev"
 
 # --- CORE ARCHITECTURE ---
-from ..core.downloader import VideoDownloader
-from ..core.config import ConfigManager
-from ..core.history_manager import HistoryManager
-from ..core.download_manager import DownloadManager
 from ..core.clipboard_monitor import ClipboardMonitor
-from ..core.enums import DownloadStatus, AppSection, VideoQuality, ThemeMode, ThemeColor
-from ..core.locales import ResourceManager as Res, StringKey
+from ..core.config import ConfigManager
+from ..core.download_manager import DownloadManager
+from ..core.downloader import VideoDownloader
+from ..core.enums import AppSection, DownloadStatus, ThemeColor, ThemeMode, VideoQuality
+from ..core.history_manager import HistoryManager
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
 from ..core.logger import get_logger
-from ..core.validators import sanitize_filename
 from ..core.network_checker import check_internet_connection, check_ytdlp_update_available
 from ..core.updater import Updater
-
-logger = get_logger(__name__)
 from ..core.helpers import get_status_label
+from ..core.validators import is_valid_url, sanitize_url, sanitize_filename
 
 # --- CONTROLLERS ---
 from ..controllers.search_controller import SearchController
-from ..controllers.download_controller import DownloadController
 from ..controllers.settings_controller import SettingsController
 from ..controllers.converter_controller import ConverterController
+from ..controllers.download_controller import DownloadController
 from ..controllers.player_controller import PlayerController
+
+from .format_dialog import FormatSelectionDialog
+from .message_manager import MessageManager
+from .search_result_row import SearchResultRow
 
 # --- UI COMPONENTS ---
 from .video_window import VideoWindow
-from .format_dialog import FormatSelectionDialog
-from .search_result_row import SearchResultRow
-from .message_manager import MessageManager
 
 # Path to the .ui file
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UI_FILE = os.path.join(BASE_DIR, 'data', 'bigtube.ui')
+
+logger = get_logger(__name__)
 
 
 @Gtk.Template(filename=UI_FILE)
@@ -755,6 +762,80 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         # Update empty state visibility after loading history
         self._update_download_empty_state()
 
+    def handle_cli_inputs(self, inputs, cwd=None):
+        if not inputs:
+            return False
+
+        if cwd is None:
+            cwd = os.getcwd()
+
+        file_paths = []
+        urls = []
+        unknown = []
+
+        for raw in inputs:
+            value = str(raw).strip()
+            if not value:
+                continue
+
+            if value.startswith("file://"):
+                try:
+                    path = Gio.File.new_for_uri(value).get_path()
+                except Exception:
+                    path = None
+                if path and os.path.isfile(path):
+                    file_paths.append(path)
+                else:
+                    unknown.append(value)
+                continue
+
+            sanitized = sanitize_url(value)
+            if is_valid_url(sanitized):
+                urls.append(sanitized)
+                continue
+
+            path = os.path.expanduser(value)
+            if not os.path.isabs(path):
+                path = os.path.abspath(os.path.join(str(cwd), path))
+
+            if os.path.isfile(path):
+                file_paths.append(path)
+            else:
+                unknown.append(value)
+
+        if file_paths:
+            for path in file_paths:
+                self.converter_ctrl.add_file(path)
+
+        if urls:
+            url = urls[0]
+            self.search_source_dropdown.set_selected(2)
+            self.search_entry.set_text(url)
+            if len(urls) > 1:
+                self.search_ctrl.search_urls(urls)
+            else:
+                self.search_ctrl.on_search_activate(self.search_entry)
+
+        if urls:
+            self.pageview.set_visible_child(self.search_page.get_child())
+        elif file_paths:
+            self.pageview.set_visible_child(self.converter_page.get_child())
+
+        for item in unknown:
+            logger.warning("Ignoring CLI input: %s", item)
+
+        if unknown:
+            prefix = Res.get(StringKey.MSG_CLI_IGNORED)
+            if len(unknown) == 1:
+                MessageManager.show(f"{prefix} {unknown[0]}", True)
+            else:
+                shown = ", ".join(unknown[:3])
+                if len(unknown) > 3:
+                    shown = f"{shown} (+{len(unknown) - 3})"
+                MessageManager.show(f"{prefix} {shown}", True)
+
+        return False
+
     # =========================================================================
     # LOADING SPINNER
     # =========================================================================
@@ -1142,7 +1223,6 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
                 on_start_callback=on_start
             )
             # Custom status for scheduled
-            import time
             from datetime import datetime
             dt = datetime.fromtimestamp(schedule_time)
             row_widget.set_status_label(f"Scheduled: {dt.strftime('%H:%M')}")

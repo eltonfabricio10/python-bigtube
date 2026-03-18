@@ -1,16 +1,18 @@
-import os
 import json
+import os
 import threading
-import subprocess
-from typing import Optional, Callable, Dict
-from gi.repository import Gtk, GLib
+from collections.abc import Callable
+
+from gi.repository import GLib, Gtk
+
+from ..core.config import ConfigManager
 
 # Internal Imports
 from ..core.image_loader import ImageLoader
-from ..core.config import ConfigManager
-from ..core.locales import ResourceManager as Res, StringKey
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
 from ..core.logger import get_logger
-from ..core.validators import run_subprocess_with_timeout, Timeouts
+from ..core.validators import Timeouts, run_subprocess_with_timeout
 
 # Module logger
 logger = get_logger(__name__)
@@ -24,9 +26,9 @@ class PlayerController:
 
     def __init__(self,
                  video_window,
-                 ui_widgets: Dict[str, Gtk.Widget],
-                 on_next_callback: Optional[Callable] = None,
-                 on_prev_callback: Optional[Callable] = None):
+                 ui_widgets: dict[str, Gtk.Widget],
+                 on_next_callback: Callable | None = None,
+                 on_prev_callback: Callable | None = None):
 
         self.video_window = video_window
         self.ui = ui_widgets

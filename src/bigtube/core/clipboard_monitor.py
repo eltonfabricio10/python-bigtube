@@ -1,12 +1,12 @@
+# ruff: noqa: E402
 
-import threading
-import time
 import gi
+
 gi.require_version('Gdk', '4.0')
 from gi.repository import Gdk, GLib
 
-from .validators import is_valid_url
 from .logger import get_logger
+from .validators import is_valid_url
 
 logger = get_logger(__name__)
 
@@ -50,6 +50,6 @@ class ClipboardMonitor:
                     logger.info(f"Clipboard URL detected: {text}")
                     if self.on_url_found_callback:
                         self.on_url_found_callback(text)
-        except Exception as e:
+        except Exception:
             # Often happens if clipboard is empty or has non-text content
             pass

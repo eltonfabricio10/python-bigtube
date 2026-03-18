@@ -1,9 +1,12 @@
+# ruff: noqa: E402
 import gi
+
 gi.require_version('Adw', '1')
 from gi.repository import Adw
 
 # Internal Imports
-from ..core.locales import ResourceManager as Res, StringKey
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
 
 
 class MessageManager:
@@ -47,7 +50,7 @@ class MessageManager:
             toast = Adw.Toast.new(message)
             toast.set_timeout(5)
             toast.set_priority(Adw.ToastPriority.NORMAL)
-            
+
         cls._active_toast = toast
         cls._toast_widget.add_toast(toast)
 

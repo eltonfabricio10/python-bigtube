@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+"""
+This script automates the translation of the project's source code
+and UI files into multiple languages using the Google Translate API.
+"""
 
 import os
-import sys
-import subprocess
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 # =========================================================================
@@ -14,7 +17,7 @@ try:
     import polib
     from deep_translator import GoogleTranslator
 except ImportError:
-    print("❌ Error: Translation dependencies not found.")
+    print("[auto_translate] Error: Translation dependencies not found.")
     print("Please install them by running: poetry add polib deep-translator --group dev")
     sys.exit(1)
 
@@ -105,10 +108,10 @@ LANG_MAP = {
 def run_command(command, quiet=False):
     """Executes a shell command and returns True if successful."""
     if not quiet:
-        print(f"Running: {' '.join(command)}")
-    result = subprocess.run(command, capture_output=True, text=True)
+        print(f"[auto_translate] Running: {' '.join(command)}")
+    result = subprocess.run(command, capture_output=True, text=True, check=False)
     if result.returncode != 0 and not quiet:
-        print(f"Error: {result.stderr}")
+        print(f"[auto_translate] Error: {result.stderr}")
     return result.returncode == 0
 
 def protect_placeholders(text):
@@ -133,7 +136,7 @@ def translate_po_file(file_path, target_lang_code):
     Parses a .po file, finds empty translations, translates them via Google API,
     and saves the file back to disk.
     """
-    print(f"\n Translating new strings in: {file_path.name} (Target: {target_lang_code})")
+    print(f"\n [auto_translate] Translating new strings in: {file_path.name} (Target: {target_lang_code})")
 
     try:
         po = polib.pofile(str(file_path))
@@ -165,28 +168,44 @@ def translate_po_file(file_path, target_lang_code):
                     entry.msgstr = final_translation
                     translated_count += 1
 
-                    print(f"  [+] '{original_text}' -> '{final_translation}'")
+                    print(f"[auto_translate] '{original_text}' -> '{final_translation}'")
 
                 except Exception as e:
-                    print(f"  [!] API Error translating '{original_text}': {e}")
+                    print(f"[auto_translate] API Error translating '{original_text}': {e}")
 
         # Save changes if any new translation was made
         if translated_count > 0:
             po.save(str(file_path))
-            print(f"✅ Success! {translated_count} new strings translated and saved.")
+            print(f"[auto_translate] Success! {translated_count} new strings translated and saved.")
         else:
-            print(f"✨ No new strings found. File is already 100% translated.")
+            print("[auto_translate] No new strings found. File is already 100% translated.")
 
     except Exception as e:
-        print(f"❌ Fatal error processing {file_path.name}: {e}")
+        print(f"[auto_translate] Fatal error processing {file_path.name}: {e}")
 
 # =========================================================================
 # Main Workflow (Extract -> Init -> Merge -> Translate)
 # =========================================================================
 def main():
-    os.makedirs(PO_DIR, exist_ok=True)
+    """
+    Main workflow for i18n automation.
+    This function orchestrates the entire i18n process:
+    - Collects source files
+    - Extracts strings using xgettext
+    - Initializes new language files using msginit
+    - Merges new strings into existing .po files
+    - Translates new strings using the Google Translate API
+    - Saves the translated .po files back to disk
+    """
+    print("[auto_translate] Starting i18n Automation")
+    print(f"[auto_translate] Project: {APP_NAME}")
+    print(f"[auto_translate] Source Directory: {SRC_DIR}")
+    print(f"[auto_translate] PO Directory: {PO_DIR}")
+    print(f"[auto_translate] Language Map: {LANG_MAP}")
+    print(f"[auto_translate] POT File: {POT_FILE}")
 
-    print(f"\n Starting i18n Automation for '{APP_NAME}'...")
+    # Create PO directory if it doesn't exist
+    os.makedirs(PO_DIR, exist_ok=True)
 
     # --- PHASE 1: Collect Source Files ---
     py_files, ui_files = [], []
@@ -198,11 +217,11 @@ def main():
                 ui_files.append(str(Path(root) / file))
 
     if not py_files and not ui_files:
-        print("No source files found for string extraction.")
+        print("[auto_translate] No source files found for string extraction.")
         return
 
     # --- PHASE 2: Extraction (xgettext) ---
-    print(f"\n PHASE 1: Extracting strings from source code...")
+    print("\n [auto_translate] PHASE 1: Extracting strings from source code...")
     if py_files:
         python_cmd = [
             "xgettext", "--language=Python", "--from-code=UTF-8",
@@ -220,15 +239,15 @@ def main():
         run_command(ui_cmd)
 
     if not POT_FILE.exists():
-        print("❌ Error: .pot file was not generated.")
+        print("[auto_translate] Error: .pot file was not generated.")
         return
 
     # --- PHASE 2.5: Initialize Missing Languages (msginit) ---
-    print(f"\n PHASE 2: Verifying and creating missing languages...")
+    print("\n [auto_translate] PHASE 2: Verifying and creating missing languages...")
     for lang_code in LANG_MAP.keys():
         po_path = PO_DIR / f"{lang_code}.po"
         if not po_path.exists():
-            print(f"  [+] Creating new language file: {lang_code}.po")
+            print(f"  [auto_translate] [+] Creating new language file: {lang_code}.po")
             # Uses msginit without interactive prompts
             init_cmd = [
                 "msginit",
@@ -240,17 +259,17 @@ def main():
             run_command(init_cmd, quiet=True)
 
     # --- PHASE 3: Merge (msgmerge) ---
-    print(f"\n PHASE 3: Updating existing .po files...")
+    print("\n [auto_translate] PHASE 3: Updating existing .po files...")
     po_files = [f for f in os.listdir(PO_DIR) if f.endswith(".po")]
 
     for file in po_files:
         po_path = PO_DIR / file
         merge_cmd = ["msgmerge", "--update", "--backup=none", str(po_path), str(POT_FILE)]
         run_command(merge_cmd, quiet=True)
-        print(f"  -> Synced: {file}")
+        print(f"  [auto_translate] [+] Synced: {file}")
 
     # --- PHASE 4: Auto Translation ---
-    print(f"\n PHASE 4: Starting Auto-Translation Engine...")
+    print("\n [auto_translate] PHASE 4: Starting Auto-Translation Engine...")
     for file in po_files:
         po_path = PO_DIR / file
         lang_id = file.replace(".po", "")
@@ -258,7 +277,7 @@ def main():
         target_lang = LANG_MAP.get(lang_id, lang_id.split('_')[0])
         translate_po_file(po_path, target_lang)
 
-    print("\n Process Complete! Your codebase is synced and translated.")
+    print("\n [auto_translate] Process Complete! Your codebase is synced and translated.")
 
 if __name__ == "__main__":
     main()

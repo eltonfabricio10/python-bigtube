@@ -1,6 +1,9 @@
+# ruff: noqa: E402
 import gi
+
 gi.require_version('Gtk', '4.0')
-from gi.repository import Gtk, GObject
+from gi.repository import GObject, Gtk
+
 from ..core.logger import get_logger
 
 # Module logger
@@ -74,7 +77,8 @@ class SuggestionPopover(Gtk.Popover):
             self.list_box.remove(child)
             self.popdown()
 
-        from ..core.locales import ResourceManager as Res, StringKey
+        from ..core.locales import ResourceManager as Res
+        from ..core.locales import StringKey
 
         # 3. Populate List
         for text in suggestions:

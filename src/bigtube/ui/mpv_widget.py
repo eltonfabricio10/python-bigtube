@@ -1,9 +1,10 @@
 import locale
-import gi
-from gi.repository import Gtk, GLib, GObject, Gdk
+
+from gi.repository import Gdk, GLib, GObject, Gtk
 
 # Internal Imports
-from ..core.locales import ResourceManager as Res, StringKey
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
 
 # Check for X11 capability (Required for embedding in GTK4 currently)
 try:

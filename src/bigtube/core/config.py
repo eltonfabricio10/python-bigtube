@@ -1,14 +1,17 @@
-import os
 import json
-import sys
+import os
 import shutil
+from enum import Enum
 from pathlib import Path
+from typing import Any
+
 from gi.repository import GLib
 
 # Import internal Enums
-from .enums import ThemeMode, VideoQuality, ThemeColor
-from .locales import ResourceManager as Res, StringKey
-from .logger import get_logger, BinaryNotFoundError
+from .enums import ThemeColor, ThemeMode, VideoQuality
+from .locales import ResourceManager as Res
+from .locales import StringKey
+from .logger import BinaryNotFoundError, get_logger
 
 # Module logger
 logger = get_logger(__name__)
@@ -92,7 +95,7 @@ class ConfigManager:
             return
 
         try:
-            with open(cls.CONFIG_FILE, 'r', encoding='utf-8') as f:
+            with open(cls.CONFIG_FILE, encoding='utf-8') as f:
                 content = f.read().strip()
 
                 if not content:
@@ -123,14 +126,14 @@ class ConfigManager:
             logger.error(f"Failed to save config: {e}")
 
     @classmethod
-    def get(cls, key: str) -> 'Any':
+    def get(cls, key: str) -> Any:
         """Retrieves a value. Returns default if missing."""
         if not cls._data:
             cls.load()
         return cls._data.get(key, cls._DEFAULTS.get(key))
 
     @classmethod
-    def set(cls, key: str, value: 'Union[str, int, bool, float, Enum]') -> None:
+    def set(cls, key: str, value: str | int | bool | float | Enum) -> None:
         """
         Updates a setting and saves immediately.
         Handles Enum conversion automatically.

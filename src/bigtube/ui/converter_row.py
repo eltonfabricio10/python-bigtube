@@ -1,17 +1,20 @@
-import os
-import threading
 import mimetypes
-import subprocess
+import os
 import shutil
-from gi.repository import Gtk, GLib, Gdk, GObject
+import subprocess
+import threading
+
+from gi.repository import Gdk, GLib, GObject, Gtk
+
+from ..core.config import ConfigManager
 
 # Internal Imports
 from ..core.converter import MediaConverter
-from ..core.locales import ResourceManager as Res, StringKey
+from ..core.converter_history import ConverterHistoryManager
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
 from ..core.logger import get_logger
 from .message_manager import MessageManager
-from ..core.converter_history import ConverterHistoryManager
-from ..core.config import ConfigManager
 
 # Module logger
 logger = get_logger(__name__)

@@ -1,5 +1,6 @@
 from .enums import DownloadStatus
-from .locales import ResourceManager as Res, StringKey
+from .locales import ResourceManager as Res
+from .locales import StringKey
 
 
 def get_status_label(status_input) -> str:

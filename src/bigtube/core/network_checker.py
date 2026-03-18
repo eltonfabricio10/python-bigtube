@@ -2,10 +2,9 @@
 Network connectivity and remote version checking utilities.
 """
 
+import json
 import socket
 import urllib.request
-import json
-from typing import Optional, Tuple
 
 from .logger import get_logger
 
@@ -33,16 +32,16 @@ def check_internet_connection(timeout: float = 3.0) -> bool:
         # Try connecting to Google's servers
         socket.create_connection(("www.google.com", 80), timeout=timeout)
         return True
-    except (socket.timeout, socket.error, OSError):
+    except (TimeoutError, OSError):
         # Fallback: try connecting to Cloudflare DNS
         try:
             socket.create_connection(("1.1.1.1", 53), timeout=timeout)
             return True
-        except (socket.timeout, socket.error, OSError):
+        except (TimeoutError, OSError):
             return False
 
 
-def get_remote_ytdlp_version(timeout: float = 10.0) -> Optional[str]:
+def get_remote_ytdlp_version(timeout: float = 10.0) -> str | None:
     """
     Fetches the latest yt-dlp version from GitHub releases API.
 
@@ -95,7 +94,7 @@ def compare_versions(local: str, remote: str) -> bool:
         return remote > local
 
 
-def check_ytdlp_update_available(local_version: Optional[str]) -> Tuple[bool, Optional[str]]:
+def check_ytdlp_update_available(local_version: str | None) -> tuple[bool, str | None]:
     """
     Checks if a yt-dlp update is available.
 

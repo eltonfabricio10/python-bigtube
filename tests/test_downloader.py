@@ -1,10 +1,11 @@
 
-import pytest
-from unittest.mock import MagicMock, patch, ANY
-import subprocess
 import json
-from bigtube.core.downloader import VideoDownloader, NetworkError
-from bigtube.core.enums import FileExt
+from unittest.mock import ANY, MagicMock, patch
+
+import pytest
+
+from bigtube.core.downloader import VideoDownloader
+
 
 class TestVideoDownloader:
 

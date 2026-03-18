@@ -1,15 +1,18 @@
+import glob
 import os
 import shutil
 import subprocess
-import glob
 import threading
-from gi.repository import Gtk, GLib
 
-# Internal Imports
-from ..core.locales import ResourceManager as Res, StringKey
+from gi.repository import GLib, Gtk
+
+from ..core.config import ConfigManager
 from ..core.enums import DownloadStatus
 from ..core.history_manager import HistoryManager
-from ..core.config import ConfigManager
+
+# Internal Imports
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
 from ..core.logger import get_logger
 from .message_manager import MessageManager
 

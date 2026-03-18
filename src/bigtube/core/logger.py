@@ -13,10 +13,10 @@ Usage:
 """
 
 import logging
-import os
 import sys
-from pathlib import Path
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
+
 from gi.repository import GLib
 
 

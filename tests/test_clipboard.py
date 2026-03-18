@@ -1,7 +1,10 @@
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+
 from bigtube.core.clipboard_monitor import ClipboardMonitor
+
 
 @pytest.fixture
 def mock_callback():

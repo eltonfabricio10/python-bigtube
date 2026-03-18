@@ -1,13 +1,13 @@
 import os
+import shutil
 import subprocess
 import threading
-import requests
-import shutil
-import time
-from typing import Optional, Callable
-from .logger import get_logger
-from .config import ConfigManager
+from collections.abc import Callable
+
 from gi.repository import GLib
+
+from .config import ConfigManager
+from .logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -30,7 +30,7 @@ class MediaConverter:
                 "ffprobe", "-v", "error", "-show_entries", "format=duration",
                 "-of", "default=noprint_wrappers=1:nokey=1", input_path
             ]
-            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode == 0:
                 duration_str = result.stdout.strip()
                 if duration_str and duration_str != "N/A":
@@ -43,10 +43,10 @@ class MediaConverter:
     def convert_media(
         input_path: str,
         output_format: str,
-        progress_callback: Optional[Callable] = None,
+        progress_callback: Callable | None = None,
         add_metadata: bool = True,
         add_subtitles: bool = True,
-        cancel_event: Optional[threading.Event] = None
+        cancel_event: threading.Event | None = None
     ) -> str:
         """
         Converts media file to target format using ffmpeg.

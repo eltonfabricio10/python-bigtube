@@ -1,10 +1,13 @@
-import os
 import hashlib
 import threading
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
-from urllib.request import urlopen, Request
 from pathlib import Path
+from urllib.request import Request, urlopen
+
+import gi
+gi.require_version('GdkPixbuf', '2.0')
+gi.require_version('Gtk', '4.0')
 from gi.repository import GdkPixbuf, GLib, Gtk
 
 

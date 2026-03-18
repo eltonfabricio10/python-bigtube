@@ -1,7 +1,9 @@
-import os
 import json
+import os
 import time
+
 from gi.repository import GLib
+
 from .logger import get_logger
 
 # Module logger
@@ -31,7 +33,7 @@ class ConverterHistoryManager:
             return []
 
         try:
-            with open(cls._FILE_PATH, 'r', encoding='utf-8') as f:
+            with open(cls._FILE_PATH, encoding='utf-8') as f:
                 return json.load(f)
         except (json.JSONDecodeError, OSError) as e:
             logger.error(f"Error loading converter history file: {e}")

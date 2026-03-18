@@ -1,7 +1,7 @@
 import json
 import time
 from collections import OrderedDict
-from pathlib import Path
+
 from .config import ConfigManager
 from .logger import get_logger
 
@@ -24,7 +24,7 @@ class SearchHistory:
             return
 
         try:
-            with open(cls._FILE_PATH, 'r', encoding='utf-8') as f:
+            with open(cls._FILE_PATH, encoding='utf-8') as f:
                 cls._history = json.load(f)
         except (json.JSONDecodeError, OSError):
             cls._history = []

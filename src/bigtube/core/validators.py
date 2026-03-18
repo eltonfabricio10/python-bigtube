@@ -8,11 +8,12 @@ Contains:
 - Timeout constants
 """
 
+import functools
 import re
 import time
-import functools
-from typing import Callable, TypeVar, Optional
-from urllib.parse import urlparse, parse_qs
+from collections.abc import Callable
+from typing import TypeVar
+from urllib.parse import parse_qs, urlparse
 
 from .logger import get_logger
 
@@ -227,7 +228,7 @@ T = TypeVar('T')
 
 class RetryError(Exception):
     """Raised when all retry attempts fail."""
-    def __init__(self, message: str, last_exception: Optional[Exception] = None):
+    def __init__(self, message: str, last_exception: Exception | None = None):
         self.last_exception = last_exception
         super().__init__(message)
 
@@ -238,7 +239,7 @@ def retry_with_backoff(
     max_delay: float = RetryConfig.MAX_DELAY,
     exponential_base: float = RetryConfig.EXPONENTIAL_BASE,
     exceptions: tuple = (Exception,),
-    on_retry: Optional[Callable[[int, Exception], None]] = None
+    on_retry: Callable[[int, Exception], None] | None = None
 ):
     """
     Decorator for retrying functions with exponential backoff.
@@ -274,7 +275,7 @@ def retry_with_backoff(
                         raise RetryError(
                             f"Failed after {max_attempts} attempts",
                             last_exception=e
-                        )
+                        ) from e
 
                     # Calculate delay with exponential backoff
                     delay = min(
@@ -359,7 +360,6 @@ def sanitize_filename(filename: str, max_length: int = 200) -> str:
     Returns:
         Safe filename string
     """
-    from pathlib import Path
 
     if not filename:
         return "untitled"

@@ -1,12 +1,15 @@
+# ruff: noqa: E402
+from collections.abc import Callable
+
 import gi
-from typing import Dict, Callable
 
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw, Pango
+from gi.repository import Adw, Gtk, Pango
 
 # Internal Imports
-from ..core.locales import ResourceManager as Res, StringKey
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
 
 
 class FormatSelectionDialog(Adw.Window):
@@ -15,7 +18,7 @@ class FormatSelectionDialog(Adw.Window):
     Uses Libadwaita PreferencesPage for a native look.
     """
 
-    def __init__(self, parent_window, video_info: Dict, on_download_confirmed: Callable):
+    def __init__(self, parent_window, video_info: dict, on_download_confirmed: Callable):
         super().__init__()
 
         # Window Configuration

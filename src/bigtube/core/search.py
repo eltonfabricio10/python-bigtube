@@ -1,20 +1,22 @@
 import json
 import subprocess
-import os
-from typing import List, Dict, Optional
 
 # Internal Imports
 from .config import ConfigManager
-from .locales import ResourceManager as Res, StringKey
-from .updater import Updater
-from .logger import get_logger, SearchError
-from .search_history import SearchCache
-from .validators import (
-    is_valid_url, is_playlist_url, 
-    sanitize_url, sanitize_search_query,
-    run_subprocess_with_timeout, Timeouts
-)
 from .helpers import is_youtube_url
+from .locales import ResourceManager as Res
+from .locales import StringKey
+from .logger import SearchError, get_logger
+from .search_history import SearchCache
+from .updater import Updater
+from .validators import (
+    Timeouts,
+    is_playlist_url,
+    is_valid_url,
+    run_subprocess_with_timeout,
+    sanitize_search_query,
+    sanitize_url,
+)
 
 # Module logger
 logger = get_logger(__name__)
@@ -42,7 +44,7 @@ class SearchEngine:
         # Load search limit from config
         self.search_limit = ConfigManager.get("search_limit") or 15
 
-    def search(self, query: str, source: str = "youtube") -> List[Dict]:
+    def search(self, query: str, source: str = "youtube") -> list[dict]:
         """
         Main routing method for searches.
         """
@@ -93,7 +95,7 @@ class SearchEngine:
 
         return self._run_cli(args, force_audio=force_audio, query=query, source=source)
 
-    def _handle_direct_link(self, url: str) -> List[Dict]:
+    def _handle_direct_link(self, url: str) -> list[dict]:
         """
         Processes direct links using a robust User-Agent configuration.
         """
@@ -137,9 +139,9 @@ class SearchEngine:
             raise  # Re-raise SearchError as-is
         except Exception as e:
             logger.exception(f"Error processing direct link: {e}")
-            raise SearchError(str(e) or Res.get(StringKey.ERR_UNKNOWN))
+            raise SearchError(str(e) or Res.get(StringKey.ERR_UNKNOWN)) from e
 
-    def _run_cli(self, args: List[str], is_search: bool = True, force_audio: bool = False, query: str = None, source: str = None) -> List[Dict]:
+    def _run_cli(self, args: list[str], is_search: bool = True, force_audio: bool = False, query: str = None, source: str = None) -> list[dict]:
         """
         Executes yt-dlp in a subprocess and parses JSON output line-by-line.
         """
@@ -186,15 +188,19 @@ class SearchEngine:
 
             return json_outputs
 
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             logger.error("yt-dlp binary not found")
-            raise SearchError(Res.get(StringKey.ERR_CRITICAL) + " " + Res.get(StringKey.ERR_YTDLP_MISSING))
-        except subprocess.TimeoutExpired:
+            raise SearchError(
+                Res.get(StringKey.ERR_CRITICAL) + " " + Res.get(StringKey.ERR_YTDLP_MISSING)
+            ) from e
+        except subprocess.TimeoutExpired as e:
             logger.error("Search timed out")
-            raise SearchError(Res.get(StringKey.ERR_NETWORK) + " (" + Res.get(StringKey.ERR_TIMEOUT) + ")")
+            raise SearchError(
+                Res.get(StringKey.ERR_NETWORK) + " (" + Res.get(StringKey.ERR_TIMEOUT) + ")"
+            ) from e
         except subprocess.SubprocessError as e:
             logger.error(f"Subprocess error during search: {e}")
-            raise SearchError(Res.get(StringKey.SEARCH_ERROR))
+            raise SearchError(Res.get(StringKey.SEARCH_ERROR)) from e
 
     def _analyze_error(self, error_text: str) -> str:
         """

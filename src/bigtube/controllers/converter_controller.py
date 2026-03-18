@@ -1,16 +1,18 @@
+# ruff: noqa: E402
 import os
-import threading
+
 import gi
+
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw, GLib, Gdk, Gio, GObject
+from gi.repository import Gdk, Gio, GLib, GObject, Gtk
 
-from ..core.converter import MediaConverter
-from ..core.logger import get_logger
-from ..core.locales import ResourceManager as Res, StringKey
-from ..ui.converter_row import ConverterRow
-from ..core.converter_history import ConverterHistoryManager
 from ..core.config import ConfigManager
+from ..core.converter_history import ConverterHistoryManager
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
+from ..core.logger import get_logger
+from ..ui.converter_row import ConverterRow
 
 logger = get_logger(__name__)
 
@@ -180,13 +182,15 @@ class ConverterController:
 
         source_path = value.split("row::", 1)[1]
         source_row = next((r for r in self.rows if r.source_path == source_path), None)
-        if not source_row: return False
+        if not source_row:
+            return False
 
         target_row_widget = self.list_box.get_row_at_y(y)
         new_idx = target_row_widget.get_index() if target_row_widget else (len(self.rows) - 1)
         current_idx = self.list_box.get_row_at_index(self.rows.index(source_row)).get_index()
 
-        if current_idx == new_idx: return False
+        if current_idx == new_idx:
+            return False
 
         # Move UI
         parent = source_row.get_parent()
@@ -203,7 +207,8 @@ class ConverterController:
 
     def _refresh_queue_order(self):
         """Re-sorts the queue based on the new visual order."""
-        if not self.queue: return
+        if not self.queue:
+            return
         row_indices = {row: i for i, row in enumerate(self.rows)}
         self.queue.sort(key=lambda r: row_indices.get(r, 9999))
 
@@ -213,7 +218,8 @@ class ConverterController:
 
     def _on_drop(self, target, value, x, y):
         """Handle external drops (Files or URLs)"""
-        if not value: return False
+        if not value:
+            return False
 
         paths = []
         if isinstance(value, Gdk.FileList):
@@ -222,8 +228,12 @@ class ConverterController:
             for line in value.strip().split("\n"):
                 uri = line.strip()
                 if uri.startswith("file://"):
-                    try: paths.append(Gio.File.new_for_uri(uri).get_path())
-                    except: pass
+                    try:
+                        path = Gio.File.new_for_uri(uri).get_path()
+                    except Exception:
+                        path = None
+                    if path:
+                        paths.append(path)
                 elif uri:
                     paths.append(uri)
 
@@ -233,7 +243,8 @@ class ConverterController:
         return False
 
     def _deferred_add_files(self, paths):
-        for p in paths: self.add_file(p)
+        for p in paths:
+            self.add_file(p)
         return False
 
     def _on_url_activated(self, entry):
@@ -263,11 +274,13 @@ class ConverterController:
         def on_response(dialog, response_id):
             if response_id == Gtk.ResponseType.ACCEPT:
                 for f in dialog.get_files():
-                    if f.get_path(): self.add_file(f.get_path())
+                    if f.get_path():
+                        self.add_file(f.get_path())
             dialog.destroy()
 
         dialog.connect("response", on_response)
         dialog.show()
+
     def _load_history(self):
         """Loads previous conversions from disk."""
         for item in ConverterHistoryManager.load():
@@ -276,5 +289,7 @@ class ConverterController:
                 self.add_file(source, initial_output_path=item.get("output"))
 
     def _update_view(self):
-        if not self.rows: self.view_stack.set_visible_child_name("empty")
-        else: self.view_stack.set_visible_child_name("list")
+        if not self.rows:
+            self.view_stack.set_visible_child_name("empty")
+        else:
+            self.view_stack.set_visible_child_name("list")

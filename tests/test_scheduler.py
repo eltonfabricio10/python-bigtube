@@ -1,8 +1,11 @@
 
-import pytest
 import time
 from unittest.mock import MagicMock, patch
+
+import pytest
+
 from bigtube.core.download_manager import DownloadManager
+
 
 @pytest.fixture
 def mock_dm():

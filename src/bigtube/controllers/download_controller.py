@@ -1,9 +1,11 @@
-from gi.repository import Gtk, Adw
+from gi.repository import Gtk
+
+from ..core.enums import DownloadStatus
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
 
 # Internal Imports
 from ..ui.download_row import DownloadRow
-from ..core.enums import DownloadStatus
-from ..core.locales import ResourceManager as Res, StringKey
 
 
 class DownloadController:

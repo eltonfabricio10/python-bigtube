@@ -2,9 +2,11 @@
 Utilities for running work in background threads and scheduling UI updates
 on the GTK main loop. Use these to avoid duplicating threading + GLib.idle_add logic.
 """
-import threading
+# ruff: noqa: E402
 import logging
-from typing import Callable, TypeVar
+import threading
+from collections.abc import Callable
+from typing import TypeVar
 
 import gi
 

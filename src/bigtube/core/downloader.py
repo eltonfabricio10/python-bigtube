@@ -1,18 +1,19 @@
-import os
 import json
-import subprocess
+import os
 import re
 import shutil
-from typing import Optional, Callable, Dict, List
+import subprocess
 from collections import deque
+from collections.abc import Callable
 
 # Internal Imports
 from .config import ConfigManager
 from .enums import FileExt
-from .locales import ResourceManager as Res, StringKey
-from .logger import get_logger, NetworkError
-from .validators import run_subprocess_with_timeout, Timeouts, retry_with_backoff, sanitize_filename
 from .helpers import is_youtube_url
+from .locales import ResourceManager as Res
+from .locales import StringKey
+from .logger import NetworkError, get_logger
+from .validators import Timeouts, retry_with_backoff, run_subprocess_with_timeout, sanitize_filename
 
 # Module logger
 logger = get_logger(__name__)
@@ -32,7 +33,7 @@ class VideoDownloader:
 
     def __init__(self):
         self.binary_path = ConfigManager.get_yt_dlp_path()
-        self.process: Optional[subprocess.Popen] = None
+        self.process: subprocess.Popen | None = None
         self.is_cancelled = False
         self.is_paused = False
 
@@ -43,7 +44,7 @@ class VideoDownloader:
     # =========================================================================
     # METADATA FETCHING
     # =========================================================================
-    def fetch_video_info(self, url: str) -> Optional[Dict]:
+    def fetch_video_info(self, url: str) -> dict | None:
         """
         Public wrapper for metadata fetching with auto-retry.
          Catches final exceptions and returns None for API compatibility.
@@ -56,7 +57,7 @@ class VideoDownloader:
             return None
 
     @retry_with_backoff(max_attempts=3, exceptions=(subprocess.TimeoutExpired, NetworkError, OSError))
-    def _fetch_info_protected(self, url: str) -> Optional[Dict]:
+    def _fetch_info_protected(self, url: str) -> dict | None:
         """
         Internal method that raises exceptions to trigger retries.
         """
@@ -94,9 +95,9 @@ class VideoDownloader:
         except json.JSONDecodeError as e:
             # JSON error might be transient (corrupt output) or permanent.
             # We treat it as retriable (NetworkError wrapper) just in case.
-            raise NetworkError(f"Invalid JSON output: {e}")
+            raise NetworkError(f"Invalid JSON output: {e}") from e
         except subprocess.SubprocessError as e:
-            raise NetworkError(f"Subprocess call failed: {e}")
+            raise NetworkError(f"Subprocess call failed: {e}") from e
 
     def _parse_formats(self, info: dict) -> dict:
         """
@@ -252,7 +253,7 @@ class VideoDownloader:
             })
             data['audios'].insert(0, mp3_opt)
 
-    def _remove_duplicates(self, items: List[Dict]) -> List[Dict]:
+    def _remove_duplicates(self, items: list[dict]) -> list[dict]:
         seen = set()
         unique = []
         for item in items:
@@ -328,8 +329,6 @@ class VideoDownloader:
         safe_title = sanitize_filename(title)
         if not safe_title:
             safe_title = f"video_{format_id}"
-
-        output_template = os.path.join(download_dir, f"{safe_title}.%(ext)s")
 
         logger.info(f"Starting download: {safe_title} -> {ext}")
         if progress_callback:

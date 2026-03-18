@@ -1,21 +1,25 @@
-import threading
+# ruff: noqa: E402
 import os
-import shutil
 import sys
+import threading
+
 import gi
+
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Gio, GLib, Adw
+from gi.repository import Adw, Gio, GLib, Gtk
 
 # Internal Imports
 from ..core.config import ConfigManager
-from ..core.updater import Updater
-from ..core.locales import ResourceManager as Res, StringKey
-from ..ui.message_manager import MessageManager
 from ..core.enums import ThemeMode, VideoQuality
 from ..core.history_manager import HistoryManager
-from ..core.search_history import SearchHistory
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
 from ..core.logger import get_logger
+from ..core.search_history import SearchHistory
+from ..core.updater import Updater
+from ..ui.message_manager import MessageManager
+
 logger = get_logger(__name__)
 
 
@@ -633,7 +637,7 @@ class SettingsController:
             f = dialog.open_finish(result)
             if f:
                 path = f.get_path()
-                with open(path, 'r', encoding='utf-8') as src:
+                with open(path, encoding='utf-8') as src:
                     import json
                     data = json.load(src)
                 if isinstance(data, list):

@@ -1,8 +1,10 @@
-import os
 import json
-import time
+import os
 import threading
+import time
+
 from gi.repository import GLib
+
 from .enums import DownloadStatus
 from .logger import get_logger
 
@@ -49,7 +51,7 @@ class HistoryManager:
             return []
 
         try:
-            with open(cls._FILE_PATH, 'r', encoding='utf-8') as f:
+            with open(cls._FILE_PATH, encoding='utf-8') as f:
                 data = json.load(f)
                 with cls._cache_lock:
                     cls._cache = data

@@ -1,6 +1,8 @@
 
 import pytest
-from bigtube.core.validators import sanitize_filename, sanitize_url, is_valid_url
+
+from bigtube.core.validators import is_valid_url, sanitize_filename, sanitize_url
+
 
 class TestValidators:
     @pytest.mark.parametrize("input_name,expected", [

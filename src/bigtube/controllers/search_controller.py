@@ -1,18 +1,19 @@
 """Search Controller for BigTube."""
+# ruff: noqa: E402
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gtk, Gio, GObject, GLib
+from gi.repository import Gio, GLib, GObject, Gtk
 
-from ..core.search import SearchEngine
-from ..core.search_history import SearchHistory
 from ..core.config import ConfigManager
 from ..core.logger import get_logger
+from ..core.search import SearchEngine
+from ..core.search_history import SearchHistory
+from ..ui.async_utils import run_in_background
+from ..ui.message_manager import MessageManager
 from ..ui.search_result_row import VideoDataObject
 from ..ui.suggestion_popover import SuggestionPopover
-from ..ui.message_manager import MessageManager
-from ..ui.async_utils import run_in_background
 
 # Module logger
 logger = get_logger(__name__)
@@ -354,6 +355,38 @@ class SearchController(GObject.Object):
             on_error=self._on_search_error,
         )
 
+    def search_urls(self, urls: list[str]):
+        """Triggers a direct-link search for multiple URLs and merges the results."""
+        if not urls:
+            return
+
+        # Cancel any pending suggestion timers immediately
+        if self._debounce_timer_id:
+            GLib.source_remove(self._debounce_timer_id)
+            self._debounce_timer_id = None
+
+        self.popover.popdown()
+
+        for url in urls:
+            SearchHistory.add(url)
+        self.clicked_suggestions = False
+
+        # Lock UI
+        self.is_loading = True
+        self.btn.set_sensitive(False)
+        self.emit('loading-state', True, urls[0])
+
+        # Reset State
+        self.store.remove_all()
+        self.current_index = -1
+        self._last_searched_query = urls[0]
+
+        run_in_background(
+            fn=lambda: self._search_urls_worker(urls),
+            on_success=self._update_ui_with_url_results,
+            on_error=self._on_search_error,
+        )
+
     def on_item_activated(self, list_view, position):
         """Triggered by double-click or Enter on list item."""
         self.current_index = position
@@ -408,6 +441,26 @@ class SearchController(GObject.Object):
 
         self.emit('results-changed', self.store.get_n_items())  # Emit count
         self._finish_loading()
+
+    def _search_urls_worker(self, urls: list[str]):
+        results = []
+        errors = []
+
+        for url in urls:
+            try:
+                results.extend(self.engine.search(url, source="url"))
+            except Exception as exc:
+                logger.error("Search error for %s: %s", url, exc)
+                errors.append(str(exc))
+
+        return results, errors
+
+    def _update_ui_with_url_results(self, payload):
+        results, errors = payload
+        self._update_ui_with_results(results)
+
+        if errors and not results:
+            MessageManager.show(errors[0], True)
 
     def _finish_loading(self):
         """Unlocks UI."""

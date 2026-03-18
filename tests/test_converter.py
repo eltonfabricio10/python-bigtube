@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 from bigtube.core.converter import MediaConverter
 
+
 class TestConverter(unittest.TestCase):
     """Test the MediaConverter class."""
     def test_init_threading(self):
@@ -18,8 +19,7 @@ class TestConverter(unittest.TestCase):
     def test_ffmpeg_not_found(self):
         """Test the MediaConverter class when ffmpeg is not found."""
         with patch('bigtube.core.converter.shutil.which', return_value=None):
-            with self.assertRaises(Exception):
-                MediaConverter()
+            self.assertFalse(MediaConverter.check_ffmpeg())
 
 if __name__ == '__main__':
     unittest.main()

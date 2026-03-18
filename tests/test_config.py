@@ -2,21 +2,23 @@ import os
 import tempfile
 import unittest
 from unittest.mock import patch
+
 from bigtube.core.config import ConfigManager
+
 
 class TestConfigManager(unittest.TestCase):
     def setUp(self):
         # Setup a temporary config directory for testing
         self.test_dir = tempfile.TemporaryDirectory()
         self.config_dir = os.path.join(self.test_dir.name, "bigtube")
-        
+
         # Mock paths in ConfigManager
         self.patcher1 = patch('bigtube.core.config.ConfigManager.CONFIG_DIR', new_callable=lambda: type('PathMock', (), {'__str__': lambda self: self.config_dir, 'mkdir': lambda *a, **kw: os.makedirs(self.config_dir, exist_ok=True), '__truediv__': lambda self, x: os.path.join(self.config_dir, x)})())
         self.patcher2 = patch('bigtube.core.config.ConfigManager._FILE_PATH', os.path.join(self.config_dir, "config.json"))
-        
+
         self.patcher1.start()
         self.patcher2.start()
-        
+
         # Reset internal data
         ConfigManager._data = {}
 

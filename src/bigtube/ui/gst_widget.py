@@ -1,7 +1,9 @@
+# ruff: noqa: E402
 import gi
+
 gi.require_version('Gst', '1.0')
 gi.require_version('Gtk', '4.0')
-from gi.repository import Gst, Gtk, GLib, GObject, Gdk
+from gi.repository import GLib, GObject, Gst, Gtk
 
 from ..core.logger import get_logger
 
