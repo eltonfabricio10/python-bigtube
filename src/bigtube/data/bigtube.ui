@@ -541,6 +541,21 @@
                                               </object>
                                             </child>
                                             <child>
+                                              <object class="AdwEntryRow" id="row_cookies_file">
+                                                <property name="show-apply-button">True</property>
+                                              </object>
+                                            </child>
+                                            <child>
+                                              <object class="AdwEntryRow" id="row_cookies_browser">
+                                                <property name="show-apply-button">True</property>
+                                              </object>
+                                            </child>
+                                            <child>
+                                              <object class="AdwEntryRow" id="row_user_agent">
+                                                <property name="show-apply-button">True</property>
+                                              </object>
+                                            </child>
+                                            <child>
                                               <object class="AdwSwitchRow" id="row_save_history">
                                                 <property name="active">True</property>
                                                 <property name="icon-name">document-open-recent-symbolic</property>

@@ -366,6 +366,12 @@ class StringKey(Enum):
     PREFS_IMPORT_HISTORY = N_("Import History")
     PREFS_POST_PROCESS_LABEL = N_("Post-Processing Command")
     PREFS_POST_PROCESS_DESC = N_("Command to run after download. Use {} for filename.")
+    PREFS_COOKIES_FILE_LABEL = N_("Cookies File")
+    PREFS_COOKIES_FILE_DESC = N_("Path to a cookies.txt file (Netscape format)")
+    PREFS_COOKIES_BROWSER_LABEL = N_("Cookies From Browser")
+    PREFS_COOKIES_BROWSER_DESC = N_("Browser name or profile for yt-dlp (e.g., firefox)")
+    PREFS_USER_AGENT_LABEL = N_("User Agent")
+    PREFS_USER_AGENT_DESC = N_("Override the User-Agent used by yt-dlp")
     MSG_HISTORY_EXPORTED = N_("History exported successfully!")
     MSG_HISTORY_IMPORTED = N_("History imported successfully!")
 

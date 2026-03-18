@@ -75,6 +75,7 @@ class VideoDownloader:
             cmd.extend(["--extractor-args", "youtube:player_client=web,android_vr"])
             cmd.extend(["--extractor-args", "youtube:player_skip=configs"])
 
+        cmd.extend(ConfigManager.get_yt_dlp_common_args())
         cmd.append(url)
 
         try:
@@ -342,11 +343,11 @@ class VideoDownloader:
             "--no-playlist",
             "--ignore-config",
             "--ignore-errors",
-            "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
             "--concurrent-fragments", str(ConfigManager.get("concurrent_fragments") or 4),
             "--progress-template", "postprocess:[postprocess] %(progress._percent_str)s",
             "-o", f"{os.path.join(download_dir, safe_title)}.{ext}"
         ]
+        cmd.extend(ConfigManager.get_yt_dlp_common_args())
 
         if is_youtube_url(url):
              cmd.extend(["--extractor-args", "youtube:player_client=android"])

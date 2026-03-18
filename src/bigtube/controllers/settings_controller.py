@@ -168,6 +168,18 @@ class SettingsController:
         if 'row_post_process' in widgets:
             widgets['row_post_process'].set_title(Res.get(StringKey.PREFS_POST_PROCESS_LABEL))
             widgets['row_post_process'].set_tooltip_text(Res.get(StringKey.PREFS_POST_PROCESS_DESC))
+        if 'row_cookies_file' in widgets:
+            widgets['row_cookies_file'].set_title(Res.get(StringKey.PREFS_COOKIES_FILE_LABEL))
+            widgets['row_cookies_file'].set_tooltip_text(Res.get(StringKey.PREFS_COOKIES_FILE_DESC))
+            self._add_entry_row_icon(widgets['row_cookies_file'], "text-x-generic-symbolic")
+        if 'row_cookies_browser' in widgets:
+            widgets['row_cookies_browser'].set_title(Res.get(StringKey.PREFS_COOKIES_BROWSER_LABEL))
+            widgets['row_cookies_browser'].set_tooltip_text(Res.get(StringKey.PREFS_COOKIES_BROWSER_DESC))
+            self._add_entry_row_icon(widgets['row_cookies_browser'], "applications-internet-symbolic")
+        if 'row_user_agent' in widgets:
+            widgets['row_user_agent'].set_title(Res.get(StringKey.PREFS_USER_AGENT_LABEL))
+            widgets['row_user_agent'].set_tooltip_text(Res.get(StringKey.PREFS_USER_AGENT_DESC))
+            self._add_entry_row_icon(widgets['row_user_agent'], "network-transmit-receive-symbolic")
 
     def _setup_bindings(self, w):
         """Connects signals for changes."""
@@ -318,6 +330,21 @@ class SettingsController:
                 "apply",
                 lambda o: ConfigManager.set("post_process_cmd", o.get_text())
             )
+        if 'row_cookies_file' in w:
+            w['row_cookies_file'].connect(
+                "apply",
+                lambda o: ConfigManager.set("cookies_file", o.get_text().strip())
+            )
+        if 'row_cookies_browser' in w:
+            w['row_cookies_browser'].connect(
+                "apply",
+                lambda o: ConfigManager.set("cookies_browser", o.get_text().strip())
+            )
+        if 'row_user_agent' in w:
+            w['row_user_agent'].connect(
+                "apply",
+                lambda o: ConfigManager.set("user_agent", o.get_text().strip())
+            )
 
         # 4. Clear Data
         if 'row_clear_data' in w:
@@ -325,6 +352,15 @@ class SettingsController:
 
         if 'btn_clear_now' in w:
             w['btn_clear_now'].connect("clicked", self._on_clear_data_clicked)
+
+    def _add_entry_row_icon(self, row, icon_name: str):
+        if row is None or not hasattr(row, "add_prefix"):
+            return
+        if getattr(row, "_has_prefix_icon", False):
+            return
+        image = Gtk.Image.new_from_icon_name(icon_name)
+        row.add_prefix(image)
+        row._has_prefix_icon = True
 
     def _on_auto_clear_toggled(self, row, pspec):
         """Disables manual reset button and history switches if auto-reset on exit is enabled."""
@@ -410,6 +446,12 @@ class SettingsController:
         # Load Post Process Cmd
         if 'row_post_process' in w:
             w['row_post_process'].set_text(ConfigManager.get("post_process_cmd") or "")
+        if 'row_cookies_file' in w:
+            w['row_cookies_file'].set_text(ConfigManager.get("cookies_file") or "")
+        if 'row_cookies_browser' in w:
+            w['row_cookies_browser'].set_text(ConfigManager.get("cookies_browser") or "")
+        if 'row_user_agent' in w:
+            w['row_user_agent'].set_text(ConfigManager.get("user_agent") or "")
 
         # Load Theme Mode
         if 'row_theme' in w:

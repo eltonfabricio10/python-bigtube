@@ -114,9 +114,8 @@ class SearchEngine:
 
         if is_youtube_url(url):
             cmd_args.extend(["--extractor-args", "youtube:player_client=web,android_vr"])
-        else:
-            # Generic User-Agent for non-YouTube sites
-            cmd_args.extend(["--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"])
+
+        cmd_args.extend(ConfigManager.get_yt_dlp_common_args())
 
         cmd_args.append(url)
 

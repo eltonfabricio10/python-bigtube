@@ -39,6 +39,12 @@ class ConfigManager:
     YT_DLP_PATH = BIN_DIR / "yt-dlp"
     DENO_PATH = BIN_DIR / "deno"
 
+    DEFAULT_USER_AGENT = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/91.0.4472.124 Safari/537.36"
+    )
+
     # --- Default Settings ---
     # We use GLib to find the real Downloads folder
     _DEFAULT_DOWNLOAD_DIR = GLib.get_user_special_dir(
@@ -66,7 +72,10 @@ class ConfigManager:
         "concurrent_fragments": 4,
         "rate_limit": 0,
         "system_notifications": True,
-        "post_process_cmd": ""
+        "post_process_cmd": "",
+        "cookies_file": "",
+        "cookies_browser": "",
+        "user_agent": ""
     }
 
     _data = {}
@@ -229,3 +238,33 @@ class ConfigManager:
             cls._cached_env = os.environ.copy()
             cls._cached_env["PATH"] = str(cls.BIN_DIR) + os.pathsep + cls._cached_env.get("PATH", "")
         return cls._cached_env
+
+    @classmethod
+    def get_user_agent(cls) -> str:
+        """Returns the configured User-Agent or a safe default."""
+        ua = cls.get("user_agent")
+        if isinstance(ua, str) and ua.strip():
+            return ua.strip()
+        return cls.DEFAULT_USER_AGENT
+
+    @classmethod
+    def get_cookie_args(cls) -> list[str]:
+        """Builds cookie-related arguments for yt-dlp."""
+        args: list[str] = []
+        cookies_browser = cls.get("cookies_browser")
+        if isinstance(cookies_browser, str) and cookies_browser.strip():
+            args.extend(["--cookies-from-browser", cookies_browser.strip()])
+
+        cookies_file = cls.get("cookies_file")
+        if isinstance(cookies_file, str) and cookies_file.strip():
+            path = os.path.expanduser(cookies_file.strip())
+            args.extend(["--cookies", path])
+
+        return args
+
+    @classmethod
+    def get_yt_dlp_common_args(cls) -> list[str]:
+        """Common yt-dlp args based on user configuration."""
+        args = ["--user-agent", cls.get_user_agent()]
+        args.extend(cls.get_cookie_args())
+        return args

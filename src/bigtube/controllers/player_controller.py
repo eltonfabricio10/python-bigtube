@@ -307,8 +307,9 @@ class PlayerController:
             '--no-warnings',
             # Prefer Android client for streams, skip dash/hls if possible for faster seek
             '--extractor-args', 'youtube:player_client=android,web',
-            url
         ]
+        cmd.extend(ConfigManager.get_yt_dlp_common_args())
+        cmd.append(url)
 
         try:
             return_code, stdout, stderr = run_subprocess_with_timeout(

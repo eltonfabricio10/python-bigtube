@@ -165,6 +165,9 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     row_rate_limit = Gtk.Template.Child()
     spin_rate_limit = Gtk.Template.Child()
     row_post_process = Gtk.Template.Child()
+    row_cookies_file = Gtk.Template.Child()
+    row_cookies_browser = Gtk.Template.Child()
+    row_user_agent = Gtk.Template.Child()
 
     group_storage = Gtk.Template.Child()
     row_save_history = Gtk.Template.Child()
@@ -304,7 +307,10 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             'spin_fragments': self.spin_fragments,
             'row_rate_limit': self.row_rate_limit,
             'spin_rate_limit': self.spin_rate_limit,
-            'row_post_process': self.row_post_process
+            'row_post_process': self.row_post_process,
+            'row_cookies_file': self.row_cookies_file,
+            'row_cookies_browser': self.row_cookies_browser,
+            'row_user_agent': self.row_user_agent
         }
 
         self.settings_ctrl = SettingsController(
