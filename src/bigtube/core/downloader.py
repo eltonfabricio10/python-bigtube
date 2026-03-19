@@ -435,7 +435,6 @@ class VideoDownloader:
                 errors='replace',
                 env=self._env,
                 bufsize=1,
-                universal_newlines=True
             )
 
             # Cache localized strings to avoid fetching repeatedly in loop

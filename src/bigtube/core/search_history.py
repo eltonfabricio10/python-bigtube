@@ -92,7 +92,7 @@ class SearchHistory:
             with open(cls._FILE_PATH, 'w', encoding='utf-8') as f:
                 json.dump(cls._history, f, indent=0, ensure_ascii=False)
         except OSError as e:
-            print(f"[SearchHistory] Error saving: {e}")
+            logger.error(f"Error saving search history: {e}")
 
     @classmethod
     def clear(cls):

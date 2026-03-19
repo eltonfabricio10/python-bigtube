@@ -26,7 +26,7 @@ class ClipboardMonitor:
             return
 
         self.is_running = True
-        logger.info("Clipboard Monitory started.")
+        logger.info("Clipboard Monitor started.")
         # Poll every 1 second
         GLib.timeout_add(1000, self._check_clipboard)
 

@@ -150,17 +150,14 @@ class MediaConverter:
                             speed_str = line.split("=")[1].strip().replace("x", "")
                             speed = float(speed_str) if speed_str and speed_str != "N/A" else 0.0
 
-                            # Recalculate ETA if we have speed and duration
-                            # This is approximate
-                            if speed > 0 and duration > 0:
-                                # Progress is already known from previous out_time_us line
-                                # but for simplicity we can just pass speed back
+                            # Recalculate ETA if we have speed, duration, AND a valid progress
+                            if speed > 0 and duration > 0 and us > 0:
                                 if progress_callback:
                                     # ETA in seconds = (Remaining Duration) / Speed
                                     remaining = duration * (1.0 - (us / (duration * 1000000.0)))
                                     eta = remaining / speed if speed > 0 else 0
                                     GLib.idle_add(progress_callback, min(us / (duration * 1000000.0), 0.99), speed, eta)
-                        except (ValueError, IndexError, UnboundLocalError):
+                        except (ValueError, IndexError):
                             pass
 
             stdout, stderr = process.communicate()

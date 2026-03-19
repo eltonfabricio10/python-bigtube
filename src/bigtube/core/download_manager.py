@@ -223,4 +223,4 @@ class DownloadManager:
                 # _on_task_complete will be called when thread finishes
             else:
                 # Remove from pending queue if present
-                self.pending_queue = deque([t for t in self.pending_queue if t['id'] != task_id])
+                self.pending_queue = [t for t in self.pending_queue if t['id'] != task_id]
