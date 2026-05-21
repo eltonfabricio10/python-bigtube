@@ -13,6 +13,7 @@ from ..core.locales import ResourceManager as Res
 from ..core.locales import StringKey
 from ..core.logger import get_logger
 from ..core.validators import Timeouts, run_subprocess_with_timeout
+from ..ui.message_manager import MessageManager
 
 # Module logger
 logger = get_logger(__name__)
@@ -99,6 +100,7 @@ class PlayerController:
         self.video_window.connect('video-ready', self.on_video_ready)
         self.video_window.connect('window-hidden', self.on_window_hidden)
         self.video_window.connect('window-shown', self.on_window_shown)
+        self.video_window.connect('error', self.on_video_error)
 
     # =========================================================================
     # PUBLIC API
@@ -260,6 +262,12 @@ class PlayerController:
 
     def on_window_shown(self, win):
         self.ui['btn_video'].set_icon_name("view-conceal-symbolic")
+
+    def on_video_error(self, win, msg):
+        logger.error(f"Video Error: {msg}")
+        self._set_loading(False)
+        self.stop()
+        GLib.idle_add(MessageManager.show, f"Player Error: {msg}", True)
 
     # =========================================================================
     # UI HANDLERS

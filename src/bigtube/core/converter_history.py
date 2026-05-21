@@ -1,6 +1,8 @@
 import json
 import os
 import time
+import fcntl
+import threading
 
 from gi.repository import GLib
 
@@ -22,6 +24,7 @@ class ConverterHistoryManager:
 
     # Maximum number of items to keep in conversion history
     MAX_HISTORY_SIZE = 50
+    _lock = threading.RLock()
 
     @classmethod
     def load(cls) -> list:
@@ -29,27 +32,39 @@ class ConverterHistoryManager:
         Reads the history from disk.
         Returns an empty list if the file does not exist or is corrupted.
         """
-        if not os.path.exists(cls._FILE_PATH):
-            return []
+        with cls._lock:
+            if not os.path.exists(cls._FILE_PATH):
+                return []
 
-        try:
-            with open(cls._FILE_PATH, encoding='utf-8') as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError) as e:
-            logger.error(f"Error loading converter history file: {e}")
-            return []
+            try:
+                with open(cls._FILE_PATH, encoding='utf-8') as f:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_SH)
+                    try:
+                        return json.load(f)
+                    finally:
+                        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            except (json.JSONDecodeError, OSError) as e:
+                logger.error(f"Error loading converter history file: {e}")
+                return []
 
     @classmethod
     def save(cls, items: list):
         """
         Writes the list of items to the JSON file.
         """
-        cls._ensure_dir_exists()
-        try:
-            with open(cls._FILE_PATH, 'w', encoding='utf-8') as f:
-                json.dump(items, f, indent=2, ensure_ascii=False)
-        except OSError as e:
-            logger.error(f"Error saving converter history file: {e}")
+        with cls._lock:
+            cls._ensure_dir_exists()
+            try:
+                with open(cls._FILE_PATH, 'w', encoding='utf-8') as f:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+                    try:
+                        json.dump(items, f, indent=2, ensure_ascii=False)
+                        f.flush()
+                        os.fsync(f.fileno())
+                    finally:
+                        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            except OSError as e:
+                logger.error(f"Error saving converter history file: {e}")
 
     @classmethod
     def add_entry(cls, source_path: str, output_path: str, format_id: str):
@@ -57,30 +72,31 @@ class ConverterHistoryManager:
         Adds or updates a conversion entry.
         If the same source and format exist, it updates the timestamp and output path.
         """
-        history = cls.load()
+        with cls._lock:
+            history = cls.load()
 
-        # Remove existing entry for the same conversion to avoid duplicates
-        # and keep the latest output for that format at the top.
-        history = [
-            item for item in history
-            if not (item.get("source") == source_path and item.get("format") == format_id)
-        ]
+            # Remove existing entry for the same conversion to avoid duplicates
+            # and keep the latest output for that format at the top.
+            history = [
+                item for item in history
+                if not (item.get("source") == source_path and item.get("format") == format_id)
+            ]
 
-        new_item = {
-            "source": source_path,
-            "output": output_path,
-            "format": format_id,
-            "timestamp": time.time()
-        }
+            new_item = {
+                "source": source_path,
+                "output": output_path,
+                "format": format_id,
+                "timestamp": time.time()
+            }
 
-        # Insert at the beginning (Newest first)
-        history.insert(0, new_item)
+            # Insert at the beginning (Newest first)
+            history.insert(0, new_item)
 
-        # Limit history size
-        history = history[:cls.MAX_HISTORY_SIZE]
+            # Limit history size
+            history = history[:cls.MAX_HISTORY_SIZE]
 
-        cls.save(history)
-        return new_item
+            cls.save(history)
+            return new_item
 
     @classmethod
     def remove_entry(cls, source_path: str, format_id: str = None):
@@ -88,26 +104,28 @@ class ConverterHistoryManager:
         Removes an item from history.
         If format_id is None, removes all formats for that source.
         """
-        history = cls.load()
-        if format_id:
-            new_history = [
-                item for item in history
-                if not (item.get("source") == source_path and item.get("format") == format_id)
-            ]
-        else:
-            new_history = [item for item in history if item.get("source") != source_path]
+        with cls._lock:
+            history = cls.load()
+            if format_id:
+                new_history = [
+                    item for item in history
+                    if not (item.get("source") == source_path and item.get("format") == format_id)
+                ]
+            else:
+                new_history = [item for item in history if item.get("source") != source_path]
 
-        if len(new_history) != len(history):
-            cls.save(new_history)
-            logger.info(f"Removed converter history entry for: {source_path}")
+            if len(new_history) != len(history):
+                cls.save(new_history)
+                logger.info(f"Removed converter history entry for: {source_path}")
 
     @classmethod
     def clear_all(cls):
         """
         Wipes the entire converter history.
         """
-        cls.save([])
-        logger.info("All converter history entries cleared")
+        with cls._lock:
+            cls.save([])
+            logger.info("All converter history entries cleared")
 
     @classmethod
     def _ensure_dir_exists(cls):

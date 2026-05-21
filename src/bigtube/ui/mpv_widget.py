@@ -198,6 +198,10 @@ class MpvWidget(Gtk.DrawingArea):
     # =========================================================================
     # PUBLIC API
     # =========================================================================
+    @property
+    def is_available(self):
+        return self.mpv is not None
+
     def play(self, url):
         if not self.mpv:
             return

@@ -153,6 +153,9 @@ cython_debug/
 # Linux
 .directory
 
+# MagicMock artifact
+MagicMock/
+
 # Windows
 Thumbs.db
 ehthumbs.db

@@ -1,6 +1,8 @@
 import json
 import os
 import shutil
+import fcntl
+import threading
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -79,6 +81,7 @@ class ConfigManager:
     }
 
     _data = {}
+    _lock = threading.RLock()
 
     @classmethod
     def ensure_dirs(cls):
@@ -97,49 +100,62 @@ class ConfigManager:
         """
         Loads JSON from disk. Auto-recovers if corrupted.
         """
-        if not cls.CONFIG_FILE.exists():
-            logger.info("File not found. Creating default.")
-            cls._data = cls._DEFAULTS.copy()
-            cls.save()
-            return
-
-        try:
-            with open(cls.CONFIG_FILE, encoding='utf-8') as f:
-                content = f.read().strip()
-
-                if not content:
-                    raise ValueError("Empty file")
-
-                loaded_data = json.loads(content)
-
-                # Merge defaults with loaded data
+        with cls._lock:
+            if not cls.CONFIG_FILE.exists():
+                logger.info("File not found. Creating default.")
                 cls._data = cls._DEFAULTS.copy()
-                cls._data.update(loaded_data)
+                cls.save()
+                return
 
-        except (json.JSONDecodeError, ValueError, OSError) as e:
-            logger.warning(f"Config corruption detected ({e}). Resetting...")
-            cls._data = cls._DEFAULTS.copy()
-            cls.save()
+            try:
+                with open(cls.CONFIG_FILE, encoding='utf-8') as f:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_SH)
+                    try:
+                        content = f.read().strip()
+                    finally:
+                        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+
+                    if not content:
+                        raise ValueError("Empty file")
+
+                    loaded_data = json.loads(content)
+
+                    # Merge defaults with loaded data
+                    cls._data = cls._DEFAULTS.copy()
+                    cls._data.update(loaded_data)
+
+            except (json.JSONDecodeError, ValueError, OSError) as e:
+                logger.warning(f"Config corruption detected ({e}). Resetting...")
+                cls._data = cls._DEFAULTS.copy()
+                cls.save()
 
     @classmethod
     def save(cls):
         """Persists current state to JSON."""
-        if not cls.CONFIG_DIR.exists():
-            cls.CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        with cls._lock:
+            if not cls.CONFIG_DIR.exists():
+                cls.CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
-        try:
-            with open(cls.CONFIG_FILE, 'w', encoding='utf-8') as f:
-                json.dump(cls._data, f, indent=4, ensure_ascii=False)
-            logger.info("Settings saved.")
-        except OSError as e:
-            logger.error(f"Failed to save config: {e}")
+            try:
+                with open(cls.CONFIG_FILE, 'w', encoding='utf-8') as f:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+                    try:
+                        json.dump(cls._data, f, indent=4, ensure_ascii=False)
+                        f.flush()
+                        os.fsync(f.fileno())
+                    finally:
+                        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+                logger.info("Settings saved.")
+            except OSError as e:
+                logger.error(f"Failed to save config: {e}")
 
     @classmethod
     def get(cls, key: str) -> Any:
         """Retrieves a value. Returns default if missing."""
-        if not cls._data:
-            cls.load()
-        return cls._data.get(key, cls._DEFAULTS.get(key))
+        with cls._lock:
+            if not cls._data:
+                cls.load()
+            return cls._data.get(key, cls._DEFAULTS.get(key))
 
     @classmethod
     def set(cls, key: str, value: str | int | bool | float | Enum) -> None:
@@ -148,36 +164,38 @@ class ConfigManager:
         Handles Enum conversion automatically.
         Only saves if the value has actually changed.
         """
-        if not cls._data:
-            cls.load()
+        with cls._lock:
+            if not cls._data:
+                cls.load()
 
-        # If an Enum object is passed, store its string value
-        if hasattr(value, 'value'):
-            value = value.value
+            # If an Enum object is passed, store its string value
+            if hasattr(value, 'value'):
+                value = value.value
 
-        # Optimization: Only save if the value is different
-        if cls._data.get(key) == value:
-            return
+            # Optimization: Only save if the value is different
+            if cls._data.get(key) == value:
+                return
 
-        cls._data[key] = value
-        cls.save()
+            cls._data[key] = value
+            cls.save()
 
     @classmethod
     def set_batch(cls, updates: dict):
         """Applies multiple setting changes with a single save to disk."""
-        if not cls._data:
-            cls.load()
+        with cls._lock:
+            if not cls._data:
+                cls.load()
 
-        changed = False
-        for key, value in updates.items():
-            if hasattr(value, 'value'):
-                value = value.value
-            if cls._data.get(key) != value:
-                cls._data[key] = value
-                changed = True
+            changed = False
+            for key, value in updates.items():
+                if hasattr(value, 'value'):
+                    value = value.value
+                if cls._data.get(key) != value:
+                    cls._data[key] = value
+                    changed = True
 
-        if changed:
-            cls.save()
+            if changed:
+                cls.save()
 
     @classmethod
     def reset_all(cls):
@@ -185,29 +203,30 @@ class ConfigManager:
         PERMANENTLY deletes all configuration and history files.
         This effectively resets the app to a clean state.
         """
-        logger.warning("PERFORMING FULL APPLICATION RESET!")
+        with cls._lock:
+            logger.warning("PERFORMING FULL APPLICATION RESET!")
 
-        # 1. Clear In-Memory Data
-        cls._data = cls._DEFAULTS.copy()
+            # 1. Clear In-Memory Data
+            cls._data = cls._DEFAULTS.copy()
 
-        # 2. Delete Config and History files
-        files_to_delete = [
-            cls.CONFIG_FILE,
-            cls.CONFIG_DIR / "history.json",
-            cls.CONFIG_DIR / "search_history.json",
-            cls.CONFIG_DIR / "converter_history.json"
-        ]
+            # 2. Delete Config and History files
+            files_to_delete = [
+                cls.CONFIG_FILE,
+                cls.CONFIG_DIR / "history.json",
+                cls.CONFIG_DIR / "search_history.json",
+                cls.CONFIG_DIR / "converter_history.json"
+            ]
 
-        for f in files_to_delete:
-            try:
-                if f.exists():
-                    f.unlink()
-                    logger.info(f"Deleted: {f}")
-            except OSError as e:
-                logger.error(f"Failed to delete {f}: {e}")
+            for f in files_to_delete:
+                try:
+                    if f.exists():
+                        f.unlink()
+                        logger.info(f"Deleted: {f}")
+                except OSError as e:
+                    logger.error(f"Failed to delete {f}: {e}")
 
-        # 3. Re-initialize directories just in case
-        cls.ensure_dirs()
+            # 3. Re-initialize directories just in case
+            cls.ensure_dirs()
 
     # --- Helpers for Paths ---
     @classmethod

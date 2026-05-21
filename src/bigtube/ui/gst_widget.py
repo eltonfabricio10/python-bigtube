@@ -107,6 +107,10 @@ class GstWidget(Gtk.Box):
     # =========================================================================
     # PUBLIC API
     # =========================================================================
+    @property
+    def is_available(self):
+        return self.pipeline is not None and self.sink is not None
+
     def play(self, url):
         if not self.pipeline:
             return

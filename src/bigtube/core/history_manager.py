@@ -1,5 +1,6 @@
 import json
 import os
+import fcntl
 import threading
 import time
 
@@ -31,7 +32,7 @@ class HistoryManager:
 
     # In-memory cache
     _cache: list = None
-    _cache_lock = threading.Lock()
+    _cache_lock = threading.RLock()
     _pending_save = False
     _save_timer = None
 
@@ -52,7 +53,11 @@ class HistoryManager:
 
         try:
             with open(cls._FILE_PATH, encoding='utf-8') as f:
-                data = json.load(f)
+                fcntl.flock(f.fileno(), fcntl.LOCK_SH)
+                try:
+                    data = json.load(f)
+                finally:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
                 with cls._cache_lock:
                     cls._cache = data
                 return data.copy()
@@ -78,7 +83,13 @@ class HistoryManager:
         cls._ensure_dir_exists()
         try:
             with open(cls._FILE_PATH, 'w', encoding='utf-8') as f:
-                json.dump(data_to_save, f, indent=2, ensure_ascii=False)
+                fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+                try:
+                    json.dump(data_to_save, f, indent=2, ensure_ascii=False)
+                    f.flush()
+                    os.fsync(f.fileno())
+                finally:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
             logger.debug("History saved to disk")
         except OSError as e:
             logger.error(f"Error saving history file: {e}")

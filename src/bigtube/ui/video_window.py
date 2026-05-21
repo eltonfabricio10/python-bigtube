@@ -26,6 +26,7 @@ class VideoWindow(Adw.Window):
         'video-ended': (GObject.SIGNAL_RUN_FIRST, None, ()),
         'video-ready': (GObject.SIGNAL_RUN_FIRST, None, ()),
         'state-changed': (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
+        'error': (GObject.SIGNAL_RUN_FIRST, None, (str,)),
     }
 
     def __init__(self):
@@ -140,6 +141,12 @@ class VideoWindow(Adw.Window):
 
     def play(self, url):
         self._last_url = url
+        if not self.active_player.is_available:
+            self.switch_to_fallback()
+            if not self.active_player.is_available:
+                self.emit('error', "No playback backends available (GStreamer and MPV failed).")
+                return
+
         self.active_player.play(url)
 
     def seek(self, s): self.active_player.seek(s)

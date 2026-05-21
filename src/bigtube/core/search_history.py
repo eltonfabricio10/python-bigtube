@@ -1,5 +1,8 @@
 import json
 import time
+import fcntl
+import threading
+import os
 from collections import OrderedDict
 
 from .config import ConfigManager
@@ -17,92 +20,109 @@ class SearchHistory:
     _FILE_PATH = ConfigManager.CONFIG_DIR / "search_history.json"
     _MAX_ITEMS = 20
     _history = []
+    _lock = threading.RLock()
 
     @classmethod
     def load(cls):
-        if not cls._FILE_PATH.exists():
-            return
+        with cls._lock:
+            if not cls._FILE_PATH.exists():
+                return
 
-        try:
-            with open(cls._FILE_PATH, encoding='utf-8') as f:
-                cls._history = json.load(f)
-        except (json.JSONDecodeError, OSError):
-            cls._history = []
+            try:
+                with open(cls._FILE_PATH, encoding='utf-8') as f:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_SH)
+                    try:
+                        cls._history = json.load(f)
+                    finally:
+                        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            except (json.JSONDecodeError, OSError):
+                cls._history = []
 
     @classmethod
     def add(cls, query: str):
         """Adds a query to history."""
-        # Check if saving is enabled
-        if not ConfigManager.get("save_search_history"):
-            return
+        with cls._lock:
+            # Check if saving is enabled
+            if not ConfigManager.get("save_search_history"):
+                return
 
-        query = query.strip()
-        if not query:
-            return
+            query = query.strip()
+            if not query:
+                return
 
-        # Ensure loaded
-        if not cls._history and cls._FILE_PATH.exists():
-            cls.load()
+            # Ensure loaded
+            if not cls._history and cls._FILE_PATH.exists():
+                cls.load()
 
-        # Remove if exists (to move it to top)
-        if query in cls._history:
-            cls._history.remove(query)
+            # Remove if exists (to move it to top)
+            if query in cls._history:
+                cls._history.remove(query)
 
-        # Insert at top (Most Recent)
-        cls._history.insert(0, query)
+            # Insert at top (Most Recent)
+            cls._history.insert(0, query)
 
-        # Trim size
-        if len(cls._history) > cls._MAX_ITEMS:
-            cls._history = cls._history[:cls._MAX_ITEMS]
+            # Trim size
+            if len(cls._history) > cls._MAX_ITEMS:
+                cls._history = cls._history[:cls._MAX_ITEMS]
 
-        cls._save()
+            cls._save()
 
     @classmethod
     def get_matches(cls, partial_text: str) -> list[str]:
         """Returns a list of queries that contain the partial_text."""
-        if not cls._history:
-            cls.load()
+        with cls._lock:
+            if not cls._history:
+                cls.load()
 
-        if not partial_text:
-            return []
+            if not partial_text:
+                return []
 
-        max_sug = ConfigManager.get("max_suggestions")
-        partial = partial_text.lower()
+            max_sug = ConfigManager.get("max_suggestions")
+            partial = partial_text.lower()
 
-        # Filter: Case-insensitive match
-        matches = [q for q in cls._history if partial in q.lower()]
+            # Filter: Case-insensitive match
+            matches = [q for q in cls._history if partial in q.lower()]
 
-        # Trim to config limit
-        return matches[:max_sug]
+            # Trim to config limit
+            return matches[:max_sug]
 
     @classmethod
     def remove_item(cls, query: str):
         """Removes a specific query from history."""
-        if not cls._history:
-            cls.load()
+        with cls._lock:
+            if not cls._history:
+                cls.load()
 
-        if query in cls._history:
-            cls._history.remove(query)
-            cls._save()
-            logger.info(f"Removed from search history: {query}")
+            if query in cls._history:
+                cls._history.remove(query)
+                cls._save()
+                logger.info(f"Removed from search history: {query}")
 
     @classmethod
     def _save(cls):
-        try:
-            with open(cls._FILE_PATH, 'w', encoding='utf-8') as f:
-                json.dump(cls._history, f, indent=0, ensure_ascii=False)
-        except OSError as e:
-            logger.error(f"Error saving search history: {e}")
+        with cls._lock:
+            try:
+                with open(cls._FILE_PATH, 'w', encoding='utf-8') as f:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+                    try:
+                        json.dump(cls._history, f, indent=0, ensure_ascii=False)
+                        f.flush()
+                        os.fsync(f.fileno())
+                    finally:
+                        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            except OSError as e:
+                logger.error(f"Error saving search history: {e}")
 
     @classmethod
     def clear(cls):
         """Clears all search history."""
-        cls._history = []
-        if cls._FILE_PATH.exists():
-            try:
-                cls._FILE_PATH.unlink()
-            except OSError:
-                cls._save()  # Fallback: overwrite with empty list
+        with cls._lock:
+            cls._history = []
+            if cls._FILE_PATH.exists():
+                try:
+                    cls._FILE_PATH.unlink()
+                except OSError:
+                    cls._save()  # Fallback: overwrite with empty list
 
 
 class SearchCache:
