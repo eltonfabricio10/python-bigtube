@@ -73,24 +73,40 @@ def _replace_version(path: Path, pattern: str, replacement: str) -> bool:
     return True
 
 
+def _sync_po_file(path: Path, version: str) -> bool:
+    """
+    Update Project-Id-Version in a .po / .pot catalog.
+
+    gettext may store the header on one line (\"...\\n\") or split across two
+    physical lines (\"...<newline>\"), which msgmerge often produces.
+    """
+    text = path.read_text(encoding="utf-8")
+    # Lambda avoids re.sub treating \\n in the replacement as a real newline.
+    replacement = lambda _m: f'"Project-Id-Version: BigTube {version}\\n"'
+    patterns = (
+        r'^"Project-Id-Version: .*\\n"',
+        r'^"Project-Id-Version: [^\n"]+\n"$',
+    )
+    for pattern in patterns:
+        new_text, count = re.subn(pattern, replacement, text, count=1, flags=re.MULTILINE)
+        if count == 1:
+            if new_text == text:
+                return False
+            path.write_text(new_text, encoding="utf-8")
+            return True
+    raise RuntimeError(f"Could not update version in {path}")
+
+
 def _sync_po_files(version: str) -> bool:
     """Update Project-Id-Version in .po / .pot catalogs."""
     changed = False
     if not PO_DIR.is_dir():
         return False
-    for path in PO_DIR.glob("*.po"):
-        changed |= _replace_version(
-            path,
-            r'^"Project-Id-Version:.*\\n"',
-            f'"Project-Id-Version: BigTube {version}\\n"',
-        )
+    for path in sorted(PO_DIR.glob("*.po")):
+        changed |= _sync_po_file(path, version)
     pot = PO_DIR / "bigtube.pot"
     if pot.is_file():
-        changed |= _replace_version(
-            pot,
-            r'^"Project-Id-Version:.*\\n"',
-            f'"Project-Id-Version: BigTube {version}\\n"',
-        )
+        changed |= _sync_po_file(pot, version)
     return changed
 
 

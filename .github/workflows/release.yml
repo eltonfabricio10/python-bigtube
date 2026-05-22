@@ -12,7 +12,7 @@ on:
       version:
         description: "Versão sem o v (ex.: 2.0.7)"
         required: true
-        default: "2.0.9"
+        default: "2.0.10"
 
 permissions:
   contents: write
