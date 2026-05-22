@@ -1,15 +1,18 @@
 name: CI
 
+# Lint, testes e build de verificação em cada push/PR na main.
+# O release completo (GitHub Release + Arch + AUR) continua em release.yml (tags v*.*.*).
 on:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
 
 jobs:
   lint-and-test:
     name: Lint & Test
-    # PyGObject 3.52+ needs girepository-2.0, available on Ubuntu 24.04
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -49,3 +52,47 @@ jobs:
 
       - name: Pytest
         run: poetry run pytest
+
+  build-package:
+    name: Build package (smoke)
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    needs: lint-and-test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gettext
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Compile translations
+        run: |
+          LOCALES_DIR="src/bigtube/data/locales"
+          for po_file in po/*.po; do
+            LANG=$(basename "$po_file" .po)
+            mkdir -p "$LOCALES_DIR/$LANG/LC_MESSAGES"
+            msgfmt "$po_file" -o "$LOCALES_DIR/$LANG/LC_MESSAGES/bigtube.mo"
+          done
+
+      - name: Build wheel and sdist
+        run: poetry build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-bigtube-dist
+          path: dist/*
+          if-no-files-found: error

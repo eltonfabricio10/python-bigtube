@@ -22,6 +22,38 @@ Para incluir dependências de desenvolvimento (pytest, ruff, etc.):
 poetry install --with dev
 ```
 
+## Versão automática (a cada commit)
+
+A versão em `pyproject.toml` e `PKGBUILD` segue o Git:
+
+- Tag atual: `v2.0.7` → versão **2.0.7**
+- Cada commit depois da tag incrementa o patch: **2.0.8**, **2.0.9**, …
+
+**Local (recomendado):**
+
+```bash
+pip install pre-commit   # ou: poetry run pip install pre-commit
+pre-commit install
+```
+
+Antes de cada `git commit`, o hook `sync_version_from_git.py` atualiza:
+
+- `pyproject.toml` (versão do pacote Python / UI “Sobre”)
+- `PKGBUILD` (Arch)
+- `po/*.po` e `po/bigtube.pot` (`Project-Id-Version`)
+- `.github/workflows/release.yml` (default do release manual)
+- User-Agent em `network_checker.py` e `image_loader.py`
+
+**Manual:**
+
+```bash
+python scripts/sync_version_from_git.py
+```
+
+No GitHub, o workflow **Sync version** faz o mesmo após push na `main` (commit `chore: sync version … [skip ci]`).
+
+**Release oficial:** continue usando tags `vX.Y.Z` (ex.: `git tag v2.0.7 && git push origin v2.0.7`).
+
 ## Executando a aplicação
 
 ```bash

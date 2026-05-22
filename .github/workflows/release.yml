@@ -1,9 +1,18 @@
 name: Build and Release
 
+# Publica release no GitHub + pacote Arch + AUR.
+# Dispara automaticamente ao push de tag vX.Y.Z (ex.: git tag v2.0.7 && git push origin v2.0.7).
+# Também pode ser executado manualmente em Actions → Build and Release → Run workflow.
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versão sem o v (ex.: 2.0.7)"
+        required: true
+        default: "2.0.9"
 
 permissions:
   contents: write
@@ -18,6 +27,8 @@ jobs:
   build-and-release:
     name: Build and Publish Standard Release
     runs-on: ubuntu-latest
+    outputs:
+      pkgver: ${{ steps.set_version.outputs.pkgver }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,13 +43,17 @@ jobs:
         with:
           version: latest
 
-      - name: Set App Version from Git Tag
+      - name: Set App Version
+        id: set_version
         run: |
-          # Extrai a versão (ex: v1.0.5 -> 1.0.5)
-          PKGVER=${GITHUB_REF#refs/tags/v}
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            PKGVER="${{ github.event.inputs.version }}"
+          else
+            PKGVER="${GITHUB_REF#refs/tags/v}"
+          fi
           echo "Atualizando pyproject.toml para a versão $PKGVER"
-          # O Poetry altera a linha 'version = ...' automaticamente
-          poetry version $PKGVER
+          poetry version "$PKGVER"
+          echo "pkgver=$PKGVER" >> "$GITHUB_OUTPUT"
 
       - name: Compile Translations
         run: |
@@ -78,10 +93,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Prepare Arch Environment & Build
+        env:
+          PKGVER: ${{ needs.build-and-release.outputs.pkgver }}
         run: |
-          # 0. Extrair a versão da Tag (ex: tira o 'v' de v1.0.2 e guarda '1.0.2')
-          PKGVER=${GITHUB_REF#refs/tags/v}
-
           # 0.1 Injetar a versão correta no PKGBUILD ANTES de compilar
           sed -i "s/^pkgver=.*/pkgver=${PKGVER}/" PKGBUILD
           sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
@@ -118,9 +132,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Update PKGBUILD Version dynamically
+        env:
+          PKGVER: ${{ needs.build-and-release.outputs.pkgver }}
         run: |
-          # 1. Extrai a versão na mesma sessão para não perder a variável
-          PKGVER=${GITHUB_REF#refs/tags/v}
           echo "Injetando a versão $PKGVER no PKGBUILD..."
 
           # 2. Injeta diretamente no ficheiro
@@ -138,5 +152,5 @@ jobs:
           commit_username: ${{ github.actor }}
           commit_email: ${{ github.actor }}@users.noreply.github.com
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-          commit_message: "Lançamento da versão ${{ github.ref_name }}"
+          commit_message: "Lançamento da versão v${{ needs.build-and-release.outputs.pkgver }}"
           force_push: true
