@@ -25,11 +25,13 @@ class PlayerController:
     and the Playlist logic (Next/Prev).
     """
 
-    def __init__(self,
-                 video_window,
-                 ui_widgets: dict[str, Gtk.Widget],
-                 on_next_callback: Callable | None = None,
-                 on_prev_callback: Callable | None = None):
+    def __init__(
+        self,
+        video_window,
+        ui_widgets: dict[str, Gtk.Widget],
+        on_next_callback: Callable | None = None,
+        on_prev_callback: Callable | None = None,
+    ):
 
         self.video_window = video_window
         self.ui = ui_widgets
@@ -50,16 +52,16 @@ class PlayerController:
 
     def _reset_ui_state(self):
         """Resets visual controls to idle state."""
-        self.ui['progress'].set_range(0, 1)
-        self.ui['progress'].set_value(0)
-        self.ui['progress'].set_sensitive(False)
-        self.ui['lbl_time_cur'].set_label("00:00")
-        self.ui['lbl_time_tot'].set_label("--:--")
+        self.ui["progress"].set_range(0, 1)
+        self.ui["progress"].set_value(0)
+        self.ui["progress"].set_sensitive(False)
+        self.ui["lbl_time_cur"].set_label("00:00")
+        self.ui["lbl_time_tot"].set_label("--:--")
 
-        self.ui['btn_play'].set_sensitive(False)
-        self.ui['btn_prev'].set_sensitive(False)
-        self.ui['btn_next'].set_sensitive(False)
-        self.ui['btn_video'].set_sensitive(False)
+        self.ui["btn_play"].set_sensitive(False)
+        self.ui["btn_prev"].set_sensitive(False)
+        self.ui["btn_next"].set_sensitive(False)
+        self.ui["btn_video"].set_sensitive(False)
 
     def _setup_loading_spinner(self):
         """Injects a spinner next to the play button for loading states."""
@@ -69,7 +71,7 @@ class PlayerController:
         self.loading_spinner.set_valign(Gtk.Align.CENTER)
 
         # HACK: Insert into the UI container dynamically
-        btn_play = self.ui['btn_play']
+        btn_play = self.ui["btn_play"]
         parent = btn_play.get_parent()
         if parent:
             parent.insert_child_after(self.loading_spinner, btn_play)
@@ -81,26 +83,26 @@ class PlayerController:
 
     def _connect_ui_signals(self):
         """Connects buttons and sliders from the main UI."""
-        self.ui['btn_play'].connect('clicked', self.on_playpause_clicked)
+        self.ui["btn_play"].connect("clicked", self.on_playpause_clicked)
 
         # Lambda wrappers for safe callbacks
-        self.ui['btn_prev'].connect('clicked', lambda b: self.on_prev() if self.on_prev else None)
-        self.ui['btn_next'].connect('clicked', lambda b: self.on_next() if self.on_next else None)
+        self.ui["btn_prev"].connect("clicked", lambda b: self.on_prev() if self.on_prev else None)
+        self.ui["btn_next"].connect("clicked", lambda b: self.on_next() if self.on_next else None)
 
-        self.ui['progress'].connect('change-value', self.on_user_seek)
-        self.ui['volume'].connect('value-changed', self.on_volume_changed)
-        self.ui['btn_video'].connect('clicked', self.on_toggle_video_window)
+        self.ui["progress"].connect("change-value", self.on_user_seek)
+        self.ui["volume"].connect("value-changed", self.on_volume_changed)
+        self.ui["btn_video"].connect("clicked", self.on_toggle_video_window)
 
     def _connect_video_signals(self):
         """Connects signals coming from the MPV Wrapper (VideoWindow)."""
-        self.video_window.connect('time-changed', self.on_time_changed)
-        self.video_window.connect('duration-changed', self.on_duration_changed)
-        self.video_window.connect('state-changed', self.on_state_changed)
-        self.video_window.connect('video-ended', self.on_video_ended)
-        self.video_window.connect('video-ready', self.on_video_ready)
-        self.video_window.connect('window-hidden', self.on_window_hidden)
-        self.video_window.connect('window-shown', self.on_window_shown)
-        self.video_window.connect('error', self.on_video_error)
+        self.video_window.connect("time-changed", self.on_time_changed)
+        self.video_window.connect("duration-changed", self.on_duration_changed)
+        self.video_window.connect("state-changed", self.on_state_changed)
+        self.video_window.connect("video-ended", self.on_video_ended)
+        self.video_window.connect("video-ready", self.on_video_ready)
+        self.video_window.connect("window-hidden", self.on_window_hidden)
+        self.video_window.connect("window-shown", self.on_window_shown)
+        self.video_window.connect("error", self.on_video_error)
 
     # =========================================================================
     # PUBLIC API
@@ -125,30 +127,26 @@ class PlayerController:
         self.is_video_mode = is_video
         self.cached_artist_name = artist or Res.get(StringKey.PLAYER_ARTIST)
 
-        self.ui['lbl_title'].set_label(title or Res.get(StringKey.PLAYER_TITLE))
-        self.ui['lbl_artist'].set_label(self.cached_artist_name)
+        self.ui["lbl_title"].set_label(title or Res.get(StringKey.PLAYER_TITLE))
+        self.ui["lbl_artist"].set_label(self.cached_artist_name)
 
         # 3. Handle Thumbnail
         if thumbnail_url:
-            ImageLoader.load(thumbnail_url, self.ui['img_thumb'], width=60, height=40)
+            ImageLoader.load(thumbnail_url, self.ui["img_thumb"], width=60, height=40)
         elif is_local:
-            self.ui['img_thumb'].set_from_icon_name("folder-download-symbolic")
+            self.ui["img_thumb"].set_from_icon_name("folder-download-symbolic")
         else:
-            self.ui['img_thumb'].set_from_icon_name("audio-x-generic-symbolic")
+            self.ui["img_thumb"].set_from_icon_name("audio-x-generic-symbolic")
 
         # 4. Start Loading Process
         self._set_loading(True)
 
         # Enable nav buttons immediately so user can skip if loading takes too long
-        self.ui['btn_prev'].set_sensitive(True)
-        self.ui['btn_next'].set_sensitive(True)
+        self.ui["btn_prev"].set_sensitive(True)
+        self.ui["btn_next"].set_sensitive(True)
 
         # 5. Background Stream Extraction
-        threading.Thread(
-            target=self._resolve_and_play,
-            args=(url, is_local),
-            daemon=True
-        ).start()
+        threading.Thread(target=self._resolve_and_play, args=(url, is_local), daemon=True).start()
 
         # If local video, show window immediately
         if is_local and is_video:
@@ -158,8 +156,8 @@ class PlayerController:
         """Stops playback and resets UI."""
         self.video_window.stop()
         self._set_loading(False)
-        self.ui['lbl_title'].set_label(Res.get(StringKey.PLAYER_STOPPED))
-        self.ui['lbl_artist'].set_label("")
+        self.ui["lbl_title"].set_label(Res.get(StringKey.PLAYER_STOPPED))
+        self.ui["lbl_artist"].set_label("")
         self._reset_ui_state()
 
     # =========================================================================
@@ -178,7 +176,7 @@ class PlayerController:
             GLib.idle_add(self.video_window.play, final_uri)
 
             # If it's a web stream, we enable Play button now
-            GLib.idle_add(self.ui['btn_play'].set_sensitive, True)
+            GLib.idle_add(self.ui["btn_play"].set_sensitive, True)
 
         except Exception as e:
             logger.error(f"Error resolving stream: {e}")
@@ -187,16 +185,16 @@ class PlayerController:
     def _set_loading(self, is_loading):
         """Toggles the spinner vs play button."""
         if is_loading:
-            self.ui['btn_play'].set_visible(False)
+            self.ui["btn_play"].set_visible(False)
             self.loading_spinner.set_visible(True)
             self.loading_spinner.start()
-            self.ui['lbl_artist'].set_label(Res.get(StringKey.PLAYER_BUFFERING))
+            self.ui["lbl_artist"].set_label(Res.get(StringKey.PLAYER_BUFFERING))
         else:
             self.loading_spinner.stop()
             self.loading_spinner.set_visible(False)
-            self.ui['btn_play'].set_visible(True)
-            self.ui['btn_play'].set_icon_name("media-playback-pause-symbolic")
-            self.ui['lbl_artist'].set_label(self.cached_artist_name)
+            self.ui["btn_play"].set_visible(True)
+            self.ui["btn_play"].set_icon_name("media-playback-pause-symbolic")
+            self.ui["lbl_artist"].set_label(self.cached_artist_name)
 
     def _format_time(self, seconds):
         """HH:MM:SS formatter."""
@@ -214,24 +212,24 @@ class PlayerController:
         # Update Countdown
         if self._time_remaining:
             curr = self._time_remaining - seconds
-            self.ui['lbl_time_tot'].set_label(f"- {self._format_time(curr)}")
+            self.ui["lbl_time_tot"].set_label(f"- {self._format_time(curr)}")
 
         # Update Current Time
-        self.ui['lbl_time_cur'].set_label(self._format_time(seconds))
+        self.ui["lbl_time_cur"].set_label(self._format_time(seconds))
 
         # Update Slider (only if not being dragged by user?)
         # GTK Scale usually handles this well, but checking sensitivity is good
-        if self.ui['progress'].get_sensitive():
-            self.ui['progress'].set_value(seconds)
+        if self.ui["progress"].get_sensitive():
+            self.ui["progress"].set_value(seconds)
 
     def on_duration_changed(self, win, seconds):
         self._time_remaining = seconds
-        self.ui['lbl_time_tot'].set_label(self._format_time(seconds))
-        self.ui['progress'].set_range(0, seconds)
-        self.ui['progress'].set_sensitive(True)
+        self.ui["lbl_time_tot"].set_label(self._format_time(seconds))
+        self.ui["progress"].set_range(0, seconds)
+        self.ui["progress"].set_sensitive(True)
 
         if self.is_video_mode:
-            self.ui['btn_video'].set_sensitive(True)
+            self.ui["btn_video"].set_sensitive(True)
 
         if self.loading_spinner.get_visible():
             self._set_loading(False)
@@ -241,7 +239,7 @@ class PlayerController:
             is_playing = False
 
         icon = "media-playback-pause-symbolic" if is_playing else "media-playback-start-symbolic"
-        self.ui['btn_play'].set_icon_name(icon)
+        self.ui["btn_play"].set_icon_name(icon)
 
         if is_playing and not self.video_window.is_visible():
             self._set_loading(False)
@@ -250,7 +248,7 @@ class PlayerController:
         """Called when MPV renders the first frame."""
         self._set_loading(False)
         if self.is_video_mode:
-            self.ui['btn_video'].set_sensitive(True)
+            self.ui["btn_video"].set_sensitive(True)
 
     def on_video_ended(self, win):
         logger.debug("Video ended. Requesting next...")
@@ -258,10 +256,10 @@ class PlayerController:
             self.on_next()
 
     def on_window_hidden(self, win):
-        self.ui['btn_video'].set_icon_name("video-display-symbolic")
+        self.ui["btn_video"].set_icon_name("video-display-symbolic")
 
     def on_window_shown(self, win):
-        self.ui['btn_video'].set_icon_name("view-conceal-symbolic")
+        self.ui["btn_video"].set_icon_name("view-conceal-symbolic")
 
     def on_video_error(self, win, msg):
         logger.error(f"Video Error: {msg}")
@@ -309,21 +307,20 @@ class PlayerController:
 
         cmd = [
             binary,
-            '--dump-json',
-            '--no-playlist',
-            '--quiet',
-            '--no-warnings',
+            "--dump-json",
+            "--no-playlist",
+            "--quiet",
+            "--no-warnings",
             # Prefer Android client for streams, skip dash/hls if possible for faster seek
-            '--extractor-args', 'youtube:player_client=android,web',
+            "--extractor-args",
+            "youtube:player_client=android,web",
         ]
         cmd.extend(ConfigManager.get_yt_dlp_common_args())
         cmd.append(url)
 
         try:
             return_code, stdout, stderr = run_subprocess_with_timeout(
-                cmd,
-                timeout=Timeouts.STREAM_EXTRACTION,
-                env=env
+                cmd, timeout=Timeouts.STREAM_EXTRACTION, env=env
             )
 
             if return_code != 0:
@@ -333,21 +330,21 @@ class PlayerController:
             info = json.loads(stdout)
 
             # 1. Try exact Format 22 (720p/MP4/AAC) - Best for embedded players
-            formats = info.get('formats', [])
+            formats = info.get("formats", [])
             for f in formats:
-                if f.get('format_id') == '22' and 'url' in f:
-                    return f['url']
+                if f.get("format_id") == "22" and "url" in f:
+                    return f["url"]
 
             # 2. Try any format that has BOTH vcodec and acodec
             for f in formats:
-                vcodec = f.get('vcodec', 'none')
-                acodec = f.get('acodec', 'none')
-                if vcodec != 'none' and acodec != 'none' and 'url' in f:
-                    return f['url']
+                vcodec = f.get("vcodec", "none")
+                acodec = f.get("acodec", "none")
+                if vcodec != "none" and acodec != "none" and "url" in f:
+                    return f["url"]
 
             # 3. Fallback: The raw URL provided by the JSON
-            if 'url' in info:
-                return info['url']
+            if "url" in info:
+                return info["url"]
 
         except Exception as e:
             logger.exception(f"Exception extracting stream: {e}")

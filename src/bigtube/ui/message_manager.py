@@ -1,7 +1,7 @@
 # ruff: noqa: E402
 import gi
 
-gi.require_version('Adw', '1')
+gi.require_version("Adw", "1")
 from gi.repository import Adw
 
 # Internal Imports
@@ -93,10 +93,7 @@ class MessageManager:
         if not cls._window:
             return
 
-        dialog = Adw.AlertDialog(
-            heading=title,
-            body=body
-        )
+        dialog = Adw.AlertDialog(heading=title, body=body)
 
         # "Close" or "OK" button
         txt_ok = Res.get(StringKey.BTN_OK)
@@ -116,10 +113,7 @@ class MessageManager:
         if not cls._window:
             return
 
-        dialog = Adw.AlertDialog(
-            heading=title,
-            body=body
-        )
+        dialog = Adw.AlertDialog(heading=title, body=body)
 
         txt_ok = Res.get(StringKey.STATUS_CONFIRM) or "OK"
         dialog.add_response("ok", txt_ok)
@@ -134,7 +128,9 @@ class MessageManager:
         dialog.choose(cls._window, None, _callback)
 
     @classmethod
-    def show_custom_dialog(cls, title: str, body: str, responses: dict, on_response_callback=None, destructive_id=None):
+    def show_custom_dialog(
+        cls, title: str, body: str, responses: dict, on_response_callback=None, destructive_id=None
+    ):
         """
         Shows a native Adwaita Alert Dialog with multiple custom response buttons.
         responses: dict of {id: label}

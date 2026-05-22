@@ -8,7 +8,6 @@ from .locales import ResourceManager as Res
 from .locales import StringKey
 from .logger import SearchError, get_logger
 from .search_history import SearchCache
-from .updater import Updater
 from .validators import (
     Timeouts,
     is_playlist_url,
@@ -32,10 +31,6 @@ class SearchEngine:
     _DEFAULT_LIMIT = 15
 
     def __init__(self):
-        # Ensure dependencies are present (yt-dlp binary)
-        if hasattr(Updater, 'ensure_exists'):
-            Updater.ensure_exists()
-
         self.binary_path = ConfigManager.get_yt_dlp_path()
 
         # Prepare environment with internal bin path
@@ -79,18 +74,15 @@ class SearchEngine:
 
         if source == "soundcloud":
             force_audio = True
-            args = [
-                "--flat-playlist",
-                "--dump-json",
-                f"scsearch{self.search_limit}:{query}"
-            ]
+            args = ["--flat-playlist", "--dump-json", f"scsearch{self.search_limit}:{query}"]
         else:
             # Default to YouTube
             args = [
-                "--extractor-args", "youtube:player_client=web,android_vr",
+                "--extractor-args",
+                "youtube:player_client=web,android_vr",
                 "--flat-playlist",
                 "--dump-json",
-                f"ytsearch{self.search_limit}:{clean_query}"
+                f"ytsearch{self.search_limit}:{clean_query}",
             ]
 
         return self._run_cli(args, force_audio=force_audio, query=query, source=source)
@@ -140,7 +132,14 @@ class SearchEngine:
             logger.exception(f"Error processing direct link: {e}")
             raise SearchError(str(e) or Res.get(StringKey.ERR_UNKNOWN)) from e
 
-    def _run_cli(self, args: list[str], is_search: bool = True, force_audio: bool = False, query: str = None, source: str = None) -> list[dict]:
+    def _run_cli(
+        self,
+        args: list[str],
+        is_search: bool = True,
+        force_audio: bool = False,
+        query: str = None,
+        source: str = None,
+    ) -> list[dict]:
         """
         Executes yt-dlp in a subprocess and parses JSON output line-by-line.
         """
@@ -148,9 +147,7 @@ class SearchEngine:
 
         try:
             return_code, stdout, stderr = run_subprocess_with_timeout(
-                full_cmd,
-                timeout=Timeouts.SUBPROCESS_SEARCH,
-                env=self._env
+                full_cmd, timeout=Timeouts.SUBPROCESS_SEARCH, env=self._env
             )
 
             # If it's failed, we want to know why
@@ -228,23 +225,25 @@ class SearchEngine:
         Normalizes JSON data into a clean dictionary for VideoDataObject.
         """
         # Thumbnail (try 'thumbnail' key, fallback to 'thumbnails' list)
-        thumb_url = entry.get('thumbnail')
-        if not thumb_url and 'thumbnails' in entry:
-            thumbs = entry['thumbnails']
+        thumb_url = entry.get("thumbnail")
+        if not thumb_url and "thumbnails" in entry:
+            thumbs = entry["thumbnails"]
             if isinstance(thumbs, list) and len(thumbs) > 0:
                 # Get the last one (usually highest quality)
-                thumb_url = thumbs[-1].get('url')
+                thumb_url = thumbs[-1].get("url")
 
         # Logic to determine if it's video or audio-only
         is_video = not force_audio
-        if entry.get('vcodec') == 'none':
+        if entry.get("vcodec") == "none":
             is_video = False
 
         return {
-            'title': entry.get('title', Res.get(StringKey.LBL_UNTITLED)),
-            'url': entry.get('webpage_url', entry.get('url', '')),
-            'thumbnail': thumb_url,
-            'uploader': entry.get('uploader') or entry.get('channel') or Res.get(StringKey.LBL_UNKNOWN),
-            'duration': entry.get('duration', 0),
-            'is_video': is_video
+            "title": entry.get("title", Res.get(StringKey.LBL_UNTITLED)),
+            "url": entry.get("webpage_url", entry.get("url", "")),
+            "thumbnail": thumb_url,
+            "uploader": entry.get("uploader")
+            or entry.get("channel")
+            or Res.get(StringKey.LBL_UNKNOWN),
+            "duration": entry.get("duration", 0),
+            "is_video": is_video,
         }

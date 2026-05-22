@@ -1,6 +1,7 @@
 """
 Locales module for managing translations.
 """
+
 import gettext
 import locale
 import os
@@ -19,7 +20,6 @@ else:
     LOCALE_DIR = LOCAL_LOCALE_DIR
 
 APP_DOMAIN = "bigtube"
-
 
 
 # 2. Define a dummy function for marking strings for extraction.
@@ -48,10 +48,7 @@ except (TypeError, AttributeError, ValueError, OSError) as e:
 try:
     # Looks for compiled .mo file in locales/<lang>/LC_MESSAGES/bigtube.mo
     translator = gettext.translation(
-        APP_DOMAIN,
-        localedir=LOCALE_DIR,
-        languages=[SYS_LANG],
-        fallback=True
+        APP_DOMAIN, localedir=LOCALE_DIR, languages=[SYS_LANG], fallback=True
     )
     # The real translation function
     _ = translator.gettext
@@ -66,6 +63,7 @@ class StringKey(Enum):
     """
     Enum keys now contain the DEFAULT ENGLISH TEXT (msgid).
     """
+
     # App General
     APP_TITLE = N_("BigTube")
 
@@ -119,7 +117,9 @@ class StringKey(Enum):
     # History
     BTN_CLEAR_HISTORY = N_("Clear History")
     MSG_CONFIRM_CLEAR_TITLE = N_("Clear History?")
-    MSG_CONFIRM_CLEAR_BODY = N_("This will remove all entries from the list.\nFiles will remain on disk.")
+    MSG_CONFIRM_CLEAR_BODY = N_(
+        "This will remove all entries from the list.\nFiles will remain on disk."
+    )
     MSG_HISTORY_CLEARED = N_("History cleared successfully!")
     MSG_DOWNLOAD_DATA_ERROR = N_("Failed to get info for")
 
@@ -217,7 +217,9 @@ class StringKey(Enum):
     MSG_FILE_EXISTS = N_("File Already Exists!")
     MSG_FILE_EXISTS_BODY = N_("Overwrite this file?")
     MSG_FILE_NOT_FOUND_TITLE = N_("File Not Found, Remove from History?")
-    MSG_FILE_NOT_FOUND_BODY = N_("The following file exists in history but was not found on disk:\n")
+    MSG_FILE_NOT_FOUND_BODY = N_(
+        "The following file exists in history but was not found on disk:\n"
+    )
     MSG_HISTORY_ITEM_REMOVED = N_("Item removed from history.")
     ERR_INVALID_URL = N_("Invalid URL format")
 
@@ -273,11 +275,15 @@ class StringKey(Enum):
 
     # Missing File Handling
     MSG_CONV_FILE_NOT_FOUND_TITLE = N_("File Not Found")
-    MSG_CONV_FILE_NOT_FOUND_TEXT = N_("The converted file was not found. Would you like to convert it again or remove it from history?")
+    MSG_CONV_FILE_NOT_FOUND_TEXT = N_(
+        "The converted file was not found. Would you like to convert it again or remove it from history?"
+    )
     BTN_RECONVERT = N_("Convert Again")
     BTN_REMOVE_FROM_HISTORY = N_("Remove from History")
     MSG_CONV_SOURCE_NOT_FOUND_TITLE = N_("Source File Missing")
-    MSG_CONV_SOURCE_NOT_FOUND_TEXT = N_("The source file for this conversion is missing. Would you like to remove it from the list?")
+    MSG_CONV_SOURCE_NOT_FOUND_TEXT = N_(
+        "The source file for this conversion is missing. Would you like to remove it from the list?"
+    )
 
     TIP_ADD_FILES = N_("Add Files")
     TIP_REMOVE_FROM_LIST = N_("Remove from list")
@@ -305,7 +311,9 @@ class StringKey(Enum):
 
     # Dialogs & General Messages
     MSG_RESET_APP_TITLE = N_("Reset Application to Clean State?")
-    MSG_RESET_APP_BODY = N_("This will PERMANENTLY delete all settings, search history, download history, and converter history. This action cannot be undone.")
+    MSG_RESET_APP_BODY = N_(
+        "This will PERMANENTLY delete all settings, search history, download history, and converter history. This action cannot be undone."
+    )
     MSG_DATA_CLEARED = N_("All application data has been cleared. The app will now restart.")
     MSG_FOLDER_SELECT_ERROR = N_("Failed to select folder")
     MSG_UPDATE_SUCCESS = N_("Components updated successfully! ✅")
@@ -372,8 +380,13 @@ class StringKey(Enum):
     PREFS_COOKIES_BROWSER_DESC = N_("Browser name or profile for yt-dlp (e.g., firefox)")
     PREFS_USER_AGENT_LABEL = N_("User Agent")
     PREFS_USER_AGENT_DESC = N_("Override the User-Agent used by yt-dlp")
+    OPT_NONE = N_("None")
     MSG_HISTORY_EXPORTED = N_("History exported successfully!")
     MSG_HISTORY_IMPORTED = N_("History imported successfully!")
+    ERR_RESET_FAILED = N_("Reset failed: {error}")
+    ERR_FAILED = N_("Failed: {error}")
+    ERR_INVALID_HISTORY_FILE = N_("Invalid history file format")
+    ERR_IMPORT_HISTORY_FILE = N_("Error importing history file")
 
     # Setting Captions (Subtitles)
     PREFS_THEME_DESC = N_("Toggle between light, dark, or system theme")
@@ -408,7 +421,9 @@ class StringKey(Enum):
 
     # Help Content
     MSG_HELP_TITLE = N_("BigTube Help")
-    MSG_HELP_BODY = N_("To search for a video, paste a URL or type keywords in the search box.\nYou can also drag and drop local media files onto the Converter tab to change their format.\nCheck Settings to change download quality and themes.")
+    MSG_HELP_BODY = N_(
+        "To search for a video, paste a URL or type keywords in the search box.\nYou can also drag and drop local media files onto the Converter tab to change their format.\nCheck Settings to change download quality and themes."
+    )
 
     # New Keys for Centralization
     LBL_UNTITLED = N_("Untitled")
@@ -429,6 +444,7 @@ class ResourceManager:
     """
     ResourceManager class for managing translations.
     """
+
     @staticmethod
     def get(key: StringKey) -> str:
         """

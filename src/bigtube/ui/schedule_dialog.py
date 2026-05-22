@@ -4,8 +4,8 @@ from datetime import datetime
 
 import gi
 
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
 from gi.repository import Adw, Gtk
 
 from ..core.locales import ResourceManager as Res
@@ -16,6 +16,7 @@ class ScheduleDialog(Adw.Window):
     """
     Modal dialog to select a future date and time for downloading.
     """
+
     def __init__(self, parent_window, on_confirm_callback):
         super().__init__()
         self.set_transient_for(parent_window)
@@ -96,7 +97,7 @@ class ScheduleDialog(Adw.Window):
 
     def _on_confirm(self, btn):
         # Calculate Timestamp
-        date = self.calendar.get_date() # GLib.DateTime
+        date = self.calendar.get_date()  # GLib.DateTime
         year = date.get_year()
         month = date.get_month()
         day = date.get_day_of_month()

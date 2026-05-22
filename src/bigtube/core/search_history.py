@@ -1,11 +1,9 @@
-import json
-import time
-import fcntl
 import threading
-import os
+import time
 from collections import OrderedDict
 
 from .config import ConfigManager
+from .json_store import load_json, save_json
 from .logger import get_logger
 
 logger = get_logger(__name__)
@@ -25,18 +23,7 @@ class SearchHistory:
     @classmethod
     def load(cls):
         with cls._lock:
-            if not cls._FILE_PATH.exists():
-                return
-
-            try:
-                with open(cls._FILE_PATH, encoding='utf-8') as f:
-                    fcntl.flock(f.fileno(), fcntl.LOCK_SH)
-                    try:
-                        cls._history = json.load(f)
-                    finally:
-                        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-            except (json.JSONDecodeError, OSError):
-                cls._history = []
+            cls._history = load_json(cls._FILE_PATH, [])
 
     @classmethod
     def add(cls, query: str):
@@ -63,7 +50,7 @@ class SearchHistory:
 
             # Trim size
             if len(cls._history) > cls._MAX_ITEMS:
-                cls._history = cls._history[:cls._MAX_ITEMS]
+                cls._history = cls._history[: cls._MAX_ITEMS]
 
             cls._save()
 
@@ -101,17 +88,7 @@ class SearchHistory:
     @classmethod
     def _save(cls):
         with cls._lock:
-            try:
-                with open(cls._FILE_PATH, 'w', encoding='utf-8') as f:
-                    fcntl.flock(f.fileno(), fcntl.LOCK_EX)
-                    try:
-                        json.dump(cls._history, f, indent=0, ensure_ascii=False)
-                        f.flush()
-                        os.fsync(f.fileno())
-                    finally:
-                        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-            except OSError as e:
-                logger.error(f"Error saving search history: {e}")
+            save_json(cls._FILE_PATH, cls._history, indent=0)
 
     @classmethod
     def clear(cls):
@@ -132,7 +109,7 @@ class SearchCache:
     """
 
     _cache = OrderedDict()  # {key: (results, timestamp)}
-    _TTL_SECONDS = 3600     # 1 hour
+    _TTL_SECONDS = 3600  # 1 hour
     _MAX_SIZE = 50
 
     @classmethod

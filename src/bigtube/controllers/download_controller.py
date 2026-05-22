@@ -72,7 +72,7 @@ class DownloadController:
             DownloadStatus.INTERRUPTED: 1,
             DownloadStatus.COMPLETED: 2,
             DownloadStatus.ERROR: 2,
-            DownloadStatus.CANCELLED: 2
+            DownloadStatus.CANCELLED: 2,
         }
 
         prio_a = prio_map.get(widget_a.status, 2)
@@ -95,7 +95,7 @@ class DownloadController:
         key = self._get_artist_key(uploader)
 
         if key in self._artist_sections:
-            return self._artist_sections[key]['listbox']
+            return self._artist_sections[key]["listbox"]
 
         group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
         group.set_margin_bottom(12)
@@ -112,10 +112,7 @@ class DownloadController:
         group.append(listbox)
         self.groups_box.append(group)
 
-        self._artist_sections[key] = {
-            'group': group,
-            'listbox': listbox
-        }
+        self._artist_sections[key] = {"group": group, "listbox": listbox}
 
         return listbox
 
@@ -134,7 +131,7 @@ class DownloadController:
         """Creates a flattened list of all completed DownloadRow widgets."""
         completed_rows = []
         for section in self._artist_sections.values():
-            child = section['listbox'].get_first_child()
+            child = section["listbox"].get_first_child()
             while child:
                 row = child.get_child()
                 if isinstance(row, DownloadRow) and row.status == DownloadStatus.COMPLETED:
@@ -145,7 +142,7 @@ class DownloadController:
     def set_current_playing_row(self, row):
         # 1. Deselect everything in all sections
         for section in self._artist_sections.values():
-            section['listbox'].select_row(None)
+            section["listbox"].select_row(None)
 
         self._current_playing_row = row
 
@@ -155,8 +152,8 @@ class DownloadController:
             if isinstance(parent_row, Gtk.ListBoxRow):
                 # Find which listbox owns this row
                 for section in self._artist_sections.values():
-                    if section['listbox'] == parent_row.get_parent():
-                        section['listbox'].select_row(parent_row)
+                    if section["listbox"] == parent_row.get_parent():
+                        section["listbox"].select_row(parent_row)
                         parent_row.grab_focus()
                         break
 
@@ -165,7 +162,10 @@ class DownloadController:
         if not completed_rows:
             return False
 
-        if not hasattr(self, '_current_playing_row') or self._current_playing_row not in completed_rows:
+        if (
+            not hasattr(self, "_current_playing_row")
+            or self._current_playing_row not in completed_rows
+        ):
             # Nothing currently playing, or what was playing was removed. Play first item.
             idx = 0 if direction == 1 else len(completed_rows) - 1
         else:
@@ -197,7 +197,7 @@ class DownloadController:
             full_path=full_path,
             on_play_callback=self.on_play_callback,
             on_remove_callback=self.on_remove_callback,
-            uploader=uploader
+            uploader=uploader,
         )
         if self.on_convert_callback:
             row.set_convert_callback(self.on_convert_callback)
@@ -213,7 +213,7 @@ class DownloadController:
         Does not affect files on disk.
         """
         for section in self._artist_sections.values():
-            self.groups_box.remove(section['group'])
+            self.groups_box.remove(section["group"])
         self._artist_sections.clear()
 
     def remove_row_by_path(self, file_path):
@@ -222,18 +222,22 @@ class DownloadController:
         Cleans up empty artist sections.
         """
         for key, section in list(self._artist_sections.items()):
-            listbox = section['listbox']
+            listbox = section["listbox"]
             child = listbox.get_first_child()
             while child:
                 next_child = child.get_next_sibling()
                 inner_widget = child.get_child()
 
-                if inner_widget and hasattr(inner_widget, 'full_path') and inner_widget.full_path == file_path:
+                if (
+                    inner_widget
+                    and hasattr(inner_widget, "full_path")
+                    and inner_widget.full_path == file_path
+                ):
                     listbox.remove(child)
 
                     # Clean up empty section
                     if listbox.get_first_child() is None:
-                        self.groups_box.remove(section['group'])
+                        self.groups_box.remove(section["group"])
                         del self._artist_sections[key]
 
                     return True
@@ -244,7 +248,7 @@ class DownloadController:
     def invalidate_sort(self):
         """Invalidates sort on all artist ListBoxes."""
         for section in self._artist_sections.values():
-            section['listbox'].invalidate_sort()
+            section["listbox"].invalidate_sort()
 
     # =========================================================================
     # STATUS BAR
@@ -259,7 +263,7 @@ class DownloadController:
         paused = 0
 
         for section in self._artist_sections.values():
-            child = section['listbox'].get_first_child()
+            child = section["listbox"].get_first_child()
             while child:
                 inner = child.get_child()
                 if isinstance(inner, DownloadRow):

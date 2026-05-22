@@ -3,8 +3,8 @@ from collections.abc import Callable
 
 import gi
 
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
 from gi.repository import Adw, Gtk, Pango
 
 # Internal Imports
@@ -48,14 +48,12 @@ class FormatSelectionDialog(Adw.Window):
 
         # Video Section
         self._setup_section(
-            title=Res.get(StringKey.LBL_VIDEO_FORMATS),
-            items=video_info.get('videos', [])
+            title=Res.get(StringKey.LBL_VIDEO_FORMATS), items=video_info.get("videos", [])
         )
 
         # Audio Section
         self._setup_section(
-            title=Res.get(StringKey.LBL_AUDIO_FORMATS),
-            items=video_info.get('audios', [])
+            title=Res.get(StringKey.LBL_AUDIO_FORMATS), items=video_info.get("audios", [])
         )
 
     def _setup_header_info(self):
@@ -64,7 +62,7 @@ class FormatSelectionDialog(Adw.Window):
         self.page.add(group)
 
         # Title Label (Large & Wrapped)
-        lbl_title = Gtk.Label(label=self.video_info.get('title', Res.get(StringKey.LBL_UNTITLED)))
+        lbl_title = Gtk.Label(label=self.video_info.get("title", Res.get(StringKey.LBL_UNTITLED)))
         lbl_title.set_wrap(True)
         lbl_title.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
         lbl_title.set_justify(Gtk.Justification.CENTER)
@@ -72,7 +70,7 @@ class FormatSelectionDialog(Adw.Window):
         lbl_title.set_margin_bottom(4)
 
         # Duration Label
-        raw_duration = self.video_info.get('duration')
+        raw_duration = self.video_info.get("duration")
         dur_txt = self._format_duration(raw_duration)
         dur = Res.get(StringKey.LBL_VIDEO_DURATION)
         lbl_dur = Gtk.Label(label=f"{dur} {dur_txt}")
@@ -106,11 +104,11 @@ class FormatSelectionDialog(Adw.Window):
     def _create_action_row(self, fmt_data: dict) -> Adw.ActionRow:
         """Creates a single selectable row."""
         row = Adw.ActionRow()
-        row.set_title(fmt_data['label'])
+        row.set_title(fmt_data["label"])
 
         # Subtitle: Size • Codec
-        codec = fmt_data.get('codec', 'N/A')
-        size = fmt_data.get('size', '? MB')
+        codec = fmt_data.get("codec", "N/A")
+        size = fmt_data.get("size", "? MB")
         row.set_subtitle(f"{size} • {codec}")
 
         # Buttons Box

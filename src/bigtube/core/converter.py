@@ -11,6 +11,7 @@ from .logger import get_logger
 
 logger = get_logger(__name__)
 
+
 class MediaConverter:
     """
     Handles media conversion (Video/Audio) using ffmpeg
@@ -27,8 +28,14 @@ class MediaConverter:
         """Gets media duration in seconds using ffprobe."""
         try:
             cmd = [
-                "ffprobe", "-v", "error", "-show_entries", "format=duration",
-                "-of", "default=noprint_wrappers=1:nokey=1", input_path
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                input_path,
             ]
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode == 0:
@@ -46,7 +53,7 @@ class MediaConverter:
         progress_callback: Callable | None = None,
         add_metadata: bool = True,
         add_subtitles: bool = True,
-        cancel_event: threading.Event | None = None
+        cancel_event: threading.Event | None = None,
     ) -> str:
         """
         Converts media file to target format using ffmpeg.
@@ -92,7 +99,7 @@ class MediaConverter:
                     cmd.extend(["-i", sub_file])
                     break
 
-        cmd.append("-y") # Overwrite
+        cmd.append("-y")  # Overwrite
 
         # Mapping logic
         if sub_file:
@@ -111,15 +118,15 @@ class MediaConverter:
         cmd.extend(["-progress", "pipe:1", "-nostats"])
         cmd.append(output_path)
 
-        logger.info(f"Starting conversion: {' '.join(cmd)}")
+        logger.info("Starting conversion: %s -> %s", input_path, output_path)
 
         process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
-            universal_newlines=True
+            universal_newlines=True,
         )
 
         us = 0  # Track last known output time in microseconds
@@ -141,7 +148,9 @@ class MediaConverter:
                                 progress = us / (duration * 1000000.0)
                                 if progress_callback:
                                     # We don't have speed yet in this line, but we can pass partial data
-                                    GLib.idle_add(progress_callback, min(progress, 0.99), None, None)
+                                    GLib.idle_add(
+                                        progress_callback, min(progress, 0.99), None, None
+                                    )
                         except (ValueError, IndexError):
                             pass
 
@@ -156,11 +165,16 @@ class MediaConverter:
                                     # ETA in seconds = (Remaining Duration) / Speed
                                     remaining = duration * (1.0 - (us / (duration * 1000000.0)))
                                     eta = remaining / speed if speed > 0 else 0
-                                    GLib.idle_add(progress_callback, min(us / (duration * 1000000.0), 0.99), speed, eta)
+                                    GLib.idle_add(
+                                        progress_callback,
+                                        min(us / (duration * 1000000.0), 0.99),
+                                        speed,
+                                        eta,
+                                    )
                         except (ValueError, IndexError):
                             pass
 
-            stdout, stderr = process.communicate()
+            process.wait()
 
             if cancel_event and cancel_event.is_set():
                 # Cleanup partial file
@@ -169,8 +183,8 @@ class MediaConverter:
                 raise InterruptedError("Conversion cancelled by user")
 
             if process.returncode != 0:
-                logger.error(f"FFmpeg failed (code {process.returncode}): {stderr}")
-                raise RuntimeError(f"Conversion failed: {stderr}")
+                logger.error(f"FFmpeg failed with code {process.returncode}")
+                raise RuntimeError(f"Conversion failed with code {process.returncode}")
 
             if progress_callback:
                 progress_callback(1.0, 0, 0)

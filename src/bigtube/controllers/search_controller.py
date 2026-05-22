@@ -1,5 +1,8 @@
 """Search Controller for BigTube."""
+
 # ruff: noqa: E402
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -19,6 +22,24 @@ from ..ui.suggestion_popover import SuggestionPopover
 logger = get_logger(__name__)
 
 
+def search_urls_parallel(engine, urls: list[str], max_workers: int = 3):
+    results = []
+    errors = []
+
+    workers = min(max_workers, len(urls))
+    with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="UrlSearch") as executor:
+        futures = {executor.submit(engine.search, url, "url"): url for url in urls}
+        for future in as_completed(futures):
+            url = futures[future]
+            try:
+                results.extend(future.result())
+            except Exception as exc:
+                logger.error("Search error for %s: %s", url, exc)
+                errors.append(str(exc))
+
+    return results, errors
+
+
 class SearchController(GObject.Object):
     """
     Manages the Search View logic, including:
@@ -27,11 +48,12 @@ class SearchController(GObject.Object):
     - History & Autocomplete (SuggestionPopover)
     - Playback coordination
     """
-    __gtype_name__ = 'SearchController'
+
+    __gtype_name__ = "SearchController"
 
     __gsignals__ = {
-        'loading-state': (GObject.SIGNAL_RUN_FIRST, None, (bool, str)),
-        'results-changed': (GObject.SIGNAL_RUN_FIRST, None, (int,))  # item count
+        "loading-state": (GObject.SIGNAL_RUN_FIRST, None, (bool, str)),
+        "results-changed": (GObject.SIGNAL_RUN_FIRST, None, (int,)),  # item count
     }
 
     selection_count = GObject.Property(type=int, default=0)
@@ -67,14 +89,8 @@ class SearchController(GObject.Object):
 
         # --- AUTOCOMPLETE SETUP ---
         self.popover = SuggestionPopover(self.entry)
-        self.popover.connect(
-            'suggestion-selected',
-            self._on_suggestion_clicked
-        )
-        self.popover.connect(
-            'suggestion-removed',
-            self._on_suggestion_removed
-        )
+        self.popover.connect("suggestion-selected", self._on_suggestion_clicked)
+        self.popover.connect("suggestion-removed", self._on_suggestion_removed)
 
         # State for Smart Switching
         # Default to 0 (YouTube).
@@ -229,10 +245,7 @@ class SearchController(GObject.Object):
             self._debounce_timer_id = None
 
         # Schedule the actual handler
-        self._debounce_timer_id = GLib.timeout_add(
-            self._DEBOUNCE_MS,
-            self._do_search_changed
-        )
+        self._debounce_timer_id = GLib.timeout_add(self._DEBOUNCE_MS, self._do_search_changed)
 
     def _do_search_changed(self):
         """Actual search-changed logic (executed after debounce delay)."""
@@ -245,7 +258,7 @@ class SearchController(GObject.Object):
         text = entry.get_text()
 
         # Prevent GTK's delayed search-changed signal from reopening popover after a search
-        if getattr(self, '_last_searched_query', None) == text:
+        if getattr(self, "_last_searched_query", None) == text:
             return
 
         # User typed something else, clear the block so they can get suggestions again
@@ -283,7 +296,7 @@ class SearchController(GObject.Object):
 
             if self.on_clear_callback:
                 self.on_clear_callback()
-            self.emit('results-changed', 0)  # Emit empty
+            self.emit("results-changed", 0)  # Emit empty
             return
 
         # 2. Autocomplete Logic
@@ -333,7 +346,7 @@ class SearchController(GObject.Object):
         # Lock UI
         self.is_loading = True
         self.btn.set_sensitive(False)
-        self.emit('loading-state', True, query)
+        self.emit("loading-state", True, query)
 
         # Reset State
         self.store.remove_all()
@@ -374,7 +387,7 @@ class SearchController(GObject.Object):
         # Lock UI
         self.is_loading = True
         self.btn.set_sensitive(False)
-        self.emit('loading-state', True, urls[0])
+        self.emit("loading-state", True, urls[0])
 
         # Reset State
         self.store.remove_all()
@@ -412,7 +425,7 @@ class SearchController(GObject.Object):
         """Simple heuristic to detect if text is/intends to be a URL."""
         if not text:
             return False
-        return text.strip().lower().startswith(('http:', 'https:', 'www.'))
+        return text.strip().lower().startswith(("http:", "https:", "www."))
 
     # =========================================================================
     # INTERNAL LOGIC
@@ -429,31 +442,21 @@ class SearchController(GObject.Object):
 
         for item in results:
             # Filter out channels/playlists if your player only handles videos
-            if "channel" in item.get('url', ''):
+            if "channel" in item.get("url", ""):
                 continue
 
             video_obj = VideoDataObject(item)
             video_obj.selection_mode = self.selection_mode
-            video_obj.connect('notify::is-selected', self._update_selection_count)
+            video_obj.connect("notify::is-selected", self._update_selection_count)
             self.store.append(video_obj)
 
         self.selection_count = 0
 
-        self.emit('results-changed', self.store.get_n_items())  # Emit count
+        self.emit("results-changed", self.store.get_n_items())  # Emit count
         self._finish_loading()
 
     def _search_urls_worker(self, urls: list[str]):
-        results = []
-        errors = []
-
-        for url in urls:
-            try:
-                results.extend(self.engine.search(url, source="url"))
-            except Exception as exc:
-                logger.error("Search error for %s: %s", url, exc)
-                errors.append(str(exc))
-
-        return results, errors
+        return search_urls_parallel(self.engine, urls)
 
     def _update_ui_with_url_results(self, payload):
         results, errors = payload
@@ -465,7 +468,7 @@ class SearchController(GObject.Object):
     def _finish_loading(self):
         """Unlocks UI."""
         self.is_loading = False
-        self.emit('loading-state', False, None)
+        self.emit("loading-state", False, None)
         self.btn.set_sensitive(True)
 
     def _on_dropdown_changed(self, dropdown, param):

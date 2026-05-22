@@ -1,6 +1,6 @@
-import os
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from bigtube.core.config import ConfigManager
@@ -10,11 +10,12 @@ class TestConfigManager(unittest.TestCase):
     def setUp(self):
         # Setup a temporary config directory for testing
         self.test_dir = tempfile.TemporaryDirectory()
-        self.config_dir = os.path.join(self.test_dir.name, "bigtube")
+        self.config_dir = Path(self.test_dir.name) / "bigtube"
+        self.config_file = self.config_dir / "config.json"
 
         # Mock paths in ConfigManager
-        self.patcher1 = patch('bigtube.core.config.ConfigManager.CONFIG_DIR', new_callable=lambda: type('PathMock', (), {'__str__': lambda self: self.config_dir, 'mkdir': lambda *a, **kw: os.makedirs(self.config_dir, exist_ok=True), '__truediv__': lambda self, x: os.path.join(self.config_dir, x)})())
-        self.patcher2 = patch('bigtube.core.config.ConfigManager._FILE_PATH', os.path.join(self.config_dir, "config.json"))
+        self.patcher1 = patch("bigtube.core.config.ConfigManager.CONFIG_DIR", self.config_dir)
+        self.patcher2 = patch("bigtube.core.config.ConfigManager.CONFIG_FILE", self.config_file)
 
         self.patcher1.start()
         self.patcher2.start()
@@ -42,5 +43,12 @@ class TestConfigManager(unittest.TestCase):
         self.assertEqual(ConfigManager.get("theme_mode"), "light")
         self.assertEqual(ConfigManager.get("rate_limit"), 1000)
 
-if __name__ == '__main__':
+    def test_legacy_download_subtitles_alias(self):
+        ConfigManager.set("download_subtitles", True)
+        self.assertTrue(ConfigManager.get("embed_subtitles"))
+        self.assertTrue(ConfigManager.get("download_subtitles"))
+        self.assertNotIn("download_subtitles", ConfigManager._data)
+
+
+if __name__ == "__main__":
     unittest.main()

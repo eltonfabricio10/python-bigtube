@@ -15,6 +15,7 @@ class AppSection(str, Enum):
     Identifies the pages in the GtkStack (Main Window).
     Values must match the child names in Cambalache/UI.
     """
+
     SEARCH = "search_page"
     DOWNLOADS = "download_page"
     SETTINGS = "settings_page"
@@ -27,17 +28,19 @@ class DownloadStatus(str, Enum):
     Internal status for download items.
     Stored in JSON history and used for logic checks.
     """
-    PENDING = "pending"          # In queue
+
+    PENDING = "pending"  # In queue
     DOWNLOADING = "downloading"  # Active
-    PAUSED = "paused"            # User paused
-    COMPLETED = "completed"      # Success
-    ERROR = "error"              # Failed
-    CANCELLED = "cancelled"      # User stopped
+    PAUSED = "paused"  # User paused
+    COMPLETED = "completed"  # Success
+    ERROR = "error"  # Failed
+    CANCELLED = "cancelled"  # User stopped
     INTERRUPTED = "interrupted"  # App closed while downloading
 
 
 class ThemeMode(str, Enum):
     """Application theme preference."""
+
     SYSTEM = "system"
     LIGHT = "light"
     DARK = "dark"
@@ -45,6 +48,7 @@ class ThemeMode(str, Enum):
 
 class ThemeColor(str, Enum):
     """Accent color palette preference."""
+
     DEFAULT = "default"  # Adwaita Blue
     VIOLET = "violet"
     EMERALD = "emerald"
@@ -66,6 +70,7 @@ class ThemeColor(str, Enum):
 
 class VideoQuality(str, Enum):
     """Preferred quality settings."""
+
     ASK = "ask"
 
     # Video Presets (MP4/AVC + M4A)
@@ -82,12 +87,15 @@ class VideoQuality(str, Enum):
     BEST = "bestvideo[ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo+bestaudio/best"
 
     # Audio Presets
-    AUDIO_MP3 = "bestaudio/best --extract-audio --audio-quality 0 --audio-format mp3 --embed-thumbnail"
+    AUDIO_MP3 = (
+        "bestaudio/best --extract-audio --audio-quality 0 --audio-format mp3 --embed-thumbnail"
+    )
     AUDIO_M4A = "bestaudio/best --format-sort acodec:m4a"
 
 
 class FileExt(str, Enum):
     """Supported file extensions."""
+
     MP4 = "mp4"
     MKV = "mkv"
     WEBM = "webm"

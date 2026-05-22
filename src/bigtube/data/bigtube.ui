@@ -541,13 +541,20 @@
                                               </object>
                                             </child>
                                             <child>
-                                              <object class="AdwEntryRow" id="row_cookies_file">
-                                                <property name="show-apply-button">True</property>
+                                              <object class="AdwActionRow" id="row_cookies_file">
+                                                <property name="icon-name">text-x-generic-symbolic</property>
+                                                <property name="title-selectable">False</property>
+                                                <child>
+                                                  <object class="GtkButton" id="btn_select_cookies_file">
+                                                    <property name="icon-name">document-open-symbolic</property>
+                                                    <property name="valign">center</property>
+                                                  </object>
+                                                </child>
                                               </object>
                                             </child>
                                             <child>
-                                              <object class="AdwEntryRow" id="row_cookies_browser">
-                                                <property name="show-apply-button">True</property>
+                                              <object class="AdwComboRow" id="row_cookies_browser">
+                                                <property name="icon-name">applications-internet-symbolic</property>
                                               </object>
                                             </child>
                                             <child>

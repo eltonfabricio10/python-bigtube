@@ -19,10 +19,33 @@ from .validators import Timeouts, retry_with_backoff, run_subprocess_with_timeou
 logger = get_logger(__name__)
 
 # Regex to capture percentage (e.g. "45.6%", "100%", " 8.2%") from yt-dlp stdout
-PROGRESS_REGEX = re.compile(r'(\d{1,3}(?:\.\d+)?)\s*%')
+PROGRESS_REGEX = re.compile(r"(\d{1,3}(?:\.\d+)?)\s*%")
 
 # Minimum required free space in MB (10MB buffer)
 MIN_FREE_SPACE_MB = 10
+
+SENSITIVE_ARGS = {
+    "--cookies",
+    "--cookies-from-browser",
+    "--exec",
+    "--user-agent",
+}
+
+
+def _redact_command(cmd: list[str]) -> list[str]:
+    redacted = []
+    hide_next = False
+    for arg in cmd:
+        if hide_next:
+            redacted.append("<redacted>")
+            hide_next = False
+            continue
+
+        redacted.append(arg)
+        if arg in SENSITIVE_ARGS:
+            hide_next = True
+
+    return redacted
 
 
 class VideoDownloader:
@@ -56,7 +79,9 @@ class VideoDownloader:
             logger.error(f"Failed to fetch metadata after retries: {e}")
             return None
 
-    @retry_with_backoff(max_attempts=3, exceptions=(subprocess.TimeoutExpired, NetworkError, OSError))
+    @retry_with_backoff(
+        max_attempts=3, exceptions=(subprocess.TimeoutExpired, NetworkError, OSError)
+    )
     def _fetch_info_protected(self, url: str) -> dict | None:
         """
         Internal method that raises exceptions to trigger retries.
@@ -81,9 +106,7 @@ class VideoDownloader:
         try:
             # Use utility with timeout
             return_code, stdout, stderr = run_subprocess_with_timeout(
-                cmd,
-                timeout=Timeouts.SUBPROCESS_METADATA,
-                env=self._env
+                cmd, timeout=Timeouts.SUBPROCESS_METADATA, env=self._env
             )
 
             if return_code != 0:
@@ -105,70 +128,78 @@ class VideoDownloader:
         Parses raw JSON into a clean structure for the UI.
         Separates Video streams from Audio-only streams.
         """
-        duration = info.get('duration', 0)
+        duration = info.get("duration", 0)
 
         clean_data = {
-            'id': info.get('id'),
-            'title': info.get('title', Res.get(StringKey.LBL_UNTITLED)),
-            'url': info.get('webpage_url') or info.get('url'),
-            'thumbnail': info.get('thumbnail'),
-            'uploader': info.get('uploader') or info.get('channel') or '',
-            'duration': duration,
-            'videos': [],
-            'audios': []
+            "id": info.get("id"),
+            "title": info.get("title", Res.get(StringKey.LBL_UNTITLED)),
+            "url": info.get("webpage_url") or info.get("url"),
+            "thumbnail": info.get("thumbnail"),
+            "uploader": info.get("uploader") or info.get("channel") or "",
+            "duration": duration,
+            "videos": [],
+            "audios": [],
         }
 
-        formats = info.get('formats', [])
+        formats = info.get("formats", [])
         logger.debug(f"Parsing {len(formats)} formats...")
 
         for f in formats:
             # Basic filters for garbage formats
-            note = f.get('format_note') or ''
-            protocol = f.get('protocol') or ''
+            note = f.get("format_note") or ""
+            protocol = f.get("protocol") or ""
 
-            if 'storyboard' in note or 'http_dash_segments' in protocol:
+            if "storyboard" in note or "http_dash_segments" in protocol:
                 continue
 
-            fmt_id = str(f.get('format_id', ''))
-            ext = f.get('ext')
-            vcodec = f.get('vcodec')
-            acodec = f.get('acodec')
+            fmt_id = str(f.get("format_id", ""))
+            ext = f.get("ext")
+            vcodec = f.get("vcodec")
+            acodec = f.get("acodec")
 
             # --- Size Calculation ---
-            filesize = f.get('filesize') or f.get('filesize_approx')
+            filesize = f.get("filesize") or f.get("filesize_approx")
             # If no filesize, try to calculate from bitrate (tbr)
-            if not filesize and f.get('tbr') and duration:
-                filesize = (f.get('tbr') * 1024 / 8) * duration
+            if not filesize and f.get("tbr") and duration:
+                filesize = (f.get("tbr") * 1024 / 8) * duration
 
             size_mb = (filesize / 1024 / 1024) if filesize else 0
             size_str = f"{size_mb:.1f} MB" if size_mb > 0 else "? MB"
 
             # --- Classification Logic ---
             # Audio Only: vcodec is none/null AND acodec exists
-            is_audio_only = (vcodec == 'none' or vcodec is None) and (acodec != 'none' and acodec is not None)
+            is_audio_only = (vcodec == "none" or vcodec is None) and (
+                acodec != "none" and acodec is not None
+            )
 
             # Video: Height is defined
-            height = f.get('height')
+            height = f.get("height")
             # Fallback for generic sites that might not report height but are videos
-            is_video = (height is not None and height > 0) or (vcodec != 'none' and vcodec is not None)
+            is_video = (height is not None and height > 0) or (
+                vcodec != "none" and vcodec is not None
+            )
 
             # 1. Process Audio
             if is_audio_only:
-                abr = f.get('abr') or 0
-                clean_data['audios'].append({
-                    'id': fmt_id,
-                    'label': Res.get(StringKey.LBL_AUDIO_EXT_KBP).format(ext=ext.upper(), kbps=int(abr)),
-                    'ext': ext,
-                    'size': size_str,
-                    'size_val': size_mb,
-                    'quality': abr,
-                    'type': 'audio',
-                    'codec': acodec.split('.')[0]
-                })
+                abr = f.get("abr") or 0
+                clean_data["audios"].append(
+                    {
+                        "id": fmt_id,
+                        "label": Res.get(StringKey.LBL_AUDIO_EXT_KBP).format(
+                            ext=ext.upper(), kbps=int(abr)
+                        ),
+                        "ext": ext,
+                        "size": size_str,
+                        "size_val": size_mb,
+                        "quality": abr,
+                        "type": "audio",
+                        "codec": acodec.split(".")[0],
+                    }
+                )
 
             # 2. Process Video
             elif is_video:
-                fps = f.get('fps') or 0
+                fps = f.get("fps") or 0
 
                 # Label Construction
                 label_parts = [f"{height}p"]
@@ -178,49 +209,55 @@ class VideoDownloader:
 
                 # Codec Tagging
                 vc = str(vcodec).lower()
-                if 'av01' in vc:
+                if "av01" in vc:
                     label_parts.append("[AV1]")
-                elif 'vp9' in vc:
+                elif "vp9" in vc:
                     label_parts.append("[VP9]")
-                elif 'avc1' in vc or 'h264' in vc:
+                elif "avc1" in vc or "h264" in vc:
                     label_parts.append("[H.264]")
 
-                if f.get('dynamic_range') == 'HDR':
+                if f.get("dynamic_range") == "HDR":
                     label_parts.append("HDR")
 
-                clean_data['videos'].append({
-                    'id': fmt_id,
-                    'label': " ".join(label_parts),
-                    'resolution': height,
-                    'fps': fps,
-                    'ext': ext,
-                    'size': size_str,
-                    'size_val': size_mb,
-                    'type': 'video',
-                    'codec': vcodec.split('.')[0]
-                })
+                clean_data["videos"].append(
+                    {
+                        "id": fmt_id,
+                        "label": " ".join(label_parts),
+                        "resolution": height,
+                        "fps": fps,
+                        "ext": ext,
+                        "size": size_str,
+                        "size_val": size_mb,
+                        "type": "video",
+                        "codec": vcodec.split(".")[0],
+                    }
+                )
 
         # --- Sorting and Deduplication ---
-        clean_data['videos'] = self._remove_duplicates(clean_data['videos'])
-        clean_data['videos'].sort(key=lambda x: (x['resolution'], x['fps'], x['size_val']), reverse=True)
+        clean_data["videos"] = self._remove_duplicates(clean_data["videos"])
+        clean_data["videos"].sort(
+            key=lambda x: (x["resolution"], x["fps"], x["size_val"]), reverse=True
+        )
 
-        clean_data['audios'] = self._remove_duplicates(clean_data['audios'])
-        clean_data['audios'].sort(key=lambda x: (x['quality'], x['size_val']), reverse=True)
+        clean_data["audios"] = self._remove_duplicates(clean_data["audios"])
+        clean_data["audios"].sort(key=lambda x: (x["quality"], x["size_val"]), reverse=True)
 
         # Fallback if no specific formats were found but we have content
-        if not clean_data['videos'] and not clean_data['audios']:
+        if not clean_data["videos"] and not clean_data["audios"]:
             # This happens with some generic sites that return a direct stream but valid JSON
-             clean_data['videos'].append({
-                'id': 'best',
-                'label': Res.get(StringKey.LBL_BEST_QUALITY),
-                'resolution': 0,
-                'fps': 0,
-                'ext': 'mp4',
-                'size': "? MB",
-                'size_val': 0,
-                'type': 'video',
-                'codec': 'unknown'
-            })
+            clean_data["videos"].append(
+                {
+                    "id": "best",
+                    "label": Res.get(StringKey.LBL_BEST_QUALITY),
+                    "resolution": 0,
+                    "fps": 0,
+                    "ext": "mp4",
+                    "size": "? MB",
+                    "size_val": 0,
+                    "type": "video",
+                    "codec": "unknown",
+                }
+            )
 
         # --- Virtual Options Injection ---
         self._inject_virtual_options(clean_data)
@@ -230,36 +267,40 @@ class VideoDownloader:
     def _inject_virtual_options(self, data: dict):
         """Adds 'Best MKV' and 'Convert to MP3' options."""
         # 1. Best MKV
-        if data['videos']:
-            best = data['videos'][0]
+        if data["videos"]:
+            best = data["videos"][0]
             mkv_opt = best.copy()
-            mkv_opt.update({
-                'id': 'bestvideo+bestaudio/best',
-                'label': Res.get(StringKey.LBL_MKV_BEST).format(resolution=best['resolution']),
-                'ext': FileExt.MKV.value,
-                'codec': 'mkv_merge'
-            })
-            data['videos'].insert(0, mkv_opt)
+            mkv_opt.update(
+                {
+                    "id": "bestvideo+bestaudio/best",
+                    "label": Res.get(StringKey.LBL_MKV_BEST).format(resolution=best["resolution"]),
+                    "ext": FileExt.MKV.value,
+                    "codec": "mkv_merge",
+                }
+            )
+            data["videos"].insert(0, mkv_opt)
 
         # 2. Convert to MP3
-        if data['audios']:
-            best = data['audios'][0]
+        if data["audios"]:
+            best = data["audios"][0]
             mp3_opt = best.copy()
-            mp3_opt.update({
-                'id': 'bestaudio/best',
-                'label': Res.get(StringKey.LBL_AUDIO_MP3_CONVERT),
-                'ext': FileExt.MP3.value,
-                'codec': 'mp3_convert',
-                'quality': 999
-            })
-            data['audios'].insert(0, mp3_opt)
+            mp3_opt.update(
+                {
+                    "id": "bestaudio/best",
+                    "label": Res.get(StringKey.LBL_AUDIO_MP3_CONVERT),
+                    "ext": FileExt.MP3.value,
+                    "codec": "mp3_convert",
+                    "quality": 999,
+                }
+            )
+            data["audios"].insert(0, mp3_opt)
 
     def _remove_duplicates(self, items: list[dict]) -> list[dict]:
         seen = set()
         unique = []
         for item in items:
             # Unique key: Label + Ext + Approx Size
-            key = (item['label'], item['ext'], int(item['size_val']))
+            key = (item["label"], item["ext"], int(item["size_val"]))
             if key not in seen:
                 unique.append(item)
                 seen.add(key)
@@ -280,7 +321,9 @@ class VideoDownloader:
             required = estimated_size_mb * 1.1 + MIN_FREE_SPACE_MB
 
             if free_mb < required:
-                logger.warning(f"Insufficient disk space: {free_mb:.1f}MB free, need {required:.1f}MB")
+                logger.warning(
+                    f"Insufficient disk space: {free_mb:.1f}MB free, need {required:.1f}MB"
+                )
                 return False
             return True
         except OSError as e:
@@ -290,25 +333,27 @@ class VideoDownloader:
     # =========================================================================
     # DOWNLOAD MANAGEMENT
     # =========================================================================
-    def start_download(self,
-                       url: str,
-                       format_id: str,
-                       title: str,
-                       ext: str,
-                       progress_callback: Callable[[str, str], None],
-                       force_overwrite: bool = False) -> bool:
+    def start_download(
+        self,
+        url: str,
+        format_id: str,
+        title: str,
+        ext: str,
+        progress_callback: Callable[[str, str], None],
+        force_overwrite: bool = False,
+    ) -> bool:
         """
         Starts downloading the video.
         Uses subprocess to call yt-dlp and parses stdout for progress.
         """
         # Store params for potential resume
         self._last_params = {
-            'url': url,
-            'format_id': format_id,
-            'title': title,
-            'ext': ext,
-            'progress_callback': progress_callback,
-            'force_overwrite': force_overwrite
+            "url": url,
+            "format_id": format_id,
+            "title": title,
+            "ext": ext,
+            "progress_callback": progress_callback,
+            "force_overwrite": force_overwrite,
         }
 
         # Reset state flags
@@ -343,14 +388,17 @@ class VideoDownloader:
             "--no-playlist",
             "--ignore-config",
             "--ignore-errors",
-            "--concurrent-fragments", str(ConfigManager.get("concurrent_fragments") or 4),
-            "--progress-template", "postprocess:[postprocess] %(progress._percent_str)s",
-            "-o", f"{os.path.join(download_dir, safe_title)}.{ext}"
+            "--concurrent-fragments",
+            str(ConfigManager.get("concurrent_fragments") or 4),
+            "--progress-template",
+            "postprocess:[postprocess] %(progress._percent_str)s",
+            "-o",
+            f"{os.path.join(download_dir, safe_title)}.{ext}",
         ]
         cmd.extend(ConfigManager.get_yt_dlp_common_args())
 
         if is_youtube_url(url):
-             cmd.extend(["--extractor-args", "youtube:player_client=android"])
+            cmd.extend(["--extractor-args", "youtube:player_client=android"])
 
         # Apply rate limit if configured
         rate_limit = ConfigManager.get("rate_limit")
@@ -372,14 +420,17 @@ class VideoDownloader:
                 progress_callback(None, Res.get(StringKey.MSG_FFMPEG_MISSING_METADATA))
                 logger.warning("ffmpeg not found. Skipping '--embed-metadata'")
 
-        if ConfigManager.get("download_subtitles"):
+        if ConfigManager.get("embed_subtitles"):
             if has_ffmpeg:
-                cmd.extend([
-                    "--write-sub",
-                    "--write-auto-sub",
-                    "--sub-langs", "en.*,pt.*,es.*",
-                    "--embed-subs"
-                ])
+                cmd.extend(
+                    [
+                        "--write-sub",
+                        "--write-auto-sub",
+                        "--sub-langs",
+                        "en.*,pt.*,es.*",
+                        "--embed-subs",
+                    ]
+                )
             else:
                 progress_callback(None, Res.get(StringKey.MSG_FFMPEG_MISSING_SUBTITLES))
                 logger.warning("ffmpeg not found. Skipping subtitle flags")
@@ -412,16 +463,16 @@ class VideoDownloader:
             logger.info(f"Format ID: {actual_format} - {ext}")
             # Video Mode
             if "+bestaudio" not in actual_format and "/" not in actual_format:
-                 # If specific single video ID, try to merge best audio
-                 cmd.extend(["-f", f"{actual_format}+bestaudio/best"])
+                # If specific single video ID, try to merge best audio
+                cmd.extend(["-f", f"{actual_format}+bestaudio/best"])
             else:
-                 cmd.extend(["-f", actual_format])
+                cmd.extend(["-f", actual_format])
 
             cmd.extend(extra_flags)
             cmd.extend(["--merge-output-format", ext])
 
         cmd.append(url)
-        logger.info(f"Command constructed: {cmd}")
+        logger.info(f"Command constructed: {_redact_command(cmd)}")
         # 3. Execution Loop
         last_log_lines = deque(maxlen=20)
 
@@ -431,8 +482,8 @@ class VideoDownloader:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
-                encoding='utf-8',
-                errors='replace',
+                encoding="utf-8",
+                errors="replace",
                 env=self._env,
                 bufsize=1,
             )
@@ -476,7 +527,9 @@ class VideoDownloader:
                         if progress_callback:
                             if "[postprocess]" in line:
                                 # Use specific status if we know it, otherwise generic processing
-                                display_status = current_status if current_status != status_dl else status_proc
+                                display_status = (
+                                    current_status if current_status != status_dl else status_proc
+                                )
                                 progress_callback(percent, display_status)
                             else:
                                 progress_callback(percent, status_dl)
@@ -558,16 +611,16 @@ class VideoDownloader:
         Resumes a paused download using stored parameters.
         WARNING: This is blocking and should be run in a separate thread.
         """
-        if not hasattr(self, '_last_params') or not self._last_params:
+        if not hasattr(self, "_last_params") or not self._last_params:
             logger.error("Cannot resume: No previous download stored.")
             return False
 
         logger.info("Resuming download...")
-        self._last_params['force_overwrite'] = False
+        self._last_params["force_overwrite"] = False
 
         # Notify via callback if possible
-        if 'progress_callback' in self._last_params and self._last_params['progress_callback']:
-             self._last_params['progress_callback'](None, Res.get(StringKey.MSG_RESUMING))
+        if "progress_callback" in self._last_params and self._last_params["progress_callback"]:
+            self._last_params["progress_callback"](None, Res.get(StringKey.MSG_RESUMING))
 
         return self.start_download(**self._last_params)
 

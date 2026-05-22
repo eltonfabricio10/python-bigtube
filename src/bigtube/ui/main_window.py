@@ -5,8 +5,8 @@ import threading
 
 import gi
 
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
 from importlib.metadata import PackageNotFoundError, version
 
 from gi.repository import Adw, Gdk, Gio, GLib, Gtk
@@ -18,29 +18,26 @@ def get_app_version():
     except PackageNotFoundError:
         return "dev"
 
+
 # --- CORE ARCHITECTURE ---
-from ..core.clipboard_monitor import ClipboardMonitor
-from ..core.config import ConfigManager
-from ..core.download_manager import DownloadManager
-from ..core.downloader import VideoDownloader
-from ..core.enums import AppSection, DownloadStatus, ThemeColor, ThemeMode, VideoQuality
-from ..core.history_manager import HistoryManager
-from ..core.locales import ResourceManager as Res
-from ..core.locales import StringKey
-from ..core.logger import get_logger
-from ..core.network_checker import check_internet_connection, check_ytdlp_update_available
-from ..core.updater import Updater
-from ..core.helpers import get_status_label
-from ..core.validators import is_valid_url, sanitize_url, sanitize_filename
+from ..controllers.converter_controller import ConverterController
+from ..controllers.download_controller import DownloadController
+from ..controllers.download_workflow import DownloadWorkflowController
+from ..controllers.player_controller import PlayerController
 
 # --- CONTROLLERS ---
 from ..controllers.search_controller import SearchController
 from ..controllers.settings_controller import SettingsController
-from ..controllers.converter_controller import ConverterController
-from ..controllers.download_controller import DownloadController
-from ..controllers.player_controller import PlayerController
-
-from .format_dialog import FormatSelectionDialog
+from ..controllers.startup_manager import StartupManager
+from ..core.clipboard_monitor import ClipboardMonitor
+from ..core.config import ConfigManager
+from ..core.downloader import VideoDownloader
+from ..core.enums import ThemeColor, ThemeMode
+from ..core.history_manager import HistoryManager
+from ..core.locales import ResourceManager as Res
+from ..core.locales import StringKey
+from ..core.logger import get_logger
+from ..core.validators import is_valid_url, sanitize_filename, sanitize_url
 from .message_manager import MessageManager
 from .search_result_row import SearchResultRow
 
@@ -49,14 +46,14 @@ from .video_window import VideoWindow
 
 # Path to the .ui file
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-UI_FILE = os.path.join(BASE_DIR, 'data', 'bigtube.ui')
+UI_FILE = os.path.join(BASE_DIR, "data", "bigtube.ui")
 
 logger = get_logger(__name__)
 
 
 @Gtk.Template(filename=UI_FILE)
 class BigTubeMainWindow(Adw.ApplicationWindow):
-    __gtype_name__ = 'BigTubeMainWindow'
+    __gtype_name__ = "BigTubeMainWindow"
 
     # =========================================================================
     # WIDGET BINDINGS (XML -> Python)
@@ -166,6 +163,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     spin_rate_limit = Gtk.Template.Child()
     row_post_process = Gtk.Template.Child()
     row_cookies_file = Gtk.Template.Child()
+    btn_select_cookies_file = Gtk.Template.Child()
     row_cookies_browser = Gtk.Template.Child()
     row_user_agent = Gtk.Template.Child()
 
@@ -195,14 +193,14 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self._setup_actions()
         self._setup_menu()
 
-        self._active_playlist = 'search'
+        self._active_playlist = "search"
 
         # 1. Core Setup
         ConfigManager.ensure_dirs()
 
-        # We keep one downloader instance for metadata fetching
-        # Actual downloads will spawn their own instances
-        self.meta_downloader = VideoDownloader()
+        # Lazily initialized on first metadata request so the UI can open even
+        # before yt-dlp has been installed or downloaded by startup checks.
+        self.meta_downloader = None
 
         # 2. Window Setup
         self.video_window = VideoWindow()
@@ -220,31 +218,29 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             results_list_view=self.search_results_list,
             source_dropdown=self.search_source_dropdown,
             on_play_callback=self.play_video_from_search,
-            on_clear_callback=self.reset_player_state
+            on_clear_callback=self.reset_player_state,
         )
         self._setup_ui_strings()
-        self.search_ctrl.connect('loading-state', self.set_loading_searching)
-        self.search_ctrl.connect('results-changed', self._on_search_results_changed)
+        self.search_ctrl.connect("loading-state", self.set_loading_searching)
+        self.search_ctrl.connect("results-changed", self._on_search_results_changed)
 
         # Multi-Selection connections
-        self.btn_selection_mode.connect('toggled', self._on_selection_mode_toggled)
-        self.btn_select_all.connect('clicked', self._on_select_all_clicked)
-        self.btn_download_selected.connect('clicked', self._on_batch_download_clicked)
-        self.search_ctrl.connect('notify::selection-count', self._on_selection_count_changed)
+        self.btn_selection_mode.connect("toggled", self._on_selection_mode_toggled)
+        self.btn_select_all.connect("clicked", self._on_select_all_clicked)
+        self.btn_download_selected.connect("clicked", self._on_batch_download_clicked)
+        self.search_ctrl.connect("notify::selection-count", self._on_selection_count_changed)
 
         # 4.5 Converter Controller
         converter_widgets = {
-            'view_stack': self.converter_view_stack,
-            'list_converter': self.list_converter,
-            'drop_zone': self.drop_zone,
-            'btn_load_files': self.btn_load_files,
-            'btn_convert_all': self.btn_convert_all,
-            'converter_outer': self.converter_outer
+            "view_stack": self.converter_view_stack,
+            "list_converter": self.list_converter,
+            "drop_zone": self.drop_zone,
+            "btn_load_files": self.btn_load_files,
+            "btn_convert_all": self.btn_convert_all,
+            "converter_outer": self.converter_outer,
         }
         self.converter_ctrl = ConverterController(
-            self.converter_outer,
-            converter_widgets,
-            on_play_callback=self.play_local_file
+            self.converter_outer, converter_widgets, on_play_callback=self.play_local_file
         )
 
         # 5. Download Controller
@@ -256,61 +252,61 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             lbl_dl_active=self.lbl_dl_active,
             lbl_dl_queued=self.lbl_dl_queued,
             lbl_dl_paused=self.lbl_dl_paused,
-            on_convert_callback=self._add_to_converter
+            on_convert_callback=self._add_to_converter,
         )
         self.btn_clear.connect("clicked", self._on_clear_history_clicked)
+        self.download_workflow = DownloadWorkflowController(self)
+        self.startup_manager = StartupManager(self)
 
         # 6. Settings Controller
         settings_widgets = {
-            'settings_page': self.settings_page,
-            'group_appearance': self.group_appearance,
-            'group_downloads': self.group_downloads,
-            'group_storage': self.group_storage,
-            'row_theme': self.row_theme,
-            'row_theme_color': self.row_theme_color,
-            'row_clipboard_monitor': self.row_clipboard_monitor,
-            'row_system_notifications': self.row_system_notifications,
-            'row_quality': self.row_quality,
-            'row_metadata': self.row_metadata,
-            'row_subtitles': self.row_subtitles,
-            'row_save_history': self.row_save_history,
-            'row_auto_clear': self.row_auto_clear,
-            'row_export_history': self.row_export_history,
-            'btn_export_history': self.btn_export_history,
-            'row_import_history': self.row_import_history,
-            'btn_import_history': self.btn_import_history,
-            'row_clear_data': self.row_clear_data,
-            'btn_clear_now': self.btn_clear_now,
-
+            "settings_page": self.settings_page,
+            "group_appearance": self.group_appearance,
+            "group_downloads": self.group_downloads,
+            "group_storage": self.group_storage,
+            "row_theme": self.row_theme,
+            "row_theme_color": self.row_theme_color,
+            "row_clipboard_monitor": self.row_clipboard_monitor,
+            "row_system_notifications": self.row_system_notifications,
+            "row_quality": self.row_quality,
+            "row_metadata": self.row_metadata,
+            "row_subtitles": self.row_subtitles,
+            "row_save_history": self.row_save_history,
+            "row_auto_clear": self.row_auto_clear,
+            "row_export_history": self.row_export_history,
+            "btn_export_history": self.btn_export_history,
+            "row_import_history": self.row_import_history,
+            "btn_import_history": self.btn_import_history,
+            "row_clear_data": self.row_clear_data,
+            "btn_clear_now": self.btn_clear_now,
             # Converter settings
-            'group_converter': self.group_converter,
-            'row_conv_folder': self.row_conv_folder,
-            'row_conv_history': self.row_conv_history,
-            'row_conv_use_source': self.row_conv_use_source,
-            'btn_select_conv_folder': self.btn_select_conv_folder,
-
+            "group_converter": self.group_converter,
+            "row_conv_folder": self.row_conv_folder,
+            "row_conv_history": self.row_conv_history,
+            "row_conv_use_source": self.row_conv_use_source,
+            "btn_select_conv_folder": self.btn_select_conv_folder,
             # Search settings
-            'group_search': self.group_search,
-            'row_save_search': self.row_save_search,
-            'row_enable_suggestions': self.row_enable_suggestions,
-            'row_max_suggestions': self.row_max_suggestions,
-            'spin_max_suggestions': self.spin_max_suggestions,
-            'row_clear_search_history': self.row_clear_search_history,
-            'btn_clear_search_now': self.btn_clear_search_now,
-            'row_search_limit': self.row_search_limit,
-            'spin_search_limit': self.spin_search_limit,
-
+            "group_search": self.group_search,
+            "row_save_search": self.row_save_search,
+            "row_enable_suggestions": self.row_enable_suggestions,
+            "row_max_suggestions": self.row_max_suggestions,
+            "spin_max_suggestions": self.spin_max_suggestions,
+            "row_clear_search_history": self.row_clear_search_history,
+            "btn_clear_search_now": self.btn_clear_search_now,
+            "row_search_limit": self.row_search_limit,
+            "spin_search_limit": self.spin_search_limit,
             # Additional download settings
-            'row_max_downloads': self.row_max_downloads,
-            'spin_max_downloads': self.spin_max_downloads,
-            'row_fragments': self.row_fragments,
-            'spin_fragments': self.spin_fragments,
-            'row_rate_limit': self.row_rate_limit,
-            'spin_rate_limit': self.spin_rate_limit,
-            'row_post_process': self.row_post_process,
-            'row_cookies_file': self.row_cookies_file,
-            'row_cookies_browser': self.row_cookies_browser,
-            'row_user_agent': self.row_user_agent
+            "row_max_downloads": self.row_max_downloads,
+            "spin_max_downloads": self.spin_max_downloads,
+            "row_fragments": self.row_fragments,
+            "spin_fragments": self.spin_fragments,
+            "row_rate_limit": self.row_rate_limit,
+            "spin_rate_limit": self.spin_rate_limit,
+            "row_post_process": self.row_post_process,
+            "row_cookies_file": self.row_cookies_file,
+            "btn_select_cookies_file": self.btn_select_cookies_file,
+            "row_cookies_browser": self.row_cookies_browser,
+            "row_user_agent": self.row_user_agent,
         }
 
         self.settings_ctrl = SettingsController(
@@ -319,7 +315,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             row_version=self.row_version,
             btn_update=self.btn_update,
             window_parent=self,
-            text_widgets=settings_widgets
+            text_widgets=settings_widgets,
         )
 
         # 7. Global Inputs
@@ -332,16 +328,13 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         MessageManager.init(self.toast_overlay, self)
 
         # Load previous session
-        self._load_history_ui()
+        self.startup_manager.load_history_ui()
 
         # 9. Startup checks (network + yt-dlp updates) in background
-        threading.Thread(target=self._run_startup_checks, daemon=True).start()
+        self.startup_manager.run_startup_checks()
 
         # 10. Apply persistent theme
-        self.apply_theme(
-            ConfigManager.get("theme_mode"),
-            ConfigManager.get("theme_color")
-        )
+        self.apply_theme(ConfigManager.get("theme_mode"), ConfigManager.get("theme_color"))
 
         # 11. Clipboard Monitor
         self.clipboard_monitor = ClipboardMonitor(self._on_clipboard_url_found)
@@ -379,7 +372,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         if not mode_enum:
             mode_enum = ConfigManager.get("theme_mode")
         if not color_enum:
-             color_enum = ConfigManager.get("theme_color")
+            color_enum = ConfigManager.get("theme_color")
 
         # 1. Handle Light/Dark Class
         window_widget.remove_css_class("light")
@@ -391,31 +384,28 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         # If we are forcing a mode, apply class accordingly
         # If system, we check what the system is doing
         if mode_enum == ThemeMode.LIGHT:
-             window_widget.add_css_class("light")
+            window_widget.add_css_class("light")
         elif mode_enum == ThemeMode.DARK:
-             window_widget.add_css_class("dark")
+            window_widget.add_css_class("dark")
         else:
             # System mode: apply class based on resolved state
-             if is_dark:
-                 window_widget.add_css_class("dark")
-             else:
-                 window_widget.add_css_class("light")
+            if is_dark:
+                window_widget.add_css_class("dark")
+            else:
+                window_widget.add_css_class("light")
 
         # 2. Handle Accent Color
         for color in ThemeColor:
-             window_widget.remove_css_class(f"accent-{color.value}")
+            window_widget.remove_css_class(f"accent-{color.value}")
 
         if color_enum:
-             val = color_enum.value if hasattr(color_enum, 'value') else color_enum
-             if val != ThemeColor.DEFAULT.value:
-                  window_widget.add_css_class(f"accent-{val}")
+            val = color_enum.value if hasattr(color_enum, "value") else color_enum
+            if val != ThemeColor.DEFAULT.value:
+                window_widget.add_css_class(f"accent-{val}")
 
     def _setup_actions(self):
         """Standard GTK GActions for menu items."""
-        actions = [
-            ("help", self._on_help_action),
-            ("about", self._on_about_action)
-        ]
+        actions = [("help", self._on_help_action), ("about", self._on_about_action)]
         for name, callback in actions:
             action = Gio.SimpleAction.new(name, None)
             action.connect("activate", callback)
@@ -437,8 +427,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     def _on_help_action(self, action, param):
         """Shows a basic help message."""
         MessageManager.show_info_dialog(
-            Res.get(StringKey.MSG_HELP_TITLE),
-            Res.get(StringKey.MSG_HELP_BODY)
+            Res.get(StringKey.MSG_HELP_TITLE), Res.get(StringKey.MSG_HELP_BODY)
         )
 
     def _on_about_action(self, action, param):
@@ -456,7 +445,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             license_type=Gtk.License.MIT_X11,
             copyright=Res.get(StringKey.LBL_COPYRIGHT),
             website="https://github.com/eltonfabricio10/python-bigtube",
-            issue_url="https://github.com/eltonfabricio10/python-bigtube/issues"
+            issue_url="https://github.com/eltonfabricio10/python-bigtube/issues",
         )
         # Use existing logo
         about.set_application_icon("bigtube")
@@ -554,20 +543,22 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
         def _fetch_metadata_for_batch():
             # Use meta_downloader to get formats for the template item
-            info = self.meta_downloader.fetch_video_info(selected_items[0].url)
+            meta_downloader = self.get_meta_downloader()
+            if meta_downloader is None:
+                GLib.idle_add(self._on_metadata_failed, selected_items[0].title)
+                return
+
+            info = meta_downloader.fetch_video_info(selected_items[0].url)
 
             if info:
+
                 def _batch_confirm_callback(video_info, format_data, schedule_time=None):
                     MessageManager.show(
                         Res.get(StringKey.MSG_BATCH_DOWNLOAD_STARTING).format(count=count)
                     )
 
                     for item in selected_items:
-                        self._start_single_download(
-                            item,
-                            format_data['id'],
-                            format_data['ext']
-                        )
+                        self._start_single_download(item, format_data["id"], format_data["ext"])
 
                     # Reset selection after starting batch
                     GLib.idle_add(self.btn_selection_mode.set_active, False)
@@ -583,59 +574,61 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     # INITIALIZATION HELPERS
     # =========================================================================
 
+    def get_meta_downloader(self):
+        """Returns the shared metadata downloader, creating it only when needed."""
+        if self.meta_downloader is not None:
+            return self.meta_downloader
+
+        try:
+            self.meta_downloader = VideoDownloader()
+        except Exception as exc:
+            logger.error("Could not initialize yt-dlp metadata downloader: %s", exc)
+            GLib.idle_add(
+                MessageManager.show,
+                Res.get(StringKey.ERR_YTDLP_MISSING),
+                True,
+            )
+            return None
+
+        return self.meta_downloader
+
     def _init_player_controller(self):
         """Bundles widgets for the player controller."""
         widgets = {
-            'lbl_title': self.player_title,
-            'lbl_artist': self.player_artist,
-            'img_thumb': self.player_thumbnail,
-            'progress': self.player_progress,
-            'lbl_time_cur': self.player_time_current,
-            'lbl_time_tot': self.player_time_total,
-            'btn_play': self.player_playpause_button,
-            'btn_prev': self.player_prev_button,
-            'btn_next': self.player_next_button,
-            'btn_video': self.player_video_toggle_button,
-            'volume': self.player_volume
+            "lbl_title": self.player_title,
+            "lbl_artist": self.player_artist,
+            "img_thumb": self.player_thumbnail,
+            "progress": self.player_progress,
+            "lbl_time_cur": self.player_time_current,
+            "lbl_time_tot": self.player_time_total,
+            "btn_play": self.player_playpause_button,
+            "btn_prev": self.player_prev_button,
+            "btn_next": self.player_next_button,
+            "btn_video": self.player_video_toggle_button,
+            "volume": self.player_volume,
         }
         self.player_ctrl = PlayerController(
             video_window=self.video_window,
             ui_widgets=widgets,
             on_next_callback=self.request_next_video,
-            on_prev_callback=self.request_prev_video
+            on_prev_callback=self.request_prev_video,
         )
 
         # Connect additional signals for integrated player
-        self.video_window.connect("window-hidden", lambda w: self.video_revealer.set_reveal_child(False))
-        self.video_window.connect("window-shown", lambda w: self.video_revealer.set_reveal_child(True))
+        self.video_window.connect(
+            "window-hidden", lambda w: self.video_revealer.set_reveal_child(False)
+        )
+        self.video_window.connect(
+            "window-shown", lambda w: self.video_revealer.set_reveal_child(True)
+        )
 
     # =========================================================================
     # STARTUP CHECKS
     # =========================================================================
 
     def _run_startup_checks(self):
-        """
-        Background thread: Checks internet connectivity and yt-dlp updates.
-        Notifies user via toast if issues are detected.
-        """
-        # 1. Check internet connectivity
-        has_internet = check_internet_connection()
-
-        if not has_internet:
-            GLib.idle_add(
-                MessageManager.show,
-                Res.get(StringKey.MSG_NO_INTERNET),
-                True  # is_error
-            )
-            return  # No point checking updates without internet
-
-        # 2. Check for yt-dlp updates
-        local_version = Updater.get_local_version()
-        update_available, remote_version = check_ytdlp_update_available(local_version)
-
-        if update_available and remote_version:
-            msg = f"{Res.get(StringKey.MSG_UPDATE_AVAILABLE)} v{remote_version}"
-            GLib.idle_add(MessageManager.show, msg, False)
+        """Compatibility wrapper for startup checks."""
+        self.startup_manager._run_startup_checks_worker()
 
     # =========================================================================
     # HISTORY & PERSISTENCE
@@ -658,6 +651,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         app = self.get_application()
         if app:
             from gi.repository import Gio
+
             notification = Gio.Notification.new(title)
             notification.set_body(body)
             # Use a symbolic icon to prevent oversized notification icons
@@ -683,7 +677,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         MessageManager.show_confirmation(
             title=Res.get(StringKey.MSG_CONFIRM_CLEAR_TITLE),
             body=Res.get(StringKey.MSG_CONFIRM_CLEAR_BODY),
-            on_confirm_callback=self.perform_clear_all_history
+            on_confirm_callback=self.perform_clear_all_history,
         )
 
     def perform_clear_all_history(self):
@@ -702,47 +696,24 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         full_path = os.path.join(ConfigManager.get_download_path(), file_name)
 
         video_info = {
-            'url': item.url,
-            'title': item.title,
-            'thumbnail': item.thumbnail,
-            'uploader': item.uploader
+            "url": item.url,
+            "title": item.title,
+            "thumbnail": item.thumbnail,
+            "uploader": item.uploader,
         }
 
-        format_data = {
-            'id': format_id,
-            'ext': ext
-        }
+        format_data = {"id": format_id, "ext": ext}
 
-        self._spawn_download_task(video_info, format_data, full_path, force_overwrite)
+        self.download_workflow._spawn_download_task(
+            video_info,
+            format_data,
+            full_path,
+            force_overwrite,
+        )
 
     def _load_history_ui(self):
-        """Rebuilds the UI based on JSON history."""
-        history = HistoryManager.load()
-        self.btn_clear.set_sensitive(bool(history))
-
-        for item in reversed(history):
-            raw_status = item.get("status", DownloadStatus.PENDING)
-            display_label = get_status_label(raw_status)
-
-            # Create visual row
-            row_widget = self.download_ctrl.add_download(
-                title=item['title'],
-                filename=os.path.basename(item['file_path']),
-                url=item['url'],
-                format_id=item['format_id'],
-                full_path=item['file_path'],
-                uploader=item.get('uploader', '')
-            )
-
-            # Restore Progress State
-            row_widget.update_progress(
-                f"{int(item.get('progress', 0)*100)}%",
-                display_label
-            )
-
-        # Ensure UI shows the list if it has items
-        self._update_download_empty_state()
-        self.download_ctrl.invalidate_sort()
+        """Compatibility wrapper for history restoration."""
+        self.startup_manager.load_history_ui()
 
     def _on_clipboard_url_found(self, url):
         # Notify user with a toast action
@@ -904,8 +875,8 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         def on_setup(factory, list_item):
             row = SearchResultRow()
             list_item.set_child(row)
-            row.connect('play-requested', lambda r, data: self.play_video_from_search(data))
-            row.connect('download-requested', lambda r, data: self.on_download_selected(data))
+            row.connect("play-requested", lambda r, data: self.play_video_from_search(data))
+            row.connect("download-requested", lambda r, data: self.on_download_selected(data))
 
         def on_bind(factory, list_item):
             row_widget = list_item.get_child()
@@ -921,7 +892,6 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     # NAVIGATION & PLAYBACK
     # =========================================================================
 
-
     def _setup_integrated_player(self):
         """Moves the MPV widget from the separate window to the overlay if possible."""
         widget = self.video_window.main_stack
@@ -929,7 +899,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self.video_player_placeholder.set_child(widget)
 
     def play_video_from_search(self, video_obj):
-        self._active_playlist = 'search'
+        self._active_playlist = "search"
         self.search_ctrl.set_current_by_item(video_obj)
         self.player_ctrl.play_media(
             url=video_obj.url,
@@ -937,11 +907,11 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             artist=video_obj.uploader,
             thumbnail_url=video_obj.thumbnail,
             is_video=video_obj.is_video,
-            is_local=False
+            is_local=False,
         )
 
     def _play_downloaded_file(self, row_obj):
-        self._active_playlist = 'downloads'
+        self._active_playlist = "downloads"
         self.download_ctrl.set_current_playing_row(row_obj)
         self.play_local_file(row_obj.full_path, row_obj.lbl_title.get_label())
 
@@ -953,12 +923,12 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             MessageManager.show_confirmation(
                 title=Res.get(StringKey.MSG_FILE_NOT_FOUND_TITLE),
                 body=f"{Res.get(StringKey.MSG_FILE_NOT_FOUND_BODY)}\n{file_path}",
-                on_confirm_callback=lambda: self._remove_missing_file_entry(file_path)
+                on_confirm_callback=lambda: self._remove_missing_file_entry(file_path),
             )
             return
 
         mime_type, _ = mimetypes.guess_type(file_path)
-        is_audio = mime_type and mime_type.startswith('audio')
+        is_audio = mime_type and mime_type.startswith("audio")
 
         self.player_ctrl.play_media(
             url=file_path,
@@ -966,7 +936,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             artist=Res.get(StringKey.NAV_DOWNLOADS),
             thumbnail_url=None,
             is_video=not is_audio,
-            is_local=True
+            is_local=True,
         )
 
     def _add_to_converter(self, file_path):
@@ -981,12 +951,12 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         MessageManager.show(Res.get(StringKey.MSG_HISTORY_ITEM_REMOVED))
 
     def request_next_video(self):
-        if self._active_playlist == 'downloads':
+        if self._active_playlist == "downloads":
             if self.download_ctrl.play_next():
                 return
 
             if self.search_ctrl.has_items():
-                self._active_playlist = 'search'
+                self._active_playlist = "search"
             else:
                 # No search items, loop back to start of downloads
                 self.download_ctrl.set_current_playing_row(None)
@@ -997,12 +967,12 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             self.search_ctrl.play_next()
 
     def request_prev_video(self):
-        if self._active_playlist == 'downloads':
+        if self._active_playlist == "downloads":
             if self.download_ctrl.play_previous():
                 return
 
             if self.search_ctrl.has_items():
-                self._active_playlist = 'search'
+                self._active_playlist = "search"
             else:
                 # No search items, loop back to end of downloads
                 self.download_ctrl.set_current_playing_row(None)
@@ -1018,7 +988,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self.player_ctrl.stop()
         self.player_title.set_label(title)
         self.player_artist.set_label(artist)
-        self.player_thumbnail.set_from_icon_name('image-x-generic-symbolic')
+        self.player_thumbnail.set_from_icon_name("image-x-generic-symbolic")
         if self.video_window.is_visible():
             self.video_window.set_visible(False)
 
@@ -1028,221 +998,49 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
     def on_download_selected(self, data):
         """Triggered by the download button in search results."""
-        logger.info(f"Requesting download for: {data.title}")
-        self.set_loading(True, StringKey.STATUS_FETCH)
-
-        # Analyze metadata in a background thread
-        threading.Thread(
-            target=self._process_metadata_fetch,
-            args=(data,),
-            daemon=True
-        ).start()
+        self.download_workflow.on_download_selected(data)
 
     def _process_metadata_fetch(self, item):
         """Thread: Fetches available formats."""
-        info = self.meta_downloader.fetch_video_info(item.url)
-
-        if info:
-            # Check preference
-            pref = ConfigManager.get("default_quality")
-            if not pref or pref == "ask":
-                GLib.idle_add(self._show_format_popup, info)
-            else:
-                self._handle_auto_download(info, pref)
-        else:
-            GLib.idle_add(self._on_metadata_failed, item.title)
+        self.download_workflow._process_metadata_fetch(item)
 
     def _handle_auto_download(self, info, pref):
         """Attempts to auto-select format based on preference."""
-        fmt = self._auto_select_format(info, pref)
-        if fmt:
-            logger.info(f"Auto-selected format: {fmt['label']}")
-            GLib.idle_add(self.start_download_execution, info, fmt)
-        else:
-            # Fallback
-            GLib.idle_add(self._show_format_popup, info)
+        self.download_workflow._handle_auto_download(info, pref)
 
     def _auto_select_format(self, info, pref):
         """Selects the best matching format."""
-        videos = info.get('videos', [])
-        audios = info.get('audios', [])
-
-        if pref == VideoQuality.BEST:
-            # First video option
-            if videos:
-                return videos[0]
-            if audios:
-                return audios[0]
-
-        # Check if pref is one of our detailed presets (contains 'bestvideo' or 'bestaudio')
-        if "bestvideo" in pref or "bestaudio" in pref:
-             # Create a dummy format object that passes this string as 'id'
-             # The downloader accepts format_id as a string, which usually acts as the -f argument
-             is_audio = "audio" in pref and "video" not in pref
-             ext = "mp3" if "mp3" in pref else "m4a" if is_audio else "mp4"
-
-             return {
-                 'id': pref,
-                 'ext': ext,
-                 'label': "Custom Preset",
-                 'type': "audio" if is_audio else "video"
-             }
-
-        return None
+        return self.download_workflow._auto_select_format(info, pref)
 
     def _on_metadata_failed(self, title):
-        msg_body = Res.get(StringKey.MSG_DOWNLOAD_DATA_ERROR)
-        self.set_loading(False)
-        MessageManager.show(f"{msg_body} {title}", is_error=True)
+        self.download_workflow._on_metadata_failed(title)
 
     def _show_format_popup(self, info):
         """Shows the format selection dialog."""
-        # Stop loading spinner
-        self.set_loading(False)
-
-        # Show Dialog
-        dialog = FormatSelectionDialog(self, info, self.start_download_execution)
-        self._apply_theme_to_window(dialog)
-        dialog.present()
+        self.download_workflow._show_format_popup(info)
 
     def _show_batch_format_popup(self, info, callback):
         """Shows the format selection dialog for batch downloads."""
-        self.set_loading(False)
-        dialog = FormatSelectionDialog(self, info, callback)
-        self._apply_theme_to_window(dialog)
-        dialog.present()
+        self.download_workflow.show_batch_format_popup(info, callback)
 
     def start_download_execution(self, video_info, format_data, schedule_time=None):
         """
         Handles filename preparation and task spawning.
         schedule_time: Optional float (timestamp) for scheduled downloads.
         """
-        # Stop loading if not already stopped (e.g. auto download case)
-        self.set_loading(False)
+        self.download_workflow.start_download_execution(video_info, format_data, schedule_time)
 
-        # 1. Prepare Filename (secure sanitization)
-        raw_title = video_info['title']
-        safe_title = sanitize_filename(raw_title)
-        if not safe_title:
-            safe_title = f"video_{format_data['id']}"
-
-        file_name = f"{safe_title}.{format_data['ext']}"
-        full_path = os.path.join(ConfigManager.get_download_path(), file_name)
-
-        # 2. Check existence
-        if os.path.exists(full_path):
-            MessageManager.show_confirmation(
-                title=Res.get(StringKey.MSG_FILE_EXISTS),
-                body=f"{file_name}\n{Res.get(StringKey.MSG_FILE_EXISTS_BODY)}",
-                on_confirm_callback=lambda: self._spawn_download_task(
-                                                video_info,
-                                                format_data,
-                                                full_path,
-                                                True,
-                                                schedule_time
-                                            )
-            )
-        else:
-            self._spawn_download_task(video_info, format_data, full_path, False, schedule_time)
-
-
-    def _spawn_download_task(self, video_info, format_data, full_path, force_overwrite, schedule_time=None):
-        """
-        Submits a download task to the DownloadManager.
-        """
-
-        # 1. Register in History
-        if ConfigManager.get("save_history"):
-            HistoryManager.add_entry(video_info, format_data, full_path)
-            self.btn_clear.set_sensitive(True)
-
-        # 2. Add Row to UI
-        file_name = os.path.basename(full_path)
-        row_widget = self.download_ctrl.add_download(
-            title=video_info['title'],
-            filename=file_name,
-            url=video_info['url'],
-            format_id=format_data['id'],
-            full_path=full_path,
-            uploader=video_info.get('uploader', '')
+    def _spawn_download_task(
+        self, video_info, format_data, full_path, force_overwrite, schedule_time=None
+    ):
+        """Compatibility wrapper for download task submission."""
+        self.download_workflow._spawn_download_task(
+            video_info,
+            format_data,
+            full_path,
+            force_overwrite,
+            schedule_time,
         )
-
-        # Set initial status
-        row_widget.set_status_label(Res.get(StringKey.STATUS_PENDING)) # Ensure this key exists or use "Pending"
-
-        # Update empty state (show list since we added an item)
-        self._update_download_empty_state()
-
-        # Switch view
-        self.pageview.set_visible_child_name(AppSection.DOWNLOADS.value)
-        self.download_ctrl.invalidate_sort()
-        self.download_ctrl.update_status_bar()
-
-        # 3. Progress Callback
-        def ui_progress_callback(percent_str, status_text):
-            # Update UI on Main Thread
-            def _update_ui():
-                row_widget.update_progress(percent_str, status_text)
-
-                # Restore Toasts
-                if percent_str == "100%":
-                    if ConfigManager.get("system_notifications"):
-                        self._send_system_notification(Res.get(StringKey.MSG_DOWNLOAD_COMPLETED), video_info['title'])
-                    else:
-                        MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_COMPLETED))
-                elif percent_str == "Cancelled":
-                    MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_CANCELLED))
-                elif status_text == Res.get(StringKey.STATUS_ERROR):
-                     if ConfigManager.get("system_notifications"):
-                         self._send_system_notification(Res.get(StringKey.STATUS_ERROR), video_info['title'])
-
-            GLib.idle_add(_update_ui)
-
-            # Update History Logic
-            if percent_str and "100" in percent_str:
-                HistoryManager.update_status(full_path, DownloadStatus.COMPLETED, 1.0)
-                GLib.idle_add(self.download_ctrl.invalidate_sort)
-                GLib.idle_add(self.download_ctrl.update_status_bar)
-            elif status_text == Res.get(StringKey.STATUS_ERROR):
-                HistoryManager.update_status(full_path, DownloadStatus.ERROR)
-                GLib.idle_add(self.download_ctrl.invalidate_sort)
-                GLib.idle_add(self.download_ctrl.update_status_bar)
-            else:
-                # Update status bar for in-progress changes (e.g. Pause/Resume)
-                GLib.idle_add(self.download_ctrl.update_status_bar)
-
-        # 4. Start Callback (Receive the downloader instance)
-        def on_start(downloader_instance):
-            # Update row with the active downloader so it can cancel/pause
-            GLib.idle_add(row_widget.set_downloader, downloader_instance)
-
-        # 5. Submit to Manager
-        if schedule_time:
-            DownloadManager().schedule_download(
-                timestamp=schedule_time,
-                url=video_info['url'],
-                format_id=format_data['id'],
-                title=video_info['title'],
-                ext=format_data['ext'],
-                progress_callback=ui_progress_callback,
-                force_overwrite=force_overwrite,
-                on_start_callback=on_start
-            )
-            # Custom status for scheduled
-            from datetime import datetime
-            dt = datetime.fromtimestamp(schedule_time)
-            row_widget.set_status_label(f"Scheduled: {dt.strftime('%H:%M')}")
-
-        else:
-            DownloadManager().add_download(
-                url=video_info['url'],
-                format_id=format_data['id'],
-                title=video_info['title'],
-                ext=format_data['ext'],
-                progress_callback=ui_progress_callback,
-                force_overwrite=force_overwrite,
-                on_start_callback=on_start
-            )
 
     # =========================================================================
     # GLOBAL EVENTS
@@ -1264,6 +1062,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
 class TextAnimator:
     """Helper to animate 'Loading...' text."""
+
     def __init__(self, label, base_text="...", interval=500):
         self.label = label
         self.base_text = base_text

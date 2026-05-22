@@ -920,6 +920,34 @@ msgstr "Comando de pós-processamento"
 msgid "Command to run after download. Use {} for filename."
 msgstr "Comando para executar após o download. Use {} para nome de arquivo."
 
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:377
+msgid "Cookies File"
+msgstr "Arquivo de cookies"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:378
+msgid "Path to a cookies.txt file (Netscape format)"
+msgstr "Caminho para um arquivo cookies.txt (formato Netscape)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:379
+msgid "Cookies From Browser"
+msgstr "Cookies do navegador"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:380
+msgid "Browser name or profile for yt-dlp (e.g., firefox)"
+msgstr "Nome ou perfil do navegador para o yt-dlp (ex.: firefox)"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:381
+msgid "User Agent"
+msgstr "Agente de usuário"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:382
+msgid "Override the User-Agent used by yt-dlp"
+msgstr "Sobrescreve o User-Agent usado pelo yt-dlp"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:383
+msgid "None"
+msgstr "Nenhum"
+
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:368
 msgid "History exported successfully!"
 msgstr "Histórico exportado com sucesso!"
@@ -927,6 +955,24 @@ msgstr "Histórico exportado com sucesso!"
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:369
 msgid "History imported successfully!"
 msgstr "Histórico importado com sucesso!"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:388
+#, python-brace-format
+msgid "Reset failed: {error}"
+msgstr "Falha ao resetar: {error}"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:389
+#, python-brace-format
+msgid "Failed: {error}"
+msgstr "Falha: {error}"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:390
+msgid "Invalid history file format"
+msgstr "Formato de arquivo de histórico inválido"
+
+#: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:391
+msgid "Error importing history file"
+msgstr "Erro ao importar arquivo de histórico"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:372
 msgid "Toggle between light, dark, or system theme"

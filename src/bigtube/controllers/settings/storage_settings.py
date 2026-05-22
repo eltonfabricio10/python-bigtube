@@ -1,5 +1,6 @@
 # ruff: noqa: E402
 import sys
+
 from gi.repository import Gtk
 
 from ...core.config import ConfigManager
@@ -12,6 +13,7 @@ from ...ui.message_manager import MessageManager
 
 logger = get_logger(__name__)
 
+
 class StorageSettingsController:
     def __init__(self, window, widgets_map):
         self.window = window
@@ -20,27 +22,27 @@ class StorageSettingsController:
 
     def _setup_bindings(self):
         w = self.widgets_map
-        if 'row_auto_clear' in w:
-            w['row_auto_clear'].connect("notify::active", self._on_auto_clear_toggled)
-        if 'row_clear_data' in w:
-            w['row_clear_data'].connect("activated", self._on_clear_data_activated)
-        if 'btn_clear_now' in w:
-            w['btn_clear_now'].connect("clicked", self._on_clear_data_clicked)
-        if 'btn_clear_search_now' in w:
-            w['btn_clear_search_now'].connect("clicked", self._on_clear_search_history_clicked)
-        if 'btn_export_history' in w:
-            w['btn_export_history'].connect("clicked", self.on_export_history_clicked)
-        if 'btn_import_history' in w:
-            w['btn_import_history'].connect("clicked", self.on_import_history_clicked)
+        if "row_auto_clear" in w:
+            w["row_auto_clear"].connect("notify::active", self._on_auto_clear_toggled)
+        if "row_clear_data" in w:
+            w["row_clear_data"].connect("activated", self._on_clear_data_activated)
+        if "btn_clear_now" in w:
+            w["btn_clear_now"].connect("clicked", self._on_clear_data_clicked)
+        if "btn_clear_search_now" in w:
+            w["btn_clear_search_now"].connect("clicked", self._on_clear_search_history_clicked)
+        if "btn_export_history" in w:
+            w["btn_export_history"].connect("clicked", self.on_export_history_clicked)
+        if "btn_import_history" in w:
+            w["btn_import_history"].connect("clicked", self.on_import_history_clicked)
 
     def _on_auto_clear_toggled(self, row, pspec):
         active_reset = row.get_active()
         ConfigManager.set("auto_clear_finished", active_reset)
         w = self.widgets_map
-        if 'row_clear_data' in w:
-            w['row_clear_data'].set_sensitive(not active_reset)
+        if "row_clear_data" in w:
+            w["row_clear_data"].set_sensitive(not active_reset)
 
-        history_rows = ['row_save_history', 'row_save_search', 'row_conv_history']
+        history_rows = ["row_save_history", "row_save_search", "row_conv_history"]
         for key in history_rows:
             if key in w:
                 w[key].set_sensitive(not active_reset)
@@ -54,7 +56,7 @@ class StorageSettingsController:
         MessageManager.show_confirmation(
             title=Res.get(StringKey.MSG_RESET_APP_TITLE),
             body=Res.get(StringKey.MSG_RESET_APP_BODY),
-            on_confirm_callback=self._perform_app_reset
+            on_confirm_callback=self._perform_app_reset,
         )
 
     def _perform_app_reset(self):
@@ -63,17 +65,17 @@ class StorageSettingsController:
             MessageManager.show_info_dialog(
                 title=Res.get(StringKey.BTN_CLEAR_HISTORY),
                 body=Res.get(StringKey.MSG_DATA_CLEARED),
-                on_close_callback=lambda: sys.exit(0)
+                on_close_callback=lambda: sys.exit(0),
             )
         except Exception as e:
             logger.error(f"Error during app reset: {e}")
-            MessageManager.show(f"Reset failed: {e}", is_error=True)
+            MessageManager.show(Res.get(StringKey.ERR_RESET_FAILED).format(error=e), is_error=True)
 
     def _on_clear_search_history_clicked(self, btn):
         MessageManager.show_confirmation(
             title=Res.get(StringKey.BTN_CLEAR_SEARCH_HISTORY),
             body=Res.get(StringKey.MSG_CONFIRM_CLEAR_BODY),
-            on_confirm_callback=self._perform_search_history_reset
+            on_confirm_callback=self._perform_search_history_reset,
         )
 
     def _perform_search_history_reset(self):
@@ -82,7 +84,7 @@ class StorageSettingsController:
             MessageManager.show(Res.get(StringKey.MSG_HISTORY_CLEARED))
         except Exception as e:
             logger.error(f"Error clearing search history: {e}")
-            MessageManager.show(f"Failed: {e}", is_error=True)
+            MessageManager.show(Res.get(StringKey.ERR_FAILED).format(error=e), is_error=True)
 
     def on_export_history_clicked(self, btn):
         dialog = Gtk.FileDialog()
@@ -96,8 +98,9 @@ class StorageSettingsController:
             if f:
                 path = f.get_path()
                 history_data = HistoryManager.load()
-                with open(path, 'w', encoding='utf-8') as out:
+                with open(path, "w", encoding="utf-8") as out:
                     import json
+
                     json.dump(history_data, out, indent=4)
                 MessageManager.show(Res.get(StringKey.MSG_HISTORY_EXPORTED))
         except Exception as e:
@@ -113,15 +116,16 @@ class StorageSettingsController:
             f = dialog.open_finish(result)
             if f:
                 path = f.get_path()
-                with open(path, encoding='utf-8') as src:
+                with open(path, encoding="utf-8") as src:
                     import json
+
                     data = json.load(src)
                 if isinstance(data, list):
                     HistoryManager._cache = data
                     HistoryManager.force_save()
                     MessageManager.show(Res.get(StringKey.MSG_HISTORY_IMPORTED))
                 else:
-                    MessageManager.show("Invalid history file format", is_error=True)
+                    MessageManager.show(Res.get(StringKey.ERR_INVALID_HISTORY_FILE), is_error=True)
         except Exception as e:
             logger.error(f"Error importing history: {e}")
-            MessageManager.show("Error importing history file", is_error=True)
+            MessageManager.show(Res.get(StringKey.ERR_IMPORT_HISTORY_FILE), is_error=True)

@@ -1,8 +1,7 @@
-
+import heapq
 import threading
 import time
 import uuid
-from collections import deque
 from collections.abc import Callable
 
 from .config import ConfigManager
@@ -13,10 +12,12 @@ from .logger import get_logger
 
 logger = get_logger(__name__)
 
+
 class DownloadManager:
     """
     Singleton class to manage download queue and concurrency.
     """
+
     _instance = None
     _lock = threading.Lock()
 
@@ -34,11 +35,12 @@ class DownloadManager:
 
         self._initialized = True
         self.max_concurrent = 3
-        self.active_downloads: dict[str, VideoDownloader] = {} # Map ID -> Downloader
-        self.pending_queue = [] # Queue of download tasks (dicts, sorted by priority)
-        self.scheduled_tasks = [] # List of (timestamp, task_dict)
-        self.lock = threading.Lock()
+        self.active_downloads: dict[str, VideoDownloader] = {}  # Map ID -> Downloader
+        self.pending_queue = []  # Heap of (-priority, sequence, task)
+        self.scheduled_tasks = []  # List of (timestamp, task_dict)
+        self.lock = threading.RLock()
         self._schedule_event = threading.Event()
+        self._queue_sequence = 0
 
         # Start Scheduler Loop
         threading.Thread(target=self._scheduler_loop, daemon=True).start()
@@ -48,38 +50,40 @@ class DownloadManager:
             self.max_concurrent = max_val
             self._process_queue()
 
-    def schedule_download(self,
-                          timestamp: float,
-                          url: str,
-                          format_id: str,
-                          title: str,
-                          ext: str,
-                          progress_callback: Callable,
-                          force_overwrite: bool = False,
-                          on_start_callback: Callable = None,
-                          priority: int = 0) -> str:
+    def schedule_download(
+        self,
+        timestamp: float,
+        url: str,
+        format_id: str,
+        title: str,
+        ext: str,
+        progress_callback: Callable,
+        force_overwrite: bool = False,
+        on_start_callback: Callable = None,
+        priority: int = 0,
+    ) -> str:
         """
         Schedules a download for a specific unix timestamp.
         """
         task_id = str(uuid.uuid4())
 
         task = {
-            'id': task_id,
-            'url': url,
-            'format_id': format_id,
-            'title': title,
-            'ext': ext,
-            'progress_callback': progress_callback,
-            'force_overwrite': force_overwrite,
-            'on_start_callback': on_start_callback,
-            'scheduled_time': timestamp,
-            'priority': priority
+            "id": task_id,
+            "url": url,
+            "format_id": format_id,
+            "title": title,
+            "ext": ext,
+            "progress_callback": progress_callback,
+            "force_overwrite": force_overwrite,
+            "on_start_callback": on_start_callback,
+            "scheduled_time": timestamp,
+            "priority": priority,
         }
 
         with self.lock:
             self.scheduled_tasks.append(task)
             # Sort by time (earliest first)
-            self.scheduled_tasks.sort(key=lambda x: x['scheduled_time'])
+            self.scheduled_tasks.sort(key=lambda x: x["scheduled_time"])
             logger.info(f"Scheduled task '{title}' for {timestamp}")
 
             if progress_callback:
@@ -90,15 +94,17 @@ class DownloadManager:
 
         return task_id
 
-    def add_download(self,
-                     url: str,
-                     format_id: str,
-                     title: str,
-                     ext: str,
-                     progress_callback: Callable,
-                     force_overwrite: bool = False,
-                     on_start_callback: Callable = None,
-                     priority: int = 0) -> str:
+    def add_download(
+        self,
+        url: str,
+        format_id: str,
+        title: str,
+        ext: str,
+        progress_callback: Callable,
+        force_overwrite: bool = False,
+        on_start_callback: Callable = None,
+        priority: int = 0,
+    ) -> str:
         """
         Adds a download to the queue.
         Returns a unique ID for the download task.
@@ -106,15 +112,15 @@ class DownloadManager:
         task_id = str(uuid.uuid4())
 
         task = {
-            'id': task_id,
-            'url': url,
-            'format_id': format_id,
-            'title': title,
-            'ext': ext,
-            'progress_callback': progress_callback,
-            'force_overwrite': force_overwrite,
-            'on_start_callback': on_start_callback, # Called when download actually starts
-            'priority': priority
+            "id": task_id,
+            "url": url,
+            "format_id": format_id,
+            "title": title,
+            "ext": ext,
+            "progress_callback": progress_callback,
+            "force_overwrite": force_overwrite,
+            "on_start_callback": on_start_callback,  # Called when download actually starts
+            "priority": priority,
         }
 
         self._enqueue_task(task)
@@ -122,14 +128,16 @@ class DownloadManager:
 
     def _enqueue_task(self, task):
         with self.lock:
-            self.pending_queue.append(task)
-            # Sort queue by priority (highest first)
-            self.pending_queue.sort(key=lambda x: x.get('priority', 0), reverse=True)
+            self._queue_sequence += 1
+            priority = task.get("priority", 0)
+            heapq.heappush(self.pending_queue, (-priority, self._queue_sequence, task))
 
-            logger.info(f"Added download to queue: {task['title']} "
-                        f"(Priority: {task.get('priority', 0)}, Queue size: {len(self.pending_queue)})")
-            if task.get('progress_callback'):
-                 task['progress_callback'](None, Res.get(StringKey.STATUS_QUEUED))
+            logger.info(
+                f"Added download to queue: {task['title']} "
+                f"(Priority: {task.get('priority', 0)}, Queue size: {len(self.pending_queue)})"
+            )
+            if task.get("progress_callback"):
+                task["progress_callback"](None, Res.get(StringKey.STATUS_QUEUED))
 
         self._process_queue()
 
@@ -140,7 +148,7 @@ class DownloadManager:
             wait_timeout = 5.0
             with self.lock:
                 if self.scheduled_tasks:
-                    next_time = min(t['scheduled_time'] for t in self.scheduled_tasks)
+                    next_time = min(t["scheduled_time"] for t in self.scheduled_tasks)
                     wait_timeout = max(0.1, next_time - time.time())
 
             self._schedule_event.wait(timeout=min(wait_timeout, 5.0))
@@ -153,7 +161,7 @@ class DownloadManager:
                 # Identify due tasks
                 remaining = []
                 for task in self.scheduled_tasks:
-                    if task['scheduled_time'] <= now:
+                    if task["scheduled_time"] <= now:
                         due_tasks.append(task)
                     else:
                         remaining.append(task)
@@ -179,29 +187,30 @@ class DownloadManager:
             slots_available = self.max_concurrent - active_count
 
             while slots_available > 0 and self.pending_queue:
-                task = self.pending_queue.pop(0) # pop from front (highest priority)
+                _priority, _sequence, task = heapq.heappop(self.pending_queue)
                 self._start_task(task)
                 slots_available -= 1
 
     def _start_task(self, task):
-        task_id = task['id']
+        task_id = task["id"]
         logger.info(f"Starting queued task: {task['title']}")
 
         downloader = VideoDownloader()
         self.active_downloads[task_id] = downloader
 
-        if task['on_start_callback']:
-            task['on_start_callback'](downloader)
+        on_start_callback = task.get("on_start_callback")
+        if on_start_callback:
+            on_start_callback(downloader)
 
         def run_thread():
             try:
                 downloader.start_download(
-                    url=task['url'],
-                    format_id=task['format_id'],
-                    title=task['title'],
-                    ext=task['ext'],
-                    progress_callback=task['progress_callback'],
-                    force_overwrite=task['force_overwrite']
+                    url=task["url"],
+                    format_id=task["format_id"],
+                    title=task["title"],
+                    ext=task["ext"],
+                    progress_callback=task["progress_callback"],
+                    force_overwrite=task.get("force_overwrite", False),
                 )
             finally:
                 self._on_task_complete(task_id)
@@ -223,4 +232,7 @@ class DownloadManager:
                 # _on_task_complete will be called when thread finishes
             else:
                 # Remove from pending queue if present
-                self.pending_queue = [t for t in self.pending_queue if t['id'] != task_id]
+                self.pending_queue = [
+                    entry for entry in self.pending_queue if entry[2]["id"] != task_id
+                ]
+                heapq.heapify(self.pending_queue)

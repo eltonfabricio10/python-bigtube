@@ -1,5 +1,6 @@
 # ruff: noqa: E402
 import threading
+
 from gi.repository import GLib
 
 from ...core.locales import ResourceManager as Res
@@ -9,6 +10,7 @@ from ...core.updater import Updater
 from ...ui.message_manager import MessageManager
 
 logger = get_logger(__name__)
+
 
 class SystemSettingsController:
     def __init__(self, btn_update, row_version):

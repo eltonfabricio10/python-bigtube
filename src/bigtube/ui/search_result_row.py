@@ -10,7 +10,7 @@ from .message_manager import MessageManager
 
 # Path to the .ui file
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-UI_FILE = os.path.join(BASE_DIR, 'data', 'search_result_row.ui')
+UI_FILE = os.path.join(BASE_DIR, "data", "search_result_row.ui")
 
 
 class VideoDataObject(GObject.Object):
@@ -18,6 +18,7 @@ class VideoDataObject(GObject.Object):
     Data Model representing a single video result.
     Passed between the SearchController and the UI Row.
     """
+
     title = GObject.Property(type=str)
     url = GObject.Property(type=str)
     thumbnail = GObject.Property(type=str)
@@ -28,21 +29,21 @@ class VideoDataObject(GObject.Object):
 
     def __init__(self, data_dict):
         super().__init__()
-        self.title = data_dict.get('title', Res.get(StringKey.PLAYER_TITLE))
-        self.url = data_dict.get('url', '')
-        self.thumbnail = data_dict.get('thumbnail', '')
-        self.uploader = data_dict.get('uploader', Res.get(StringKey.PLAYER_ARTIST))
-        self.is_video = data_dict.get('is_video', True)
+        self.title = data_dict.get("title", Res.get(StringKey.PLAYER_TITLE))
+        self.url = data_dict.get("url", "")
+        self.thumbnail = data_dict.get("thumbnail", "")
+        self.uploader = data_dict.get("uploader", Res.get(StringKey.PLAYER_ARTIST))
+        self.is_video = data_dict.get("is_video", True)
 
 
 @Gtk.Template(filename=UI_FILE)
 class SearchResultRow(Gtk.Box):
-    __gtype_name__ = 'SearchResultRow'
+    __gtype_name__ = "SearchResultRow"
 
     # Signals to communicate with MainWindow/Controller
     __gsignals__ = {
-        'play-requested': (GObject.SIGNAL_RUN_FIRST, None, (GObject.Object,)),
-        'download-requested': (GObject.SIGNAL_RUN_FIRST, None, (GObject.Object,)),
+        "play-requested": (GObject.SIGNAL_RUN_FIRST, None, (GObject.Object,)),
+        "download-requested": (GObject.SIGNAL_RUN_FIRST, None, (GObject.Object,)),
     }
 
     # Widget Bindings
@@ -62,9 +63,9 @@ class SearchResultRow(Gtk.Box):
         self._selection_binding = None
 
         # Connect internal signals
-        self.row_play_button.connect('clicked', self._on_play_clicked)
-        self.row_download_button.connect('clicked', self._on_download_clicked)
-        self.row_copy_button.connect('clicked', self._on_copy_clicked)
+        self.row_play_button.connect("clicked", self._on_play_clicked)
+        self.row_download_button.connect("clicked", self._on_download_clicked)
+        self.row_copy_button.connect("clicked", self._on_copy_clicked)
 
         # Set Tooltips
         self.row_play_button.set_tooltip_text(Res.get(StringKey.TIP_PLAY))
@@ -88,26 +89,19 @@ class SearchResultRow(Gtk.Box):
 
         # Async Image Loading
         if self.video_data.thumbnail:
-            ImageLoader.load(
-                self.video_data.thumbnail,
-                self.row_thumbnail,
-                width=120, height=68
-            )
+            ImageLoader.load(self.video_data.thumbnail, self.row_thumbnail, width=120, height=68)
 
         # Bi-directional Property Binding: model.is_selected <-> checkbox.active
         self._selection_binding = self.video_data.bind_property(
             "is_selected",
             self.row_checkbox,
             "active",
-            GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE
+            GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.SYNC_CREATE,
         )
 
         # Visibility Binding: model.selection_mode -> checkbox.visible
         self.video_data.bind_property(
-            "selection_mode",
-            self.row_checkbox,
-            "visible",
-            GObject.BindingFlags.SYNC_CREATE
+            "selection_mode", self.row_checkbox, "visible", GObject.BindingFlags.SYNC_CREATE
         )
 
     def set_selection_mode(self, enabled: bool):
@@ -122,11 +116,11 @@ class SearchResultRow(Gtk.Box):
         # or if we want to add extra logic on toggle.
         pass
         """Syncs UI checkbox state to data model."""
-        if hasattr(self, '_freeze_checkbox') and self._freeze_checkbox:
+        if hasattr(self, "_freeze_checkbox") and self._freeze_checkbox:
             return
         if self.video_data:
             self.video_data.is_selected = check.get_active()
-            self.video_data.notify('is-selected')
+            self.video_data.notify("is-selected")
 
     # =========================================================================
     # EVENT HANDLERS
@@ -134,12 +128,12 @@ class SearchResultRow(Gtk.Box):
     def _on_download_clicked(self, button):
         """Emits signal to start download process."""
         if self.video_data:
-            self.emit('download-requested', self.video_data)
+            self.emit("download-requested", self.video_data)
 
     def _on_play_clicked(self, button):
         """Emits signal to start playback."""
         if self.video_data:
-            self.emit('play-requested', self.video_data)
+            self.emit("play-requested", self.video_data)
 
     def _on_copy_clicked(self, button):
         """Copies video URL to system clipboard and shows feedback."""
@@ -147,6 +141,5 @@ class SearchResultRow(Gtk.Box):
             clipboard = Gdk.Display.get_default().get_clipboard()
             clipboard.set(self.video_data.url)
             MessageManager.show(
-                Res.get(StringKey.MSG_LINK_COPIED)+"\n"+self.video_data.url,
-                is_error=False
+                Res.get(StringKey.MSG_LINK_COPIED) + "\n" + self.video_data.url, is_error=False
             )

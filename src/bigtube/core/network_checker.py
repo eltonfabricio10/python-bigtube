@@ -52,13 +52,10 @@ def get_remote_ytdlp_version(timeout: float = 10.0) -> str | None:
         Version string (e.g., '2024.01.16') or None if failed.
     """
     try:
-        request = urllib.request.Request(
-            _YTDLP_RELEASES_API,
-            headers={"User-Agent": "BigTube/1.0"}
-        )
+        request = urllib.request.Request(_YTDLP_RELEASES_API, headers={"User-Agent": "BigTube/1.0"})
 
         with urllib.request.urlopen(request, timeout=timeout) as response:
-            data = json.loads(response.read().decode('utf-8'))
+            data = json.loads(response.read().decode("utf-8"))
             tag_name = data.get("tag_name", "")
             # Remove 'v' prefix if present
             return tag_name.lstrip("v") if tag_name else None

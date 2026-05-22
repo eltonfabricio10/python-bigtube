@@ -16,7 +16,11 @@ sys.modules["gi.repository.Gtk"] = MagicMock()
 sys.modules["gi.repository.Adw"] = MagicMock()
 sys.modules["gi.repository.Gio"] = MagicMock()
 glib_mock = MagicMock()
+_test_config_base = os.path.join(_test_logs_base, "config")
+os.makedirs(_test_config_base, exist_ok=True)
 glib_mock.get_user_data_dir.return_value = _test_logs_base
+glib_mock.get_user_config_dir.return_value = _test_config_base
+glib_mock.get_user_special_dir.return_value = os.path.join(_test_logs_base, "Downloads")
 sys.modules["gi.repository.GLib"] = glib_mock
 sys.modules["gi.repository.Gdk"] = MagicMock()
 
@@ -27,6 +31,10 @@ def mock_dependencies(monkeypatch):
     Mock external dependencies that might not be present in the test environment (like GTK).
     """
     # ConfigManager to avoid file I/O
-    monkeypatch.setattr("bigtube.core.config.ConfigManager.get_yt_dlp_path", lambda: "/usr/bin/yt-dlp")
+    monkeypatch.setattr(
+        "bigtube.core.config.ConfigManager.get_yt_dlp_path", lambda: "/usr/bin/yt-dlp"
+    )
     monkeypatch.setattr("bigtube.core.config.ConfigManager.get_env_with_bin_path", lambda: {})
-    monkeypatch.setattr("bigtube.core.config.ConfigManager.get_download_path", lambda: "/tmp/bigtube_downloads")
+    monkeypatch.setattr(
+        "bigtube.core.config.ConfigManager.get_download_path", lambda: "/tmp/bigtube_downloads"
+    )

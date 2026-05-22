@@ -9,6 +9,7 @@ from ..core.locales import StringKey
 # Check for X11 capability (Required for embedding in GTK4 currently)
 try:
     from gi.repository import GdkX11
+
     HAS_X11_LIB = True
 except ImportError:
     HAS_X11_LIB = False
@@ -17,6 +18,7 @@ try:
     import mpv
 except ImportError:
     import sys
+
     # Use standard stderr if logger isn't available yet or strictly for this critical import check
     print("[MpvWidget] CRITICAL: 'python-mpv' library not found.", file=sys.stderr)
     mpv = None
@@ -28,7 +30,7 @@ logger = get_logger(__name__)
 
 # MPV requires C-style numeric formatting (dots, not commas)
 try:
-    locale.setlocale(locale.LC_NUMERIC, 'C')
+    locale.setlocale(locale.LC_NUMERIC, "C")
 except Exception:
     pass
 
@@ -38,15 +40,16 @@ class MpvWidget(Gtk.DrawingArea):
     GTK4 Widget that wraps libmpv.
     Handles embedding logic (X11) and playback state.
     """
-    __gtype_name__ = 'MpvWidget'
+
+    __gtype_name__ = "MpvWidget"
 
     __gsignals__ = {
-        'time-changed': (GObject.SIGNAL_RUN_FIRST, None, (float,)),
-        'duration-changed': (GObject.SIGNAL_RUN_FIRST, None, (float,)),
-        'video-ended': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'video-ready': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'state-changed': (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
-        'close-request': (GObject.SIGNAL_RUN_FIRST, None, ()),
+        "time-changed": (GObject.SIGNAL_RUN_FIRST, None, (float,)),
+        "duration-changed": (GObject.SIGNAL_RUN_FIRST, None, (float,)),
+        "video-ended": (GObject.SIGNAL_RUN_FIRST, None, ()),
+        "video-ready": (GObject.SIGNAL_RUN_FIRST, None, ()),
+        "state-changed": (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
+        "close-request": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
     def __init__(self):
@@ -65,12 +68,12 @@ class MpvWidget(Gtk.DrawingArea):
 
         # Initialize MPV
         self.mpv = mpv.MPV(
-            vo='null',
-            vid='no',
-            keep_open='yes',
+            vo="null",
+            vid="no",
+            keep_open="yes",
             ytdl=True,
-            hwdec='auto',
-            input_default_bindings=False
+            hwdec="auto",
+            input_default_bindings=False,
         )
 
         self._setup_observers()
@@ -101,42 +104,42 @@ class MpvWidget(Gtk.DrawingArea):
         if not self.mpv:
             return
 
-        @self.mpv.property_observer('time-pos')
+        @self.mpv.property_observer("time-pos")
         def on_time(name, value):
             if value is not None:
-                GLib.idle_add(self.emit, 'time-changed', value)
+                GLib.idle_add(self.emit, "time-changed", value)
 
-        @self.mpv.property_observer('duration')
+        @self.mpv.property_observer("duration")
         def on_duration(name, value):
             if value is not None:
-                GLib.idle_add(self.emit, 'duration-changed', value)
+                GLib.idle_add(self.emit, "duration-changed", value)
 
-        @self.mpv.property_observer('eof-reached')
+        @self.mpv.property_observer("eof-reached")
         def on_eof(name, value):
             if value is True:
-                GLib.idle_add(self.emit, 'video-ended')
+                GLib.idle_add(self.emit, "video-ended")
 
-        @self.mpv.property_observer('vo-configured')
+        @self.mpv.property_observer("vo-configured")
         def on_vo_ready(name, value):
             if value is True:
-                GLib.idle_add(self.emit, 'video-ready')
+                GLib.idle_add(self.emit, "video-ready")
 
-        @self.mpv.property_observer('pause')
+        @self.mpv.property_observer("pause")
         def on_pause(name, value):
             is_playing = not value
-            GLib.idle_add(self.emit, 'state-changed', is_playing)
+            GLib.idle_add(self.emit, "state-changed", is_playing)
 
-        @self.mpv.event_callback('shutdown')
+        @self.mpv.event_callback("shutdown")
         def on_shutdown(event):
-            GLib.idle_add(self.emit, 'close-request')
+            GLib.idle_add(self.emit, "close-request")
 
-        @self.mpv.event_callback('end-file')
+        @self.mpv.event_callback("end-file")
         def on_end_file(event):
             try:
-                reason = getattr(event, 'reason', -1)
+                reason = getattr(event, "reason", -1)
                 # 3 = MPV_END_FILE_REASON_QUIT
-                if reason == 3 or str(reason) == 'quit':
-                    GLib.idle_add(self.emit, 'close-request')
+                if reason == 3 or str(reason) == "quit":
+                    GLib.idle_add(self.emit, "close-request")
             except Exception:
                 pass
 
@@ -154,7 +157,11 @@ class MpvWidget(Gtk.DrawingArea):
             display = Gdk.Display.get_default()
 
             # Check if we are running on X11
-            is_x11 = HAS_X11_LIB and isinstance(display, GdkX11.X11Display) and hasattr(surface, 'get_xid')
+            is_x11 = (
+                HAS_X11_LIB
+                and isinstance(display, GdkX11.X11Display)
+                and hasattr(surface, "get_xid")
+            )
 
             if is_x11:
                 xid = surface.get_xid()
@@ -162,20 +169,20 @@ class MpvWidget(Gtk.DrawingArea):
                 self.is_wayland = False
                 self.mpv.wid = int(xid)
                 self.mpv.force_window = True
-                self.mpv.vo = 'x11'
-                self.mpv.vid = 'auto'
+                self.mpv.vo = "x11"
+                self.mpv.vid = "auto"
             else:
                 # Wayland: Open MPV in a separate controllable window
                 logger.info("Wayland detected. Using separate MPV window.")
                 self.is_wayland = True
-                self.mpv.force_window = 'yes'
-                self.mpv.vo = 'gpu'  # Works well on Wayland
-                self.mpv.vid = 'auto'
-                self.mpv.keep_open = 'yes'
+                self.mpv.force_window = "yes"
+                self.mpv.vo = "gpu"  # Works well on Wayland
+                self.mpv.vid = "auto"
+                self.mpv.keep_open = "yes"
                 # Window title and config for separate window
-                self.mpv['title'] = Res.get(StringKey.PLAYER_WINDOW_TITLE)
-                self.mpv['ontop'] = False
-                self.mpv['geometry'] = '854x480'
+                self.mpv["title"] = Res.get(StringKey.PLAYER_WINDOW_TITLE)
+                self.mpv["ontop"] = False
+                self.mpv["geometry"] = "854x480"
 
         except Exception as e:
             logger.error(f"Embedding/Config error: {e}")
@@ -190,8 +197,8 @@ class MpvWidget(Gtk.DrawingArea):
         try:
             # On Wayland, MPV manages its own window
             if not self.is_wayland:
-                self.mpv.vid = 'no'
-                self.mpv.vo = 'null'
+                self.mpv.vid = "no"
+                self.mpv.vo = "null"
         except Exception:
             pass
 
@@ -222,7 +229,7 @@ class MpvWidget(Gtk.DrawingArea):
 
     def seek(self, s):
         if self.mpv:
-            self.mpv.seek(s, reference='absolute')
+            self.mpv.seek(s, reference="absolute")
 
     def toggle_pause(self):
         if self.mpv:

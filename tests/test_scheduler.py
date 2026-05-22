@@ -1,10 +1,11 @@
-
 import time
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from bigtube.core.download_manager import DownloadManager
+from bigtube.core.locales import ResourceManager as Res
+from bigtube.core.locales import StringKey
 
 
 @pytest.fixture
@@ -18,14 +19,15 @@ def mock_dm():
     # Let's mock the threading.Thread to avoid real threads in tests
     with patch("threading.Thread"):
         dm = DownloadManager()
-        dm.scheduled_tasks = [] # Reset state
+        dm.scheduled_tasks = []  # Reset state
         dm.pending_queue.clear()
         dm.active_downloads.clear()
         return dm
 
+
 def test_schedule_download(mock_dm):
     mock_callback = MagicMock()
-    future_time = time.time() + 10 # 10 seconds in future
+    future_time = time.time() + 10  # 10 seconds in future
 
     task_id = mock_dm.schedule_download(
         timestamp=future_time,
@@ -33,12 +35,13 @@ def test_schedule_download(mock_dm):
         format_id="best",
         title="Test Video",
         ext="mp4",
-        progress_callback=mock_callback
+        progress_callback=mock_callback,
     )
 
     assert len(mock_dm.scheduled_tasks) == 1
-    assert mock_dm.scheduled_tasks[0]['id'] == task_id
-    mock_callback.assert_called_with(None, "Scheduled")
+    assert mock_dm.scheduled_tasks[0]["id"] == task_id
+    mock_callback.assert_called_with(None, Res.get(StringKey.STATUS_SCHEDULED))
+
 
 def test_scheduler_loop_logic(mock_dm):
     # Test the logic inside scheduler loop without running the loop
@@ -49,17 +52,19 @@ def test_scheduler_loop_logic(mock_dm):
     future_time = now + 100
 
     task1 = {
-        'id': '1',
-        'title': 'Past Task',
-        'scheduled_time': past_time,
-        'progress_callback': MagicMock()
+        "id": "1",
+        "title": "Past Task",
+        "scheduled_time": past_time,
+        "progress_callback": MagicMock(),
+        "on_start_callback": None,
     }
 
     task2 = {
-        'id': '2',
-        'title': 'Future Task',
-        'scheduled_time': future_time,
-        'progress_callback': MagicMock()
+        "id": "2",
+        "title": "Future Task",
+        "scheduled_time": future_time,
+        "progress_callback": MagicMock(),
+        "on_start_callback": None,
     }
 
     mock_dm.scheduled_tasks = [task1, task2]
@@ -69,19 +74,54 @@ def test_scheduler_loop_logic(mock_dm):
     with mock_dm.lock:
         remaining = []
         for task in mock_dm.scheduled_tasks:
-            if task['scheduled_time'] <= now:
+            if task["scheduled_time"] <= now:
                 due_tasks.append(task)
             else:
                 remaining.append(task)
         mock_dm.scheduled_tasks = remaining
 
-    for task in due_tasks:
-        mock_dm._enqueue_task(task)
+    with patch.object(mock_dm, "_process_queue") as mock_process_queue:
+        for task in due_tasks:
+            mock_dm._enqueue_task(task)
 
     # Assertions
     assert len(mock_dm.scheduled_tasks) == 1
-    assert mock_dm.scheduled_tasks[0]['id'] == '2'
+    assert mock_dm.scheduled_tasks[0]["id"] == "2"
 
     assert len(mock_dm.pending_queue) == 1
-    assert mock_dm.pending_queue[0]['id'] == '1'
-    assert mock_dm.pending_queue[0]['progress_callback'].call_count >= 1
+    queued_task = mock_dm.pending_queue[0][2]
+    assert queued_task["id"] == "1"
+    assert queued_task["progress_callback"].call_count >= 1
+    mock_process_queue.assert_called_once()
+
+
+def test_set_max_concurrent_processes_queue_without_deadlock(mock_dm):
+    with patch.object(mock_dm, "_start_task") as mock_start:
+        with patch.object(mock_dm, "_process_queue"):
+            mock_dm._enqueue_task(
+                {
+                    "id": "1",
+                    "title": "Queued Task",
+                    "priority": 0,
+                    "progress_callback": MagicMock(),
+                }
+            )
+
+        mock_dm.set_max_concurrent(1)
+
+    mock_start.assert_called_once()
+
+
+def test_pending_queue_uses_priority_order(mock_dm):
+    with patch.object(mock_dm, "_process_queue"):
+        mock_dm._enqueue_task({"id": "low", "title": "Low", "priority": 0})
+        mock_dm._enqueue_task({"id": "high", "title": "High", "priority": 10})
+
+    with (
+        patch.object(mock_dm, "_start_task") as mock_start,
+        patch("bigtube.core.download_manager.ConfigManager.get", return_value=1),
+    ):
+        mock_dm.set_max_concurrent(1)
+
+    mock_start.assert_called_once()
+    assert mock_start.call_args.args[0]["id"] == "high"

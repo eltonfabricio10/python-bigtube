@@ -1,7 +1,7 @@
+import fcntl
 import json
 import os
 import shutil
-import fcntl
 import threading
 from enum import Enum
 from pathlib import Path
@@ -49,9 +49,9 @@ class ConfigManager:
 
     # --- Default Settings ---
     # We use GLib to find the real Downloads folder
-    _DEFAULT_DOWNLOAD_DIR = GLib.get_user_special_dir(
-        GLib.UserDirectory.DIRECTORY_DOWNLOAD
-    ) or str(Path.home() / Res.get(StringKey.NAV_DOWNLOADS))
+    _DEFAULT_DOWNLOAD_DIR = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DOWNLOAD) or str(
+        Path.home() / Res.get(StringKey.NAV_DOWNLOADS)
+    )
 
     _DEFAULTS = {
         "download_path": str(Path(_DEFAULT_DOWNLOAD_DIR) / "BigTube"),
@@ -60,7 +60,7 @@ class ConfigManager:
         "default_quality": VideoQuality.ASK.value,
         "max_concurrent_downloads": 3,
         "add_metadata": False,
-        "download_subtitles": False,
+        "embed_subtitles": False,
         "save_history": True,
         "save_search_history": True,
         "enable_suggestions": True,
@@ -77,11 +77,14 @@ class ConfigManager:
         "post_process_cmd": "",
         "cookies_file": "",
         "cookies_browser": "",
-        "user_agent": ""
+        "user_agent": "",
     }
 
     _data = {}
     _lock = threading.RLock()
+    _ALIASES = {
+        "download_subtitles": "embed_subtitles",
+    }
 
     @classmethod
     def ensure_dirs(cls):
@@ -108,7 +111,7 @@ class ConfigManager:
                 return
 
             try:
-                with open(cls.CONFIG_FILE, encoding='utf-8') as f:
+                with open(cls.CONFIG_FILE, encoding="utf-8") as f:
                     fcntl.flock(f.fileno(), fcntl.LOCK_SH)
                     try:
                         content = f.read().strip()
@@ -123,6 +126,7 @@ class ConfigManager:
                     # Merge defaults with loaded data
                     cls._data = cls._DEFAULTS.copy()
                     cls._data.update(loaded_data)
+                    cls._migrate_aliases()
 
             except (json.JSONDecodeError, ValueError, OSError) as e:
                 logger.warning(f"Config corruption detected ({e}). Resetting...")
@@ -137,7 +141,7 @@ class ConfigManager:
                 cls.CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
             try:
-                with open(cls.CONFIG_FILE, 'w', encoding='utf-8') as f:
+                with open(cls.CONFIG_FILE, "w", encoding="utf-8") as f:
                     fcntl.flock(f.fileno(), fcntl.LOCK_EX)
                     try:
                         json.dump(cls._data, f, indent=4, ensure_ascii=False)
@@ -155,6 +159,7 @@ class ConfigManager:
         with cls._lock:
             if not cls._data:
                 cls.load()
+            key = cls._ALIASES.get(key, key)
             return cls._data.get(key, cls._DEFAULTS.get(key))
 
     @classmethod
@@ -168,8 +173,10 @@ class ConfigManager:
             if not cls._data:
                 cls.load()
 
+            key = cls._ALIASES.get(key, key)
+
             # If an Enum object is passed, store its string value
-            if hasattr(value, 'value'):
+            if hasattr(value, "value"):
                 value = value.value
 
             # Optimization: Only save if the value is different
@@ -188,7 +195,8 @@ class ConfigManager:
 
             changed = False
             for key, value in updates.items():
-                if hasattr(value, 'value'):
+                key = cls._ALIASES.get(key, key)
+                if hasattr(value, "value"):
                     value = value.value
                 if cls._data.get(key) != value:
                     cls._data[key] = value
@@ -196,6 +204,14 @@ class ConfigManager:
 
             if changed:
                 cls.save()
+
+    @classmethod
+    def _migrate_aliases(cls):
+        """Migrates legacy config keys to their canonical names."""
+        for old_key, new_key in cls._ALIASES.items():
+            if old_key in cls._data and new_key not in cls._data:
+                cls._data[new_key] = cls._data[old_key]
+            cls._data.pop(old_key, None)
 
     @classmethod
     def reset_all(cls):
@@ -214,7 +230,7 @@ class ConfigManager:
                 cls.CONFIG_FILE,
                 cls.CONFIG_DIR / "history.json",
                 cls.CONFIG_DIR / "search_history.json",
-                cls.CONFIG_DIR / "converter_history.json"
+                cls.CONFIG_DIR / "converter_history.json",
             ]
 
             for f in files_to_delete:
@@ -255,7 +271,9 @@ class ConfigManager:
         """Returns a cached copy of os.environ with BIN_DIR prepended to PATH."""
         if cls._cached_env is None:
             cls._cached_env = os.environ.copy()
-            cls._cached_env["PATH"] = str(cls.BIN_DIR) + os.pathsep + cls._cached_env.get("PATH", "")
+            cls._cached_env["PATH"] = (
+                str(cls.BIN_DIR) + os.pathsep + cls._cached_env.get("PATH", "")
+            )
         return cls._cached_env
 
     @classmethod

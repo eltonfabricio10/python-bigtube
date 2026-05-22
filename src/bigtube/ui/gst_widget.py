@@ -1,27 +1,29 @@
 # ruff: noqa: E402
 import gi
 
-gi.require_version('Gst', '1.0')
-gi.require_version('Gtk', '4.0')
+gi.require_version("Gst", "1.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import GLib, GObject, Gst, Gtk
 
 from ..core.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 class GstWidget(Gtk.Box):
     """
     GTK4 Widget that wraps GStreamer using gtk4paintablesink.
     """
-    __gtype_name__ = 'GstWidget'
+
+    __gtype_name__ = "GstWidget"
 
     __gsignals__ = {
-        'time-changed': (GObject.SIGNAL_RUN_FIRST, None, (float,)),
-        'duration-changed': (GObject.SIGNAL_RUN_FIRST, None, (float,)),
-        'video-ended': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'video-ready': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'state-changed': (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
-        'error': (GObject.SIGNAL_RUN_FIRST, None, (str,)),
+        "time-changed": (GObject.SIGNAL_RUN_FIRST, None, (float,)),
+        "duration-changed": (GObject.SIGNAL_RUN_FIRST, None, (float,)),
+        "video-ended": (GObject.SIGNAL_RUN_FIRST, None, ()),
+        "video-ready": (GObject.SIGNAL_RUN_FIRST, None, ()),
+        "state-changed": (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
+        "error": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
     }
 
     def __init__(self):
@@ -60,7 +62,7 @@ class GstWidget(Gtk.Box):
                 logger.warning("gtk4paintablesink not found. GStreamer fallback might be limited.")
                 # We could try gtksink here, but Gtk.Picture won't work with it easily in GTK4
                 # For now, let's signal an error if we can't find the modern sink
-                GLib.idle_add(self.emit, 'error', "gtk4paintablesink missing")
+                GLib.idle_add(self.emit, "error", "gtk4paintablesink missing")
 
             # Bus for messages
             bus = self.pipeline.get_bus()
@@ -72,7 +74,7 @@ class GstWidget(Gtk.Box):
 
         except Exception as e:
             logger.error(f"GStreamer setup failed: {e}")
-            self.emit('error', str(e))
+            self.emit("error", str(e))
 
     def _on_bus_message(self, bus, message):
         t = message.type
@@ -85,7 +87,7 @@ class GstWidget(Gtk.Box):
         elif t == Gst.MessageType.STATE_CHANGED:
             if message.src == self.pipeline:
                 old, new, pending = message.parse_state_changed()
-                is_playing = (new == Gst.State.PLAYING)
+                is_playing = new == Gst.State.PLAYING
                 self.emit("state-changed", is_playing)
                 if new == Gst.State.PLAYING:
                     self.emit("video-ready")
@@ -144,7 +146,9 @@ class GstWidget(Gtk.Box):
 
     def seek(self, seconds):
         if self.pipeline:
-            self.pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, seconds * Gst.SECOND)
+            self.pipeline.seek_simple(
+                Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, seconds * Gst.SECOND
+            )
 
     def set_volume(self, volume):
         """volume is 0.0 to 1.0"""

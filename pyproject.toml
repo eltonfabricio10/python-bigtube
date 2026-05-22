@@ -51,6 +51,11 @@ select = [
 ]
 ignore = ["E501"]  # line length handled by formatter
 
+[tool.ruff.lint.per-file-ignores]
+# gi.require_version() must run before gi.repository imports
+"src/bigtube/**" = ["E402"]
+"scripts/**" = ["UP009"]
+
 [tool.ruff.format]
 quote-style = "double"
 

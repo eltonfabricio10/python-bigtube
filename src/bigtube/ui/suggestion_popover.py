@@ -1,7 +1,7 @@
 # ruff: noqa: E402
 import gi
 
-gi.require_version('Gtk', '4.0')
+gi.require_version("Gtk", "4.0")
 from gi.repository import GObject, Gtk
 
 from ..core.logger import get_logger
@@ -14,9 +14,10 @@ class SuggestionPopover(Gtk.Popover):
     """
     A floating popup that displays search suggestions.
     """
+
     __gsignals__ = {
-        'suggestion-selected': (GObject.SIGNAL_RUN_FIRST, None, (str,)),
-        'suggestion-removed': (GObject.SIGNAL_RUN_FIRST, None, (str,))
+        "suggestion-selected": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
+        "suggestion-removed": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
     }
 
     _MAX_HEIGHT = 190
@@ -126,7 +127,7 @@ class SuggestionPopover(Gtk.Popover):
 
     def _on_delete_clicked(self, button, text):
         """Triggered when user clicks the small X on a suggestion."""
-        self.emit('suggestion-removed', text)
+        self.emit("suggestion-removed", text)
 
     def update_popover(self):
         # 4. Width Calculation
@@ -147,7 +148,7 @@ class SuggestionPopover(Gtk.Popover):
 
     def _on_row_clicked(self, listbox, row):
         """Triggered when user clicks a suggestion."""
-        if hasattr(row, '_suggestion_text'):
+        if hasattr(row, "_suggestion_text"):
             text = row._suggestion_text
-            self.emit('suggestion-selected', text)
+            self.emit("suggestion-selected", text)
             self.popdown()

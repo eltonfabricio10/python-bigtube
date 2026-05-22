@@ -21,12 +21,12 @@ logger = get_logger(__name__)
 
 # Path to the .ui file
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-UI_FILE = os.path.join(BASE_DIR, 'data', 'converter_row.ui')
+UI_FILE = os.path.join(BASE_DIR, "data", "converter_row.ui")
 
 
 @Gtk.Template(filename=UI_FILE)
 class ConverterRow(Gtk.Box):
-    __gtype_name__ = 'BigTubeConverterRow'
+    __gtype_name__ = "BigTubeConverterRow"
 
     # UI Bindings
     lbl_filename = Gtk.Template.Child()
@@ -51,7 +51,7 @@ class ConverterRow(Gtk.Box):
         on_play_callback=None,
         initial_output_path=None,
         on_conversion_requested=None,
-        on_conversion_finished=None
+        on_conversion_finished=None,
     ):
         super().__init__()
 
@@ -68,7 +68,7 @@ class ConverterRow(Gtk.Box):
 
         # Detect Media Type (Video vs Audio)
         mime_type, _ = mimetypes.guess_type(file_path)
-        self.is_video = mime_type and mime_type.startswith('video')
+        self.is_video = mime_type and mime_type.startswith("video")
 
         # Initial UI Setup
         self.lbl_filename.set_label(os.path.basename(file_path))
@@ -153,10 +153,11 @@ class ConverterRow(Gtk.Box):
                     self._on_remove_clicked(None)
 
             MessageManager.show_custom_dialog(
-                title, body,
+                title,
+                body,
                 {"remove": txt_remove, "cancel": txt_cancel},
                 _on_response,
-                destructive_id="remove"
+                destructive_id="remove",
             )
             return
 
@@ -177,12 +178,12 @@ class ConverterRow(Gtk.Box):
         self.lbl_status.set_label(text)
 
         if is_active:
-             self.progress_bar.set_visible(True)
-             self._set_converting(True)
+            self.progress_bar.set_visible(True)
+            self._set_converting(True)
         elif is_queued:
-             self.btn_convert.set_sensitive(False)
-             self.combo_format.set_sensitive(False)
-             self.btn_remove.set_sensitive(True)
+            self.btn_convert.set_sensitive(False)
+            self.combo_format.set_sensitive(False)
+            self.btn_remove.set_sensitive(True)
 
     def start_conversion(self, target_format, add_metadata, add_subtitles):
         """Starts the actual conversion thread."""
@@ -192,11 +193,12 @@ class ConverterRow(Gtk.Box):
         threading.Thread(
             target=self._run_conversion,
             args=(target_format, add_metadata, add_subtitles),
-            daemon=True
+            daemon=True,
         ).start()
 
     def _run_conversion(self, target_format, add_metadata, add_subtitles):
         try:
+
             def update_progress(p, speed=None, eta=None):
                 GLib.idle_add(self._update_ui_progress, p, speed, eta)
 
@@ -206,7 +208,7 @@ class ConverterRow(Gtk.Box):
                 update_progress,
                 add_metadata=add_metadata,
                 add_subtitles=add_subtitles,
-                cancel_event=self.cancel_event
+                cancel_event=self.cancel_event,
             )
             GLib.idle_add(self._on_success, output_path, target_format)
         except InterruptedError:
@@ -332,14 +334,11 @@ class ConverterRow(Gtk.Box):
                 self._on_remove_clicked(None)
 
         MessageManager.show_custom_dialog(
-            title, body,
-            {
-                "reconvert": txt_reconvert,
-                "remove": txt_remove,
-                "cancel": txt_cancel
-            },
+            title,
+            body,
+            {"reconvert": txt_reconvert, "remove": txt_remove, "cancel": txt_cancel},
             _on_response,
-            destructive_id="remove"
+            destructive_id="remove",
         )
         return False
 
@@ -356,11 +355,21 @@ class ConverterRow(Gtk.Box):
 
         # 1. Try DBus (The cleanest way for GNOME/KDE/XFCE)
         try:
-            subprocess.run([
-                "dbus-send", "--session", "--print-reply", "--dest=org.freedesktop.FileManager1",
-                "/org/freedesktop/FileManager1", "org.freedesktop.FileManager1.ShowItems",
-                f"array:string:file://{abs_path}", "string:"
-            ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(
+                [
+                    "dbus-send",
+                    "--session",
+                    "--print-reply",
+                    "--dest=org.freedesktop.FileManager1",
+                    "/org/freedesktop/FileManager1",
+                    "org.freedesktop.FileManager1.ShowItems",
+                    f"array:string:file://{abs_path}",
+                    "string:",
+                ],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
             return
         except (subprocess.CalledProcessError, FileNotFoundError):
             pass

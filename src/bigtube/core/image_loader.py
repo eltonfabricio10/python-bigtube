@@ -6,9 +6,10 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 
 import gi
-gi.require_version('GdkPixbuf', '2.0')
-gi.require_version('Gtk', '4.0')
-from gi.repository import GdkPixbuf, GLib, Gtk
+
+gi.require_version("GdkPixbuf", "2.0")
+gi.require_version("Gtk", "4.0")
+from gi.repository import GdkPixbuf, GLib, Gtk  # noqa: E402
 
 
 class LRUCache:
@@ -51,18 +52,38 @@ class ImageLoader:
 
     # LRU Memory Cache with max 100 images
     _memory_cache = LRUCache(maxsize=100)
+    _scaled_cache = LRUCache(maxsize=200)
 
     # Disk cache directory
     _cache_dir = Path(GLib.get_user_cache_dir()) / "bigtube" / "thumbnails"
+    _MAX_DISK_CACHE_FILES = 500
 
-    # Pending requests tracker (prevents duplicate concurrent downloads)
-    _pending_urls = set()
+    # Pending requests tracker (deduplicates downloads and fans out to waiting widgets)
+    _pending_urls = {}
     _pending_lock = threading.Lock()
 
     @classmethod
     def _ensure_cache_dir(cls):
         """Creates the disk cache directory if it doesn't exist."""
         cls._cache_dir.mkdir(parents=True, exist_ok=True)
+
+    @classmethod
+    def _prune_disk_cache(cls):
+        """Keeps the thumbnail cache bounded by removing oldest files."""
+        try:
+            if not cls._cache_dir.exists():
+                return
+
+            files = [file for file in cls._cache_dir.iterdir() if file.is_file()]
+            overflow = len(files) - cls._MAX_DISK_CACHE_FILES
+            if overflow <= 0:
+                return
+
+            files.sort(key=lambda file: file.stat().st_mtime)
+            for file in files[:overflow]:
+                file.unlink(missing_ok=True)
+        except Exception:
+            pass
 
     @classmethod
     def _get_cache_path(cls, url: str) -> Path:
@@ -78,30 +99,39 @@ class ImageLoader:
         Skips if URL is already being loaded (deduplication).
         """
         # 1. Validation
-        if not url or not isinstance(url, str) or not url.startswith('http'):
+        if not url or not isinstance(url, str) or not url.startswith("http"):
             cls._set_fallback(image_widget, width)
             return
 
-        # 2. Check Memory Cache (Hit) - Instant Load
-        cached_pb = cls._memory_cache.get(url)
-        if cached_pb:
-            scaled_pb = cached_pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
+        scaled_key = (url, width, height)
+
+        # 2. Check scaled Memory Cache (Hit) - Instant Load
+        scaled_pb = cls._scaled_cache.get(scaled_key)
+        if scaled_pb:
             image_widget.set_from_pixbuf(scaled_pb)
             return
 
-        # 3. Check if already loading (deduplication)
+        # 3. Check source Memory Cache (Hit) - Instant Resize
+        cached_pb = cls._memory_cache.get(url)
+        if cached_pb:
+            scaled_pb = cached_pb.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
+            cls._scaled_cache.set(scaled_key, scaled_pb)
+            image_widget.set_from_pixbuf(scaled_pb)
+            return
+
+        # 4. Check if already loading (deduplication)
         with cls._pending_lock:
             if url in cls._pending_urls:
-                # Already loading, set placeholder and let the original request handle it
+                cls._pending_urls[url].append((image_widget, width, height))
                 cls._set_fallback(image_widget, width)
                 return
-            cls._pending_urls.add(url)
+            cls._pending_urls[url] = [(image_widget, width, height)]
 
-        # 4. Cache Miss - Schedule Download (checks disk cache in thread)
-        cls._executor.submit(cls._download_task, url, image_widget, width, height)
+        # 5. Cache Miss - Schedule Download (checks disk cache in thread)
+        cls._executor.submit(cls._download_task, url)
 
     @classmethod
-    def _download_task(cls, url: str, image_widget: Gtk.Image, width: int, height: int):
+    def _download_task(cls, url: str):
         """
         Background task: Check disk cache -> Download -> Decode -> Resize -> Cache -> Update UI.
         """
@@ -121,7 +151,7 @@ class ImageLoader:
 
             # 2. Network Request if not in disk cache
             if not pixbuf:
-                req = Request(url, headers={'User-Agent': 'Mozilla/5.0 (compatible; BigTube/1.0)'})
+                req = Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; BigTube/1.0)"})
                 with urlopen(req, timeout=10) as response:
                     data = response.read()
 
@@ -137,28 +167,35 @@ class ImageLoader:
                 # Save to disk cache
                 try:
                     pixbuf.savev(str(cache_path), "jpeg", ["quality"], ["85"])
+                    cls._prune_disk_cache()
                 except Exception:
                     pass  # Disk cache write failure is not critical
 
             # 3. Store in memory cache
             cls._memory_cache.set(url, pixbuf)
 
-            # 4. Resize for Target Widget
-            final_pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
+            with cls._pending_lock:
+                waiters = cls._pending_urls.pop(url, [])
 
-            # 5. Update UI (Must be on Main Thread with safety check)
-            GLib.idle_add(cls._update_widget_safely, image_widget, final_pixbuf, width)
+            for image_widget, width, height in waiters:
+                scaled_key = (url, width, height)
+                final_pixbuf = cls._scaled_cache.get(scaled_key)
+                if not final_pixbuf:
+                    final_pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
+                    cls._scaled_cache.set(scaled_key, final_pixbuf)
+                GLib.idle_add(cls._update_widget_safely, image_widget, final_pixbuf, width)
 
         except Exception:
-            GLib.idle_add(cls._set_fallback, image_widget, width)
-
-        finally:
-            # Remove from pending set (allows future requests for same URL)
             with cls._pending_lock:
-                cls._pending_urls.discard(url)
+                waiters = cls._pending_urls.pop(url, [])
+
+            for image_widget, width, _height in waiters:
+                GLib.idle_add(cls._set_fallback, image_widget, width)
 
     @staticmethod
-    def _update_widget_safely(image_widget: Gtk.Image, pixbuf: GdkPixbuf.Pixbuf, fallback_size: int):
+    def _update_widget_safely(
+        image_widget: Gtk.Image, pixbuf: GdkPixbuf.Pixbuf, fallback_size: int
+    ):
         """Updates widget only if it's still valid and attached to a parent."""
         try:
             # Check if widget is still valid (not destroyed and has parent)
@@ -174,7 +211,7 @@ class ImageLoader:
         """Sets a default icon when image fails to load."""
         try:
             if image_widget and image_widget.get_parent() is not None:
-                image_widget.set_from_icon_name('image-missing-symbolic')
+                image_widget.set_from_icon_name("image-missing-symbolic")
                 image_widget.set_pixel_size(size)
         except Exception:
             pass
@@ -185,6 +222,7 @@ class ImageLoader:
         """Cleanly shuts down the thread pool and clears caches."""
         cls._executor.shutdown(wait=False, cancel_futures=True)
         cls._memory_cache.clear()
+        cls._scaled_cache.clear()
 
     @classmethod
     def clear_disk_cache(cls):

@@ -2,7 +2,7 @@
 
 import gi
 
-gi.require_version('Gdk', '4.0')
+gi.require_version("Gdk", "4.0")
 from gi.repository import Gdk, GLib
 
 from .logger import get_logger
@@ -10,11 +10,13 @@ from .validators import is_valid_url
 
 logger = get_logger(__name__)
 
+
 class ClipboardMonitor:
     """
     Monitors the system clipboard for valid URLs.
     Emits a callback when a new valid URL is found.
     """
+
     def __init__(self, on_url_found_callback):
         self.on_url_found_callback = on_url_found_callback
         self.last_text = ""
@@ -36,10 +38,10 @@ class ClipboardMonitor:
 
     def _check_clipboard(self):
         if not self.is_running:
-            return False # Stop timer
+            return False  # Stop timer
 
         self.clipboard.read_text_async(None, self._on_read_text)
-        return True # Continue timer
+        return True  # Continue timer
 
     def _on_read_text(self, clipboard, result):
         try:

@@ -37,70 +37,69 @@ LANG_MAP = {
     # ==========================================
     # Americas & Iberian Peninsula
     # ==========================================
-    'en_US': 'en',     # English (USA)
-    'pt_BR': 'pt',     # Portuguese (Brazil)
-    'pt_PT': 'pt',     # Portuguese (Portugal)
-    'es_ES': 'es',     # Spanish (Spain)
-    'es_MX': 'es',     # Spanish (Mexico)
-    'es_AR': 'es',     # Spanish (Argentina)
-
+    "en_US": "en",  # English (USA)
+    "pt_BR": "pt",  # Portuguese (Brazil)
+    "pt_PT": "pt",  # Portuguese (Portugal)
+    "es_ES": "es",  # Spanish (Spain)
+    "es_MX": "es",  # Spanish (Mexico)
+    "es_AR": "es",  # Spanish (Argentina)
     # ==========================================
     # Western & Central Europe
     # ==========================================
-    'fr_FR': 'fr',     # French
-    'de_DE': 'de',     # German
-    'it_IT': 'it',     # Italian
-    'nl_NL': 'nl',     # Dutch
-    'pl_PL': 'pl',     # Polish
-    'cs_CZ': 'cs',     # Czech
-    'hu_HU': 'hu',     # Hungarian
-    'ro_RO': 'ro',     # Romanian
-    'sk_SK': 'sk',     # Slovak
-
-#    # ==========================================
-#    # Nordic Countries
-#    # ==========================================
-#    'sv_SE': 'sv',     # Swedish
-#    'da_DK': 'da',     # Danish
-#    'no_NO': 'no',     # Norwegian
-#    'fi_FI': 'fi',     # Finnish
-#
-#    # ==========================================
-#    # Eastern Europe & Balkans
-#    # ==========================================
-#    'ru_RU': 'ru',     # Russian
-#    'uk_UA': 'uk',     # Ukrainian
-#    'bg_BG': 'bg',     # Bulgarian
-#    'el_GR': 'el',     # Greek
-#    'hr_HR': 'hr',     # Croatian
-#    'sr_RS': 'sr',     # Serbian
-#
-#    # ==========================================
-#    # Asia & Pacific
-#    # ==========================================
-#    'zh_CN': 'zh-CN',  # Chinese (Simplified)
-#    'zh_TW': 'zh-TW',  # Chinese (Traditional)
-#    'ja_JP': 'ja',     # Japanese
-#    'ko_KR': 'ko',     # Korean
-#    'vi_VN': 'vi',     # Vietnamese
-#    'th_TH': 'th',     # Thai
-#    'id_ID': 'id',     # Indonesian
-#    'ms_MY': 'ms',     # Malay
-#    'tl_PH': 'tl',     # Tagalog / Filipino
-#
-#    # ==========================================
-#    # Middle East, Africa & India
-#    # ==========================================
-#    'ar_AE': 'ar',     # Arabic (UAE)
-#    'ar_SA': 'ar',     # Arabic (Saudi Arabia)
-#    'he_IL': 'he',     # Hebrew
-#    'tr_TR': 'tr',     # Turkish
-#    'fa_IR': 'fa',     # Persian
-#    'hi_IN': 'hi',     # Hindi
-#    'bn_IN': 'bn',     # Bengali
-#    'ur_PK': 'ur',     # Urdu
-#    'sw_KE': 'sw'      # Swahili
+    "fr_FR": "fr",  # French
+    "de_DE": "de",  # German
+    "it_IT": "it",  # Italian
+    "nl_NL": "nl",  # Dutch
+    "pl_PL": "pl",  # Polish
+    "cs_CZ": "cs",  # Czech
+    "hu_HU": "hu",  # Hungarian
+    "ro_RO": "ro",  # Romanian
+    "sk_SK": "sk",  # Slovak
+    #    # ==========================================
+    #    # Nordic Countries
+    #    # ==========================================
+    #    'sv_SE': 'sv',     # Swedish
+    #    'da_DK': 'da',     # Danish
+    #    'no_NO': 'no',     # Norwegian
+    #    'fi_FI': 'fi',     # Finnish
+    #
+    #    # ==========================================
+    #    # Eastern Europe & Balkans
+    #    # ==========================================
+    #    'ru_RU': 'ru',     # Russian
+    #    'uk_UA': 'uk',     # Ukrainian
+    #    'bg_BG': 'bg',     # Bulgarian
+    #    'el_GR': 'el',     # Greek
+    #    'hr_HR': 'hr',     # Croatian
+    #    'sr_RS': 'sr',     # Serbian
+    #
+    #    # ==========================================
+    #    # Asia & Pacific
+    #    # ==========================================
+    #    'zh_CN': 'zh-CN',  # Chinese (Simplified)
+    #    'zh_TW': 'zh-TW',  # Chinese (Traditional)
+    #    'ja_JP': 'ja',     # Japanese
+    #    'ko_KR': 'ko',     # Korean
+    #    'vi_VN': 'vi',     # Vietnamese
+    #    'th_TH': 'th',     # Thai
+    #    'id_ID': 'id',     # Indonesian
+    #    'ms_MY': 'ms',     # Malay
+    #    'tl_PH': 'tl',     # Tagalog / Filipino
+    #
+    #    # ==========================================
+    #    # Middle East, Africa & India
+    #    # ==========================================
+    #    'ar_AE': 'ar',     # Arabic (UAE)
+    #    'ar_SA': 'ar',     # Arabic (Saudi Arabia)
+    #    'he_IL': 'he',     # Hebrew
+    #    'tr_TR': 'tr',     # Turkish
+    #    'fa_IR': 'fa',     # Persian
+    #    'hi_IN': 'hi',     # Hindi
+    #    'bn_IN': 'bn',     # Bengali
+    #    'ur_PK': 'ur',     # Urdu
+    #    'sw_KE': 'sw'      # Swahili
 }
+
 
 # =========================================================================
 # Helper Functions
@@ -114,33 +113,38 @@ def run_command(command, quiet=False):
         print(f"[auto_translate] Error: {result.stderr}")
     return result.returncode == 0
 
+
 def protect_placeholders(text):
     """
     Protects Python format variables (e.g., {count}) from being translated
     by replacing them with temporary safe tokens.
     """
-    placeholders = re.findall(r'\{.*?\}', text)
+    placeholders = re.findall(r"\{.*?\}", text)
     safe_text = text
     for i, p in enumerate(placeholders):
-        safe_text = safe_text.replace(p, f'__TOKEN{i}__')
+        safe_text = safe_text.replace(p, f"__TOKEN{i}__")
     return safe_text, placeholders
+
 
 def restore_placeholders(text, placeholders):
     """Restores the original Python format variables into the translated string."""
     for i, p in enumerate(placeholders):
-        text = text.replace(f'__TOKEN{i}__', p)
+        text = text.replace(f"__TOKEN{i}__", p)
     return text
+
 
 def translate_po_file(file_path, target_lang_code):
     """
     Parses a .po file, finds empty translations, translates them via Google API,
     and saves the file back to disk.
     """
-    print(f"\n [auto_translate] Translating new strings in: {file_path.name} (Target: {target_lang_code})")
+    print(
+        f"\n [auto_translate] Translating new strings in: {file_path.name} (Target: {target_lang_code})"
+    )
 
     try:
         po = polib.pofile(str(file_path))
-        translator = GoogleTranslator(source='en', target=target_lang_code)
+        translator = GoogleTranslator(source="en", target=target_lang_code)
 
         translated_count = 0
 
@@ -160,10 +164,10 @@ def translate_po_file(file_path, target_lang_code):
                     final_translation = restore_placeholders(translated_safe, placeholders)
 
                     # 4. FIX: Preserve trailing and leading newlines for msgfmt strictness
-                    if original_text.endswith('\n') and not final_translation.endswith('\n'):
-                        final_translation += '\n'
-                    if original_text.startswith('\n') and not final_translation.startswith('\n'):
-                        final_translation = '\n' + final_translation
+                    if original_text.endswith("\n") and not final_translation.endswith("\n"):
+                        final_translation += "\n"
+                    if original_text.startswith("\n") and not final_translation.startswith("\n"):
+                        final_translation = "\n" + final_translation
 
                     entry.msgstr = final_translation
                     translated_count += 1
@@ -182,6 +186,7 @@ def translate_po_file(file_path, target_lang_code):
 
     except Exception as e:
         print(f"[auto_translate] Fatal error processing {file_path.name}: {e}")
+
 
 # =========================================================================
 # Main Workflow (Extract -> Init -> Merge -> Translate)
@@ -224,17 +229,25 @@ def main():
     print("\n [auto_translate] PHASE 1: Extracting strings from source code...")
     if py_files:
         python_cmd = [
-            "xgettext", "--language=Python", "--from-code=UTF-8",
-            f"--output={POT_FILE}", "--keyword=_", "--keyword=N_",
-            "--add-comments=TRANSLATORS:", f"--package-name={APP_NAME}"
+            "xgettext",
+            "--language=Python",
+            "--from-code=UTF-8",
+            f"--output={POT_FILE}",
+            "--keyword=_",
+            "--keyword=N_",
+            "--add-comments=TRANSLATORS:",
+            f"--package-name={APP_NAME}",
         ] + py_files
         run_command(python_cmd)
 
     if ui_files:
         ui_cmd = [
-            "xgettext", "--language=Glade", "--from-code=UTF-8",
-            f"--output={POT_FILE}", "--join-existing",
-            "--add-comments=TRANSLATORS:"
+            "xgettext",
+            "--language=Glade",
+            "--from-code=UTF-8",
+            f"--output={POT_FILE}",
+            "--join-existing",
+            "--add-comments=TRANSLATORS:",
         ] + ui_files
         run_command(ui_cmd)
 
@@ -254,7 +267,7 @@ def main():
                 "--no-translator",
                 f"--input={POT_FILE}",
                 f"--locale={lang_code}",
-                f"--output={po_path}"
+                f"--output={po_path}",
             ]
             run_command(init_cmd, quiet=True)
 
@@ -274,10 +287,11 @@ def main():
         po_path = PO_DIR / file
         lang_id = file.replace(".po", "")
 
-        target_lang = LANG_MAP.get(lang_id, lang_id.split('_')[0])
+        target_lang = LANG_MAP.get(lang_id, lang_id.split("_")[0])
         translate_po_file(po_path, target_lang)
 
     print("\n [auto_translate] Process Complete! Your codebase is synced and translated.")
+
 
 if __name__ == "__main__":
     main()

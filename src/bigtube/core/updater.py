@@ -37,10 +37,7 @@ class Updater:
         try:
             # Exec: ./yt-dlp --version
             result = subprocess.run(
-                [str(binary_path), "--version"],
-                capture_output=True,
-                text=True,
-                check=False
+                [str(binary_path), "--version"], capture_output=True, text=True, check=False
             )
             if result.returncode == 0:
                 return result.stdout.strip()
@@ -66,7 +63,7 @@ class Updater:
                 data = response.read()
 
             # 2. Write to file
-            with open(target_path, 'wb') as out_file:
+            with open(target_path, "wb") as out_file:
                 out_file.write(data)
 
             # 3. Grant Execution Permissions (chmod +x)
@@ -100,7 +97,7 @@ class Updater:
             with zipfile.ZipFile(io.BytesIO(zip_data)) as z:
                 # The zip contains a file named 'deno' (no extension on Linux)
                 if "deno" in z.namelist():
-                    with z.open("deno") as zf, open(target_path, 'wb') as f:
+                    with z.open("deno") as zf, open(target_path, "wb") as f:
                         f.write(zf.read())
                 else:
                     raise FileNotFoundError("deno binary not found in downloaded zip")

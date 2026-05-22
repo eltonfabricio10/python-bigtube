@@ -34,5 +34,6 @@ class TestLogger(unittest.TestCase):
         BigTubeLogger.setup()
         self.assertEqual(BigTubeLogger._console_handler.level, logging.INFO)
 
+
 if __name__ == "__main__":
     unittest.main()

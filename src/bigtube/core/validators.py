@@ -27,16 +27,18 @@ logger = get_logger(__name__)
 # Timeout constants (in seconds)
 class Timeouts:
     """Centralized timeout configuration."""
+
     SUBPROCESS_DEFAULT = 300  # 5 minutes for downloads
     SUBPROCESS_METADATA = 60  # 1 minute for metadata fetch
-    SUBPROCESS_SEARCH = 45    # 45 seconds for search
-    NETWORK_DOWNLOAD = 30     # 30 seconds for binary downloads
-    STREAM_EXTRACTION = 30    # 30 seconds for stream URL extraction
+    SUBPROCESS_SEARCH = 45  # 45 seconds for search
+    NETWORK_DOWNLOAD = 30  # 30 seconds for binary downloads
+    STREAM_EXTRACTION = 30  # 30 seconds for stream URL extraction
 
 
 # Retry configuration
 class RetryConfig:
     """Default retry configuration."""
+
     MAX_ATTEMPTS = 3
     BASE_DELAY = 1.0  # seconds
     MAX_DELAY = 30.0  # seconds
@@ -50,43 +52,43 @@ class RetryConfig:
 # Patterns for supported URLs
 URL_PATTERNS = [
     # YouTube
-    r'^https?://(www\.)?youtube\.com/watch\?v=[\w-]+',
-    r'^https?://(www\.)?youtu\.be/[\w-]+',
-    r'^https?://(www\.)?youtube\.com/shorts/[\w-]+',
-    r'^https?://(www\.)?youtube\.com/playlist\?list=[\w-]+',
-    r'^https?://music\.youtube\.com/watch\?v=[\w-]+',
+    r"^https?://(www\.)?youtube\.com/watch\?v=[\w-]+",
+    r"^https?://(www\.)?youtu\.be/[\w-]+",
+    r"^https?://(www\.)?youtube\.com/shorts/[\w-]+",
+    r"^https?://(www\.)?youtube\.com/playlist\?list=[\w-]+",
+    r"^https?://music\.youtube\.com/watch\?v=[\w-]+",
     # SoundCloud
-    r'^https?://(www\.)?soundcloud\.com/[\w-]+/[\w-]+',
+    r"^https?://(www\.)?soundcloud\.com/[\w-]+/[\w-]+",
     # Vimeo
-    r'^https?://(www\.)?vimeo\.com/\d+',
-    r'^https?://player\.vimeo\.com/video/\d+',
+    r"^https?://(www\.)?vimeo\.com/\d+",
+    r"^https?://player\.vimeo\.com/video/\d+",
     # Dailymotion
-    r'^https?://(www\.)?dailymotion\.com/video/[\w-]+',
+    r"^https?://(www\.)?dailymotion\.com/video/[\w-]+",
     # Twitch
-    r'^https?://(www\.)?twitch\.tv/[\w-]+',
-    r'^https?://(www\.)?twitch\.tv/videos/\d+',
-    r'^https?://clips\.twitch\.tv/[\w-]+',
+    r"^https?://(www\.)?twitch\.tv/[\w-]+",
+    r"^https?://(www\.)?twitch\.tv/videos/\d+",
+    r"^https?://clips\.twitch\.tv/[\w-]+",
     # TikTok
-    r'^https?://(www\.)?tiktok\.com/@[\w.-]+/video/\d+',
-    r'^https?://vm\.tiktok\.com/[\w]+',
+    r"^https?://(www\.)?tiktok\.com/@[\w.-]+/video/\d+",
+    r"^https?://vm\.tiktok\.com/[\w]+",
     # Instagram
-    r'^https?://(www\.)?instagram\.com/(p|reel|tv)/[\w-]+',
+    r"^https?://(www\.)?instagram\.com/(p|reel|tv)/[\w-]+",
     # Twitter/X
-    r'^https?://(www\.)?(twitter|x)\.com/\w+/status/\d+',
+    r"^https?://(www\.)?(twitter|x)\.com/\w+/status/\d+",
     # Facebook
-    r'^https?://(www\.|m\.)?facebook\.com/.+/videos/',
-    r'^https?://(www\.)?fb\.watch/[\w]+',
+    r"^https?://(www\.|m\.)?facebook\.com/.+/videos/",
+    r"^https?://(www\.)?fb\.watch/[\w]+",
     # Reddit
-    r'^https?://(www\.)?reddit\.com/r/\w+/comments/',
-    r'^https?://v\.redd\.it/[\w]+',
+    r"^https?://(www\.)?reddit\.com/r/\w+/comments/",
+    r"^https?://v\.redd\.it/[\w]+",
     # Bandcamp
-    r'^https?://[\w-]+\.bandcamp\.com/(track|album)/[\w-]+',
+    r"^https?://[\w-]+\.bandcamp\.com/(track|album)/[\w-]+",
     # Spotify (metadata only usually)
-    r'^https?://open\.spotify\.com/(track|album|playlist)/[\w]+',
+    r"^https?://open\.spotify\.com/(track|album|playlist)/[\w]+",
     # Bilibili
-    r'^https?://(www\.)?bilibili\.com/video/[\w]+',
+    r"^https?://(www\.)?bilibili\.com/video/[\w]+",
     # Generic HTTP/HTTPS URL as fallback
-    r'^https?://',
+    r"^https?://",
 ]
 
 
@@ -179,7 +181,7 @@ def sanitize_url(url: str) -> str:
 
     # Remove tracking parameters (optional, can be expanded)
     # For now, just clean whitespace
-    url = re.sub(r'\s+', '', url)
+    url = re.sub(r"\s+", "", url)
 
     return url
 
@@ -187,6 +189,7 @@ def sanitize_url(url: str) -> str:
 # =============================================================================
 # QUERY SANITIZATION
 # =============================================================================
+
 
 def sanitize_search_query(query: str, max_length: int = 200) -> str:
     """
@@ -207,10 +210,10 @@ def sanitize_search_query(query: str, max_length: int = 200) -> str:
 
     # Remove potentially dangerous characters
     # Keep alphanumeric, spaces, and common punctuation
-    query = re.sub(r'[^\w\s\-.,!?\'\"()&]', '', query, flags=re.UNICODE)
+    query = re.sub(r"[^\w\s\-.,!?\'\"()&]", "", query, flags=re.UNICODE)
 
     # Collapse multiple spaces
-    query = re.sub(r'\s+', ' ', query)
+    query = re.sub(r"\s+", " ", query)
 
     # Truncate to max length
     if len(query) > max_length:
@@ -223,11 +226,12 @@ def sanitize_search_query(query: str, max_length: int = 200) -> str:
 # RETRY DECORATOR
 # =============================================================================
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class RetryError(Exception):
     """Raised when all retry attempts fail."""
+
     def __init__(self, message: str, last_exception: Exception | None = None):
         self.last_exception = last_exception
         super().__init__(message)
@@ -239,7 +243,7 @@ def retry_with_backoff(
     max_delay: float = RetryConfig.MAX_DELAY,
     exponential_base: float = RetryConfig.EXPONENTIAL_BASE,
     exceptions: tuple = (Exception,),
-    on_retry: Callable[[int, Exception], None] | None = None
+    on_retry: Callable[[int, Exception], None] | None = None,
 ):
     """
     Decorator for retrying functions with exponential backoff.
@@ -257,6 +261,7 @@ def retry_with_backoff(
         def fetch_data():
             ...
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @functools.wraps(func)
         def wrapper(*args, **kwargs) -> T:
@@ -269,19 +274,15 @@ def retry_with_backoff(
                     last_exception = e
 
                     if attempt == max_attempts:
-                        logger.error(    # noqa: P101
+                        logger.error(  # noqa: P101
                             f"All {max_attempts} attempts failed for {func.__name__}: {e}"
                         )
                         raise RetryError(
-                            f"Failed after {max_attempts} attempts",
-                            last_exception=e
+                            f"Failed after {max_attempts} attempts", last_exception=e
                         ) from e
 
                     # Calculate delay with exponential backoff
-                    delay = min(
-                        base_delay * (exponential_base ** (attempt - 1)),
-                        max_delay
-                    )
+                    delay = min(base_delay * (exponential_base ** (attempt - 1)), max_delay)
 
                     logger.warning(  # noqa: P101
                         f"Attempt {attempt}/{max_attempts} failed for {func.__name__}: {e}. "
@@ -297,6 +298,7 @@ def retry_with_backoff(
             raise RetryError("Unexpected retry loop exit", last_exception)
 
         return wrapper
+
     return decorator
 
 
@@ -304,11 +306,9 @@ def retry_with_backoff(
 # PROCESS TIMEOUT HELPER
 # =============================================================================
 
+
 def run_subprocess_with_timeout(
-    cmd: list,
-    timeout: int,
-    env: dict = None,
-    capture_output: bool = True
+    cmd: list, timeout: int, env: dict = None, capture_output: bool = True
 ) -> tuple:
     """
     Runs a subprocess with proper timeout handling.
@@ -333,10 +333,10 @@ def run_subprocess_with_timeout(
             cmd,
             capture_output=capture_output,
             text=True,
-            encoding='utf-8',
-            errors='replace',
+            encoding="utf-8",
+            errors="replace",
             timeout=timeout,
-            env=env
+            env=env,
         )
         return result.returncode, result.stdout, result.stderr
 
@@ -348,6 +348,7 @@ def run_subprocess_with_timeout(
 # =============================================================================
 # FILENAME VALIDATION
 # =============================================================================
+
 
 def sanitize_filename(filename: str, max_length: int = 200) -> str:
     """
@@ -366,22 +367,23 @@ def sanitize_filename(filename: str, max_length: int = 200) -> str:
 
     # Replace slashes and backslashes with hyphens to preserve the full title
     # while ensuring it's a safe filename (not a path).
-    filename = filename.replace('/', ' - ').replace('\\', ' - ')
+    filename = filename.replace("/", " - ").replace("\\", " - ")
 
     # Remove/replace invalid characters
     # Keep alphanumeric, spaces, hyphens, underscores, dots, parentheses
-    filename = re.sub(r'[^\w\s\-_().[\]]', '', filename, flags=re.UNICODE)
+    filename = re.sub(r"[^\w\s\-_().[\]]", "", filename, flags=re.UNICODE)
 
     # Remove leading/trailing dots and spaces
-    filename = filename.strip('. ')
+    filename = filename.strip(". ")
 
     # Collapse multiple spaces/dots
-    filename = re.sub(r'\s+', ' ', filename)
-    filename = re.sub(r'\.+', '.', filename)
+    filename = re.sub(r"\s+", " ", filename)
+    filename = re.sub(r"_+", "_", filename)
+    filename = re.sub(r"\.+", ".", filename)
 
     # Truncate
     if len(filename) > max_length:
-        name, ext = filename.rsplit('.', 1) if '.' in filename else (filename, '')
+        name, ext = filename.rsplit(".", 1) if "." in filename else (filename, "")
         max_name_len = max_length - len(ext) - 1
         filename = f"{name[:max_name_len]}.{ext}" if ext else name[:max_length]
 

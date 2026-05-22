@@ -12,7 +12,9 @@ class TestHistoryManager(unittest.TestCase):
         self.test_dir = tempfile.TemporaryDirectory()
         self.history_file = os.path.join(self.test_dir.name, "history.json")
 
-        self.patcher = patch('bigtube.core.history_manager.HistoryManager._FILE_PATH', self.history_file)
+        self.patcher = patch(
+            "bigtube.core.history_manager.HistoryManager._FILE_PATH", self.history_file
+        )
         self.patcher.start()
 
         HistoryManager._cache = None
@@ -29,7 +31,7 @@ class TestHistoryManager(unittest.TestCase):
 
     def test_load_existing(self):
         dummy_data = [{"id": 1, "title": "Test"}]
-        with open(self.history_file, 'w') as f:
+        with open(self.history_file, "w") as f:
             json.dump(dummy_data, f)
 
         history = HistoryManager.load()
@@ -45,5 +47,6 @@ class TestHistoryManager(unittest.TestCase):
             data = json.load(f)
         self.assertEqual(data, dummy_data)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

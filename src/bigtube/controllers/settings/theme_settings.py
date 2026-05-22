@@ -2,7 +2,8 @@
 from gi.repository import Adw
 
 from ...core.config import ConfigManager
-from ...core.enums import ThemeMode, ThemeColor
+from ...core.enums import ThemeColor, ThemeMode
+
 
 class ThemeSettingsController:
     def __init__(self, window, widgets_map):
@@ -12,10 +13,10 @@ class ThemeSettingsController:
 
     def _setup_bindings(self):
         w = self.widgets_map
-        if 'row_theme' in w:
-            w['row_theme'].connect("notify::selected", self._on_theme_changed)
-        if 'row_theme_color' in w:
-            w['row_theme_color'].connect("notify::selected", self._on_theme_color_changed)
+        if "row_theme" in w:
+            w["row_theme"].connect("notify::selected", self._on_theme_changed)
+        if "row_theme_color" in w:
+            w["row_theme_color"].connect("notify::selected", self._on_theme_color_changed)
 
     def _on_theme_changed(self, row, param):
         idx = row.get_selected()
@@ -27,7 +28,7 @@ class ThemeSettingsController:
 
         ConfigManager.set("theme_mode", mode)
 
-        if hasattr(self.window, 'apply_theme'):
+        if hasattr(self.window, "apply_theme"):
             curr_color = ConfigManager.get("theme_color")
             self.window.apply_theme(mode, curr_color)
         else:
@@ -42,16 +43,26 @@ class ThemeSettingsController:
     def _on_theme_color_changed(self, row, param):
         idx = row.get_selected()
         c_map = {
-            0: ThemeColor.DEFAULT, 1: ThemeColor.VIOLET, 2: ThemeColor.EMERALD,
-            3: ThemeColor.SUNBURST, 4: ThemeColor.ROSE, 5: ThemeColor.CYAN,
-            6: ThemeColor.NORDIC, 7: ThemeColor.GRUVBOX, 8: ThemeColor.CATPPUCCIN,
-            9: ThemeColor.DRACULA, 10: ThemeColor.TOKYO_NIGHT, 11: ThemeColor.ROSE_PINE,
-            12: ThemeColor.SOLARIZED, 13: ThemeColor.MONOKAI, 14: ThemeColor.CYBERPUNK,
-            15: ThemeColor.BIGTUBE
+            0: ThemeColor.DEFAULT,
+            1: ThemeColor.VIOLET,
+            2: ThemeColor.EMERALD,
+            3: ThemeColor.SUNBURST,
+            4: ThemeColor.ROSE,
+            5: ThemeColor.CYAN,
+            6: ThemeColor.NORDIC,
+            7: ThemeColor.GRUVBOX,
+            8: ThemeColor.CATPPUCCIN,
+            9: ThemeColor.DRACULA,
+            10: ThemeColor.TOKYO_NIGHT,
+            11: ThemeColor.ROSE_PINE,
+            12: ThemeColor.SOLARIZED,
+            13: ThemeColor.MONOKAI,
+            14: ThemeColor.CYBERPUNK,
+            15: ThemeColor.BIGTUBE,
         }
         new_color = c_map.get(idx, ThemeColor.DEFAULT)
         ConfigManager.set("theme_color", new_color)
 
-        if hasattr(self.window, 'apply_theme'):
+        if hasattr(self.window, "apply_theme"):
             curr_mode = ConfigManager.get("theme_mode")
             self.window.apply_theme(curr_mode, new_color)

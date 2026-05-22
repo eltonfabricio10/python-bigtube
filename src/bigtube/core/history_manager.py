@@ -1,12 +1,11 @@
-import json
 import os
-import fcntl
 import threading
 import time
 
 from gi.repository import GLib
 
 from .enums import DownloadStatus
+from .json_store import load_json, save_json
 from .logger import get_logger
 
 # Module logger
@@ -46,26 +45,10 @@ class HistoryManager:
             if cls._cache is not None:
                 return cls._cache.copy()
 
-        if not os.path.exists(cls._FILE_PATH):
-            with cls._cache_lock:
-                cls._cache = []
-            return []
-
-        try:
-            with open(cls._FILE_PATH, encoding='utf-8') as f:
-                fcntl.flock(f.fileno(), fcntl.LOCK_SH)
-                try:
-                    data = json.load(f)
-                finally:
-                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-                with cls._cache_lock:
-                    cls._cache = data
-                return data.copy()
-        except (json.JSONDecodeError, OSError) as e:
-            logger.error(f"Error loading history file: {e}")
-            with cls._cache_lock:
-                cls._cache = []
-            return []
+        data = load_json(cls._FILE_PATH, [])
+        with cls._cache_lock:
+            cls._cache = data
+        return data.copy()
 
     @classmethod
     def _save_to_disk(cls):
@@ -80,19 +63,8 @@ class HistoryManager:
             cls._pending_save = False
             data_to_save = cls._cache.copy()
 
-        cls._ensure_dir_exists()
-        try:
-            with open(cls._FILE_PATH, 'w', encoding='utf-8') as f:
-                fcntl.flock(f.fileno(), fcntl.LOCK_EX)
-                try:
-                    json.dump(data_to_save, f, indent=2, ensure_ascii=False)
-                    f.flush()
-                    os.fsync(f.fileno())
-                finally:
-                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+        if save_json(cls._FILE_PATH, data_to_save, indent=2):
             logger.debug("History saved to disk")
-        except OSError as e:
-            logger.error(f"Error saving history file: {e}")
 
     @classmethod
     def _schedule_save(cls):
@@ -139,26 +111,25 @@ class HistoryManager:
         history = cls.load()
 
         new_item = {
-            "id": video_info.get('id'),
-            "title": video_info.get('title', 'Unknown Title'),
-            "url": video_info.get('webpage_url', ''),
-            "thumbnail": video_info.get('thumbnail', ''),
-            "uploader": video_info.get('uploader', ''),
+            "id": video_info.get("id"),
+            "title": video_info.get("title", "Unknown Title"),
+            "url": video_info.get("webpage_url", ""),
+            "thumbnail": video_info.get("thumbnail", ""),
+            "uploader": video_info.get("uploader", ""),
             "file_path": file_path,
-            "format_id": format_data.get('format_id'),
-            "ext": format_data.get('ext'),
-
+            "format_id": format_data.get("format_id"),
+            "ext": format_data.get("ext"),
             # Initial State
             "status": DownloadStatus.PENDING.value,
             "progress": 0.0,
-            "timestamp": time.time()
+            "timestamp": time.time(),
         }
 
         # Insert at the beginning (Stack behavior: Newest first)
         history.insert(0, new_item)
 
         # Optional: Limit history size to prevent performance issues
-        history = history[:cls.MAX_HISTORY_SIZE]
+        history = history[: cls.MAX_HISTORY_SIZE]
 
         cls.save_immediate(history)
         return new_item
@@ -231,6 +202,11 @@ class HistoryManager:
             if cls._pending_save and cls._cache is not None:
                 cls._pending_save = False
         cls._save_to_disk()
+
+    @classmethod
+    def force_save(cls):
+        """Backward-compatible alias for immediate cache flushes."""
+        cls.flush()
 
     @classmethod
     def _ensure_dir_exists(cls):

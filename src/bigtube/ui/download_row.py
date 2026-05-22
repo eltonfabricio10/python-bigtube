@@ -21,12 +21,12 @@ logger = get_logger(__name__)
 
 # Path to the .ui file
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-UI_FILE = os.path.join(BASE_DIR, 'data', 'download_row.ui')
+UI_FILE = os.path.join(BASE_DIR, "data", "download_row.ui")
 
 
 @Gtk.Template(filename=UI_FILE)
 class DownloadRow(Gtk.Box):
-    __gtype_name__ = 'BigTubeDownloadRow'
+    __gtype_name__ = "BigTubeDownloadRow"
 
     # UI Bindings
     lbl_title = Gtk.Template.Child()
@@ -43,7 +43,15 @@ class DownloadRow(Gtk.Box):
     btn_cancel = Gtk.Template.Child()
     btn_pause = Gtk.Template.Child()
 
-    def __init__(self, title, filename, full_path, on_play_callback=None, on_remove_callback=None, uploader=""):
+    def __init__(
+        self,
+        title,
+        filename,
+        full_path,
+        on_play_callback=None,
+        on_remove_callback=None,
+        uploader="",
+    ):
         super().__init__()
 
         self.full_path = full_path
@@ -115,7 +123,7 @@ class DownloadRow(Gtk.Box):
             MessageManager.show_confirmation(
                 title=Res.get(StringKey.MSG_FILE_NOT_FOUND_TITLE),
                 body=f"{Res.get(StringKey.MSG_FILE_NOT_FOUND_BODY)}\n{self.full_path}",
-                on_confirm_callback=self._cleanup_partial_files
+                on_confirm_callback=self._cleanup_partial_files,
             )
             return
 
@@ -128,7 +136,7 @@ class DownloadRow(Gtk.Box):
             MessageManager.show_confirmation(
                 title=Res.get(StringKey.MSG_FILE_NOT_FOUND_TITLE),
                 body=f"{Res.get(StringKey.MSG_FILE_NOT_FOUND_BODY)}\n{self.full_path}",
-                on_confirm_callback=self._cleanup_partial_files
+                on_confirm_callback=self._cleanup_partial_files,
             )
             return
 
@@ -208,7 +216,7 @@ class DownloadRow(Gtk.Box):
         try:
             # Parse Percentage
             if isinstance(percent_str, str):
-                clean_pct = percent_str.replace('%', '')
+                clean_pct = percent_str.replace("%", "")
                 val = float(clean_pct) / 100.0
             else:
                 val = float(percent_str)
@@ -216,7 +224,7 @@ class DownloadRow(Gtk.Box):
             self.progress_bar.set_fraction(val)
             # Optional: Append percentage to status if it's a downloading state
             if val < 1.0:
-                 self.lbl_status.set_label(f"{status_text} {int(val * 100)}%")
+                self.lbl_status.set_label(f"{status_text} {int(val * 100)}%")
 
             # Check completion
             if val >= 1.0:
@@ -243,8 +251,8 @@ class DownloadRow(Gtk.Box):
         """Visual feedback for errors."""
         self.status = DownloadStatus.ERROR
         self.lbl_status.set_label(Res.get(StringKey.STATUS_ERROR))
-        self.lbl_status.add_css_class("error")     # Red text
-        self.progress_bar.add_css_class("error")   # Red bar
+        self.lbl_status.add_css_class("error")  # Red text
+        self.progress_bar.add_css_class("error")  # Red bar
 
         # Show error detail in the path label or via toast
         self.lbl_path.set_label(error_msg)
@@ -283,7 +291,7 @@ class DownloadRow(Gtk.Box):
                 f"{search_base}.f*.mp4",
                 f"{search_base}.f*.m4a",
                 f"{search_base}.temp.*",
-                f"{search_base}.part"
+                f"{search_base}.part",
             ]
 
             for pattern in patterns:
@@ -308,8 +316,8 @@ class DownloadRow(Gtk.Box):
                 if list_box and hasattr(list_box, "remove"):
                     list_box.remove(parent)
             elif parent and hasattr(parent, "remove"):
-                 # Direct child of a container that supports remove (e.g. Box)
-                 parent.remove(self)
+                # Direct child of a container that supports remove (e.g. Box)
+                parent.remove(self)
 
             if self.on_remove_callback:
                 self.on_remove_callback()
@@ -329,7 +337,7 @@ class DownloadRow(Gtk.Box):
             MessageManager.show_confirmation(
                 title=Res.get(StringKey.MSG_FILE_NOT_FOUND_TITLE),
                 body=f"{Res.get(StringKey.MSG_FILE_NOT_FOUND_BODY)}\n{file_path}",
-                on_confirm_callback=self._cleanup_partial_files
+                on_confirm_callback=self._cleanup_partial_files,
             )
             return
 
@@ -338,11 +346,21 @@ class DownloadRow(Gtk.Box):
 
         # 1. Try DBus (The cleanest way for GNOME/KDE/XFCE)
         try:
-            subprocess.run([
-                "dbus-send", "--session", "--print-reply", "--dest=org.freedesktop.FileManager1",
-                "/org/freedesktop/FileManager1", "org.freedesktop.FileManager1.ShowItems",
-                f"array:string:file://{abs_path}", "string:"
-            ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(
+                [
+                    "dbus-send",
+                    "--session",
+                    "--print-reply",
+                    "--dest=org.freedesktop.FileManager1",
+                    "/org/freedesktop/FileManager1",
+                    "org.freedesktop.FileManager1.ShowItems",
+                    f"array:string:file://{abs_path}",
+                    "string:",
+                ],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
             return
         except (subprocess.CalledProcessError, FileNotFoundError):
             pass

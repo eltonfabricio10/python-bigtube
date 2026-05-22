@@ -1,6 +1,8 @@
 # ruff: noqa: E402
 import os
 import threading
+import time
+
 from gi.repository import GLib
 
 from ..core.config import ConfigManager
@@ -16,15 +18,39 @@ from ..ui.message_manager import MessageManager
 
 logger = get_logger(__name__)
 
+
+class ProgressUpdateThrottle:
+    """Limits high-frequency progress updates without delaying terminal states."""
+
+    def __init__(self, callback, min_interval: float = 0.25):
+        self.callback = callback
+        self.min_interval = min_interval
+        self._last_emit = 0.0
+        self._last_percent = None
+        self._last_status = None
+
+    def emit(self, percent_str, status_text, *, force: bool = False):
+        if not self.callback:
+            return
+
+        now = time.monotonic()
+        changed = percent_str != self._last_percent or status_text != self._last_status
+        if force or (changed and now - self._last_emit >= self.min_interval):
+            self._last_emit = now
+            self._last_percent = percent_str
+            self._last_status = status_text
+            self.callback(percent_str, status_text)
+
+
 class DownloadWorkflowController:
     """
     Handles the complex workflow of initiating downloads:
     Metadata fetching, format selection, queuing, and UI updates.
     Extracted from main_window.py to reduce God Object anti-pattern.
     """
+
     def __init__(self, main_window):
         self.main_window = main_window
-        self.meta_downloader = main_window.meta_downloader
         self.download_ctrl = main_window.download_ctrl
 
     def on_download_selected(self, data):
@@ -33,7 +59,12 @@ class DownloadWorkflowController:
         threading.Thread(target=self._process_metadata_fetch, args=(data,), daemon=True).start()
 
     def _process_metadata_fetch(self, item):
-        info = self.meta_downloader.fetch_video_info(item.url)
+        meta_downloader = self.main_window.get_meta_downloader()
+        if meta_downloader is None:
+            GLib.idle_add(self._on_metadata_failed, item.title)
+            return
+
+        info = meta_downloader.fetch_video_info(item.url)
         if info:
             pref = ConfigManager.get("default_quality")
             if not pref or pref == "ask":
@@ -52,16 +83,23 @@ class DownloadWorkflowController:
             GLib.idle_add(self._show_format_popup, info)
 
     def _auto_select_format(self, info, pref):
-        videos = info.get('videos', [])
-        audios = info.get('audios', [])
+        videos = info.get("videos", [])
+        audios = info.get("audios", [])
         if pref == VideoQuality.BEST:
-            if videos: return videos[0]
-            if audios: return audios[0]
+            if videos:
+                return videos[0]
+            if audios:
+                return audios[0]
 
         if "bestvideo" in pref or "bestaudio" in pref:
-             is_audio = "audio" in pref and "video" not in pref
-             ext = "mp3" if "mp3" in pref else "m4a" if is_audio else "mp4"
-             return {'id': pref, 'ext': ext, 'label': "Custom Preset", 'type': "audio" if is_audio else "video"}
+            is_audio = "audio" in pref and "video" not in pref
+            ext = "mp3" if "mp3" in pref else "m4a" if is_audio else "mp4"
+            return {
+                "id": pref,
+                "ext": ext,
+                "label": "Custom Preset",
+                "type": "audio" if is_audio else "video",
+            }
         return None
 
     def _on_metadata_failed(self, title):
@@ -82,9 +120,10 @@ class DownloadWorkflowController:
 
     def start_download_execution(self, video_info, format_data, schedule_time=None):
         self.main_window.set_loading(False)
-        raw_title = video_info['title']
+        raw_title = video_info["title"]
         safe_title = sanitize_filename(raw_title)
-        if not safe_title: safe_title = f"video_{format_data['id']}"
+        if not safe_title:
+            safe_title = f"video_{format_data['id']}"
 
         file_name = f"{safe_title}.{format_data['ext']}"
         full_path = os.path.join(ConfigManager.get_download_path(), file_name)
@@ -93,20 +132,28 @@ class DownloadWorkflowController:
             MessageManager.show_confirmation(
                 title=Res.get(StringKey.MSG_FILE_EXISTS),
                 body=f"{file_name}\n{Res.get(StringKey.MSG_FILE_EXISTS_BODY)}",
-                on_confirm_callback=lambda: self._spawn_download_task(video_info, format_data, full_path, True, schedule_time)
+                on_confirm_callback=lambda: self._spawn_download_task(
+                    video_info, format_data, full_path, True, schedule_time
+                ),
             )
         else:
             self._spawn_download_task(video_info, format_data, full_path, False, schedule_time)
 
-    def _spawn_download_task(self, video_info, format_data, full_path, force_overwrite, schedule_time=None):
+    def _spawn_download_task(
+        self, video_info, format_data, full_path, force_overwrite, schedule_time=None
+    ):
         if ConfigManager.get("save_history"):
             HistoryManager.add_entry(video_info, format_data, full_path)
             self.main_window.btn_clear.set_sensitive(True)
 
         file_name = os.path.basename(full_path)
         row_widget = self.download_ctrl.add_download(
-            title=video_info['title'], filename=file_name, url=video_info['url'],
-            format_id=format_data['id'], full_path=full_path, uploader=video_info.get('uploader', '')
+            title=video_info["title"],
+            filename=file_name,
+            url=video_info["url"],
+            format_id=format_data["id"],
+            full_path=full_path,
+            uploader=video_info.get("uploader", ""),
         )
         row_widget.set_status_label(Res.get(StringKey.STATUS_PENDING))
         self.main_window._update_download_empty_state()
@@ -115,23 +162,27 @@ class DownloadWorkflowController:
         self.download_ctrl.invalidate_sort()
         self.download_ctrl.update_status_bar()
 
-        def ui_progress_callback(percent_str, status_text):
+        def apply_progress_update(percent_str, status_text):
             def _update_ui():
                 row_widget.update_progress(percent_str, status_text)
                 if percent_str == "100%":
                     if ConfigManager.get("system_notifications"):
-                        self.main_window._send_system_notification(Res.get(StringKey.MSG_DOWNLOAD_COMPLETED), video_info['title'])
+                        self.main_window._send_system_notification(
+                            Res.get(StringKey.MSG_DOWNLOAD_COMPLETED), video_info["title"]
+                        )
                     else:
                         MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_COMPLETED))
                 elif percent_str == "Cancelled":
                     MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_CANCELLED))
                 elif status_text == Res.get(StringKey.STATUS_ERROR):
-                     if ConfigManager.get("system_notifications"):
-                         self.main_window._send_system_notification(Res.get(StringKey.STATUS_ERROR), video_info['title'])
+                    if ConfigManager.get("system_notifications"):
+                        self.main_window._send_system_notification(
+                            Res.get(StringKey.STATUS_ERROR), video_info["title"]
+                        )
 
             GLib.idle_add(_update_ui)
 
-            if percent_str and "100" in percent_str:
+            if percent_str == "100%":
                 HistoryManager.update_status(full_path, DownloadStatus.COMPLETED, 1.0)
                 GLib.idle_add(self.download_ctrl.invalidate_sort)
                 GLib.idle_add(self.download_ctrl.update_status_bar)
@@ -142,21 +193,48 @@ class DownloadWorkflowController:
             else:
                 GLib.idle_add(self.download_ctrl.update_status_bar)
 
+        progress_throttle = ProgressUpdateThrottle(apply_progress_update)
+
+        def ui_progress_callback(percent_str, status_text):
+            force = percent_str in {
+                "100%",
+                "Cancelled",
+                Res.get(StringKey.STATUS_ERROR),
+            } or status_text in {
+                Res.get(StringKey.STATUS_COMPLETED),
+                Res.get(StringKey.STATUS_CANCELLED),
+                Res.get(StringKey.STATUS_ERROR),
+                Res.get(StringKey.STATUS_MERGING),
+                Res.get(StringKey.STATUS_EXTRACTING),
+                Res.get(StringKey.ERR_DISK_SPACE),
+            }
+            progress_throttle.emit(percent_str, status_text, force=force)
+
         def on_start(downloader_instance):
             GLib.idle_add(row_widget.set_downloader, downloader_instance)
 
         if schedule_time:
             DownloadManager().schedule_download(
-                timestamp=schedule_time, url=video_info['url'], format_id=format_data['id'],
-                title=video_info['title'], ext=format_data['ext'], progress_callback=ui_progress_callback,
-                force_overwrite=force_overwrite, on_start_callback=on_start
+                timestamp=schedule_time,
+                url=video_info["url"],
+                format_id=format_data["id"],
+                title=video_info["title"],
+                ext=format_data["ext"],
+                progress_callback=ui_progress_callback,
+                force_overwrite=force_overwrite,
+                on_start_callback=on_start,
             )
             from datetime import datetime
+
             dt = datetime.fromtimestamp(schedule_time)
             row_widget.set_status_label(f"Scheduled: {dt.strftime('%H:%M')}")
         else:
             DownloadManager().add_download(
-                url=video_info['url'], format_id=format_data['id'], title=video_info['title'],
-                ext=format_data['ext'], progress_callback=ui_progress_callback,
-                force_overwrite=force_overwrite, on_start_callback=on_start
+                url=video_info["url"],
+                format_id=format_data["id"],
+                title=video_info["title"],
+                ext=format_data["ext"],
+                progress_callback=ui_progress_callback,
+                force_overwrite=force_overwrite,
+                on_start_callback=on_start,
             )

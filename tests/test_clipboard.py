@@ -1,4 +1,3 @@
-
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -9,6 +8,7 @@ from bigtube.core.clipboard_monitor import ClipboardMonitor
 @pytest.fixture
 def mock_callback():
     return MagicMock()
+
 
 @pytest.fixture
 def monitor(mock_callback):
@@ -21,14 +21,18 @@ def monitor(mock_callback):
         mon.clipboard = mock_clipboard
         return mon
 
+
 def test_start_stop(monitor):
-    with patch("gi.repository.GLib.timeout_add") as mock_timeout:
-        monitor.start()
-        assert monitor.is_running is True
-        mock_timeout.assert_called_once()
+    from bigtube.core import clipboard_monitor
+
+    clipboard_monitor.GLib.timeout_add = MagicMock(return_value=1)
+    monitor.start()
+    assert monitor.is_running is True
+    clipboard_monitor.GLib.timeout_add.assert_called_once_with(1000, monitor._check_clipboard)
 
     monitor.stop()
     assert monitor.is_running is False
+
 
 def test_valid_url_detection(monitor, mock_callback):
     monitor.is_running = True
@@ -46,6 +50,7 @@ def test_valid_url_detection(monitor, mock_callback):
         mock_callback.assert_called_with("https://youtube.com/watch?v=123")
         assert monitor.last_text == "https://youtube.com/watch?v=123"
 
+
 def test_duplicate_ignore(monitor, mock_callback):
     monitor.is_running = True
     monitor.last_text = "https://youtube.com/watch?v=123"
@@ -57,6 +62,7 @@ def test_duplicate_ignore(monitor, mock_callback):
         monitor._on_read_text(monitor.clipboard, fake_result)
 
         mock_callback.assert_not_called()
+
 
 def test_invalid_url_ignore(monitor, mock_callback):
     monitor.is_running = True

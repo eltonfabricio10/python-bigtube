@@ -2,31 +2,34 @@
 """
 Main entry point for BigTube application.
 """
+
 # ruff: noqa: E402
 import argparse
 import os
 import sys
-from typing import Callable, cast
+from collections.abc import Callable
+from typing import cast
+
+import gi
+
+from .core.config import ConfigManager
+from .core.converter_history import ConverterHistoryManager
+from .core.history_manager import HistoryManager
 
 # Internal Imports
 from .core.image_loader import ImageLoader
-from .core.logger import get_logger
-from .ui.main_window import BigTubeMainWindow
-from .core.logger import BigTubeLogger
-from .core.updater import Updater
-from .core.converter_history import ConverterHistoryManager
-from .core.history_manager import HistoryManager
+from .core.logger import BigTubeLogger, get_logger
 from .core.search_history import SearchHistory
-from .core.config import ConfigManager
+from .core.updater import Updater
+from .ui.main_window import BigTubeMainWindow
 
-import gi
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
-gi.require_version('Gst', '1.0')
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
+gi.require_version("Gst", "1.0")
 from gi.repository import Adw, Gdk, Gio, GLib, Gst, Gtk
 
 # Initialize environment variables
-os.environ['GTK_IM_MODULE'] = 'gtk-im-context-simple'
+os.environ["GTK_IM_MODULE"] = "gtk-im-context-simple"
 
 # Initialize GStreamer early
 Gst.init(None)
@@ -64,12 +67,12 @@ class BigTubeApplication(Adw.Application):
 
     def __init__(self, **kwargs):
         super().__init__(
-            application_id='org.big.bigtube',
+            application_id="org.big.bigtube",
             flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE,
-            **kwargs
+            **kwargs,
         )
-        self.connect('activate', self.on_activate)
-        self.connect('startup', self.on_startup)
+        self.connect("activate", self.on_activate)
+        self.connect("startup", self.on_startup)
         self._pending_cli_inputs = []
 
         # Add global quit action
@@ -143,6 +146,7 @@ class BigTubeApplication(Adw.Application):
         # 1. Flush any pending history writes
         try:
             HistoryManager.flush()
+            ConverterHistoryManager.flush()
         except Exception as e:
             logger.error("Error flushing history: %s", e)
 
@@ -158,7 +162,7 @@ class BigTubeApplication(Adw.Application):
             logger.error("Error during shutdown reset: %s", e)
 
         # 3. Gracefully stop the image loader threads
-        if hasattr(ImageLoader, 'shutdown'):
+        if hasattr(ImageLoader, "shutdown"):
             ImageLoader.shutdown()
 
         # Force exit after a tiny delay
@@ -173,29 +177,17 @@ def run():
     """
     # Parse command line arguments
     parser = argparse.ArgumentParser(
-        description='BigTube - Audio/Video Downloader',
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        description="BigTube - Audio/Video Downloader",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument(
-        '--debug',
-        action='store_true',
-        help='Enable debug logging'
-    )
-    parser.add_argument(
-        '--version',
-        action='store_true',
-        help='Show application version'
-    )
-    parser.add_argument(
-        'inputs',
-        nargs='*',
-        help='URL(s) or file path(s) to open'
-    )
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    parser.add_argument("--version", action="store_true", help="Show application version")
+    parser.add_argument("inputs", nargs="*", help="URL(s) or file path(s) to open")
     args = parser.parse_args()
 
     # Handle --version
     if args.version:
-        version = Updater.get_local_version() or 'Unknown'
+        version = Updater.get_local_version() or "Unknown"
         print(f"BigTube - yt-dlp version: {version}")
         sys.exit(0)
 
@@ -211,5 +203,5 @@ def run():
     sys.exit(app.run(sys.argv))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

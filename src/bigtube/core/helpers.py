@@ -27,7 +27,7 @@ def get_status_label(status_input) -> str:
         DownloadStatus.COMPLETED: StringKey.STATUS_COMPLETED,
         DownloadStatus.ERROR: StringKey.STATUS_ERROR,
         DownloadStatus.CANCELLED: StringKey.STATUS_CANCELLED,
-        DownloadStatus.INTERRUPTED: StringKey.STATUS_INTERRUPTED
+        DownloadStatus.INTERRUPTED: StringKey.STATUS_INTERRUPTED,
     }
 
     # 3. Retrieve Key

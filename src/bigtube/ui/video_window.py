@@ -15,18 +15,19 @@ class VideoWindow(Adw.Window):
     Floating window that contains the Video Player.
     Handles visibility, keyboard shortcuts, and backend switching.
     """
-    __gtype_name__ = 'VideoWindow'
+
+    __gtype_name__ = "VideoWindow"
 
     # Signals to forward from the internal widget to the Controller
     __gsignals__ = {
-        'window-hidden': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'window-shown': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'time-changed': (GObject.SIGNAL_RUN_FIRST, None, (float,)),
-        'duration-changed': (GObject.SIGNAL_RUN_FIRST, None, (float,)),
-        'video-ended': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'video-ready': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'state-changed': (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
-        'error': (GObject.SIGNAL_RUN_FIRST, None, (str,)),
+        "window-hidden": (GObject.SIGNAL_RUN_FIRST, None, ()),
+        "window-shown": (GObject.SIGNAL_RUN_FIRST, None, ()),
+        "time-changed": (GObject.SIGNAL_RUN_FIRST, None, (float,)),
+        "duration-changed": (GObject.SIGNAL_RUN_FIRST, None, (float,)),
+        "video-ended": (GObject.SIGNAL_RUN_FIRST, None, ()),
+        "video-ready": (GObject.SIGNAL_RUN_FIRST, None, ()),
+        "state-changed": (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
+        "error": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
     }
 
     def __init__(self):
@@ -66,7 +67,7 @@ class VideoWindow(Adw.Window):
         self._connect_signals(self.mpv_widget)
 
         # Specific signals for fallback detection
-        self.gst_widget.connect('error', self._on_gst_error)
+        self.gst_widget.connect("error", self._on_gst_error)
 
         self._is_actually_visible = False
 
@@ -74,11 +75,24 @@ class VideoWindow(Adw.Window):
         return self._is_actually_visible
 
     def _connect_signals(self, widget):
-        widget.connect('time-changed', lambda w, v: self.emit('time-changed', v) if w == self.active_player else None)
-        widget.connect('duration-changed', lambda w, v: self.emit('duration-changed', v) if w == self.active_player else None)
-        widget.connect('video-ended', lambda w: self.emit('video-ended') if w == self.active_player else None)
-        widget.connect('video-ready', lambda w: self.emit('video-ready') if w == self.active_player else None)
-        widget.connect('state-changed', lambda w, v: self.emit('state-changed', v) if w == self.active_player else None)
+        widget.connect(
+            "time-changed",
+            lambda w, v: self.emit("time-changed", v) if w == self.active_player else None,
+        )
+        widget.connect(
+            "duration-changed",
+            lambda w, v: self.emit("duration-changed", v) if w == self.active_player else None,
+        )
+        widget.connect(
+            "video-ended", lambda w: self.emit("video-ended") if w == self.active_player else None
+        )
+        widget.connect(
+            "video-ready", lambda w: self.emit("video-ready") if w == self.active_player else None
+        )
+        widget.connect(
+            "state-changed",
+            lambda w, v: self.emit("state-changed", v) if w == self.active_player else None,
+        )
 
     def _on_gst_error(self, widget, msg):
         logger.error(f"GStreamer failed: {msg}. Falling back to MPV.")
@@ -89,7 +103,7 @@ class VideoWindow(Adw.Window):
             return
 
         # Get current state from GS to try and resume? (maybe too complex for now)
-        current_url = getattr(self, '_last_url', None)
+        current_url = getattr(self, "_last_url", None)
         current_time = self.active_player.get_time()
 
         self.gst_widget.stop()
@@ -106,7 +120,7 @@ class VideoWindow(Adw.Window):
 
     def handle_keypress(self, keyval):
         """Unified entry point for key events."""
-        if hasattr(self.active_player, 'handle_keypress'):
+        if hasattr(self.active_player, "handle_keypress"):
             self.active_player.handle_keypress(keyval)
 
     def _on_key_pressed(self, controller, keyval, keycode, state):
@@ -121,14 +135,14 @@ class VideoWindow(Adw.Window):
     def show_video(self):
         logger.info("Showing video window...")
         self._is_actually_visible = True
-        self.emit('window-shown')
+        self.emit("window-shown")
 
     def on_close_request(self, win):
         """Intercepts close to hide instead of destroy."""
         logger.info("Hiding window...")
         self._is_actually_visible = False
         self.set_visible(False)
-        self.emit('window-hidden')
+        self.emit("window-hidden")
         return True
 
     def stop(self):
@@ -144,12 +158,19 @@ class VideoWindow(Adw.Window):
         if not self.active_player.is_available:
             self.switch_to_fallback()
             if not self.active_player.is_available:
-                self.emit('error', "No playback backends available (GStreamer and MPV failed).")
+                self.emit("error", "No playback backends available (GStreamer and MPV failed).")
                 return
 
         self.active_player.play(url)
 
-    def seek(self, s): self.active_player.seek(s)
-    def toggle_pause(self): self.active_player.toggle_pause()
-    def set_volume(self, v): self.active_player.set_volume(v)
-    def get_time(self): return self.active_player.get_time()
+    def seek(self, s):
+        self.active_player.seek(s)
+
+    def toggle_pause(self):
+        self.active_player.toggle_pause()
+
+    def set_volume(self, v):
+        self.active_player.set_volume(v)
+
+    def get_time(self):
+        return self.active_player.get_time()

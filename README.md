@@ -16,6 +16,7 @@
 - **Busca integrada do YouTube** - Pesquise vídeos sem abrir o navegador
 - **Busca no SoundCloud** - Encontre músicas e podcasts
 - **Links Diretos** - Suporte a 400+ sites via URL
+- **Playlists** - Cole um link de playlist do YouTube (`playlist?list=` ou `watch?v=...&list=`) e a busca lista todos os vídeos
 
 ### ⬇️ Downloads Avançados
 | Recurso | Descrição |
@@ -109,6 +110,7 @@ bigtube [opções]
 | `--debug` | Ativa log detalhado para depuração |
 | `--version` | Mostra a versão do yt-dlp |
 | `--help` | Mostra ajuda |
+| URLs posicionais | Após `--`, URLs são abertas na busca (ex.: `bigtube -- https://youtube.com/playlist?list=...`) |
 
 ---
 

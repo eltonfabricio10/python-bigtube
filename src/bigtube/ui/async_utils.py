@@ -2,6 +2,7 @@
 Utilities for running work in background threads and scheduling UI updates
 on the GTK main loop. Use these to avoid duplicating threading + GLib.idle_add logic.
 """
+
 # ruff: noqa: E402
 import logging
 import threading
@@ -30,6 +31,7 @@ def run_in_background(
     Any callback can be None (then it is skipped). This avoids scattered
     threading.Thread + GLib.idle_add code and centralizes main-thread scheduling.
     """
+
     def worker() -> None:
         try:
             result = fn()

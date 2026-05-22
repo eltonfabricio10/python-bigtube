@@ -3,8 +3,8 @@ import os
 
 import gi
 
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
 from gi.repository import Gdk, Gio, GLib, GObject, Gtk
 
 from ..core.config import ConfigManager
@@ -15,6 +15,7 @@ from ..core.logger import get_logger
 from ..ui.converter_row import ConverterRow
 
 logger = get_logger(__name__)
+
 
 class ConverterController:
     """
@@ -28,12 +29,12 @@ class ConverterController:
         self.on_play_callback = on_play_callback
 
         # Unpack UI widgets
-        self.view_stack = ui_widgets['view_stack']
-        self.list_box = ui_widgets['list_converter']
+        self.view_stack = ui_widgets["view_stack"]
+        self.list_box = ui_widgets["list_converter"]
 
         # New widgets for conversion management
-        self.btn_load_files = ui_widgets['btn_load_files']
-        self.btn_convert_all = ui_widgets['btn_convert_all']
+        self.btn_load_files = ui_widgets["btn_load_files"]
+        self.btn_convert_all = ui_widgets["btn_convert_all"]
 
         # Data & Queue State
         self.rows = []
@@ -57,10 +58,7 @@ class ConverterController:
 
     def _setup_drag_drop(self):
         """Standard GTK4 approach for importing external files (Nautilus, browser)."""
-        self.drop_target = Gtk.DropTarget.new(
-            type=GObject.TYPE_NONE,
-            actions=Gdk.DragAction.COPY
-        )
+        self.drop_target = Gtk.DropTarget.new(type=GObject.TYPE_NONE, actions=Gdk.DragAction.COPY)
         self.drop_target.set_gtypes([Gdk.FileList, str])
         self.drop_target.connect("drop", self._on_drop)
 
@@ -87,9 +85,9 @@ class ConverterController:
     def _on_row_request_start(self, row, target_format, add_metadata, add_subtitles):
         """Intercepts the 'Convert' click from a row. Adds to queue instead of starting immediately."""
         row.conversion_params = {
-            'format': target_format,
-            'meta': add_metadata,
-            'subs': add_subtitles
+            "format": target_format,
+            "meta": add_metadata,
+            "subs": add_subtitles,
         }
 
         if row in self.queue or row == self.active_row:
@@ -109,14 +107,12 @@ class ConverterController:
         next_row = self.queue.pop(0)
         self.active_row = next_row
 
-        params = getattr(next_row, 'conversion_params', {})
+        params = getattr(next_row, "conversion_params", {})
 
         logger.info(f"Starting conversion: {os.path.basename(next_row.source_path)}")
 
         next_row.start_conversion(
-            params.get('format', 'mp3'),
-            params.get('meta', False),
-            params.get('subs', False)
+            params.get("format", "mp3"), params.get("meta", False), params.get("subs", False)
         )
 
     def _on_row_finished(self, row, success):
@@ -124,7 +120,7 @@ class ConverterController:
         logger.info(f"Finished: {os.path.basename(row.source_path)} Success={success}")
 
         self.active_row = None
-        if hasattr(row, 'conversion_params'):
+        if hasattr(row, "conversion_params"):
             del row.conversion_params
 
         GLib.idle_add(self._process_queue)
@@ -152,7 +148,7 @@ class ConverterController:
             on_play_callback=self.on_play_callback,
             initial_output_path=initial_output_path,
             on_conversion_requested=self._on_row_request_start,
-            on_conversion_finished=self._on_row_finished
+            on_conversion_finished=self._on_row_finished,
         )
 
         self.rows.append(row)
@@ -261,7 +257,7 @@ class ConverterController:
             self.page.get_native(),
             Gtk.FileChooserAction.OPEN,
             Res.get(StringKey.BTN_OPEN),
-            Res.get(StringKey.BTN_CANCEL_LABEL)
+            Res.get(StringKey.BTN_CANCEL_LABEL),
         )
         dialog.set_select_multiple(True)
 

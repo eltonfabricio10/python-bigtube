@@ -69,7 +69,7 @@ class BigTubeLogger:
             cls._log_file,
             maxBytes=5 * 1024 * 1024,  # 5 MB
             backupCount=3,
-            encoding="utf-8"
+            encoding="utf-8",
         )
         file_handler.setLevel(logging.DEBUG)  # File gets all messages
         file_handler.setFormatter(formatter)
@@ -119,11 +119,13 @@ def get_logger(name: str) -> logging.Logger:
 # Custom Exceptions for better error handling
 class BigTubeError(Exception):
     """Base exception for BigTube application."""
+
     pass
 
 
 class DownloadError(BigTubeError):
     """Raised when a download fails."""
+
     def __init__(self, message: str, url: str = None, cause: Exception = None):
         self.url = url
         self.cause = cause
@@ -132,6 +134,7 @@ class DownloadError(BigTubeError):
 
 class SearchError(BigTubeError):
     """Raised when a search fails."""
+
     def __init__(self, message: str, query: str = None, cause: Exception = None):
         self.query = query
         self.cause = cause
@@ -140,11 +143,13 @@ class SearchError(BigTubeError):
 
 class ConfigError(BigTubeError):
     """Raised when configuration fails."""
+
     pass
 
 
 class BinaryNotFoundError(BigTubeError):
     """Raised when required binary (yt-dlp, ffmpeg) is not found."""
+
     def __init__(self, binary_name: str):
         self.binary_name = binary_name
         super().__init__(f"Required binary not found: {binary_name}")
@@ -152,14 +157,17 @@ class BinaryNotFoundError(BigTubeError):
 
 class NetworkError(BigTubeError):
     """Raised when network operations fail."""
+
     pass
 
 
 class DRMError(BigTubeError):
     """Raised when content is DRM protected."""
+
     pass
 
 
 class PrivateContentError(BigTubeError):
     """Raised when content is private or restricted."""
+
     pass

@@ -1,5 +1,6 @@
 # ruff: noqa: E402
 import os
+
 from gi.repository import Gio, Gtk
 
 from ...core.config import ConfigManager
@@ -9,6 +10,7 @@ from ...core.logger import get_logger
 from ...ui.message_manager import MessageManager
 
 logger = get_logger(__name__)
+
 
 class DownloadSettingsController:
     def __init__(self, window, widgets_map, row_folder, btn_pick):
@@ -22,10 +24,10 @@ class DownloadSettingsController:
         w = self.widgets_map
         self.btn_pick.connect("clicked", self.on_pick_folder_clicked)
 
-        if 'btn_select_conv_folder' in w:
-            w['btn_select_conv_folder'].connect("clicked", self.on_pick_conv_folder_clicked)
-        if 'row_conv_use_source' in w:
-            w['row_conv_use_source'].connect("notify::active", self._on_conv_use_source_toggled)
+        if "btn_select_conv_folder" in w:
+            w["btn_select_conv_folder"].connect("clicked", self.on_pick_conv_folder_clicked)
+        if "row_conv_use_source" in w:
+            w["row_conv_use_source"].connect("notify::active", self._on_conv_use_source_toggled)
 
     def on_pick_folder_clicked(self, btn):
         dialog = Gtk.FileDialog()
@@ -69,8 +71,8 @@ class DownloadSettingsController:
             if folder:
                 new_path = folder.get_path()
                 ConfigManager.set("converter_path", new_path)
-                if 'row_conv_folder' in self.widgets_map:
-                    self.widgets_map['row_conv_folder'].set_subtitle(new_path)
+                if "row_conv_folder" in self.widgets_map:
+                    self.widgets_map["row_conv_folder"].set_subtitle(new_path)
                 logger.info(f"New converter path: {new_path}")
         except Exception as e:
             logger.error(f"Error selecting converter folder: {e}")
@@ -79,5 +81,3 @@ class DownloadSettingsController:
     def _on_conv_use_source_toggled(self, row, pspec):
         active = row.get_active()
         ConfigManager.set("use_source_folder", active)
-        if 'row_conv_folder' in self.widgets_map:
-            self.widgets_map['row_conv_folder'].set_sensitive(not active)
