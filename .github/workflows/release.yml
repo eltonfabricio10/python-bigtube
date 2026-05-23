@@ -144,10 +144,10 @@ jobs:
         run: |
           cd "$GITHUB_WORKSPACE"
           pacman -Syu --noconfirm git github-cli pacman-contrib sudo
-          updpkgsums
           useradd -m builduser
           echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser
           chown -R builduser:builduser .
+          su - builduser -c "cd $PWD && updpkgsums"
           su - builduser -c "cd $PWD && makepkg -s --noconfirm"
 
       - name: Publish Arch package to GitHub Release
@@ -173,9 +173,9 @@ jobs:
         run: |
           cd "$GITHUB_WORKSPACE"
           pacman -Syu --noconfirm git openssh pacman-contrib
-          updpkgsums
           useradd -m builduser
           chown -R builduser:builduser .
+          su - builduser -c "cd $PWD && updpkgsums"
 
       - name: Publish to AUR
         env:
