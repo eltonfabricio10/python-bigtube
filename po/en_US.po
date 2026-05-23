@@ -5,7 +5,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: BigTube 2.0.30\n"
+"Project-Id-Version: BigTube 2.0.32\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-13 21:39-0300\n"
 "PO-Revision-Date: 2026-03-11 23:04-0300\n"
