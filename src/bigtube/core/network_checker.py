@@ -53,7 +53,7 @@ def get_remote_ytdlp_version(timeout: float = 10.0) -> str | None:
     """
     try:
         request = urllib.request.Request(
-            _YTDLP_RELEASES_API, headers={"User-Agent": "BigTube/2.0.32"}
+            _YTDLP_RELEASES_API, headers={"User-Agent": "BigTube/2.0.34"}
         )
 
         with urllib.request.urlopen(request, timeout=timeout) as response:
