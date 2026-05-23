@@ -140,7 +140,7 @@ jobs:
 
       - name: Prepare Arch environment and build
         run: |
-          pacman -Syu --noconfirm git sudo
+          pacman -Syu --noconfirm git github-cli sudo
           useradd -m builduser
           echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser
           chown -R builduser:builduser .
