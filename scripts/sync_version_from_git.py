@@ -5,7 +5,7 @@ Sync project version from git history into pyproject.toml and PKGBUILD.
 After tag v2.0.7:
   - 0 commits on tag  -> 2.0.7
   - 1 commit after    -> 2.0.8
-  - N commits after   -> patch = tag_patch + N
+  - N commits after   -> patch = tag_patch + N, rolling over at 99
 
 Run automatically via pre-commit or CI before/after pushes.
 """
@@ -60,7 +60,12 @@ def version_from_git() -> str:
         return f"{base}.dev{distance}"
 
     major, minor, patch = (int(s) for s in segments)
-    return f"{major}.{minor}.{patch + distance}"
+    patch += distance
+    minor += patch // 100
+    patch %= 100
+    major += minor // 100
+    minor %= 100
+    return f"{major}.{minor}.{patch}"
 
 
 def _replace_version(path: Path, pattern: str, replacement: str, *, write: bool = True) -> bool:

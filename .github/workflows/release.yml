@@ -121,10 +121,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.prepare-release.outputs.tag }}
+          GH_REPO: ${{ github.repository }}
         run: |
           gh release create "$TAG" dist/*.whl dist/*.tar.gz \
             --title "$TAG" \
-            --generate-notes
+            --generate-notes \
+            --repo "$GH_REPO"
 
   build-arch-package:
     name: Build Arch Linux package
@@ -150,7 +152,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.build-and-release.outputs.tag }}
-        run: gh release upload "$TAG" ./*.pkg.tar.zst --clobber
+          GH_REPO: ${{ github.repository }}
+        run: gh release upload "$TAG" ./*.pkg.tar.zst --clobber --repo "$GH_REPO"
 
   deploy-aur:
     name: Deploy to Arch User Repository
