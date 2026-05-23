@@ -33,7 +33,7 @@ makedepends=(
 
 optdepends=('ffmpeg: Convert Files')
 source=("${pkgname}-${pkgver}.tar.gz::https://github.com/eltonfabricio10/python-bigtube/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('SKIP')
+sha256sums=('0def08c27a71991bca0dac7cff87cc0b84b4eb735e62c7230f3c74fc3f7da998')
 
 build() {
     cd "${_pkgname}-${pkgver}"

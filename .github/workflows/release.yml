@@ -32,6 +32,7 @@ jobs:
     outputs:
       pkgver: ${{ steps.prepare.outputs.pkgver }}
       tag: ${{ steps.prepare.outputs.tag }}
+      release_branch: ${{ steps.prepare.outputs.release_branch }}
       should_release: ${{ steps.prepare.outputs.should_release }}
     steps:
       - uses: actions/checkout@v6
@@ -63,6 +64,7 @@ jobs:
           TAG="v${VERSION}"
           echo "pkgver=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "release_branch=${RELEASE_BRANCH}" >> "$GITHUB_OUTPUT"
 
           if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
             echo "Tag ${TAG} already exists. Nothing to release."
@@ -128,17 +130,59 @@ jobs:
             --generate-notes \
             --repo "$GH_REPO"
 
+  sync-pkgbuild-checksum:
+    name: Sync PKGBUILD checksum
+    needs: prepare-release
+    if: ${{ needs.prepare-release.outputs.should_release == 'true' }}
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:base-devel
+    outputs:
+      release_branch: ${{ steps.meta.outputs.release_branch }}
+    steps:
+      - name: Set metadata
+        id: meta
+        run: echo "release_branch=${{ needs.prepare-release.outputs.release_branch }}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout release branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.prepare-release.outputs.release_branch }}
+          fetch-depth: 0
+
+      - name: Update checksum and push
+        env:
+          TAG: ${{ needs.prepare-release.outputs.tag }}
+          RELEASE_BRANCH: ${{ needs.prepare-release.outputs.release_branch }}
+        run: |
+          pacman -Syu --noconfirm git pacman-contrib
+          git config --global --add safe.directory "$PWD"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git pull --ff-only origin "$RELEASE_BRANCH"
+          updpkgsums
+
+          if git diff --quiet PKGBUILD; then
+            echo "PKGBUILD checksum already in sync for ${TAG}."
+            exit 0
+          fi
+
+          git add PKGBUILD
+          git commit -m "chore: sync PKGBUILD checksum for ${TAG} [skip ci]"
+          git push origin "HEAD:${RELEASE_BRANCH}"
+
   build-arch-package:
     name: Build Arch Linux package
-    needs: build-and-release
+    needs: [build-and-release, sync-pkgbuild-checksum]
     runs-on: ubuntu-latest
     container:
       image: archlinux:base-devel
     steps:
-      - name: Checkout release tag
+      - name: Checkout release branch
         uses: actions/checkout@v6
         with:
-          ref: ${{ needs.build-and-release.outputs.tag }}
+          ref: ${{ needs.sync-pkgbuild-checksum.outputs.release_branch }}
 
       - name: Prepare Arch environment and build
         run: |
@@ -157,15 +201,15 @@ jobs:
 
   deploy-aur:
     name: Deploy to Arch User Repository
-    needs: [build-and-release, build-arch-package]
+    needs: [build-and-release, build-arch-package, sync-pkgbuild-checksum]
     runs-on: ubuntu-latest
     container:
       image: archlinux:base-devel
     steps:
-      - name: Checkout release tag
+      - name: Checkout release branch
         uses: actions/checkout@v6
         with:
-          ref: ${{ needs.build-and-release.outputs.tag }}
+          ref: ${{ needs.sync-pkgbuild-checksum.outputs.release_branch }}
 
       - name: Install AUR deploy dependencies
         run: |
