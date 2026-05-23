@@ -159,19 +159,45 @@ jobs:
     name: Deploy to Arch User Repository
     needs: [build-and-release, build-arch-package]
     runs-on: ubuntu-latest
+    container:
+      image: archlinux:base-devel
     steps:
       - name: Checkout release tag
         uses: actions/checkout@v6
         with:
           ref: ${{ needs.build-and-release.outputs.tag }}
 
+      - name: Install AUR deploy dependencies
+        run: |
+          pacman -Syu --noconfirm git openssh
+          useradd -m builduser
+          chown -R builduser:builduser .
+
       - name: Publish to AUR
-        uses: KSXGitHub/github-actions-deploy-aur@v3.0.1
-        with:
-          pkgname: bigtube
-          pkgbuild: ./PKGBUILD
-          commit_username: ${{ github.actor }}
-          commit_email: ${{ github.actor }}@users.noreply.github.com
-          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-          commit_message: "Lancamento da versao ${{ needs.build-and-release.outputs.tag }}"
-          force_push: true
+        env:
+          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          TAG: ${{ needs.build-and-release.outputs.tag }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/aur
+          chmod 600 ~/.ssh/aur
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+
+          su - builduser -c "cd $PWD && makepkg --printsrcinfo" > .SRCINFO
+
+          GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes" \
+            git clone ssh://aur@aur.archlinux.org/bigtube.git aur-package
+          cp PKGBUILD .SRCINFO aur-package/
+          cd aur-package
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet PKGBUILD .SRCINFO; then
+            echo "AUR package already up to date."
+            exit 0
+          fi
+
+          git add PKGBUILD .SRCINFO
+          git commit -m "Lancamento da versao ${TAG}"
+          GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes" git push
