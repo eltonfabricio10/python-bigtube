@@ -155,8 +155,9 @@ jobs:
           TAG: ${{ needs.prepare-release.outputs.tag }}
           RELEASE_BRANCH: ${{ needs.prepare-release.outputs.release_branch }}
         run: |
+          cd "$GITHUB_WORKSPACE"
           pacman -Syu --noconfirm git pacman-contrib
-          git config --global --add safe.directory "$PWD"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
@@ -186,6 +187,7 @@ jobs:
 
       - name: Prepare Arch environment and build
         run: |
+          cd "$GITHUB_WORKSPACE"
           pacman -Syu --noconfirm git github-cli sudo
           useradd -m builduser
           echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser
@@ -213,6 +215,7 @@ jobs:
 
       - name: Install AUR deploy dependencies
         run: |
+          cd "$GITHUB_WORKSPACE"
           pacman -Syu --noconfirm git openssh
           useradd -m builduser
           chown -R builduser:builduser .
@@ -222,6 +225,7 @@ jobs:
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           TAG: ${{ needs.build-and-release.outputs.tag }}
         run: |
+          cd "$GITHUB_WORKSPACE"
           install -d -m 700 ~/.ssh
           printf '%s\n' "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/aur
           chmod 600 ~/.ssh/aur
