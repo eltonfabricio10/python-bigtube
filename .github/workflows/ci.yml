@@ -76,7 +76,7 @@ jobs:
           version: latest
 
       - name: Check Poetry configuration
-        run: poetry check --lock
+        run: poetry check
 
       - name: Compile translations
         run: |
