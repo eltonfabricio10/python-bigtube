@@ -178,14 +178,20 @@ jobs:
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           TAG: ${{ needs.build-and-release.outputs.tag }}
         run: |
-          mkdir -p ~/.ssh
+          install -d -m 700 ~/.ssh
           printf '%s\n' "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/aur
           chmod 600 ~/.ssh/aur
-          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+          ssh-keyscan -H -t rsa,ecdsa,ed25519 aur.archlinux.org > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+          ssh -i "$HOME/.ssh/aur" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            aur@aur.archlinux.org help >/dev/null
 
           su - builduser -c "cd $PWD && makepkg --printsrcinfo" > .SRCINFO
 
-          GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes" \
+          GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
             git clone ssh://aur@aur.archlinux.org/bigtube.git aur-package
           cp PKGBUILD .SRCINFO aur-package/
           cd aur-package
@@ -200,4 +206,4 @@ jobs:
 
           git add PKGBUILD .SRCINFO
           git commit -m "Lancamento da versao ${TAG}"
-          GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes" git push
+          GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" git push
