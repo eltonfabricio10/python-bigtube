@@ -60,18 +60,19 @@ def version_from_git() -> str:
     return f"{major}.{minor}.{patch + distance}"
 
 
-def _replace_version(path: Path, pattern: str, replacement: str) -> bool:
+def _replace_version(path: Path, pattern: str, replacement: str, *, write: bool = True) -> bool:
     text = path.read_text(encoding="utf-8")
     new_text, count = re.subn(pattern, replacement, text, count=1, flags=re.MULTILINE)
     if count != 1:
         raise RuntimeError(f"Could not update version in {path}")
     if new_text == text:
         return False
-    path.write_text(new_text, encoding="utf-8")
+    if write:
+        path.write_text(new_text, encoding="utf-8")
     return True
 
 
-def _sync_po_file(path: Path, version: str) -> bool:
+def _sync_po_file(path: Path, version: str, *, write: bool = True) -> bool:
     """
     Update Project-Id-Version in a .po / .pot catalog.
 
@@ -79,8 +80,11 @@ def _sync_po_file(path: Path, version: str) -> bool:
     physical lines (\"...<newline>\"), which msgmerge often produces.
     """
     text = path.read_text(encoding="utf-8")
-    # Lambda avoids re.sub treating \\n in the replacement as a real newline.
-    replacement = lambda _m: f'"Project-Id-Version: BigTube {version}\\n"'
+
+    def replacement(_match: re.Match[str]) -> str:
+        # Callback avoids re.sub treating \\n in the replacement as a real newline.
+        return f'"Project-Id-Version: BigTube {version}\\n"'
+
     patterns = (
         r'^"Project-Id-Version: .*\\n"',
         r'^"Project-Id-Version: [^\n"]+\n"$',
@@ -90,25 +94,26 @@ def _sync_po_file(path: Path, version: str) -> bool:
         if count == 1:
             if new_text == text:
                 return False
-            path.write_text(new_text, encoding="utf-8")
+            if write:
+                path.write_text(new_text, encoding="utf-8")
             return True
     raise RuntimeError(f"Could not update version in {path}")
 
 
-def _sync_po_files(version: str) -> bool:
+def _sync_po_files(version: str, *, write: bool = True) -> bool:
     """Update Project-Id-Version in .po / .pot catalogs."""
     changed = False
     if not PO_DIR.is_dir():
         return False
     for path in sorted(PO_DIR.glob("*.po")):
-        changed |= _sync_po_file(path, version)
+        changed |= _sync_po_file(path, version, write=write)
     pot = PO_DIR / "bigtube.pot"
     if pot.is_file():
-        changed |= _sync_po_file(pot, version)
+        changed |= _sync_po_file(pot, version, write=write)
     return changed
 
 
-def _sync_user_agents(version: str) -> bool:
+def _sync_user_agents(version: str, *, write: bool = True) -> bool:
     """HTTP User-Agent strings that embed the app version."""
     changed = False
     patterns = [
@@ -125,25 +130,28 @@ def _sync_user_agents(version: str) -> bool:
             repl = f'"User-Agent": "Mozilla/5.0 (compatible; BigTube/{version})"'
         new_text, count = re.subn(pattern, repl, text, count=1)
         if count and new_text != text:
-            path.write_text(new_text, encoding="utf-8")
+            if write:
+                path.write_text(new_text, encoding="utf-8")
             changed = True
     return changed
 
 
-def sync_version_files() -> tuple[str, bool]:
+def sync_version_files(*, write: bool = True) -> tuple[str, bool]:
     version = version_from_git()
     changed = False
-    changed |= _replace_version(PYPROJECT, r'^version = ".*"', f'version = "{version}"')
-    changed |= _replace_version(PKGBUILD, r"^pkgver=.*", f"pkgver={version}")
-    changed |= _sync_po_files(version)
-    changed |= _sync_user_agents(version)
+    changed |= _replace_version(
+        PYPROJECT, r'^version = ".*"', f'version = "{version}"', write=write
+    )
+    changed |= _replace_version(PKGBUILD, r"^pkgver=.*", f"pkgver={version}", write=write)
+    changed |= _sync_po_files(version, write=write)
+    changed |= _sync_user_agents(version, write=write)
     return version, changed
 
 
 def main() -> int:
     check_only = "--check" in sys.argv
     try:
-        version, changed = sync_version_files()
+        version, changed = sync_version_files(write=not check_only)
     except (subprocess.CalledProcessError, RuntimeError) as exc:
         print(f"sync_version_from_git: {exc}", file=sys.stderr)
         return 1
