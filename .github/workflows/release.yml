@@ -34,12 +34,12 @@ jobs:
       tag: ${{ steps.prepare.outputs.tag }}
       should_release: ${{ steps.prepare.outputs.should_release }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_branch || github.ref_name }}
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -91,11 +91,11 @@ jobs:
       pkgver: ${{ needs.prepare-release.outputs.pkgver }}
       tag: ${{ needs.prepare-release.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare-release.outputs.tag }}
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -137,7 +137,7 @@ jobs:
       image: archlinux:base-devel
     steps:
       - name: Checkout release tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ needs.build-and-release.outputs.tag }}
 
@@ -162,7 +162,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout release tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ needs.build-and-release.outputs.tag }}
 
