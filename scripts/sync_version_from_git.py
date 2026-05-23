@@ -15,6 +15,7 @@ from __future__ import annotations
 import re
 import subprocess
 import sys
+from argparse import ArgumentParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -141,8 +142,8 @@ def _sync_user_agents(version: str, *, write: bool = True) -> bool:
     return changed
 
 
-def sync_version_files(*, write: bool = True) -> tuple[str, bool]:
-    version = version_from_git()
+def sync_version_files(*, version: str | None = None, write: bool = True) -> tuple[str, bool]:
+    version = version or version_from_git()
     changed = False
     changed |= _replace_version(
         PYPROJECT, r'^version = ".*"', f'version = "{version}"', write=write
@@ -154,14 +155,20 @@ def sync_version_files(*, write: bool = True) -> tuple[str, bool]:
 
 
 def main() -> int:
-    check_only = "--check" in sys.argv
+    parser = ArgumentParser(description="Sync project version metadata.")
+    parser.add_argument("--check", action="store_true", help="Check without writing files.")
+    parser.add_argument(
+        "--version", help="Use an explicit version instead of deriving it from git."
+    )
+    args = parser.parse_args()
+
     try:
-        version, changed = sync_version_files(write=not check_only)
+        version, changed = sync_version_files(version=args.version, write=not args.check)
     except (subprocess.CalledProcessError, RuntimeError) as exc:
         print(f"sync_version_from_git: {exc}", file=sys.stderr)
         return 1
 
-    if check_only:
+    if args.check:
         if changed:
             print(
                 f"Version out of sync (expected {version}). "

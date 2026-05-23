@@ -1,40 +1,105 @@
 name: Build and Release
 
-# Publica release no GitHub + pacote Arch + AUR.
-# Dispara automaticamente ao push de tag vX.Y.Z (ex.: git tag v2.0.7 && git push origin v2.0.7).
-# Também pode ser executado manualmente em Actions → Build and Release → Run workflow.
+# Publica release no GitHub + pacote Arch + AUR automaticamente quando o CI da main passa.
+# Também pode ser executado manualmente em Actions -> Build and Release -> Run workflow.
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main, master]
   workflow_dispatch:
     inputs:
       version:
-        description: "Versão sem o v (ex.: 2.0.7)"
-        required: true
+        description: "Versao sem o v. Deixe vazio para calcular pela ultima tag."
+        required: false
+        default: ""
 
 permissions:
   contents: write
+
+concurrency:
+  group: release-${{ github.event.workflow_run.head_branch || github.ref }}
+  cancel-in-progress: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  # =========================================================
-  # JOB 1: Compilação Padrão (Traduções + Wheel + Tar.gz)
-  # =========================================================
-  build-and-release:
-    name: Build and Publish Standard Release
+  prepare-release:
+    name: Prepare release
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     outputs:
-      pkgver: ${{ steps.set_version.outputs.pkgver }}
+      pkgver: ${{ steps.prepare.outputs.pkgver }}
+      tag: ${{ steps.prepare.outputs.tag }}
+      should_release: ${{ steps.prepare.outputs.should_release }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+          fetch-depth: 0
+
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      - name: Install System Dependencies
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync version, commit, and tag
+        id: prepare
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version || '' }}
+          RELEASE_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            VERSION=$(python scripts/sync_version_from_git.py --version "$INPUT_VERSION")
+          else
+            VERSION=$(python scripts/sync_version_from_git.py)
+          fi
+
+          TAG="v${VERSION}"
+          echo "pkgver=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Tag ${TAG} already exists. Nothing to release."
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if ! git diff --quiet pyproject.toml PKGBUILD po/ \
+              src/bigtube/core/network_checker.py src/bigtube/core/image_loader.py; then
+            git add pyproject.toml PKGBUILD po/ \
+              src/bigtube/core/network_checker.py src/bigtube/core/image_loader.py
+            git commit -m "chore: release ${TAG} [skip ci]"
+            git push origin "HEAD:${RELEASE_BRANCH}"
+          fi
+
+          git tag "${TAG}"
+          git push origin "${TAG}"
+          echo "should_release=true" >> "$GITHUB_OUTPUT"
+
+  build-and-release:
+    name: Build and publish standard release
+    needs: prepare-release
+    if: ${{ needs.prepare-release.outputs.should_release == 'true' }}
+    runs-on: ubuntu-latest
+    outputs:
+      pkgver: ${{ needs.prepare-release.outputs.pkgver }}
+      tag: ${{ needs.prepare-release.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare-release.outputs.tag }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y gettext
 
       - name: Install Poetry
@@ -42,19 +107,7 @@ jobs:
         with:
           version: latest
 
-      - name: Set App Version
-        id: set_version
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            PKGVER="${{ github.event.inputs.version }}"
-          else
-            PKGVER="${GITHUB_REF#refs/tags/v}"
-          fi
-          echo "Atualizando pyproject.toml para a versão $PKGVER"
-          poetry version "$PKGVER"
-          echo "pkgver=$PKGVER" >> "$GITHUB_OUTPUT"
-
-      - name: Compile Translations
+      - name: Compile translations
         run: |
           LOCALES_DIR="src/bigtube/data/locales"
           for po_file in po/*.po; do
@@ -63,87 +116,55 @@ jobs:
             msgfmt "$po_file" -o "$LOCALES_DIR/$LANG/LC_MESSAGES/bigtube.mo"
           done
 
-      - name: Build Project Packages
+      - name: Build project packages
         run: poetry build
 
-      - name: Publish Standard Release
+      - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: v${{ steps.set_version.outputs.pkgver }}
+          tag_name: ${{ needs.prepare-release.outputs.tag }}
           generate_release_notes: true
           files: |
             dist/*.whl
             dist/*.tar.gz
 
-  # =========================================================
-  # JOB 2: Compilação Arch Linux (PKGBUILD)
-  # =========================================================
   build-arch-package:
-    name: Build Arch Linux Package
+    name: Build Arch Linux package
     needs: build-and-release
     runs-on: ubuntu-latest
-
-    # Executa todo o processo dentro de um sistema Arch Linux puro
     container:
       image: archlinux:base-devel
-
     steps:
-      - name: Checkout Code
+      - name: Checkout release tag
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build-and-release.outputs.tag }}
 
-      - name: Prepare Arch Environment & Build
-        env:
-          PKGVER: ${{ needs.build-and-release.outputs.pkgver }}
+      - name: Prepare Arch environment and build
         run: |
-          # 0.1 Injetar a versão correta no PKGBUILD ANTES de compilar
-          sed -i "s/^pkgver=.*/pkgver=${PKGVER}/" PKGBUILD
-          sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
-
-          # 1. Atualizar o sistema e garantir que o sudo/git estão instalados
           pacman -Syu --noconfirm git sudo
-
-          # 2. Criar um utilizador "dummy" sem privilégios (exigência de segurança do makepkg)
           useradd -m builduser
           echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser
-
-          # 3. Dar permissões ao novo utilizador sobre a pasta de trabalho
           chown -R builduser:builduser .
-
-          # 4. Executar o makepkg na pasta correta do GitHub
           su - builduser -c "cd $PWD && makepkg -s --noconfirm"
 
-      - name: Publish Arch Package to GitHub Release
+      - name: Publish Arch package to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: v${{ needs.build-and-release.outputs.pkgver }}
-          # Anexa o ficheiro final (.pkg.tar.zst) na release criada pelo Job 1
+          tag_name: ${{ needs.build-and-release.outputs.tag }}
           files: "*.pkg.tar.zst"
 
-  # =========================================================
-  # JOB 3: Publicação Automática no AUR
-  # =========================================================
   deploy-aur:
     name: Deploy to Arch User Repository
     needs: [build-and-release, build-arch-package]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout release tag
         uses: actions/checkout@v4
-
-      - name: Update PKGBUILD Version dynamically
-        env:
-          PKGVER: ${{ needs.build-and-release.outputs.pkgver }}
-        run: |
-          echo "Injetando a versão $PKGVER no PKGBUILD..."
-
-          # 2. Injeta diretamente no ficheiro
-          sed -i "s/^pkgver=.*/pkgver=${PKGVER}/" PKGBUILD
-          sed -i "s/^pkgrel=.*/pkgrel=1/" PKGBUILD
-
-          # 3. Confirmação visual nos logs
-          grep "^pkgver=" PKGBUILD
+        with:
+          ref: ${{ needs.build-and-release.outputs.tag }}
 
       - name: Publish to AUR
         uses: KSXGitHub/github-actions-deploy-aur@v3.0.1
@@ -153,5 +174,5 @@ jobs:
           commit_username: ${{ github.actor }}
           commit_email: ${{ github.actor }}@users.noreply.github.com
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-          commit_message: "Lançamento da versão v${{ needs.build-and-release.outputs.pkgver }}"
+          commit_message: "Lancamento da versao ${{ needs.build-and-release.outputs.tag }}"
           force_push: true
