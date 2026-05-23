@@ -1,6 +1,6 @@
 name: Sync version
 
-# Recalcula 2.0.7 + N commits -> 2.0.(7+N) e commita na main (evita drift).
+# Recalcula a versão a partir da tag vX.Y.Z mais recente + N commits e commita na main.
 on:
   push:
     branches: [main, master]
