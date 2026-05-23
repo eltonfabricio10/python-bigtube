@@ -12,6 +12,10 @@ from typing import cast
 
 import gi
 
+# GTK renamed the old "ngl" renderer to "gl"; normalize inherited sessions.
+if os.environ.get("GSK_RENDERER") == "ngl":
+    os.environ["GSK_RENDERER"] = "gl"
+
 from .core.config import ConfigManager
 from .core.converter_history import ConverterHistoryManager
 from .core.history_manager import HistoryManager
