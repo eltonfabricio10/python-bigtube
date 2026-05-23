@@ -158,20 +158,20 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           pacman -Syu --noconfirm git pacman-contrib
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          git pull --ff-only origin "$RELEASE_BRANCH"
+          git -C "$GITHUB_WORKSPACE" pull --ff-only origin "$RELEASE_BRANCH"
           updpkgsums
 
-          if git diff --quiet PKGBUILD; then
+          if git -C "$GITHUB_WORKSPACE" diff --quiet PKGBUILD; then
             echo "PKGBUILD checksum already in sync for ${TAG}."
             exit 0
           fi
 
-          git add PKGBUILD
-          git commit -m "chore: sync PKGBUILD checksum for ${TAG} [skip ci]"
-          git push origin "HEAD:${RELEASE_BRANCH}"
+          git -C "$GITHUB_WORKSPACE" add PKGBUILD
+          git -C "$GITHUB_WORKSPACE" commit -m "chore: sync PKGBUILD checksum for ${TAG} [skip ci]"
+          git -C "$GITHUB_WORKSPACE" push origin "HEAD:${RELEASE_BRANCH}"
 
   build-arch-package:
     name: Build Arch Linux package
@@ -246,8 +246,9 @@ jobs:
           cp PKGBUILD .SRCINFO aur-package/
           cd aur-package
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global --add safe.directory "$PWD"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           if git diff --quiet PKGBUILD .SRCINFO; then
             echo "AUR package already up to date."
