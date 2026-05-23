@@ -151,7 +151,9 @@ class ImageLoader:
 
             # 2. Network Request if not in disk cache
             if not pixbuf:
-                req = Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; BigTube/2.0.13)"})
+                req = Request(
+                    url, headers={"User-Agent": "Mozilla/5.0 (compatible; BigTube/2.0.16)"}
+                )
                 with urlopen(req, timeout=10) as response:
                     data = response.read()
 

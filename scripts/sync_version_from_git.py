@@ -9,6 +9,7 @@ After tag v2.0.7:
 
 Run automatically via pre-commit or CI before/after pushes.
 """
+
 from __future__ import annotations
 
 import re
@@ -20,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PYPROJECT = ROOT / "pyproject.toml"
 PKGBUILD = ROOT / "PKGBUILD"
 PO_DIR = ROOT / "po"
+
 
 def _git_describe_long() -> str:
     """Returns e.g. v2.0.7-3-g1a2b3c4 or v2.0.7."""
@@ -118,7 +120,10 @@ def _sync_user_agents(version: str, *, write: bool = True) -> bool:
     changed = False
     patterns = [
         (ROOT / "src/bigtube/core/network_checker.py", r'"User-Agent": "BigTube/[0-9.]+"'),
-        (ROOT / "src/bigtube/core/image_loader.py", r'"User-Agent": "Mozilla/5.0 \(compatible; BigTube/[0-9.]+\)"'),
+        (
+            ROOT / "src/bigtube/core/image_loader.py",
+            r'"User-Agent": "Mozilla/5.0 \(compatible; BigTube/[0-9.]+\)"',
+        ),
     ]
     for path, pattern in patterns:
         if not path.is_file():
