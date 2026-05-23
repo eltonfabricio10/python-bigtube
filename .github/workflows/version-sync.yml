@@ -34,12 +34,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet pyproject.toml PKGBUILD po/ .github/workflows/release.yml \
+          if git diff --quiet pyproject.toml PKGBUILD po/ \
               src/bigtube/core/network_checker.py src/bigtube/core/image_loader.py; then
             echo "Version already in sync (${{ steps.ver.outputs.version }})"
             exit 0
           fi
-          git add pyproject.toml PKGBUILD po/ .github/workflows/release.yml \
+          git add pyproject.toml PKGBUILD po/ \
               src/bigtube/core/network_checker.py src/bigtube/core/image_loader.py
           git commit -m "chore: sync version to ${{ steps.ver.outputs.version }} [skip ci]"
           git push

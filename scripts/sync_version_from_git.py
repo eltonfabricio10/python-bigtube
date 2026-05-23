@@ -20,8 +20,6 @@ ROOT = Path(__file__).resolve().parents[1]
 PYPROJECT = ROOT / "pyproject.toml"
 PKGBUILD = ROOT / "PKGBUILD"
 PO_DIR = ROOT / "po"
-RELEASE_WORKFLOW = ROOT / ".github/workflows/release.yml"
-
 
 def _git_describe_long() -> str:
     """Returns e.g. v2.0.7-3-g1a2b3c4 or v2.0.7."""
@@ -110,23 +108,6 @@ def _sync_po_files(version: str) -> bool:
     return changed
 
 
-def _sync_release_workflow(version: str) -> bool:
-    if not RELEASE_WORKFLOW.is_file():
-        return False
-    text = RELEASE_WORKFLOW.read_text(encoding="utf-8")
-    new_text = text
-    new_text, _ = re.subn(
-        r'default: "[0-9.]+"',
-        f'default: "{version}"',
-        new_text,
-        count=1,
-    )
-    if new_text == text:
-        return False
-    RELEASE_WORKFLOW.write_text(new_text, encoding="utf-8")
-    return True
-
-
 def _sync_user_agents(version: str) -> bool:
     """HTTP User-Agent strings that embed the app version."""
     changed = False
@@ -155,7 +136,6 @@ def sync_version_files() -> tuple[str, bool]:
     changed |= _replace_version(PYPROJECT, r'^version = ".*"', f'version = "{version}"')
     changed |= _replace_version(PKGBUILD, r"^pkgver=.*", f"pkgver={version}")
     changed |= _sync_po_files(version)
-    changed |= _sync_release_workflow(version)
     changed |= _sync_user_agents(version)
     return version, changed
 
