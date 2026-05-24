@@ -45,3 +45,21 @@ def test_youtube_music_search_uses_music_search_url_and_filters_non_watch_entrie
     assert not engine._should_skip_entry(
         {"url": "https://music.youtube.com/watch?v=abc123"}, "youtube_music"
     )
+
+
+def test_youtube_music_accepts_ids_and_normalizes_playable_urls():
+    with (
+        patch("bigtube.core.search.ConfigManager.get_yt_dlp_path", return_value="/usr/bin/yt-dlp"),
+        patch("bigtube.core.search.ConfigManager.get_env_with_bin_path", return_value={}),
+        patch("bigtube.core.search.ConfigManager.get", return_value=10),
+    ):
+        engine = SearchEngine()
+
+    entry = {"id": "abc123DEF_-", "url": "abc123DEF_-", "title": "Song"}
+
+    assert not engine._should_skip_entry(entry, "youtube_music")
+
+    parsed = engine._parse_entry(entry, force_audio=True)
+
+    assert parsed["url"] == "https://music.youtube.com/watch?v=abc123DEF_-"
+    assert parsed["is_video"] is False

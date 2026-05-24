@@ -1,6 +1,6 @@
 import json
 import subprocess
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urlparse
 
 # Internal Imports
 from .config import ConfigManager
@@ -235,8 +235,37 @@ class SearchEngine:
         if source != "youtube_music":
             return False
 
-        url = entry.get("webpage_url") or entry.get("url") or ""
-        return "/watch" not in url
+        return not self._is_playable_youtube_music_entry(entry)
+
+    def _is_playable_youtube_music_entry(self, entry: dict) -> bool:
+        """Returns True for entries that can be resolved to a YouTube watch URL."""
+        if not isinstance(entry, dict):
+            return False
+
+        for key in ("webpage_url", "url"):
+            value = entry.get(key)
+            if not isinstance(value, str) or not value.strip():
+                continue
+
+            value = value.strip()
+            parsed = urlparse(value)
+            if parsed.scheme in {"http", "https"}:
+                if parsed.path == "/watch":
+                    return True
+                if parsed.path.startswith("/browse/"):
+                    return False
+            elif value.startswith("/watch"):
+                return True
+            elif value.startswith("browse/") or value.startswith("/browse/"):
+                return False
+            elif self._looks_like_youtube_video_id(value):
+                return True
+
+        entry_id = entry.get("id")
+        return isinstance(entry_id, str) and self._looks_like_youtube_video_id(entry_id)
+
+    def _looks_like_youtube_video_id(self, value: str) -> bool:
+        return len(value) == 11 and all(c.isalnum() or c in "-_" for c in value)
 
     def _parse_entry(self, entry: dict, force_audio: bool = False) -> dict:
         """
@@ -255,9 +284,13 @@ class SearchEngine:
         if entry.get("vcodec") == "none":
             is_video = False
 
+        url = entry.get("webpage_url", entry.get("url", ""))
+        if force_audio and isinstance(url, str):
+            url = self._normalize_youtube_music_url(url, entry.get("id"))
+
         return {
             "title": entry.get("title", Res.get(StringKey.LBL_UNTITLED)),
-            "url": entry.get("webpage_url", entry.get("url", "")),
+            "url": url,
             "thumbnail": thumb_url,
             "uploader": entry.get("uploader")
             or entry.get("channel")
@@ -265,3 +298,14 @@ class SearchEngine:
             "duration": entry.get("duration", 0),
             "is_video": is_video,
         }
+
+    def _normalize_youtube_music_url(self, url: str, entry_id: str = None) -> str:
+        if url.startswith(("http://", "https://")):
+            return url
+        if url.startswith("/watch"):
+            return f"https://music.youtube.com{url}"
+        if self._looks_like_youtube_video_id(url):
+            return f"https://music.youtube.com/watch?v={url}"
+        if isinstance(entry_id, str) and self._looks_like_youtube_video_id(entry_id):
+            return f"https://music.youtube.com/watch?v={entry_id}"
+        return url

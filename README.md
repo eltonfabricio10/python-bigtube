@@ -14,7 +14,7 @@
 
 ### 🔍 Busca & Descoberta
 - **Busca integrada do YouTube** - Pesquise vídeos sem abrir o navegador
-- **Busca no SoundCloud** - Encontre músicas e podcasts
+- **Busca no YouTube Music** - Encontre músicas, clipes e podcasts
 - **Links Diretos** - Suporte a 400+ sites via URL
 - **Playlists** - Cole um link de playlist do YouTube (`playlist?list=` ou `watch?v=...&list=`) e a busca lista todos os vídeos
 

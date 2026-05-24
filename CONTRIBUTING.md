@@ -89,15 +89,15 @@ Tarefas pesadas rodam em `threading.Thread`; atualizações de interface devem s
 A suíte usa **pytest**. Os testes mockam GTK e dependências externas para rodar sem display.
 
 ```bash
-poetry run pytest
+poetry run python -m pytest
 ```
 
 Opções úteis:
 
 ```bash
-poetry run pytest tests/ -v              # verboso
-poetry run pytest tests/ -k "download"  # só testes com "download" no nome
-poetry run pytest tests/ --tb=long      # traceback completo
+poetry run python -m pytest tests/ -v              # verboso
+poetry run python -m pytest tests/ -k "download"  # só testes com "download" no nome
+poetry run python -m pytest tests/ --tb=long      # traceback completo
 ```
 
 Testes cobrem sobretudo o **core** (downloader, conversor, config, histórico, validators, scheduler, clipboard). A UI e os controllers têm pouca cobertura automatizada.
@@ -149,7 +149,7 @@ O workflow **CI** (`.github/workflows/ci.yml`) roda em cada push/PR para os bran
 
 1. Instala dependências com Poetry (incluindo dev).
 2. Executa `ruff check` e `ruff format --check`.
-3. Executa `pytest`.
+3. Executa `python -m pytest`.
 
 Garanta que esses comandos passem localmente antes de enviar o PR.
 

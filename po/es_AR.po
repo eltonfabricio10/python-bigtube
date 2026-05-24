@@ -60,7 +60,7 @@ msgid "YouTube"
 msgstr "YouTube"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:86
-msgid "SoundCloud"
+msgid "YouTube Music"
 msgstr "Nube de sonido"
 
 #: /home/eltonff/Downloads/ELTON/python-bigtube/src/bigtube/core/locales.py:87
