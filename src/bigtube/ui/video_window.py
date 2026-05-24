@@ -44,10 +44,9 @@ class VideoWindow(Adw.Window):
 
         # Core Components
         self.gst_widget = GstWidget()
-        self.mpv_widget = MpvWidget()
+        self.mpv_widget = None
 
         self.main_stack.add_named(self.gst_widget, "gst")
-        self.main_stack.add_named(self.mpv_widget, "mpv")
 
         # Initial State: Primary is GStreamer
         self.active_player = self.gst_widget
@@ -64,7 +63,6 @@ class VideoWindow(Adw.Window):
 
         # Signal Forwarding
         self._connect_signals(self.gst_widget)
-        self._connect_signals(self.mpv_widget)
 
         # Specific signals for fallback detection
         self.gst_widget.connect("error", self._on_gst_error)
@@ -94,6 +92,17 @@ class VideoWindow(Adw.Window):
             lambda w, v: self.emit("state-changed", v) if w == self.active_player else None,
         )
 
+    def _ensure_mpv_widget(self):
+        """Creates the MPV backend only when GStreamer cannot be used."""
+        if self.mpv_widget is not None:
+            return self.mpv_widget
+
+        logger.info("Creating MPV fallback backend...")
+        self.mpv_widget = MpvWidget()
+        self.main_stack.add_named(self.mpv_widget, "mpv")
+        self._connect_signals(self.mpv_widget)
+        return self.mpv_widget
+
     def _on_gst_error(self, widget, msg):
         logger.error(f"GStreamer failed: {msg}. Falling back to MPV.")
         self.switch_to_fallback()
@@ -105,18 +114,19 @@ class VideoWindow(Adw.Window):
         # Get current state from GS to try and resume? (maybe too complex for now)
         current_url = getattr(self, "_last_url", None)
         current_time = self.active_player.get_time()
+        mpv_widget = self._ensure_mpv_widget()
 
         self.gst_widget.stop()
-        self.active_player = self.mpv_widget
+        self.active_player = mpv_widget
         self.main_stack.set_visible_child_name("mpv")
         self.using_fallback = True
 
-        if current_url:
+        if current_url and mpv_widget.is_available:
             logger.info(f"Resuming playback on MPV at {current_time}s")
-            self.mpv_widget.play(current_url)
+            mpv_widget.play(current_url)
             if current_time > 0:
                 # Give it a bit of time to load before seeking
-                GLib.timeout_add(1000, lambda: self.mpv_widget.seek(current_time))
+                GLib.timeout_add(1000, lambda: mpv_widget.seek(current_time))
 
     def handle_keypress(self, keyval):
         """Unified entry point for key events."""
@@ -147,7 +157,8 @@ class VideoWindow(Adw.Window):
 
     def stop(self):
         self.gst_widget.stop()
-        self.mpv_widget.stop()
+        if self.mpv_widget:
+            self.mpv_widget.stop()
         # Reset to GST for next play attempt
         self.active_player = self.gst_widget
         self.main_stack.set_visible_child_name("gst")
