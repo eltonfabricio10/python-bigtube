@@ -81,7 +81,7 @@ class StringKey(Enum):
 
     # Select Source
     SELECT_SOURCE_YT = N_("YouTube")
-    SELECT_SOURCE_SC = N_("SoundCloud")
+    SELECT_SOURCE_SC = N_("YouTube Music")
     SELECT_SOURCE_URL = N_("Direct Link")
 
     # Player Default

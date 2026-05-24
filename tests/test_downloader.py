@@ -45,6 +45,28 @@ class TestVideoDownloader:
 
         assert info is None
 
+    def test_parse_formats_keeps_dash_segment_audio(self, downloader):
+        info = downloader._parse_formats(
+            {
+                "id": "123",
+                "title": "DASH Audio",
+                "webpage_url": "https://example.com/video",
+                "duration": 60,
+                "formats": [
+                    {
+                        "format_id": "251",
+                        "ext": "webm",
+                        "protocol": "http_dash_segments",
+                        "vcodec": "none",
+                        "acodec": "opus",
+                        "abr": 160,
+                    }
+                ],
+            }
+        )
+
+        assert any(audio["id"] == "251" for audio in info["audios"])
+
     @patch("subprocess.Popen")
     def test_start_download_success(self, mock_popen, downloader):
         # Mocking the process object
@@ -119,6 +141,28 @@ class TestVideoDownloader:
         assert "22+bestaudio/best" in cmd
         assert cmd[-1] == "https://test.com/video"
         assert mock_popen.call_args.kwargs["stderr"] == subprocess.STDOUT
+
+    @patch("subprocess.Popen")
+    def test_start_download_builds_audio_extraction_command(self, mock_popen, downloader):
+        process_mock = MagicMock()
+        process_mock.poll.return_value = 0
+        process_mock.wait.return_value = 0
+        process_mock.stdout.readline.return_value = ""
+        mock_popen.return_value = process_mock
+
+        downloader.start_download(
+            url="https://test.com/audio",
+            format_id="bestaudio/best",
+            title="Audio Title",
+            ext="mp3",
+            progress_callback=MagicMock(),
+        )
+
+        cmd = mock_popen.call_args.args[0]
+        assert "--extract-audio" in cmd
+        assert "--audio-format" in cmd
+        assert "mp3" in cmd
+        assert "--merge-output-format" not in cmd
 
     def test_redact_command_hides_sensitive_args(self):
         cmd = [

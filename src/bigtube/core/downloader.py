@@ -153,9 +153,8 @@ class VideoDownloader:
         for f in formats:
             # Basic filters for garbage formats
             note = f.get("format_note") or ""
-            protocol = f.get("protocol") or ""
 
-            if "storyboard" in note or "http_dash_segments" in protocol:
+            if "storyboard" in note:
                 continue
 
             fmt_id = str(f.get("format_id", ""))
@@ -467,7 +466,9 @@ class VideoDownloader:
         actual_format = format_parts[0]
         extra_flags = format_parts[1:]
 
-        is_audio_conversion = ext in [FileExt.MP3, FileExt.M4A] and "audio" in actual_format
+        is_audio_conversion = ext in [FileExt.MP3.value, FileExt.M4A.value] and (
+            "audio" in actual_format
+        )
 
         if is_audio_conversion:
             # Audio Extraction Mode

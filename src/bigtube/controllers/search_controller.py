@@ -352,10 +352,10 @@ class SearchController(GObject.Object):
         self.store.remove_all()
         self.current_index = -1
 
-        # Determine Source (YouTube vs SoundCloud)
+        # Determine Source (YouTube vs YouTube Music)
         idx = self.dropdown.get_selected()
         if idx == 1:
-            source = "soundcloud"
+            source = "youtube_music"
         elif idx == 2:
             source = "url"
         else:

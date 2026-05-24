@@ -66,9 +66,10 @@ class DownloadWorkflowController:
 
         info = meta_downloader.fetch_video_info(item.url)
         if info:
+            format_type = "video" if getattr(item, "is_video", True) else "audio"
             pref = ConfigManager.get("default_quality")
-            if not pref or pref == "ask":
-                GLib.idle_add(self._show_format_popup, info)
+            if format_type == "audio" or not pref or pref == "ask":
+                GLib.idle_add(self._show_format_popup, info, format_type)
             else:
                 self._handle_auto_download(info, pref)
         else:
@@ -106,15 +107,17 @@ class DownloadWorkflowController:
         self.main_window.set_loading(False)
         MessageManager.show(f"{Res.get(StringKey.MSG_DOWNLOAD_DATA_ERROR)} {title}", is_error=True)
 
-    def _show_format_popup(self, info):
+    def _show_format_popup(self, info, format_type="video"):
         self.main_window.set_loading(False)
-        dialog = FormatSelectionDialog(self.main_window, info, self.start_download_execution)
+        dialog = FormatSelectionDialog(
+            self.main_window, info, self.start_download_execution, format_type=format_type
+        )
         self.main_window._apply_theme_to_window(dialog)
         dialog.present()
 
-    def show_batch_format_popup(self, info, callback):
+    def show_batch_format_popup(self, info, callback, format_type="video"):
         self.main_window.set_loading(False)
-        dialog = FormatSelectionDialog(self.main_window, info, callback)
+        dialog = FormatSelectionDialog(self.main_window, info, callback, format_type=format_type)
         self.main_window._apply_theme_to_window(dialog)
         dialog.present()
 

@@ -12,13 +12,42 @@ from ..core.locales import ResourceManager as Res
 from ..core.locales import StringKey
 
 
+def get_audio_options(video_info: dict) -> list[dict]:
+    """Returns audio options, with an MP3 extraction fallback for audio-first results."""
+    audios = list(video_info.get("audios", []))
+    if audios:
+        return audios
+
+    if not video_info.get("videos"):
+        return []
+
+    return [
+        {
+            "id": "bestaudio/best",
+            "label": Res.get(StringKey.LBL_AUDIO_MP3_CONVERT),
+            "ext": "mp3",
+            "size": "? MB",
+            "size_val": 0,
+            "type": "audio",
+            "codec": "mp3_convert",
+            "quality": 999,
+        }
+    ]
+
+
 class FormatSelectionDialog(Adw.Window):
     """
     Modal dialog allowing the user to select video/audio quality.
     Uses Libadwaita PreferencesPage for a native look.
     """
 
-    def __init__(self, parent_window, video_info: dict, on_download_confirmed: Callable):
+    def __init__(
+        self,
+        parent_window,
+        video_info: dict,
+        on_download_confirmed: Callable,
+        format_type: str = "video",
+    ):
         super().__init__()
 
         # Window Configuration
@@ -30,6 +59,7 @@ class FormatSelectionDialog(Adw.Window):
         # Data & Callbacks
         self.callback = on_download_confirmed
         self.video_info = video_info
+        self.format_type = format_type
 
         # --- Layout Structure (Adw.ToolbarView) ---
         content_view = Adw.ToolbarView()
@@ -40,21 +70,26 @@ class FormatSelectionDialog(Adw.Window):
         content_view.add_top_bar(header)
 
         # Scrollable Content (PreferencesPage)
+        scrolled = Gtk.ScrolledWindow()
+        scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scrolled.set_vexpand(True)
+
         self.page = Adw.PreferencesPage()
-        content_view.set_content(self.page)
+        scrolled.set_child(self.page)
+        content_view.set_content(scrolled)
 
         # --- Build UI Sections ---
         self._setup_header_info()
 
-        # Video Section
-        self._setup_section(
-            title=Res.get(StringKey.LBL_VIDEO_FORMATS), items=video_info.get("videos", [])
-        )
-
-        # Audio Section
-        self._setup_section(
-            title=Res.get(StringKey.LBL_AUDIO_FORMATS), items=video_info.get("audios", [])
-        )
+        if self.format_type == "audio":
+            self._setup_section(
+                title=Res.get(StringKey.LBL_AUDIO_FORMATS),
+                items=get_audio_options(video_info),
+            )
+        else:
+            self._setup_section(
+                title=Res.get(StringKey.LBL_VIDEO_FORMATS), items=video_info.get("videos", [])
+            )
 
     def _setup_header_info(self):
         """Creates the top section with Title and Duration."""

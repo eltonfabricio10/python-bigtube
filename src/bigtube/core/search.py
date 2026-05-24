@@ -1,5 +1,6 @@
 import json
 import subprocess
+from urllib.parse import quote_plus
 
 # Internal Imports
 from .config import ConfigManager
@@ -23,7 +24,7 @@ logger = get_logger(__name__)
 
 class SearchEngine:
     """
-    Handles searching via yt-dlp (YouTube, SoundCloud, or Direct URLs).
+    Handles searching via yt-dlp (YouTube, YouTube Music, or Direct URLs).
     Parses JSON output into clean dictionaries.
     """
 
@@ -72,9 +73,10 @@ class SearchEngine:
         force_audio = False
         args = []
 
-        if source == "soundcloud":
+        if source == "youtube_music":
             force_audio = True
-            args = ["--flat-playlist", "--dump-json", f"scsearch{self.search_limit}:{query}"]
+            search_url = f"https://music.youtube.com/search?q={quote_plus(clean_query)}"
+            args = ["--flat-playlist", "--dump-json", search_url]
         else:
             # Default to YouTube
             args = [
@@ -168,13 +170,21 @@ class SearchEngine:
                     entries = data.get("entries")
                     if isinstance(entries, list):
                         for entry in entries:
+                            if self._should_skip_entry(entry, source):
+                                continue
                             parsed = self._parse_entry(entry, force_audio)
                             if parsed:
                                 json_outputs.append(parsed)
                     else:
+                        if self._should_skip_entry(data, source):
+                            continue
                         parsed = self._parse_entry(data, force_audio)
                         if parsed:
                             json_outputs.append(parsed)
+
+                    if source == "youtube_music" and len(json_outputs) >= self.search_limit:
+                        json_outputs = json_outputs[: self.search_limit]
+                        break
                 except json.JSONDecodeError:
                     pass
 
@@ -219,6 +229,14 @@ class SearchEngine:
             return Res.get(StringKey.ERR_NETWORK)
 
         return Res.get(StringKey.SEARCH_ERROR)
+
+    def _should_skip_entry(self, entry: dict, source: str = None) -> bool:
+        """Filters non-playable YouTube Music search entries such as albums and artists."""
+        if source != "youtube_music":
+            return False
+
+        url = entry.get("webpage_url") or entry.get("url") or ""
+        return "/watch" not in url
 
     def _parse_entry(self, entry: dict, force_audio: bool = False) -> dict:
         """

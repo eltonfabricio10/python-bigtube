@@ -2,6 +2,7 @@
 import mimetypes
 import os
 import threading
+import time
 
 import gi
 
@@ -49,6 +50,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UI_FILE = os.path.join(BASE_DIR, "data", "bigtube.ui")
 
 logger = get_logger(__name__)
+
+NOTIFICATION_SIMILAR_THROTTLE_SECONDS = 10.0
+NOTIFICATION_DUPLICATE_THROTTLE_SECONDS = 60.0
 
 
 @Gtk.Template(filename=UI_FILE)
@@ -194,6 +198,8 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self._setup_menu()
 
         self._active_playlist = "search"
+        self._last_notification_by_key = {}
+        self._last_notification_by_title = {}
 
         # 1. Core Setup
         ConfigManager.ensure_dirs()
@@ -648,6 +654,21 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
     def _send_system_notification(self, title: str, body: str):
         """Sends an OS-level notification using Gio.Notification."""
+        now = time.monotonic()
+        key = (title, body)
+        last_exact = self._last_notification_by_key.get(key, 0)
+        last_similar = self._last_notification_by_title.get(title, 0)
+
+        if now - last_exact < NOTIFICATION_DUPLICATE_THROTTLE_SECONDS:
+            logger.debug("Skipping duplicate notification: %s / %s", title, body)
+            return
+
+        if now - last_similar < NOTIFICATION_SIMILAR_THROTTLE_SECONDS:
+            logger.debug("Throttling similar notification: %s / %s", title, body)
+            MessageManager.show(f"{title}: {body}")
+            self._last_notification_by_key[key] = now
+            return
+
         app = self.get_application()
         if app:
             from gi.repository import Gio
@@ -658,6 +679,8 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             icon = Gio.ThemedIcon.new("folder-download-symbolic")
             notification.set_icon(icon)
             app.send_notification(f"bigtube-dl-{hash(body)}", notification)
+            self._last_notification_by_key[key] = now
+            self._last_notification_by_title[title] = now
 
     def _update_download_empty_state(self):
         """Toggles download page between empty state and list based on children."""
