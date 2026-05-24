@@ -323,7 +323,7 @@ def run_subprocess_with_timeout(
         Tuple of (return_code, stdout, stderr)
 
     Raises:
-        TimeoutError: If process exceeds timeout
+        subprocess.TimeoutExpired: If process exceeds timeout
         subprocess.SubprocessError: For other subprocess errors
     """
     import subprocess
@@ -340,9 +340,9 @@ def run_subprocess_with_timeout(
         )
         return result.returncode, result.stdout, result.stderr
 
-    except subprocess.TimeoutExpired as e:
+    except subprocess.TimeoutExpired:
         logger.error(f"Process timed out after {timeout}s: {' '.join(cmd[:3])}...")
-        raise TimeoutError(f"Process timed out after {timeout} seconds") from e
+        raise
 
 
 # =============================================================================

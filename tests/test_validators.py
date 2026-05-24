@@ -1,6 +1,14 @@
+import subprocess
+from unittest.mock import patch
+
 import pytest
 
-from bigtube.core.validators import is_valid_url, sanitize_filename, sanitize_url
+from bigtube.core.validators import (
+    is_valid_url,
+    run_subprocess_with_timeout,
+    sanitize_filename,
+    sanitize_url,
+)
 
 
 class TestValidators:
@@ -51,3 +59,8 @@ class TestValidators:
     )
     def test_is_valid_url(self, url, is_valid):
         assert is_valid_url(url) == is_valid
+
+    def test_run_subprocess_with_timeout_preserves_timeout_exception(self):
+        with patch("subprocess.run", side_effect=subprocess.TimeoutExpired(["cmd"], 1)):
+            with pytest.raises(subprocess.TimeoutExpired):
+                run_subprocess_with_timeout(["cmd"], timeout=1)

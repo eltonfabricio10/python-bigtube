@@ -1,5 +1,3 @@
-import fcntl
-import json
 import os
 import shutil
 import threading
@@ -11,6 +9,7 @@ from gi.repository import GLib
 
 # Import internal Enums
 from .enums import ThemeColor, ThemeMode, VideoQuality
+from .json_store import load_json, save_json
 from .locales import ResourceManager as Res
 from .locales import StringKey
 from .logger import BinaryNotFoundError, get_logger
@@ -110,48 +109,24 @@ class ConfigManager:
                 cls.save()
                 return
 
-            try:
-                with open(cls.CONFIG_FILE, encoding="utf-8") as f:
-                    fcntl.flock(f.fileno(), fcntl.LOCK_SH)
-                    try:
-                        content = f.read().strip()
-                    finally:
-                        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-
-                    if not content:
-                        raise ValueError("Empty file")
-
-                    loaded_data = json.loads(content)
-
-                    # Merge defaults with loaded data
-                    cls._data = cls._DEFAULTS.copy()
-                    cls._data.update(loaded_data)
-                    cls._migrate_aliases()
-
-            except (json.JSONDecodeError, ValueError, OSError) as e:
-                logger.warning(f"Config corruption detected ({e}). Resetting...")
+            loaded_data = load_json(cls.CONFIG_FILE, None)
+            if not isinstance(loaded_data, dict):
+                logger.warning("Config corruption detected. Resetting...")
                 cls._data = cls._DEFAULTS.copy()
                 cls.save()
+                return
+
+            # Merge defaults with loaded data
+            cls._data = cls._DEFAULTS.copy()
+            cls._data.update(loaded_data)
+            cls._migrate_aliases()
 
     @classmethod
     def save(cls):
         """Persists current state to JSON."""
         with cls._lock:
-            if not cls.CONFIG_DIR.exists():
-                cls.CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-
-            try:
-                with open(cls.CONFIG_FILE, "w", encoding="utf-8") as f:
-                    fcntl.flock(f.fileno(), fcntl.LOCK_EX)
-                    try:
-                        json.dump(cls._data, f, indent=4, ensure_ascii=False)
-                        f.flush()
-                        os.fsync(f.fileno())
-                    finally:
-                        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            if save_json(cls.CONFIG_FILE, cls._data, indent=4):
                 logger.info("Settings saved.")
-            except OSError as e:
-                logger.error(f"Failed to save config: {e}")
 
     @classmethod
     def get(cls, key: str) -> Any:

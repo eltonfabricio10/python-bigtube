@@ -1,5 +1,6 @@
 import os
 import shutil
+import signal
 import subprocess
 import threading
 from collections.abc import Callable
@@ -10,6 +11,8 @@ from .config import ConfigManager
 from .logger import get_logger
 
 logger = get_logger(__name__)
+
+FFPROBE_TIMEOUT_SECONDS = 30
 
 
 class MediaConverter:
@@ -37,7 +40,9 @@ class MediaConverter:
                 "default=noprint_wrappers=1:nokey=1",
                 input_path,
             ]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=FFPROBE_TIMEOUT_SECONDS
+            )
             if result.returncode == 0:
                 duration_str = result.stdout.strip()
                 if duration_str and duration_str != "N/A":
@@ -120,14 +125,17 @@ class MediaConverter:
 
         logger.info("Starting conversion: %s -> %s", input_path, output_path)
 
-        process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            universal_newlines=True,
-        )
+        popen_kwargs = {
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.STDOUT,
+            "text": True,
+            "bufsize": 1,
+            "universal_newlines": True,
+        }
+        if os.name == "posix":
+            popen_kwargs["start_new_session"] = True
+
+        process = subprocess.Popen(cmd, **popen_kwargs)
 
         us = 0  # Track last known output time in microseconds
         try:
@@ -136,7 +144,7 @@ class MediaConverter:
                 for line in process.stdout:
                     # Check for cancellation
                     if cancel_event and cancel_event.is_set():
-                        process.terminate()
+                        MediaConverter._terminate_process(process)
                         logger.info(f"Conversion cancelled by user: {output_path}")
                         break
 
@@ -192,6 +200,27 @@ class MediaConverter:
             return output_path
 
         except Exception as e:
-            if process.poll() is None:
-                process.terminate()
+            MediaConverter._terminate_process(process)
             raise e
+
+    @staticmethod
+    def _terminate_process(process: subprocess.Popen):
+        """Terminates ffmpeg and its children when possible."""
+        if process.poll() is not None:
+            return
+
+        pid = getattr(process, "pid", None)
+        try:
+            if os.name == "posix" and isinstance(pid, int):
+                os.killpg(os.getpgid(pid), signal.SIGTERM)
+            else:
+                process.terminate()
+            try:
+                process.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                if os.name == "posix" and isinstance(pid, int):
+                    os.killpg(os.getpgid(pid), signal.SIGKILL)
+                else:
+                    process.kill()
+        except OSError:
+            logger.warning("Failed to terminate ffmpeg process")

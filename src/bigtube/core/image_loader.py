@@ -57,6 +57,7 @@ class ImageLoader:
     # Disk cache directory
     _cache_dir = Path(GLib.get_user_cache_dir()) / "bigtube" / "thumbnails"
     _MAX_DISK_CACHE_FILES = 500
+    _MAX_IMAGE_BYTES = 10 * 1024 * 1024
 
     # Pending requests tracker (deduplicates downloads and fans out to waiting widgets)
     _pending_urls = {}
@@ -155,7 +156,19 @@ class ImageLoader:
                     url, headers={"User-Agent": "Mozilla/5.0 (compatible; BigTube/2.0.37)"}
                 )
                 with urlopen(req, timeout=10) as response:
-                    data = response.read()
+                    content_length = response.headers.get("Content-Length")
+                    if content_length:
+                        try:
+                            declared_size = int(content_length)
+                        except ValueError:
+                            declared_size = 0
+                        if declared_size > cls._MAX_IMAGE_BYTES:
+                            raise ValueError("Image response is too large")
+
+                    data = response.read(cls._MAX_IMAGE_BYTES + 1)
+
+                if len(data) > cls._MAX_IMAGE_BYTES:
+                    raise ValueError("Image response is too large")
 
                 # Decode Image data to Pixbuf
                 loader = GdkPixbuf.PixbufLoader()

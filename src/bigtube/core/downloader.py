@@ -1,8 +1,11 @@
 import json
 import os
 import re
+import select
 import shutil
+import signal
 import subprocess
+import time
 from collections import deque
 from collections.abc import Callable
 
@@ -23,6 +26,9 @@ PROGRESS_REGEX = re.compile(r"(\d{1,3}(?:\.\d+)?)\s*%")
 
 # Minimum required free space in MB (10MB buffer)
 MIN_FREE_SPACE_MB = 10
+
+# Maximum time without any yt-dlp output before treating a download as stalled.
+DOWNLOAD_IDLE_TIMEOUT_SECONDS = 180
 
 SENSITIVE_ARGS = {
     "--cookies",
@@ -330,6 +336,24 @@ class VideoDownloader:
             logger.warning(f"Could not check disk space: {e}")
             return True  # Continue if we can't check
 
+    def _read_process_line(self, poll_interval: float = 1.0) -> str:
+        """Reads one stdout line without blocking forever when the pipe is idle."""
+        if not self.process or not self.process.stdout:
+            return ""
+
+        try:
+            fd = self.process.stdout.fileno()
+        except (AttributeError, OSError, TypeError):
+            return self.process.stdout.readline()
+
+        if not isinstance(fd, int):
+            return self.process.stdout.readline()
+
+        ready, _, _ = select.select([self.process.stdout], [], [], poll_interval)
+        if not ready:
+            return ""
+        return self.process.stdout.readline()
+
     # =========================================================================
     # DOWNLOAD MANAGEMENT
     # =========================================================================
@@ -477,16 +501,19 @@ class VideoDownloader:
         last_log_lines = deque(maxlen=20)
 
         try:
-            self.process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                env=self._env,
-                bufsize=1,
-            )
+            popen_kwargs = {
+                "stdout": subprocess.PIPE,
+                "stderr": subprocess.STDOUT,
+                "text": True,
+                "encoding": "utf-8",
+                "errors": "replace",
+                "env": self._env,
+                "bufsize": 1,
+            }
+            if os.name == "posix":
+                popen_kwargs["start_new_session"] = True
+
+            self.process = subprocess.Popen(cmd, **popen_kwargs)
 
             # Cache localized strings to avoid fetching repeatedly in loop
             status_dl = Res.get(StringKey.STATUS_DOWNLOADING)
@@ -495,16 +522,20 @@ class VideoDownloader:
             status_extract = Res.get(StringKey.STATUS_EXTRACTING)
 
             current_status = status_dl
+            last_output_at = time.monotonic()
 
             while True:
                 # Check if process finished
                 if self.process.poll() is not None:
                     break
 
-                line = self.process.stdout.readline()
+                line = self._read_process_line()
                 if not line:
+                    if time.monotonic() - last_output_at > DOWNLOAD_IDLE_TIMEOUT_SECONDS:
+                        raise subprocess.TimeoutExpired(cmd, DOWNLOAD_IDLE_TIMEOUT_SECONDS)
                     continue
 
+                last_output_at = time.monotonic()
                 line = line.strip()
                 last_log_lines.append(line)
 
@@ -563,6 +594,7 @@ class VideoDownloader:
 
         except subprocess.TimeoutExpired:
             logger.error("Download timed out")
+            self._terminate_process("Timed out")
             if progress_callback:
                 progress_callback(Res.get(StringKey.STATUS_ERROR), Res.get(StringKey.ERR_TIMEOUT))
             return False
@@ -597,14 +629,32 @@ class VideoDownloader:
         if self.process:
             logger.info(f"Terminating download process: {reason}")
             try:
-                self.process.terminate()
+                self._send_process_signal(signal.SIGTERM)
                 # Give it a moment to close gracefully
                 try:
                     self.process.wait(timeout=2)
                 except subprocess.TimeoutExpired:
-                    self.process.kill()
+                    self._send_process_signal(signal.SIGKILL)
             except OSError as e:
                 logger.warning(f"Failed to terminate process: {e}")
+
+    def _send_process_signal(self, sig: int):
+        """Signals the process group on POSIX, falling back to the process itself."""
+        if not self.process:
+            return
+
+        pid = getattr(self.process, "pid", None)
+        if os.name == "posix" and isinstance(pid, int):
+            try:
+                os.killpg(os.getpgid(pid), sig)
+                return
+            except OSError:
+                pass
+
+        if sig == signal.SIGTERM:
+            self.process.terminate()
+        else:
+            self.process.kill()
 
     def resume(self) -> bool:
         """
