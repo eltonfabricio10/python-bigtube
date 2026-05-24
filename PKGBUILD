@@ -22,6 +22,7 @@ depends=(
     'gst-plugins-bad'
     'gst-plugins-ugly'
     'gst-libav'
+    'gst-plugin-gtk4'
 )
 
 makedepends=(
