@@ -1,7 +1,7 @@
 # Traducción de BigTube al Español.
 msgid ""
 msgstr ""
-"Project-Id-Version: BigTube 2.0.39\n"
+"Project-Id-Version: BigTube 2.0.41\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-13 21:39-0300\n"
 "PO-Revision-Date: 2026-02-20 21:00-0300\n"
