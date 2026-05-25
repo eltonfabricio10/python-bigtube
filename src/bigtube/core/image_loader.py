@@ -153,7 +153,7 @@ class ImageLoader:
             # 2. Network Request if not in disk cache
             if not pixbuf:
                 req = Request(
-                    url, headers={"User-Agent": "Mozilla/5.0 (compatible; BigTube/2.0.53)"}
+                    url, headers={"User-Agent": "Mozilla/5.0 (compatible; BigTube/2.0.54)"}
                 )
                 with urlopen(req, timeout=10) as response:
                     content_length = response.headers.get("Content-Length")
