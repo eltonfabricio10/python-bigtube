@@ -113,12 +113,13 @@ class HistoryManager:
         new_item = {
             "id": video_info.get("id"),
             "title": video_info.get("title", "Unknown Title"),
-            "url": video_info.get("webpage_url", ""),
+            "url": video_info.get("url") or video_info.get("webpage_url", ""),
             "thumbnail": video_info.get("thumbnail", ""),
             "uploader": video_info.get("uploader", ""),
             "file_path": file_path,
-            "format_id": format_data.get("format_id"),
+            "format_id": format_data.get("id") or format_data.get("format_id"),
             "ext": format_data.get("ext"),
+            "scheduled_time": video_info.get("scheduled_time"),
             # Initial State
             "status": DownloadStatus.PENDING.value,
             "progress": 0.0,

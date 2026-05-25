@@ -47,6 +47,17 @@ class TestHistoryManager(unittest.TestCase):
             data = json.load(f)
         self.assertEqual(data, dummy_data)
 
+    def test_add_entry_uses_current_video_and_format_contract(self):
+        item = HistoryManager.add_entry(
+            {"id": "vid1", "title": "Video", "url": "https://example.com/watch", "scheduled_time": 123},
+            {"id": "22", "ext": "mp4"},
+            "/tmp/video.mp4",
+        )
+
+        self.assertEqual(item["url"], "https://example.com/watch")
+        self.assertEqual(item["format_id"], "22")
+        self.assertEqual(item["scheduled_time"], 123)
+
 
 if __name__ == "__main__":
     unittest.main()

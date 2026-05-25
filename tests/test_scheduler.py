@@ -36,10 +36,12 @@ def test_schedule_download(mock_dm):
         title="Test Video",
         ext="mp4",
         progress_callback=mock_callback,
+        estimated_size_mb=33.0,
     )
 
     assert len(mock_dm.scheduled_tasks) == 1
     assert mock_dm.scheduled_tasks[0]["id"] == task_id
+    assert mock_dm.scheduled_tasks[0]["estimated_size_mb"] == 33.0
     mock_callback.assert_called_with(None, Res.get(StringKey.STATUS_SCHEDULED))
 
 

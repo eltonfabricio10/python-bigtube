@@ -143,6 +143,27 @@ class TestVideoDownloader:
         assert mock_popen.call_args.kwargs["stderr"] == subprocess.STDOUT
 
     @patch("subprocess.Popen")
+    def test_start_download_uses_selected_format_size_for_disk_check(self, mock_popen, downloader):
+        process_mock = MagicMock()
+        process_mock.poll.return_value = 0
+        process_mock.wait.return_value = 0
+        process_mock.stdout.readline.return_value = ""
+        mock_popen.return_value = process_mock
+
+        with patch.object(downloader, "_check_disk_space", return_value=True) as check_disk:
+            downloader.start_download(
+                url="https://test.com/video",
+                format_id="22",
+                title="Video",
+                ext="mp4",
+                progress_callback=MagicMock(),
+                estimated_size_mb=42.5,
+            )
+
+        check_disk.assert_called_once()
+        assert check_disk.call_args.args[0] == 42.5
+
+    @patch("subprocess.Popen")
     def test_start_download_builds_audio_extraction_command(self, mock_popen, downloader):
         process_mock = MagicMock()
         process_mock.poll.return_value = 0

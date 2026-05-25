@@ -61,6 +61,7 @@ class DownloadRow(Gtk.Box):
         self.on_remove_callback = on_remove_callback
         self.on_convert_callback = None
         self.downloader_instance = None  # Holds the VideoDownloader object
+        self.scheduled_task_id = None
         self.is_cancelled = False
         self.is_paused = False
 
@@ -304,6 +305,12 @@ class DownloadRow(Gtk.Box):
 
             # Remove from JSON History
             HistoryManager.remove_entry(self.full_path)
+            if self.scheduled_task_id:
+                from ..core.download_manager import DownloadManager
+                from ..core.scheduled_downloads import ScheduledDownloadStore
+
+                ScheduledDownloadStore.remove(self.scheduled_task_id)
+                DownloadManager().cancel_task(self.scheduled_task_id)
 
             # Remove Row from UI
             # We delay slightly to let the animation finish or user see "Cancelled"

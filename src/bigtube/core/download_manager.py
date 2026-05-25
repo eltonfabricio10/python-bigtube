@@ -61,11 +61,13 @@ class DownloadManager:
         force_overwrite: bool = False,
         on_start_callback: Callable = None,
         priority: int = 0,
+        task_id: str = None,
+        estimated_size_mb: float | None = None,
     ) -> str:
         """
         Schedules a download for a specific unix timestamp.
         """
-        task_id = str(uuid.uuid4())
+        task_id = task_id or str(uuid.uuid4())
 
         task = {
             "id": task_id,
@@ -78,6 +80,7 @@ class DownloadManager:
             "on_start_callback": on_start_callback,
             "scheduled_time": timestamp,
             "priority": priority,
+            "estimated_size_mb": estimated_size_mb,
         }
 
         with self.lock:
@@ -104,6 +107,7 @@ class DownloadManager:
         force_overwrite: bool = False,
         on_start_callback: Callable = None,
         priority: int = 0,
+        estimated_size_mb: float | None = None,
     ) -> str:
         """
         Adds a download to the queue.
@@ -121,6 +125,7 @@ class DownloadManager:
             "force_overwrite": force_overwrite,
             "on_start_callback": on_start_callback,  # Called when download actually starts
             "priority": priority,
+            "estimated_size_mb": estimated_size_mb,
         }
 
         self._enqueue_task(task)
@@ -211,6 +216,7 @@ class DownloadManager:
                     ext=task["ext"],
                     progress_callback=task["progress_callback"],
                     force_overwrite=task.get("force_overwrite", False),
+                    estimated_size_mb=task.get("estimated_size_mb"),
                 )
             finally:
                 self._on_task_complete(task_id)
@@ -236,3 +242,7 @@ class DownloadManager:
                     entry for entry in self.pending_queue if entry[2]["id"] != task_id
                 ]
                 heapq.heapify(self.pending_queue)
+                self.scheduled_tasks = [
+                    task for task in self.scheduled_tasks if task.get("id") != task_id
+                ]
+                self._schedule_event.set()

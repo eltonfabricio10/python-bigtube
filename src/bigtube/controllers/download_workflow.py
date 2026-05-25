@@ -12,6 +12,7 @@ from ..core.history_manager import HistoryManager
 from ..core.locales import ResourceManager as Res
 from ..core.locales import StringKey
 from ..core.logger import get_logger
+from ..core.scheduled_downloads import ScheduledDownloadStore
 from ..core.validators import sanitize_filename
 from ..ui.format_dialog import FormatSelectionDialog
 from ..ui.message_manager import MessageManager
@@ -143,10 +144,24 @@ class DownloadWorkflowController:
             self._spawn_download_task(video_info, format_data, full_path, False, schedule_time)
 
     def _spawn_download_task(
-        self, video_info, format_data, full_path, force_overwrite, schedule_time=None
+        self,
+        video_info,
+        format_data,
+        full_path,
+        force_overwrite,
+        schedule_time=None,
+        *,
+        add_history=True,
+        persist_schedule=True,
+        task_id=None,
     ):
-        if ConfigManager.get("save_history"):
-            HistoryManager.add_entry(video_info, format_data, full_path)
+        estimated_size_mb = float(format_data.get("size_val") or 0)
+
+        if ConfigManager.get("save_history") and add_history:
+            history_info = video_info.copy()
+            if schedule_time:
+                history_info["scheduled_time"] = schedule_time
+            HistoryManager.add_entry(history_info, format_data, full_path)
             self.main_window.btn_clear.set_sensitive(True)
 
         file_name = os.path.basename(full_path)
@@ -177,7 +192,12 @@ class DownloadWorkflowController:
                         MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_COMPLETED))
                 elif percent_str == "Cancelled":
                     MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_CANCELLED))
-                elif status_text == Res.get(StringKey.STATUS_ERROR):
+                elif self._is_error_update(percent_str, status_text):
+                    row_widget.set_error_state(
+                        status_text
+                        if percent_str == Res.get(StringKey.STATUS_ERROR)
+                        else str(percent_str)
+                    )
                     if ConfigManager.get("system_notifications"):
                         self.main_window._send_system_notification(
                             Res.get(StringKey.STATUS_ERROR), video_info["title"]
@@ -189,7 +209,7 @@ class DownloadWorkflowController:
                 HistoryManager.update_status(full_path, DownloadStatus.COMPLETED, 1.0)
                 GLib.idle_add(self.download_ctrl.invalidate_sort)
                 GLib.idle_add(self.download_ctrl.update_status_bar)
-            elif status_text == Res.get(StringKey.STATUS_ERROR):
+            elif self._is_error_update(percent_str, status_text):
                 HistoryManager.update_status(full_path, DownloadStatus.ERROR)
                 GLib.idle_add(self.download_ctrl.invalidate_sort)
                 GLib.idle_add(self.download_ctrl.update_status_bar)
@@ -213,11 +233,16 @@ class DownloadWorkflowController:
             }
             progress_throttle.emit(percent_str, status_text, force=force)
 
+        task_id_holder = {"id": task_id}
+
         def on_start(downloader_instance):
+            if task_id_holder["id"]:
+                ScheduledDownloadStore.remove(task_id_holder["id"])
+                row_widget.scheduled_task_id = None
             GLib.idle_add(row_widget.set_downloader, downloader_instance)
 
         if schedule_time:
-            DownloadManager().schedule_download(
+            scheduled_id = DownloadManager().schedule_download(
                 timestamp=schedule_time,
                 url=video_info["url"],
                 format_id=format_data["id"],
@@ -226,7 +251,23 @@ class DownloadWorkflowController:
                 progress_callback=ui_progress_callback,
                 force_overwrite=force_overwrite,
                 on_start_callback=on_start,
+                task_id=task_id,
+                estimated_size_mb=estimated_size_mb,
             )
+            task_id_holder["id"] = scheduled_id
+            row_widget.scheduled_task_id = scheduled_id
+            if persist_schedule:
+                ScheduledDownloadStore.upsert(
+                    {
+                        "id": scheduled_id,
+                        "scheduled_time": schedule_time,
+                        "video_info": video_info,
+                        "format_data": format_data,
+                        "full_path": full_path,
+                        "force_overwrite": force_overwrite,
+                        "estimated_size_mb": estimated_size_mb,
+                    }
+                )
             from datetime import datetime
 
             dt = datetime.fromtimestamp(schedule_time)
@@ -240,4 +281,39 @@ class DownloadWorkflowController:
                 progress_callback=ui_progress_callback,
                 force_overwrite=force_overwrite,
                 on_start_callback=on_start,
+                estimated_size_mb=estimated_size_mb,
             )
+
+    def restore_scheduled_downloads(self):
+        """Recreates persisted scheduled downloads after startup."""
+        now = time.time()
+        for item in ScheduledDownloadStore.load():
+            video_info = item.get("video_info")
+            format_data = item.get("format_data")
+            full_path = item.get("full_path")
+            if not isinstance(video_info, dict) or not isinstance(format_data, dict) or not full_path:
+                ScheduledDownloadStore.remove(item.get("id"))
+                continue
+
+            schedule_time = item.get("scheduled_time")
+            if schedule_time and schedule_time <= now:
+                schedule_time = None
+
+            self._spawn_download_task(
+                video_info,
+                format_data,
+                full_path,
+                item.get("force_overwrite", False),
+                schedule_time,
+                add_history=False,
+                persist_schedule=False,
+                task_id=item.get("id"),
+            )
+
+    def _is_error_update(self, percent_str, status_text):
+        status_error = Res.get(StringKey.STATUS_ERROR)
+        return (
+            percent_str == status_error
+            or status_text == status_error
+            or status_text == Res.get(StringKey.ERR_DISK_SPACE)
+        )

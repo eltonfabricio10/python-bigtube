@@ -1,6 +1,7 @@
 # ruff: noqa: E402
 import os
 import threading
+import time
 
 from gi.repository import GLib
 
@@ -11,6 +12,7 @@ from ..core.locales import ResourceManager as Res
 from ..core.locales import StringKey
 from ..core.logger import get_logger
 from ..core.network_checker import check_internet_connection, check_ytdlp_update_available
+from ..core.scheduled_downloads import ScheduledDownloadStore
 from ..core.updater import Updater
 from ..ui.message_manager import MessageManager
 
@@ -48,8 +50,19 @@ class StartupManager:
         """Rebuilds the downloads UI based on JSON history."""
         history = HistoryManager.load()
         self.main_window.btn_clear.set_sensitive(bool(history))
+        scheduled_paths = {
+            item.get("full_path") for item in ScheduledDownloadStore.load() if item.get("full_path")
+        }
 
         for item in reversed(history):
+            scheduled_time = item.get("scheduled_time")
+            if (
+                scheduled_time
+                and scheduled_time > time.time()
+                and item.get("file_path") in scheduled_paths
+            ):
+                continue
+
             raw_status = item.get("status", DownloadStatus.PENDING)
             display_label = get_status_label(raw_status)
 
@@ -65,3 +78,6 @@ class StartupManager:
 
         self.main_window._update_download_empty_state()
         self.main_window.download_ctrl.invalidate_sort()
+
+        if hasattr(self.main_window, "download_workflow"):
+            self.main_window.download_workflow.restore_scheduled_downloads()

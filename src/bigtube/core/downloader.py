@@ -364,6 +364,7 @@ class VideoDownloader:
         ext: str,
         progress_callback: Callable[[str, str], None],
         force_overwrite: bool = False,
+        estimated_size_mb: float | None = None,
     ) -> bool:
         """
         Starts downloading the video.
@@ -377,6 +378,7 @@ class VideoDownloader:
             "ext": ext,
             "progress_callback": progress_callback,
             "force_overwrite": force_overwrite,
+            "estimated_size_mb": estimated_size_mb,
         }
 
         # Reset state flags
@@ -389,7 +391,8 @@ class VideoDownloader:
             os.makedirs(download_dir, exist_ok=True)
 
         # 1b. Check disk space before proceeding
-        if not self._check_disk_space(500, download_dir):  # 500MB estimated
+        estimate = estimated_size_mb if estimated_size_mb and estimated_size_mb > 0 else 500
+        if not self._check_disk_space(estimate, download_dir):
             if progress_callback:
                 progress_callback(None, Res.get(StringKey.ERR_DISK_SPACE))
             return False
