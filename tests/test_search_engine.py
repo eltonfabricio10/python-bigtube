@@ -63,3 +63,52 @@ def test_youtube_music_accepts_ids_and_normalizes_playable_urls():
 
     assert parsed["url"] == "https://music.youtube.com/watch?v=abc123DEF_-"
     assert parsed["is_video"] is False
+
+
+def test_youtube_music_uses_artist_and_thumbnail_fallback_from_video_id():
+    with (
+        patch("bigtube.core.search.ConfigManager.get_yt_dlp_path", return_value="/usr/bin/yt-dlp"),
+        patch("bigtube.core.search.ConfigManager.get_env_with_bin_path", return_value={}),
+        patch("bigtube.core.search.ConfigManager.get", return_value=10),
+    ):
+        engine = SearchEngine()
+
+    parsed = engine._parse_entry(
+        {
+            "id": "abc123DEF_-",
+            "url": "abc123DEF_-",
+            "title": "Song",
+            "channel": "YouTube Music",
+            "artists": [{"name": "Artist One"}, {"name": "Artist Two"}],
+        },
+        force_audio=True,
+    )
+
+    assert parsed["thumbnail"] == "https://i.ytimg.com/vi/abc123DEF_-/hqdefault.jpg"
+    assert parsed["uploader"] == "Artist One, Artist Two"
+
+
+def test_parse_entry_selects_largest_thumbnail_candidate():
+    with (
+        patch("bigtube.core.search.ConfigManager.get_yt_dlp_path", return_value="/usr/bin/yt-dlp"),
+        patch("bigtube.core.search.ConfigManager.get_env_with_bin_path", return_value={}),
+        patch("bigtube.core.search.ConfigManager.get", return_value=10),
+    ):
+        engine = SearchEngine()
+
+    parsed = engine._parse_entry(
+        {
+            "id": "abc123DEF_-",
+            "url": "https://music.youtube.com/watch?v=abc123DEF_-",
+            "title": "Song",
+            "thumbnails": [
+                {"url": "https://example.com/small.jpg", "width": 60, "height": 60},
+                {"url": "https://example.com/large.jpg", "width": 544, "height": 544},
+            ],
+            "artist": "Artist",
+        },
+        force_audio=True,
+    )
+
+    assert parsed["thumbnail"] == "https://example.com/large.jpg"
+    assert parsed["uploader"] == "Artist"

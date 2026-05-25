@@ -271,13 +271,7 @@ class SearchEngine:
         """
         Normalizes JSON data into a clean dictionary for VideoDataObject.
         """
-        # Thumbnail (try 'thumbnail' key, fallback to 'thumbnails' list)
-        thumb_url = entry.get("thumbnail")
-        if not thumb_url and "thumbnails" in entry:
-            thumbs = entry["thumbnails"]
-            if isinstance(thumbs, list) and len(thumbs) > 0:
-                # Get the last one (usually highest quality)
-                thumb_url = thumbs[-1].get("url")
+        thumb_url = self._extract_thumbnail(entry)
 
         # Logic to determine if it's video or audio-only
         is_video = not force_audio
@@ -292,12 +286,70 @@ class SearchEngine:
             "title": entry.get("title", Res.get(StringKey.LBL_UNTITLED)),
             "url": url,
             "thumbnail": thumb_url,
-            "uploader": entry.get("uploader")
-            or entry.get("channel")
-            or Res.get(StringKey.LBL_UNKNOWN),
+            "uploader": self._extract_uploader(entry, prefer_artist=force_audio),
             "duration": entry.get("duration", 0),
             "is_video": is_video,
         }
+
+    def _extract_thumbnail(self, entry: dict) -> str:
+        thumb_url = entry.get("thumbnail")
+        if isinstance(thumb_url, str) and thumb_url.strip():
+            return thumb_url.strip()
+
+        thumbs = entry.get("thumbnails")
+        if isinstance(thumbs, list):
+            candidates = []
+            for thumb in thumbs:
+                if not isinstance(thumb, dict):
+                    continue
+                url = thumb.get("url")
+                if not isinstance(url, str) or not url.strip():
+                    continue
+                width = thumb.get("width") or 0
+                height = thumb.get("height") or 0
+                candidates.append((width * height, url.strip()))
+            if candidates:
+                return max(candidates, key=lambda item: item[0])[1]
+
+        video_id = entry.get("id")
+        if isinstance(video_id, str) and self._looks_like_youtube_video_id(video_id):
+            return f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
+
+        return ""
+
+    def _extract_uploader(self, entry: dict, prefer_artist: bool = False) -> str:
+        artist_keys = ("artists", "artist", "album_artist", "creator")
+        channel_keys = ("uploader", "channel", "channel_name", "playlist_uploader")
+        key_order = artist_keys + channel_keys if prefer_artist else channel_keys + artist_keys
+
+        for key in key_order:
+            value = entry.get(key)
+            text = self._stringify_credit(value)
+            if text:
+                return text
+
+        return Res.get(StringKey.LBL_UNKNOWN)
+
+    def _stringify_credit(self, value) -> str:
+        if isinstance(value, str):
+            return value.strip()
+
+        if isinstance(value, dict):
+            for key in ("name", "title", "id"):
+                text = value.get(key)
+                if isinstance(text, str) and text.strip():
+                    return text.strip()
+            return ""
+
+        if isinstance(value, list):
+            names = []
+            for item in value:
+                text = self._stringify_credit(item)
+                if text:
+                    names.append(text)
+            return ", ".join(names)
+
+        return ""
 
     def _normalize_youtube_music_url(self, url: str, entry_id: str = None) -> str:
         if url.startswith(("http://", "https://")):
