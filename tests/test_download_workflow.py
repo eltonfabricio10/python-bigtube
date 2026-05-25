@@ -106,15 +106,45 @@ def test_scheduled_download_is_persisted_with_serializable_payload():
         patch("bigtube.controllers.download_workflow.HistoryManager.add_entry"),
         patch("bigtube.controllers.download_workflow.DownloadManager") as manager_cls,
         patch("bigtube.controllers.download_workflow.ScheduledDownloadStore.upsert") as upsert,
+        patch("bigtube.controllers.download_workflow.uuid.uuid4", return_value="task-1"),
     ):
         manager_cls.return_value.schedule_download.return_value = "task-1"
         controller._spawn_download_task(
-            video_info, format_data, "/tmp/video.mp4", False, schedule_time=999
+            video_info, format_data, "/tmp/video.mp4", False, schedule_time=9999999999
         )
 
     payload = upsert.call_args.args[0]
     assert payload["id"] == "task-1"
-    assert payload["scheduled_time"] == 999
+    assert payload["scheduled_time"] == 9999999999
     assert payload["video_info"] == video_info
     assert payload["format_data"] == format_data
     assert payload["estimated_size_mb"] == 12.5
+    assert manager_cls.return_value.schedule_download.call_args.kwargs["task_id"] == "task-1"
+
+
+def test_restore_due_scheduled_download_removes_stale_store_entry():
+    controller = DownloadWorkflowController.__new__(DownloadWorkflowController)
+    controller.main_window = MagicMock()
+    controller.download_ctrl = MagicMock()
+    controller.download_ctrl.add_download.return_value = MagicMock()
+    item = {
+        "id": "due-task",
+        "scheduled_time": 1,
+        "video_info": {"title": "Video", "url": "https://example.com/watch"},
+        "format_data": {"id": "22", "ext": "mp4", "size_val": 12.5},
+        "full_path": "/tmp/video.mp4",
+        "force_overwrite": False,
+    }
+
+    with (
+        patch(
+            "bigtube.controllers.download_workflow.ScheduledDownloadStore.load", return_value=[item]
+        ),
+        patch("bigtube.controllers.download_workflow.ScheduledDownloadStore.remove") as remove,
+        patch("bigtube.controllers.download_workflow.ConfigManager.get", return_value=False),
+        patch("bigtube.controllers.download_workflow.DownloadManager") as manager_cls,
+    ):
+        controller.restore_scheduled_downloads()
+
+    remove.assert_called_with("due-task")
+    assert manager_cls.return_value.add_download.called

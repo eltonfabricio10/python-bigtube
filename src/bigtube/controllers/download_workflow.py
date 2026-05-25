@@ -2,6 +2,7 @@
 import os
 import threading
 import time
+import uuid
 
 from gi.repository import GLib
 
@@ -233,6 +234,11 @@ class DownloadWorkflowController:
             }
             progress_throttle.emit(percent_str, status_text, force=force)
 
+        if schedule_time and schedule_time <= time.time():
+            if task_id:
+                ScheduledDownloadStore.remove(task_id)
+            schedule_time = None
+
         task_id_holder = {"id": task_id}
 
         def on_start(downloader_instance):
@@ -242,20 +248,10 @@ class DownloadWorkflowController:
             GLib.idle_add(row_widget.set_downloader, downloader_instance)
 
         if schedule_time:
-            scheduled_id = DownloadManager().schedule_download(
-                timestamp=schedule_time,
-                url=video_info["url"],
-                format_id=format_data["id"],
-                title=video_info["title"],
-                ext=format_data["ext"],
-                progress_callback=ui_progress_callback,
-                force_overwrite=force_overwrite,
-                on_start_callback=on_start,
-                task_id=task_id,
-                estimated_size_mb=estimated_size_mb,
-            )
+            scheduled_id = task_id or str(uuid.uuid4())
             task_id_holder["id"] = scheduled_id
             row_widget.scheduled_task_id = scheduled_id
+
             if persist_schedule:
                 ScheduledDownloadStore.upsert(
                     {
@@ -268,6 +264,19 @@ class DownloadWorkflowController:
                         "estimated_size_mb": estimated_size_mb,
                     }
                 )
+
+            scheduled_id = DownloadManager().schedule_download(
+                timestamp=schedule_time,
+                url=video_info["url"],
+                format_id=format_data["id"],
+                title=video_info["title"],
+                ext=format_data["ext"],
+                progress_callback=ui_progress_callback,
+                force_overwrite=force_overwrite,
+                on_start_callback=on_start,
+                task_id=scheduled_id,
+                estimated_size_mb=estimated_size_mb,
+            )
             from datetime import datetime
 
             dt = datetime.fromtimestamp(schedule_time)
@@ -301,6 +310,7 @@ class DownloadWorkflowController:
 
             schedule_time = item.get("scheduled_time")
             if schedule_time and schedule_time <= now:
+                ScheduledDownloadStore.remove(item.get("id"))
                 schedule_time = None
 
             self._spawn_download_task(
