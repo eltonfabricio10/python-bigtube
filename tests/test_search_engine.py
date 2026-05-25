@@ -112,3 +112,68 @@ def test_parse_entry_selects_largest_thumbnail_candidate():
 
     assert parsed["thumbnail"] == "https://example.com/large.jpg"
     assert parsed["uploader"] == "Artist"
+
+
+def test_youtube_music_ignores_generic_channel_and_uses_topic_uploader():
+    with (
+        patch("bigtube.core.search.ConfigManager.get_yt_dlp_path", return_value="/usr/bin/yt-dlp"),
+        patch("bigtube.core.search.ConfigManager.get_env_with_bin_path", return_value={}),
+        patch("bigtube.core.search.ConfigManager.get", return_value=10),
+    ):
+        engine = SearchEngine()
+
+    parsed = engine._parse_entry(
+        {
+            "id": "abc123DEF_-",
+            "url": "abc123DEF_-",
+            "title": "Song",
+            "channel": "YouTube Music",
+            "uploader": "Artist Name - Topic",
+        },
+        force_audio=True,
+    )
+
+    assert parsed["uploader"] == "Artist Name"
+
+
+def test_youtube_music_uses_nested_artist_metadata_before_generic_channel():
+    with (
+        patch("bigtube.core.search.ConfigManager.get_yt_dlp_path", return_value="/usr/bin/yt-dlp"),
+        patch("bigtube.core.search.ConfigManager.get_env_with_bin_path", return_value={}),
+        patch("bigtube.core.search.ConfigManager.get", return_value=10),
+    ):
+        engine = SearchEngine()
+
+    parsed = engine._parse_entry(
+        {
+            "id": "abc123DEF_-",
+            "url": "abc123DEF_-",
+            "title": "Song",
+            "channel": "YouTube Music",
+            "metadata": {"music": {"artist": "Nested Artist"}},
+        },
+        force_audio=True,
+    )
+
+    assert parsed["uploader"] == "Nested Artist"
+
+
+def test_youtube_music_falls_back_to_youtube_music_when_artist_is_missing():
+    with (
+        patch("bigtube.core.search.ConfigManager.get_yt_dlp_path", return_value="/usr/bin/yt-dlp"),
+        patch("bigtube.core.search.ConfigManager.get_env_with_bin_path", return_value={}),
+        patch("bigtube.core.search.ConfigManager.get", return_value=10),
+    ):
+        engine = SearchEngine()
+
+    parsed = engine._parse_entry(
+        {
+            "id": "abc123DEF_-",
+            "url": "abc123DEF_-",
+            "title": "Song",
+            "channel": "YouTube Music",
+        },
+        force_audio=True,
+    )
+
+    assert parsed["uploader"] == "YouTube Music"

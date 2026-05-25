@@ -318,15 +318,33 @@ class SearchEngine:
         return ""
 
     def _extract_uploader(self, entry: dict, prefer_artist: bool = False) -> str:
-        artist_keys = ("artists", "artist", "album_artist", "creator")
+        artist_keys = (
+            "artists",
+            "artist",
+            "album_artist",
+            "release_artist",
+            "track_artist",
+            "creators",
+            "creator",
+            "authors",
+            "author",
+        )
         channel_keys = ("uploader", "channel", "channel_name", "playlist_uploader")
         key_order = artist_keys + channel_keys if prefer_artist else channel_keys + artist_keys
 
         for key in key_order:
             value = entry.get(key)
             text = self._stringify_credit(value)
+            if prefer_artist and self._is_generic_music_credit(text):
+                continue
             if text:
-                return text
+                return self._normalize_music_credit(text)
+
+        if prefer_artist:
+            nested = self._find_nested_credit(entry, artist_keys)
+            if nested:
+                return self._normalize_music_credit(nested)
+            return "YouTube Music"
 
         return Res.get(StringKey.LBL_UNKNOWN)
 
@@ -350,6 +368,44 @@ class SearchEngine:
             return ", ".join(names)
 
         return ""
+
+    def _find_nested_credit(self, value, keys: tuple[str, ...], depth: int = 0) -> str:
+        if depth > 4:
+            return ""
+
+        if isinstance(value, dict):
+            for key in keys:
+                text = self._stringify_credit(value.get(key))
+                if text and not self._is_generic_music_credit(text):
+                    return text
+
+            for nested in value.values():
+                text = self._find_nested_credit(nested, keys, depth + 1)
+                if text:
+                    return text
+
+        if isinstance(value, list):
+            for item in value:
+                text = self._find_nested_credit(item, keys, depth + 1)
+                if text:
+                    return text
+
+        return ""
+
+    def _is_generic_music_credit(self, text: str) -> bool:
+        normalized = (text or "").strip().lower()
+        return normalized in {
+            "youtube",
+            "youtube music",
+            "music.youtube.com",
+            "youtube music search",
+        }
+
+    def _normalize_music_credit(self, text: str) -> str:
+        text = (text or "").strip()
+        if text.lower().endswith(" - topic"):
+            return text[:-8].strip()
+        return text
 
     def _normalize_youtube_music_url(self, url: str, entry_id: str = None) -> str:
         if url.startswith(("http://", "https://")):
