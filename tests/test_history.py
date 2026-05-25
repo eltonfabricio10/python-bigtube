@@ -49,7 +49,12 @@ class TestHistoryManager(unittest.TestCase):
 
     def test_add_entry_uses_current_video_and_format_contract(self):
         item = HistoryManager.add_entry(
-            {"id": "vid1", "title": "Video", "url": "https://example.com/watch", "scheduled_time": 123},
+            {
+                "id": "vid1",
+                "title": "Video",
+                "url": "https://example.com/watch",
+                "scheduled_time": 123,
+            },
             {"id": "22", "ext": "mp4"},
             "/tmp/video.mp4",
         )

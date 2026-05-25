@@ -74,9 +74,13 @@ def test_progress_error_update_marks_history_and_row_error():
 
     with (
         patch("bigtube.controllers.download_workflow.ConfigManager.get", return_value=False),
-        patch("bigtube.controllers.download_workflow.HistoryManager.update_status") as update_status,
+        patch(
+            "bigtube.controllers.download_workflow.HistoryManager.update_status"
+        ) as update_status,
         patch("bigtube.controllers.download_workflow.HistoryManager.add_entry"),
-        patch("bigtube.controllers.download_workflow.GLib.idle_add", side_effect=lambda fn, *a: fn(*a)),
+        patch(
+            "bigtube.controllers.download_workflow.GLib.idle_add", side_effect=lambda fn, *a: fn(*a)
+        ),
         patch.object(controller.download_ctrl, "add_download", return_value=row),
         patch("bigtube.controllers.download_workflow.DownloadManager") as manager_cls,
     ):

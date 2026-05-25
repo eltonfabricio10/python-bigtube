@@ -291,7 +291,11 @@ class DownloadWorkflowController:
             video_info = item.get("video_info")
             format_data = item.get("format_data")
             full_path = item.get("full_path")
-            if not isinstance(video_info, dict) or not isinstance(format_data, dict) or not full_path:
+            if (
+                not isinstance(video_info, dict)
+                or not isinstance(format_data, dict)
+                or not full_path
+            ):
                 ScheduledDownloadStore.remove(item.get("id"))
                 continue
 
