@@ -441,9 +441,7 @@ class SettingsController:
             row.set_text(ConfigManager.get("proxy") or "")
             return
         ConfigManager.set("proxy", text)
-        threading.Thread(
-            target=self._test_proxy_worker, args=(text,), daemon=True
-        ).start()
+        threading.Thread(target=self._test_proxy_worker, args=(text,), daemon=True).start()
 
     def _test_proxy_worker(self, url: str):
         ok, error = ConfigManager.test_proxy_connection(url)

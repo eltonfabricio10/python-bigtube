@@ -218,9 +218,7 @@ class DownloadWorkflowController:
                 row_widget.update_progress(percent_str, status_text)
                 if is_complete:
                     if notifications_enabled:
-                        self.main_window._send_system_notification(
-                            str_completed_msg, video_title
-                        )
+                        self.main_window._send_system_notification(str_completed_msg, video_title)
                     else:
                         MessageManager.show(str_completed_msg)
                 elif is_cancelled:
@@ -230,9 +228,7 @@ class DownloadWorkflowController:
                         status_text if percent_str == str_status_error else str(percent_str)
                     )
                     if notifications_enabled:
-                        self.main_window._send_system_notification(
-                            str_status_error, video_title
-                        )
+                        self.main_window._send_system_notification(str_status_error, video_title)
                 if is_complete or is_error:
                     self.download_ctrl.invalidate_sort()
                 self.download_ctrl.update_status_bar()
@@ -340,4 +336,3 @@ class DownloadWorkflowController:
                 persist_schedule=False,
                 task_id=item.get("id"),
             )
-

@@ -382,7 +382,9 @@ class StringKey(Enum):
     PREFS_USER_AGENT_DESC = N_("Override the User-Agent used by yt-dlp")
     PREFS_PROXY_LABEL = N_("Proxy")
     PREFS_PROXY_DESC = N_("Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)")
-    MSG_PROXY_INVALID = N_("Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5).")
+    MSG_PROXY_INVALID = N_(
+        "Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
+    )
     MSG_PROXY_UNREACHABLE = N_("Proxy not reachable: {error}")
     MSG_PROXY_OK = N_("Proxy connection successful.")
     OPT_NONE = N_("None")
