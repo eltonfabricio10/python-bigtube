@@ -142,27 +142,27 @@ class HistoryManager:
         Accepts 'status' as an Enum or String.
         Uses debounced save for frequent progress updates.
         """
+        # Convert Enum to string value once, outside the lock.
+        status_val = status.value if isinstance(status, DownloadStatus) else status
+        now = time.time()
+
         with cls._cache_lock:
             if cls._cache is None:
-                cls._cache = cls.load()
+                # Lazy-load directly into cache without going through load()
+                # to avoid an extra copy.
+                cls._cache = load_json(cls._FILE_PATH, [])
 
-            history = cls._cache
             changed = False
-
-            # Convert Enum to string value if necessary
-            status_val = status.value if isinstance(status, DownloadStatus) else status
-
-            for item in history:
-                # We identify the item by the file path (unique per download)
+            for item in cls._cache:
                 if item.get("file_path") == file_path:
-                    item["status"] = status_val
-                    if progress is not None:
+                    if item.get("status") != status_val:
+                        item["status"] = status_val
+                        changed = True
+                    if progress is not None and item.get("progress") != progress:
                         item["progress"] = progress
-
-                    # Update timestamp to reflect last activity
-                    item["last_updated"] = time.time()
-
-                    changed = True
+                        changed = True
+                    if changed:
+                        item["last_updated"] = now
                     break
 
         if changed:

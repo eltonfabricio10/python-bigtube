@@ -1,9 +1,11 @@
 import os
 import shutil
+import socket
 import threading
 from enum import Enum
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from gi.repository import GLib
 
@@ -77,6 +79,7 @@ class ConfigManager:
         "cookies_file": "",
         "cookies_browser": "",
         "user_agent": "",
+        "proxy": "",
     }
 
     _data = {}
@@ -275,8 +278,52 @@ class ConfigManager:
         return args
 
     @classmethod
+    def get_proxy(cls) -> str:
+        """Returns the configured proxy URL or an empty string."""
+        proxy = cls.get("proxy")
+        if isinstance(proxy, str) and proxy.strip():
+            return proxy.strip()
+        return ""
+
+    _VALID_PROXY_SCHEMES = {"http", "https", "socks4", "socks4a", "socks5", "socks5h"}
+
+    @classmethod
+    def validate_proxy_url(cls, url: str) -> tuple[bool, str, int]:
+        """Validates a proxy URL. Returns (is_valid, host, port)."""
+        if not url:
+            return True, "", 0
+        try:
+            parsed = urlparse(url)
+        except ValueError:
+            return False, "", 0
+        if parsed.scheme.lower() not in cls._VALID_PROXY_SCHEMES:
+            return False, "", 0
+        host = parsed.hostname or ""
+        port = parsed.port or (443 if parsed.scheme.lower() == "https" else 80)
+        if not host:
+            return False, "", 0
+        return True, host, port
+
+    @classmethod
+    def test_proxy_connection(cls, url: str, timeout: float = 5.0) -> tuple[bool, str]:
+        """Attempts a TCP connection to the proxy host:port. Returns (ok, error)."""
+        ok, host, port = cls.validate_proxy_url(url)
+        if not ok:
+            return False, "invalid url"
+        if not host:
+            return True, ""
+        try:
+            with socket.create_connection((host, port), timeout=timeout):
+                return True, ""
+        except (OSError, TimeoutError) as e:
+            return False, str(e)
+
+    @classmethod
     def get_yt_dlp_common_args(cls) -> list[str]:
         """Common yt-dlp args based on user configuration."""
         args = ["--user-agent", cls.get_user_agent()]
         args.extend(cls.get_cookie_args())
+        proxy = cls.get_proxy()
+        if proxy:
+            args.extend(["--proxy", proxy])
         return args

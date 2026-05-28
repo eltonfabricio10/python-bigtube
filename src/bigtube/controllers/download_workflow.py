@@ -181,57 +181,74 @@ class DownloadWorkflowController:
         self.download_ctrl.invalidate_sort()
         self.download_ctrl.update_status_bar()
 
+        # Cache strings/config once: progress callbacks fire many times per second.
+        video_title = video_info["title"]
+        str_completed_msg = Res.get(StringKey.MSG_DOWNLOAD_COMPLETED)
+        str_cancelled_msg = Res.get(StringKey.MSG_DOWNLOAD_CANCELLED)
+        str_status_error = Res.get(StringKey.STATUS_ERROR)
+        str_status_completed = Res.get(StringKey.STATUS_COMPLETED)
+        str_status_cancelled = Res.get(StringKey.STATUS_CANCELLED)
+        str_status_merging = Res.get(StringKey.STATUS_MERGING)
+        str_status_extracting = Res.get(StringKey.STATUS_EXTRACTING)
+        str_err_disk_space = Res.get(StringKey.ERR_DISK_SPACE)
+        notifications_enabled = bool(ConfigManager.get("system_notifications"))
+        force_percent_set = {"100%", "Cancelled", str_status_error}
+        force_status_set = {
+            str_status_completed,
+            str_status_cancelled,
+            str_status_error,
+            str_status_merging,
+            str_status_extracting,
+            str_err_disk_space,
+        }
+
+        def _is_error(percent_str, status_text):
+            return (
+                percent_str == str_status_error
+                or status_text == str_status_error
+                or status_text == str_err_disk_space
+            )
+
         def apply_progress_update(percent_str, status_text):
-            def _update_ui():
+            is_complete = percent_str == "100%"
+            is_cancelled = percent_str == "Cancelled"
+            is_error = _is_error(percent_str, status_text)
+
+            def _batched_ui():
                 row_widget.update_progress(percent_str, status_text)
-                if percent_str == "100%":
-                    if ConfigManager.get("system_notifications"):
+                if is_complete:
+                    if notifications_enabled:
                         self.main_window._send_system_notification(
-                            Res.get(StringKey.MSG_DOWNLOAD_COMPLETED), video_info["title"]
+                            str_completed_msg, video_title
                         )
                     else:
-                        MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_COMPLETED))
-                elif percent_str == "Cancelled":
-                    MessageManager.show(Res.get(StringKey.MSG_DOWNLOAD_CANCELLED))
-                elif self._is_error_update(percent_str, status_text):
+                        MessageManager.show(str_completed_msg)
+                elif is_cancelled:
+                    MessageManager.show(str_cancelled_msg)
+                elif is_error:
                     row_widget.set_error_state(
-                        status_text
-                        if percent_str == Res.get(StringKey.STATUS_ERROR)
-                        else str(percent_str)
+                        status_text if percent_str == str_status_error else str(percent_str)
                     )
-                    if ConfigManager.get("system_notifications"):
+                    if notifications_enabled:
                         self.main_window._send_system_notification(
-                            Res.get(StringKey.STATUS_ERROR), video_info["title"]
+                            str_status_error, video_title
                         )
+                if is_complete or is_error:
+                    self.download_ctrl.invalidate_sort()
+                self.download_ctrl.update_status_bar()
+                return False
 
-            GLib.idle_add(_update_ui)
+            GLib.idle_add(_batched_ui)
 
-            if percent_str == "100%":
+            if is_complete:
                 HistoryManager.update_status(full_path, DownloadStatus.COMPLETED, 1.0)
-                GLib.idle_add(self.download_ctrl.invalidate_sort)
-                GLib.idle_add(self.download_ctrl.update_status_bar)
-            elif self._is_error_update(percent_str, status_text):
+            elif is_error:
                 HistoryManager.update_status(full_path, DownloadStatus.ERROR)
-                GLib.idle_add(self.download_ctrl.invalidate_sort)
-                GLib.idle_add(self.download_ctrl.update_status_bar)
-            else:
-                GLib.idle_add(self.download_ctrl.update_status_bar)
 
         progress_throttle = ProgressUpdateThrottle(apply_progress_update)
 
         def ui_progress_callback(percent_str, status_text):
-            force = percent_str in {
-                "100%",
-                "Cancelled",
-                Res.get(StringKey.STATUS_ERROR),
-            } or status_text in {
-                Res.get(StringKey.STATUS_COMPLETED),
-                Res.get(StringKey.STATUS_CANCELLED),
-                Res.get(StringKey.STATUS_ERROR),
-                Res.get(StringKey.STATUS_MERGING),
-                Res.get(StringKey.STATUS_EXTRACTING),
-                Res.get(StringKey.ERR_DISK_SPACE),
-            }
+            force = percent_str in force_percent_set or status_text in force_status_set
             progress_throttle.emit(percent_str, status_text, force=force)
 
         if schedule_time and schedule_time <= time.time():
@@ -324,10 +341,3 @@ class DownloadWorkflowController:
                 task_id=item.get("id"),
             )
 
-    def _is_error_update(self, percent_str, status_text):
-        status_error = Res.get(StringKey.STATUS_ERROR)
-        return (
-            percent_str == status_error
-            or status_text == status_error
-            or status_text == Res.get(StringKey.ERR_DISK_SPACE)
-        )

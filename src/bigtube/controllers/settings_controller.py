@@ -7,7 +7,7 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gtk
+from gi.repository import GLib, Gtk
 
 # Internal Imports
 from ..core.config import ConfigManager
@@ -203,6 +203,12 @@ class SettingsController:
                 widgets["row_user_agent"], Res.get(StringKey.PREFS_USER_AGENT_DESC)
             )
             self._add_entry_row_icon(widgets["row_user_agent"], "network-transmit-receive-symbolic")
+        if "row_proxy" in widgets:
+            widgets["row_proxy"].set_title(Res.get(StringKey.PREFS_PROXY_LABEL))
+            self._set_entry_row_description(
+                widgets["row_proxy"], Res.get(StringKey.PREFS_PROXY_DESC)
+            )
+            self._add_entry_row_icon(widgets["row_proxy"], "network-workgroup-symbolic")
 
     def _setup_bindings(self, w):
         """Connects signals for changes not handled by sub-controllers."""
@@ -323,6 +329,8 @@ class SettingsController:
             w["row_user_agent"].connect(
                 "apply", lambda o: ConfigManager.set("user_agent", o.get_text().strip())
             )
+        if "row_proxy" in w:
+            w["row_proxy"].connect("apply", self._on_proxy_apply)
 
     def _add_entry_row_icon(self, row, icon_name: str):
         if row is None or not hasattr(row, "add_prefix"):
@@ -422,6 +430,29 @@ class SettingsController:
         if selected < len(values):
             ConfigManager.set("cookies_browser", values[selected])
 
+    def _on_proxy_apply(self, row):
+        text = row.get_text().strip()
+        if not text:
+            ConfigManager.set("proxy", "")
+            return
+        ok, _host, _port = ConfigManager.validate_proxy_url(text)
+        if not ok:
+            MessageManager.show(Res.get(StringKey.MSG_PROXY_INVALID), is_error=True)
+            row.set_text(ConfigManager.get("proxy") or "")
+            return
+        ConfigManager.set("proxy", text)
+        threading.Thread(
+            target=self._test_proxy_worker, args=(text,), daemon=True
+        ).start()
+
+    def _test_proxy_worker(self, url: str):
+        ok, error = ConfigManager.test_proxy_connection(url)
+        if ok:
+            GLib.idle_add(MessageManager.show, Res.get(StringKey.MSG_PROXY_OK), False)
+        else:
+            msg = Res.get(StringKey.MSG_PROXY_UNREACHABLE).format(error=error)
+            GLib.idle_add(MessageManager.show, msg, True)
+
     def _load_initial_state(self):
         """Populates the UI with current config values."""
         self.row_folder.set_subtitle(ConfigManager.get_download_path())
@@ -475,6 +506,8 @@ class SettingsController:
             self._setup_cookie_browser_model(w["row_cookies_browser"])
         if "row_user_agent" in w:
             w["row_user_agent"].set_text(ConfigManager.get("user_agent") or "")
+        if "row_proxy" in w:
+            w["row_proxy"].set_text(ConfigManager.get("proxy") or "")
 
         if "row_theme" in w:
             val = ConfigManager.get("theme_mode")

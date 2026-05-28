@@ -170,6 +170,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     btn_select_cookies_file = Gtk.Template.Child()
     row_cookies_browser = Gtk.Template.Child()
     row_user_agent = Gtk.Template.Child()
+    row_proxy = Gtk.Template.Child()
 
     group_storage = Gtk.Template.Child()
     row_save_history = Gtk.Template.Child()
@@ -313,6 +314,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             "btn_select_cookies_file": self.btn_select_cookies_file,
             "row_cookies_browser": self.row_cookies_browser,
             "row_user_agent": self.row_user_agent,
+            "row_proxy": self.row_proxy,
         }
 
         self.settings_ctrl = SettingsController(
@@ -564,7 +566,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
                     )
 
                     for item in selected_items:
-                        self._start_single_download(item, format_data["id"], format_data["ext"])
+                        self._start_single_download(item, format_data, schedule_time=schedule_time)
 
                     # Reset selection after starting batch
                     GLib.idle_add(self.btn_selection_mode.set_active, False)
@@ -634,7 +636,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
 
     def _run_startup_checks(self):
         """Compatibility wrapper for startup checks."""
-        self.startup_manager._run_startup_checks_worker()
+        self.startup_manager.run_startup_checks()
 
     # =========================================================================
     # HISTORY & PERSISTENCE
@@ -713,8 +715,14 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self.btn_clear.set_sensitive(False)
         self._update_download_empty_state()
 
-    def _start_single_download(self, item, format_id, ext, force_overwrite=False):
+    def _start_single_download(
+        self, item, format_data, ext=None, force_overwrite=False, schedule_time=None
+    ):
         """Starts a download for a single item with pre-determined format."""
+        if not isinstance(format_data, dict):
+            format_data = {"id": format_data, "ext": ext}
+
+        ext = format_data["ext"]
         file_name = f"{sanitize_filename(item.title)}.{ext}"
         full_path = os.path.join(ConfigManager.get_download_path(), file_name)
 
@@ -725,13 +733,12 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             "uploader": item.uploader,
         }
 
-        format_data = {"id": format_id, "ext": ext}
-
         self.download_workflow._spawn_download_task(
             video_info,
             format_data,
             full_path,
             force_overwrite,
+            schedule_time,
         )
 
     def _load_history_ui(self):

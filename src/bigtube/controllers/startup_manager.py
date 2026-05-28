@@ -1,7 +1,6 @@
 # ruff: noqa: E402
 import os
 import threading
-import time
 
 from gi.repository import GLib
 
@@ -55,29 +54,37 @@ class StartupManager:
         }
 
         for item in reversed(history):
-            scheduled_time = item.get("scheduled_time")
-            if (
-                scheduled_time
-                and scheduled_time > time.time()
-                and item.get("file_path") in scheduled_paths
-            ):
-                continue
-
-            raw_status = item.get("status", DownloadStatus.PENDING)
-            display_label = get_status_label(raw_status)
-
-            row_widget = self.main_window.download_ctrl.add_download(
-                title=item["title"],
-                filename=os.path.basename(item["file_path"]),
-                url=item["url"],
-                format_id=item["format_id"],
-                full_path=item["file_path"],
-                uploader=item.get("uploader", ""),
-            )
-            row_widget.update_progress(f"{int(item.get('progress', 0) * 100)}%", display_label)
+            self._restore_history_item(item, scheduled_paths)
 
         self.main_window._update_download_empty_state()
         self.main_window.download_ctrl.invalidate_sort()
 
         if hasattr(self.main_window, "download_workflow"):
             self.main_window.download_workflow.restore_scheduled_downloads()
+
+    def _restore_history_item(self, item, scheduled_paths: set[str]) -> bool:
+        if not isinstance(item, dict):
+            logger.warning("Skipping invalid history item: %r", item)
+            return False
+
+        file_path = item.get("file_path")
+        if not file_path:
+            logger.warning("Skipping history item without file_path: %r", item)
+            return False
+
+        if file_path in scheduled_paths:
+            return False
+
+        raw_status = item.get("status", DownloadStatus.PENDING)
+        display_label = get_status_label(raw_status)
+
+        row_widget = self.main_window.download_ctrl.add_download(
+            title=item.get("title") or os.path.basename(file_path),
+            filename=os.path.basename(file_path),
+            url=item.get("url") or "",
+            format_id=item.get("format_id") or "best",
+            full_path=file_path,
+            uploader=item.get("uploader", ""),
+        )
+        row_widget.update_progress(f"{int(item.get('progress', 0) * 100)}%", display_label)
+        return True

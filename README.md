@@ -129,20 +129,97 @@ bigtube [opções]
 
 ## ⚙️ Configurações Disponíveis
 
+As preferências são salvas em `~/.config/bigtube/config.json`. Quando o arquivo não existe ou está corrompido, o BigTube recria a configuração com os valores padrão. Caminhos vazios ou opções desativadas simplesmente fazem o aplicativo usar o comportamento padrão.
+
+### Aparência e componentes
+| Configuração | Padrão | Explicação |
+|--------------|--------|------------|
+| **Tema da interface** | Seguir sistema | Define se a interface usa o tema do sistema, força tema claro ou força tema escuro. |
+| **Esquema de cores** | Default Blue | Altera a paleta/acento visual da interface. Opções: Default Blue, Modern Violet, Emerald Green, Sunburst Orange, Vibrant Rose, Nordic Cyan, Nordic Snow, Gruvbox Retro, Catppuccin Mocha, Dracula Dark, Tokyo Night, Rosé Pine, Solarized Dark, Monokai Pro, Cyberpunk Neon e BigTube Brand. |
+| **Versão atual / atualizar componentes** | Automático | Mostra a versão local do `yt-dlp` e permite atualizar os componentes baixados pelo app, como `yt-dlp` e `deno`, em `~/.local/share/bigtube/bin/`. |
+
+### Busca
+| Configuração | Padrão | Explicação |
+|--------------|--------|------------|
+| **Salvar histórico de busca** | Ativado | Guarda localmente as pesquisas feitas em `search_history.json`, permitindo reutilizar consultas anteriores. |
+| **Ativar sugestões de busca** | Ativado | Mostra sugestões enquanto você digita, usando o histórico local de buscas. |
+| **Máximo de sugestões** | 10 | Define quantas sugestões podem aparecer por vez. Aceita valores de 1 a 50. |
+| **Limpar histórico de busca** | Ação manual | Remove todas as entradas salvas do histórico de busca. Não apaga arquivos baixados. |
+| **Máximo de resultados de busca** | 15 | Define quantos resultados o BigTube pede ao `yt-dlp` em buscas por texto. Aceita valores de 5 a 100. |
+
 ### Downloads
-- Pasta de download personalizada
-- Qualidade preferida (Perguntar / Melhor MKV / 4K-144p / Áudio)
-- Adicionar metadados aos arquivos
-- Incorporar legendas automaticamente
+| Configuração | Padrão | Explicação |
+|--------------|--------|------------|
+| **Downloads simultâneos** | 3 | Controla quantos vídeos podem baixar ao mesmo tempo. Aceita valores de 1 a 10. |
+| **Pasta de download** | `~/Downloads/BigTube/` | Define onde os arquivos baixados são salvos. O app cria a pasta quando necessário. |
+| **Monitor da área de transferência** | Desativado | Detecta automaticamente links de vídeo copiados para a área de transferência enquanto o app está aberto. |
+| **Notificações do sistema** | Ativado | Controla avisos do sistema para eventos e erros de download. |
+| **Qualidade preferida** | Perguntar sempre | Define o formato padrão para novos downloads. Pode perguntar a cada download, baixar o melhor vídeo, escolher 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p ou baixar somente áudio em MP3/M4A. |
+| **Adicionar metadados** | Desativado | Tenta incorporar artista, álbum, capa e outros metadados aos arquivos baixados. Requer `ffmpeg`; se ele não estiver instalado, o app ignora essa etapa. |
+| **Incorporar legendas** | Desativado | Tenta baixar legendas manuais e automáticas e incorporá-las ao arquivo final. Atualmente procura idiomas `en.*`, `pt.*` e `es.*`. Requer `ffmpeg`. |
+| **Fragmentos simultâneos** | 4 | Define quantos fragmentos paralelos o `yt-dlp` usa por download. Aceita valores de 1 a 16. Valores maiores podem acelerar downloads segmentados, mas também aumentam uso de rede. |
+| **Limite de velocidade** | 0 KB/s | Limita a velocidade do download em KB/s. `0` significa sem limite. |
+| **Comando de pós-processamento** | Vazio | Executa um comando após o download usando `yt-dlp --exec`. Use `{}` no comando para representar o arquivo baixado. |
+| **Arquivo de cookies** | Vazio | Usa um arquivo `cookies.txt` no formato Netscape com `yt-dlp --cookies`, útil para conteúdo que exige sessão autenticada. |
+| **Cookies do navegador** | Nenhum | Importa cookies diretamente de um navegador detectado, como Firefox, Chrome, Chromium, Brave, Microsoft Edge, Vivaldi ou Opera, usando `yt-dlp --cookies-from-browser`. |
+| **User-Agent** | Padrão do BigTube | Sobrescreve o User-Agent enviado ao `yt-dlp`. Se ficar vazio, o app usa um User-Agent seguro baseado em Chrome. |
+| **Proxy** | Vazio | Envia buscas, metadados, player e downloads pelo proxy informado. Aceita URLs `http`, `https`, `socks4`, `socks4a`, `socks5` e `socks5h`, por exemplo `socks5://127.0.0.1:1080`. |
+| **Salvar histórico de downloads** | Ativado | Mantém um registro local dos downloads em `history.json`, usado pela tela de histórico/lista. |
 
-### Armazenamento
-- Salvar histórico de downloads
-- Salvar histórico de conversões
-- Limpar todos os dados ao sair
+#### Opções de qualidade
+| Opção | Explicação |
+|-------|------------|
+| **Perguntar sempre** | Mostra a escolha de qualidade/formato no momento do download. |
+| **Best (MKV)** | Baixa a melhor combinação de vídeo e áudio disponível e mescla o resultado. |
+| **4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p** | Prioriza vídeo MP4/AVC na resolução escolhida com áudio M4A; se não existir exatamente esse formato, o `yt-dlp` usa a melhor alternativa compatível definida no preset. |
+| **Audio (MP3)** | Extrai somente o áudio, converte para MP3 com qualidade alta e tenta incorporar miniatura. |
+| **Audio (M4A)** | Baixa somente áudio priorizando codec/container M4A. |
 
-### Conversor
-- Pasta de saída padrão
-- Usar mesma pasta do arquivo fonte
+### Conversor de mídia
+| Configuração | Padrão | Explicação |
+|--------------|--------|------------|
+| **Salvar na pasta de origem** | Desativado | Quando ativado, o arquivo convertido é salvo ao lado do arquivo original. |
+| **Pasta de saída padrão** | `~/Downloads/BigTube/Converted/` | Define a pasta usada pelo conversor quando a opção de salvar na pasta de origem está desativada. |
+| **Salvar histórico de conversões** | Ativado | Mantém um registro local das conversões em `converter_history.json`. |
+
+### Armazenamento e privacidade
+| Configuração | Padrão | Explicação |
+|--------------|--------|------------|
+| **Limpar dados ao sair** | Desativado | Ao fechar o app, limpa os históricos de downloads, buscas e conversões. A configuração do app é preservada. Quando ativada, as opções de salvar histórico ficam desabilitadas na interface. |
+| **Exportar histórico** | Ação manual | Salva o histórico de downloads em um arquivo JSON, por padrão `bigtube_history.json`. |
+| **Importar histórico** | Ação manual | Restaura um histórico de downloads a partir de um arquivo JSON válido. |
+| **Limpar todos os dados do app** | Ação manual | Apaga permanentemente `config.json`, `history.json`, `search_history.json` e `converter_history.json`, recria a configuração padrão e encerra o aplicativo. |
+
+### Chaves do `config.json`
+| Chave | Valor padrão | Usada por |
+|-------|--------------|-----------|
+| `download_path` | `~/Downloads/BigTube/` | Pasta de download |
+| `theme_mode` | `system` | Tema da interface |
+| `theme_color` | `default` | Esquema de cores |
+| `default_quality` | `ask` | Qualidade preferida |
+| `max_concurrent_downloads` | `3` | Downloads simultâneos |
+| `add_metadata` | `false` | Metadados nos downloads |
+| `embed_subtitles` | `false` | Legendas nos downloads |
+| `save_history` | `true` | Histórico de downloads |
+| `save_search_history` | `true` | Histórico de busca |
+| `enable_suggestions` | `true` | Sugestões de busca |
+| `max_suggestions` | `10` | Quantidade de sugestões |
+| `search_limit` | `15` | Quantidade de resultados de busca |
+| `save_converter_history` | `true` | Histórico do conversor |
+| `auto_clear_finished` | `false` | Limpeza de históricos ao sair |
+| `converter_path` | `~/Downloads/BigTube/Converted/` | Pasta de saída do conversor |
+| `use_source_folder` | `false` | Conversor salvar na origem |
+| `monitor_clipboard` | `false` | Monitor da área de transferência |
+| `concurrent_fragments` | `4` | Fragmentos paralelos por download |
+| `rate_limit` | `0` | Limite de velocidade em KB/s |
+| `system_notifications` | `true` | Notificações do sistema |
+| `post_process_cmd` | `""` | Comando pós-download |
+| `cookies_file` | `""` | Arquivo de cookies |
+| `cookies_browser` | `""` | Cookies do navegador |
+| `user_agent` | `""` | User-Agent customizado |
+| `proxy` | `""` | Proxy |
+
+> Compatibilidade: configurações antigas com a chave `download_subtitles` são migradas automaticamente para `embed_subtitles`.
 
 ---
 

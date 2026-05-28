@@ -563,6 +563,11 @@
                                               </object>
                                             </child>
                                             <child>
+                                              <object class="AdwEntryRow" id="row_proxy">
+                                                <property name="show-apply-button">True</property>
+                                              </object>
+                                            </child>
+                                            <child>
                                               <object class="AdwSwitchRow" id="row_save_history">
                                                 <property name="active">True</property>
                                                 <property name="icon-name">document-open-recent-symbolic</property>
