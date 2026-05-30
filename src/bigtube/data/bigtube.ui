@@ -7,8 +7,8 @@
   <requires lib="libadwaita" version="1.0"/>
   <template class="BigTubeMainWindow" parent="AdwApplicationWindow">
     <property name="adaptive-preview">False</property>
-    <property name="default-height">720</property>
-    <property name="default-width">960</property>
+    <property name="default-height">600</property>
+    <property name="default-width">900</property>
     <property name="gravity">center</property>
     <property name="icon-name">bigtube</property>
     <property name="show-menubar">False</property>
