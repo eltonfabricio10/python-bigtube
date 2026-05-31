@@ -108,10 +108,11 @@ class SearchResultRow(Gtk.Box):
             self.row_channel.set_label(self.video_data.uploader or Res.get(StringKey.PLAYER_ARTIST))
 
         # Hide per-video action buttons on playlist rows (they aren't playable directly).
+        # Keep copy visible so playlist links can be copied without opening the playlist.
         is_playlist = self.video_data.is_playlist
         self.row_play_button.set_visible(not is_playlist)
         self.row_download_button.set_visible(not is_playlist)
-        self.row_copy_button.set_visible(not is_playlist)
+        self.row_copy_button.set_visible(True)
         self.row_open_button.set_visible(is_playlist)
 
         # Async Image Loading
@@ -174,7 +175,7 @@ class SearchResultRow(Gtk.Box):
             self.emit("open-requested", self.video_data)
 
     def _on_copy_clicked(self, button):
-        """Copies video URL to system clipboard and shows feedback."""
+        """Copies result URL to system clipboard and shows feedback."""
         if self.video_data and self.video_data.url:
             clipboard = Gdk.Display.get_default().get_clipboard()
             clipboard.set(self.video_data.url)
