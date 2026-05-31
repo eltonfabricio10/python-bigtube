@@ -1,5 +1,6 @@
 import json
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import quote_plus, urlparse
 
 # Internal Imports
@@ -70,24 +71,63 @@ class SearchEngine:
         # ==============================================================================
         # STRATEGY 2: KEYWORD SEARCH
         # ==============================================================================
-        force_audio = False
-        args = []
-
         if source == "youtube_music":
-            force_audio = True
             search_url = f"https://music.youtube.com/search?q={quote_plus(clean_query)}"
             args = ["--flat-playlist", "--dump-json", search_url]
-        else:
-            # Default to YouTube
-            args = [
-                "--extractor-args",
-                "youtube:player_client=web,android_vr",
-                "--flat-playlist",
-                "--dump-json",
-                f"ytsearch{self.search_limit}:{clean_query}",
-            ]
+            return self._run_cli(args, force_audio=True, query=query, source=source)
 
-        return self._run_cli(args, force_audio=force_audio, query=query, source=source)
+        # Default to YouTube — query videos and playlists in parallel so the
+        # results list mixes both kinds (playlists drilled-in on click).
+        return self._search_youtube_combined(clean_query, query)
+
+    def _search_youtube_combined(self, clean_query: str, original_query: str) -> list[dict]:
+        """Run video + playlist YouTube searches concurrently and merge them."""
+        video_args = [
+            "--extractor-args",
+            "youtube:player_client=web,android_vr",
+            "--flat-playlist",
+            "--dump-json",
+            f"ytsearch{self.search_limit}:{clean_query}",
+        ]
+        # YouTube's "Playlists only" filter (sp=EgIQAw==). Limited to a handful so
+        # they don't crowd the video results.
+        playlist_limit = max(3, min(5, self.search_limit // 3))
+        playlist_url = (
+            f"https://www.youtube.com/results?search_query={quote_plus(clean_query)}"
+            "&sp=EgIQAw%3D%3D"
+        )
+        playlist_args = [
+            "--extractor-args",
+            "youtube:player_client=web,android_vr",
+            "--flat-playlist",
+            "--playlist-end",
+            str(playlist_limit),
+            "--dump-json",
+            playlist_url,
+        ]
+
+        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="YtSearch") as executor:
+            videos_future = executor.submit(self._run_cli, video_args, source="youtube")
+            playlists_future = executor.submit(self._run_cli, playlist_args, source="youtube")
+
+            try:
+                videos = videos_future.result()
+            except SearchError:
+                raise  # video search is required
+            try:
+                playlists_raw = playlists_future.result()
+            except Exception as exc:
+                logger.warning("Playlist search failed (ignored): %s", exc)
+                playlists_raw = []
+
+        # Keep only actual playlist entries from the playlist-filtered query.
+        playlists = [item for item in playlists_raw if item.get("is_playlist")][:playlist_limit]
+        merged = playlists + [item for item in videos if not item.get("is_playlist")]
+
+        # Cache merged results under the original query.
+        if original_query:
+            SearchCache.set(original_query, "youtube", merged)
+        return merged
 
     def _handle_direct_link(self, url: str) -> list[dict]:
         """
@@ -273,6 +313,10 @@ class SearchEngine:
         """
         thumb_url = self._extract_thumbnail(entry)
 
+        # Detect playlist groupings emitted by ytsearch (--flat-playlist).
+        if self._is_playlist_entry(entry):
+            return self._parse_playlist_entry(entry, thumb_url, force_audio)
+
         # Logic to determine if it's video or audio-only
         is_video = not force_audio
         if entry.get("vcodec") == "none":
@@ -289,7 +333,43 @@ class SearchEngine:
             "uploader": self._extract_uploader(entry, prefer_artist=force_audio),
             "duration": entry.get("duration", 0),
             "is_video": is_video,
+            "is_playlist": False,
         }
+
+    @staticmethod
+    def _is_playlist_entry(entry: dict) -> bool:
+        if entry.get("_type") == "playlist":
+            return True
+        ie_key = entry.get("ie_key") or entry.get("ie")
+        return ie_key in {"YoutubeTab", "YoutubePlaylist"}
+
+    def _parse_playlist_entry(self, entry: dict, thumb_url: str, force_audio: bool) -> dict:
+        """Normalizes a playlist grouping returned inside search results."""
+        url = entry.get("webpage_url") or entry.get("url") or ""
+        if isinstance(url, str) and url and not url.startswith(("http://", "https://")):
+            url = f"https://www.youtube.com/playlist?list={url}"
+
+        count = entry.get("playlist_count")
+        if not isinstance(count, int):
+            entries = entry.get("entries")
+            count = len(entries) if isinstance(entries, list) else 0
+
+        return {
+            "title": entry.get("title", Res.get(StringKey.LBL_UNTITLED)),
+            "url": url,
+            "thumbnail": thumb_url,
+            "uploader": self._extract_uploader(entry, prefer_artist=force_audio),
+            "duration": 0,
+            "is_video": False,
+            "is_playlist": True,
+            "playlist_count": count,
+        }
+
+    def expand_playlist(self, url: str) -> list[dict]:
+        """Fetch the videos contained in a playlist URL (used for drill-down)."""
+        if not url:
+            return []
+        return self._handle_direct_link(url)
 
     def _extract_thumbnail(self, entry: dict) -> str:
         thumb_url = entry.get("thumbnail")

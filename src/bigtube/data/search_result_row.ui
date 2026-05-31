@@ -60,6 +60,14 @@
         <property name="margin-top">0</property>
         <property name="spacing">6</property>
         <child>
+          <object class="GtkButton" id="row_open_button">
+            <property name="has-frame">False</property>
+            <property name="icon-name">folder-open-symbolic</property>
+            <property name="valign">center</property>
+            <property name="visible">False</property>
+          </object>
+        </child>
+        <child>
           <object class="GtkButton" id="row_download_button">
             <property name="has-frame">False</property>
             <property name="icon-name">folder-download-symbolic</property>

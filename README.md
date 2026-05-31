@@ -16,7 +16,8 @@
 - **Busca integrada do YouTube** - Pesquise vídeos sem abrir o navegador
 - **Busca no YouTube Music** - Encontre músicas, clipes e podcasts
 - **Links Diretos** - Suporte a 400+ sites via URL
-- **Playlists** - Cole um link de playlist do YouTube (`playlist?list=` ou `watch?v=...&list=`) e a busca lista todos os vídeos
+- **Playlists nos resultados** - Buscas no YouTube trazem playlists junto dos vídeos; clique em **Open playlist** para abrir um modal com todos os vídeos, com botões para **Play all**, **Download all** e modo de seleção pra baixar só os marcados
+- **Playlists por link** - Cole um link de playlist do YouTube (`playlist?list=` ou `watch?v=...&list=`) e a busca lista todos os vídeos
 
 ### ⬇️ Downloads Avançados
 | Recurso | Descrição |
@@ -37,7 +38,7 @@
 ### 📺 Player Integrado
 - Motor de reprodução **MPV**
 - Prévia de vídeos antes do download
-- Navegação de playlist
+- Navegação de playlist (Prev / Play-Pause / **Stop** / Next)
 - Janela de vídeo destacável
 
 ### 🎨 Personalização de Aparência
@@ -102,15 +103,42 @@ poetry run bigtube
 ## ⌨️ Linha de Comando
 
 ```bash
-bigtube [opções]
+bigtube [opções] [URLs | termos de busca]
 ```
 
+### Modo GUI
+| Argumento | Descrição |
+|-----------|-----------|
+| (nenhum) | Abre a interface gráfica |
+| `<url>` | Abre a GUI e inicia o download da URL |
+| `<termo>` | Abre a GUI com a busca pré-preenchida (qualquer palavra que não seja URL ou caminho de arquivo) |
+| `<caminho>` | Abre arquivos locais no conversor |
+
+### Modo headless (sem GUI)
+| Opção | Descrição |
+|-------|-----------|
+| `-d, --download URL` | Baixa a URL direto pelo terminal, sem abrir a janela |
+| `-o, --output DIR` | Pasta de destino do `--download` (padrão: pasta configurada) |
+| `--audio-only` | Com `--download`, extrai áudio em MP3 |
+| `--format FMT` | Com `--download`, formato customizado do `yt-dlp -f` |
+
+### Flags gerais
 | Opção | Descrição |
 |-------|-----------|
 | `--debug` | Ativa log detalhado para depuração |
-| `--version` | Mostra a versão do yt-dlp |
+| `-q, --quiet` | Suprime saída não-essencial |
+| `--version` | Mostra a versão do BigTube |
+| `--yt-dlp-version` | Mostra a versão do `yt-dlp` embutido |
 | `--help` | Mostra ajuda |
-| URLs posicionais | Após `--`, URLs são abertas na busca (ex.: `bigtube -- https://youtube.com/playlist?list=...`) |
+
+### Exemplos
+```bash
+bigtube                                         # abre a GUI
+bigtube https://youtube.com/watch?v=...         # GUI + download imediato
+bigtube "lofi beats"                            # GUI com busca pré-preenchida
+bigtube -d https://youtube.com/watch?v=...      # download headless
+bigtube -d <url> -o ~/Music --audio-only        # áudio MP3 headless
+```
 
 ---
 

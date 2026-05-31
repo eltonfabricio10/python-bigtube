@@ -310,6 +310,19 @@ class StringKey(Enum):
     TIP_PLAYER_STOP = N_("Stop")
     TIP_PLAYER_VIDEO = N_("Toggle Video Window")
 
+    # Playlist drill-down
+    PLAYLIST_COUNT = N_("{count} videos")
+    PLAYLIST_LABEL = N_("Playlist")
+    PLAYLIST_OPEN = N_("Open playlist")
+    PLAYLIST_PLAY_ALL = N_("Play all")
+    PLAYLIST_DOWNLOAD_ALL = N_("Download all")
+    PLAYLIST_DOWNLOAD_SELECTED = N_("Download selected")
+    PLAYLIST_SELECT = N_("Select videos")
+    PLAYLIST_SELECTED_COUNT = N_("{count} selected")
+    PLAYLIST_BACK = N_("Back to results")
+    PLAYLIST_LOADING = N_("Loading playlist…")
+    PLAYLIST_BANNER = N_("Playlist: {title}")
+
     # Dialogs & General Messages
     MSG_RESET_APP_TITLE = N_("Reset Application to Clean State?")
     MSG_RESET_APP_BODY = N_(

@@ -54,6 +54,7 @@ class SearchController(GObject.Object):
     __gsignals__ = {
         "loading-state": (GObject.SIGNAL_RUN_FIRST, None, (bool, str)),
         "results-changed": (GObject.SIGNAL_RUN_FIRST, None, (int,)),  # item count
+        "playlist-activated": (GObject.SIGNAL_RUN_FIRST, None, (GObject.Object,)),
     }
 
     selection_count = GObject.Property(type=int, default=0)
@@ -394,6 +395,10 @@ class SearchController(GObject.Object):
 
     def on_item_activated(self, list_view, position):
         """Triggered by double-click or Enter on list item."""
+        item = self.store.get_item(position)
+        if item is not None and getattr(item, "is_playlist", False):
+            self.emit("playlist-activated", item)
+            return
         self.current_index = position
         self._play_current_index()
 
@@ -446,6 +451,24 @@ class SearchController(GObject.Object):
 
         self.emit("results-changed", self.store.get_n_items())  # Emit count
         self._finish_loading()
+
+    def replace_results(self, video_objects: list) -> None:
+        """Replace current results with already-built VideoDataObject instances.
+
+        Used by the playlist dialog when the user chooses "Play all" so the
+        next/prev controls navigate the playlist instead of the prior search.
+        """
+        self.store.remove_all()
+        self.current_index = -1
+        for obj in video_objects:
+            obj.selection_mode = self.selection_mode
+            try:
+                obj.connect("notify::is-selected", self._update_selection_count)
+            except TypeError:
+                pass  # already connected — safe to ignore
+            self.store.append(obj)
+        self.selection_count = sum(1 for it in self._iter_items() if it.is_selected)
+        self.emit("results-changed", self.store.get_n_items())
 
     def _search_urls_worker(self, urls: list[str]):
         return search_urls_parallel(self.engine, urls)

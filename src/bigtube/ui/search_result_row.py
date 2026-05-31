@@ -26,6 +26,8 @@ class VideoDataObject(GObject.Object):
     is_video = GObject.Property(type=bool, default=True)
     is_selected = GObject.Property(type=bool, default=False)
     selection_mode = GObject.Property(type=bool, default=False)
+    is_playlist = GObject.Property(type=bool, default=False)
+    playlist_count = GObject.Property(type=int, default=0)
 
     def __init__(self, data_dict):
         super().__init__()
@@ -34,6 +36,8 @@ class VideoDataObject(GObject.Object):
         self.thumbnail = data_dict.get("thumbnail", "")
         self.uploader = data_dict.get("uploader", Res.get(StringKey.PLAYER_ARTIST))
         self.is_video = data_dict.get("is_video", True)
+        self.is_playlist = data_dict.get("is_playlist", False)
+        self.playlist_count = data_dict.get("playlist_count", 0)
 
 
 @Gtk.Template(filename=UI_FILE)
@@ -44,6 +48,7 @@ class SearchResultRow(Gtk.Box):
     __gsignals__ = {
         "play-requested": (GObject.SIGNAL_RUN_FIRST, None, (GObject.Object,)),
         "download-requested": (GObject.SIGNAL_RUN_FIRST, None, (GObject.Object,)),
+        "open-requested": (GObject.SIGNAL_RUN_FIRST, None, (GObject.Object,)),
     }
 
     # Widget Bindings
@@ -56,6 +61,7 @@ class SearchResultRow(Gtk.Box):
     row_download_button = Gtk.Template.Child()
     row_play_button = Gtk.Template.Child()
     row_copy_button = Gtk.Template.Child()
+    row_open_button = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -66,11 +72,13 @@ class SearchResultRow(Gtk.Box):
         self.row_play_button.connect("clicked", self._on_play_clicked)
         self.row_download_button.connect("clicked", self._on_download_clicked)
         self.row_copy_button.connect("clicked", self._on_copy_clicked)
+        self.row_open_button.connect("clicked", self._on_open_clicked)
 
         # Set Tooltips
         self.row_play_button.set_tooltip_text(Res.get(StringKey.TIP_PLAY))
         self.row_download_button.set_tooltip_text(Res.get(StringKey.TIP_DOWNLOAD))
         self.row_copy_button.set_tooltip_text(Res.get(StringKey.TIP_COPY_LINK))
+        self.row_open_button.set_tooltip_text(Res.get(StringKey.PLAYLIST_OPEN))
 
     def set_data(self, video_data_obj):
         """Populates the row widgets with data from the GObject."""
@@ -85,11 +93,34 @@ class SearchResultRow(Gtk.Box):
         full_title = self.video_data.title or Res.get(StringKey.PLAYER_TITLE)
         self.row_title.set_label(full_title)
         self.row_title.set_tooltip_text(full_title)
-        self.row_channel.set_label(self.video_data.uploader or Res.get(StringKey.PLAYER_ARTIST))
+
+        if self.video_data.is_playlist:
+            count = self.video_data.playlist_count or 0
+            if count > 0:
+                label = Res.get(StringKey.PLAYLIST_COUNT).format(count=count)
+            else:
+                label = Res.get(StringKey.PLAYLIST_LABEL)
+            uploader = self.video_data.uploader
+            if uploader and uploader != Res.get(StringKey.LBL_UNKNOWN):
+                label = f"{uploader} • {label}"
+            self.row_channel.set_label(label)
+        else:
+            self.row_channel.set_label(
+                self.video_data.uploader or Res.get(StringKey.PLAYER_ARTIST)
+            )
+
+        # Hide per-video action buttons on playlist rows (they aren't playable directly).
+        is_playlist = self.video_data.is_playlist
+        self.row_play_button.set_visible(not is_playlist)
+        self.row_download_button.set_visible(not is_playlist)
+        self.row_copy_button.set_visible(not is_playlist)
+        self.row_open_button.set_visible(is_playlist)
 
         # Async Image Loading
         if self.video_data.thumbnail:
             ImageLoader.load(self.video_data.thumbnail, self.row_thumbnail, width=120, height=68)
+        elif is_playlist:
+            self.row_thumbnail.set_from_icon_name("view-list-symbolic")
 
         # Bi-directional Property Binding: model.is_selected <-> checkbox.active
         self._selection_binding = self.video_data.bind_property(
@@ -100,9 +131,13 @@ class SearchResultRow(Gtk.Box):
         )
 
         # Visibility Binding: model.selection_mode -> checkbox.visible
-        self.video_data.bind_property(
-            "selection_mode", self.row_checkbox, "visible", GObject.BindingFlags.SYNC_CREATE
-        )
+        # Playlist rows never participate in multi-selection.
+        if is_playlist:
+            self.row_checkbox.set_visible(False)
+        else:
+            self.video_data.bind_property(
+                "selection_mode", self.row_checkbox, "visible", GObject.BindingFlags.SYNC_CREATE
+            )
 
     def set_selection_mode(self, enabled: bool):
         """No-op: now handled by property binding in set_data."""
@@ -134,6 +169,11 @@ class SearchResultRow(Gtk.Box):
         """Emits signal to start playback."""
         if self.video_data:
             self.emit("play-requested", self.video_data)
+
+    def _on_open_clicked(self, button):
+        """Emits signal to open a playlist's videos."""
+        if self.video_data:
+            self.emit("open-requested", self.video_data)
 
     def _on_copy_clicked(self, button):
         """Copies video URL to system clipboard and shows feedback."""

@@ -231,6 +231,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self._setup_ui_strings()
         self.search_ctrl.connect("loading-state", self.set_loading_searching)
         self.search_ctrl.connect("results-changed", self._on_search_results_changed)
+        self.search_ctrl.connect("playlist-activated", self._on_playlist_activated)
 
         # Multi-Selection connections
         self.btn_selection_mode.connect("toggled", self._on_selection_mode_toggled)
@@ -548,17 +549,23 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         selected_items = self.search_ctrl.get_selected_items()
         if not selected_items:
             return
+        self.download_batch(selected_items, reset_selection=True)
 
-        count = len(selected_items)
+    def download_batch(self, items: list, reset_selection: bool = False):
+        """Fetch format options once and apply to every item in the batch."""
+        if not items:
+            return
+
+        count = len(items)
 
         def _fetch_metadata_for_batch():
             # Use meta_downloader to get formats for the template item
             meta_downloader = self.get_meta_downloader()
             if meta_downloader is None:
-                GLib.idle_add(self._on_metadata_failed, selected_items[0].title)
+                GLib.idle_add(self._on_metadata_failed, items[0].title)
                 return
 
-            info = meta_downloader.fetch_video_info(selected_items[0].url)
+            info = meta_downloader.fetch_video_info(items[0].url)
 
             if info:
 
@@ -567,15 +574,15 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
                         Res.get(StringKey.MSG_BATCH_DOWNLOAD_STARTING).format(count=count)
                     )
 
-                    for item in selected_items:
+                    for item in items:
                         self._start_single_download(item, format_data, schedule_time=schedule_time)
 
-                    # Reset selection after starting batch
-                    GLib.idle_add(self.btn_selection_mode.set_active, False)
+                    if reset_selection:
+                        GLib.idle_add(self.btn_selection_mode.set_active, False)
 
                 GLib.idle_add(self._show_batch_format_popup, info, _batch_confirm_callback)
             else:
-                GLib.idle_add(self._on_metadata_failed, selected_items[0].title)
+                GLib.idle_add(self._on_metadata_failed, items[0].title)
 
         self.set_loading(True, StringKey.STATUS_FETCH)
         threading.Thread(target=_fetch_metadata_for_batch, daemon=True).start()
@@ -656,6 +663,31 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             self.btn_selection_mode.set_active(False)
 
         self.btn_selection_mode.set_sensitive(has_results)
+
+    def _on_playlist_activated(self, controller, playlist_item):
+        """Open a modal dialog listing the playlist's videos."""
+        self._open_playlist_dialog(playlist_item)
+
+    def _open_playlist_dialog(self, playlist_item):
+        from .playlist_dialog import PlaylistDialog
+
+        dialog = PlaylistDialog(
+            parent_window=self,
+            playlist_item=playlist_item,
+            on_play=self.play_video_from_search,
+            on_download=self.on_download_selected,
+            on_play_all=self._play_all_from_playlist,
+            on_download_all=lambda items: self.download_batch(items, reset_selection=False),
+        )
+        dialog.present()
+
+    def _play_all_from_playlist(self, items: list):
+        """Replace search results with the playlist's videos and play the first one."""
+        if not items:
+            return
+        self.search_ctrl.replace_results(items)
+        self._active_playlist = "search"
+        self.play_video_from_search(items[0])
 
     def _send_system_notification(self, title: str, body: str):
         """Sends an OS-level notification using Gio.Notification."""
@@ -936,6 +968,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             list_item.set_child(row)
             row.connect("play-requested", lambda r, data: self.play_video_from_search(data))
             row.connect("download-requested", lambda r, data: self.on_download_selected(data))
+            row.connect("open-requested", lambda r, data: self._open_playlist_dialog(data))
 
         def on_bind(factory, list_item):
             row_widget = list_item.get_child()
