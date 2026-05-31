@@ -105,9 +105,7 @@ class SearchResultRow(Gtk.Box):
                 label = f"{uploader} • {label}"
             self.row_channel.set_label(label)
         else:
-            self.row_channel.set_label(
-                self.video_data.uploader or Res.get(StringKey.PLAYER_ARTIST)
-            )
+            self.row_channel.set_label(self.video_data.uploader or Res.get(StringKey.PLAYER_ARTIST))
 
         # Hide per-video action buttons on playlist rows (they aren't playable directly).
         is_playlist = self.video_data.is_playlist
