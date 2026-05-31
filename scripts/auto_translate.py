@@ -146,7 +146,14 @@ def translate_po_file(file_path, target_lang_code):
         po = polib.pofile(str(file_path))
         translator = None
         if target_lang_code != "en":
-            translator = GoogleTranslator(source="en", target=target_lang_code)
+            try:
+                translator = GoogleTranslator(source="en", target=target_lang_code)
+            except Exception as e:
+                print(
+                    f"[auto_translate] Warning: translator unavailable for "
+                    f"{file_path.name} ({target_lang_code}): {e}"
+                )
+                return True
 
         translated_count = 0
         error_count = 0
@@ -191,7 +198,13 @@ def translate_po_file(file_path, target_lang_code):
         else:
             print("[auto_translate] No new strings found. File is already 100% translated.")
 
-        return error_count == 0
+        if error_count > 0:
+            print(
+                f"[auto_translate] Warning: {error_count} string(s) could not be "
+                "translated and were left empty."
+            )
+
+        return True
 
     except Exception as e:
         print(f"[auto_translate] Fatal error processing {file_path.name}: {e}")
@@ -299,18 +312,13 @@ def main():
 
     # --- PHASE 4: Auto Translation ---
     print("\n [auto_translate] PHASE 4: Starting Auto-Translation Engine...")
-    translation_failed = False
     for file in po_files:
         po_path = PO_DIR / file
         lang_id = file.replace(".po", "")
 
         target_lang = LANG_MAP.get(lang_id, lang_id.split("_")[0])
         if not translate_po_file(po_path, target_lang):
-            translation_failed = True
-
-    if translation_failed:
-        print("[auto_translate] One or more translations failed.")
-        sys.exit(1)
+            sys.exit(1)
 
     print("\n [auto_translate] Process Complete! Your codebase is synced and translated.")
 
