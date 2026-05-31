@@ -127,53 +127,45 @@ class SearchController(GObject.Object):
     # =========================================================================
     # MULTI-SELECTION API
     # =========================================================================
+    def _iter_items(self):
+        """Yields every VideoDataObject in the store."""
+        store = self.store
+        for i in range(store.get_n_items()):
+            yield store.get_item(i)
+
     def set_selection_mode(self, enabled: bool):
         """Toggles selection checkboxes on/off for all rows."""
         self.selection_mode = enabled
-        for i in range(self.store.get_n_items()):
-            item = self.store.get_item(i)
+        for item in self._iter_items():
             item.selection_mode = enabled
 
     def toggle_select_all(self):
         """Intelligently selects all or none based on current count."""
-        total = self.store.get_n_items()
-        if total == 0:
+        if self.store.get_n_items() == 0:
             return
 
         # If any are selected, unselect all. Otherwise select all.
         target = self.selection_count == 0
-        for i in range(total):
-            item = self.store.get_item(i)
+        for item in self._iter_items():
             item.is_selected = target
 
     def _update_selection_count(self, *args):
         """Recalculates total selected items."""
-        count = 0
-        for i in range(self.store.get_n_items()):
-            if self.store.get_item(i).is_selected:
-                count += 1
-        self.selection_count = count
+        self.selection_count = sum(1 for item in self._iter_items() if item.is_selected)
 
     def select_all(self):
         """Checks all items."""
-        for i in range(self.store.get_n_items()):
-            item = self.store.get_item(i)
+        for item in self._iter_items():
             item.is_selected = True
 
     def select_none(self):
         """Unchecks all items."""
-        for i in range(self.store.get_n_items()):
-            item = self.store.get_item(i)
+        for item in self._iter_items():
             item.is_selected = False
 
     def get_selected_items(self):
         """Returns list of selected VideoDataObject instances."""
-        selected = []
-        for i in range(self.store.get_n_items()):
-            item = self.store.get_item(i)
-            if item.is_selected:
-                selected.append(item)
-        return selected
+        return [item for item in self._iter_items() if item.is_selected]
 
     def _update_button_sensitivity(self):
         """Updates search button visibility based on query text."""

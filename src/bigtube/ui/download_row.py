@@ -56,7 +56,6 @@ class DownloadRow(Gtk.Box):
 
         self.full_path = full_path
         self.uploader = uploader
-        self.uploader = uploader
         self.on_play_callback = on_play_callback
         self.on_remove_callback = on_remove_callback
         self.on_convert_callback = None

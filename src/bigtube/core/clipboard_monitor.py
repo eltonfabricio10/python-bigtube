@@ -52,6 +52,6 @@ class ClipboardMonitor:
                     logger.info(f"Clipboard URL detected: {text}")
                     if self.on_url_found_callback:
                         self.on_url_found_callback(text)
-        except Exception:
+        except Exception as e:
             # Often happens if clipboard is empty or has non-text content
-            pass
+            logger.debug("Clipboard read failed: %s", e)

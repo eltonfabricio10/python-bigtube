@@ -307,6 +307,7 @@ class StringKey(Enum):
     TIP_PLAYER_PREV = N_("Previous")
     TIP_PLAYER_PLAY = N_("Play/Pause")
     TIP_PLAYER_NEXT = N_("Next")
+    TIP_PLAYER_STOP = N_("Stop")
     TIP_PLAYER_VIDEO = N_("Toggle Video Window")
 
     # Dialogs & General Messages

@@ -53,6 +53,9 @@ class VideoWindow(Adw.Window):
         self.main_stack.set_visible_child_name("gst")
         self.using_fallback = False
 
+        # Tracks (widget, handler_id) pairs so they can be disconnected on cleanup.
+        self._signal_handlers: list[tuple[object, int]] = []
+
         # Input Controller
         key_controller = Gtk.EventControllerKey()
         key_controller.connect("key-pressed", self._on_key_pressed)
@@ -73,24 +76,42 @@ class VideoWindow(Adw.Window):
         return self._is_actually_visible
 
     def _connect_signals(self, widget):
-        widget.connect(
-            "time-changed",
-            lambda w, v: self.emit("time-changed", v) if w == self.active_player else None,
+        handlers = self._signal_handlers
+        handlers.append((widget, widget.connect("time-changed", self._on_widget_time_changed)))
+        handlers.append(
+            (widget, widget.connect("duration-changed", self._on_widget_duration_changed))
         )
-        widget.connect(
-            "duration-changed",
-            lambda w, v: self.emit("duration-changed", v) if w == self.active_player else None,
-        )
-        widget.connect(
-            "video-ended", lambda w: self.emit("video-ended") if w == self.active_player else None
-        )
-        widget.connect(
-            "video-ready", lambda w: self.emit("video-ready") if w == self.active_player else None
-        )
-        widget.connect(
-            "state-changed",
-            lambda w, v: self.emit("state-changed", v) if w == self.active_player else None,
-        )
+        handlers.append((widget, widget.connect("video-ended", self._on_widget_video_ended)))
+        handlers.append((widget, widget.connect("video-ready", self._on_widget_video_ready)))
+        handlers.append((widget, widget.connect("state-changed", self._on_widget_state_changed)))
+
+    def _disconnect_all_signals(self):
+        for widget, handler_id in self._signal_handlers:
+            try:
+                widget.disconnect(handler_id)
+            except Exception:
+                pass
+        self._signal_handlers.clear()
+
+    def _on_widget_time_changed(self, widget, value):
+        if widget == self.active_player:
+            self.emit("time-changed", value)
+
+    def _on_widget_duration_changed(self, widget, value):
+        if widget == self.active_player:
+            self.emit("duration-changed", value)
+
+    def _on_widget_video_ended(self, widget):
+        if widget == self.active_player:
+            self.emit("video-ended")
+
+    def _on_widget_video_ready(self, widget):
+        if widget == self.active_player:
+            self.emit("video-ready")
+
+    def _on_widget_state_changed(self, widget, value):
+        if widget == self.active_player:
+            self.emit("state-changed", value)
 
     def _ensure_mpv_widget(self):
         """Creates the MPV backend only when GStreamer cannot be used."""

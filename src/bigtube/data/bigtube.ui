@@ -174,7 +174,7 @@
                                               <object class="GtkButton" id="btn_clear">
                                                 <property name="halign">end</property>
                                                 <property name="has-frame">False</property>
-                                                <property name="icon-name">list-remove-all-symbolic</property>
+                                                <property name="icon-name">edit-clear-history-symbolic</property>
                                                 <property name="margin-end">12</property>
                                                 <property name="valign">center</property>
                                               </object>
@@ -787,6 +787,14 @@
                                 <property name="has-frame">False</property>
                                 <property name="hexpand">False</property>
                                 <property name="icon-name">media-playback-start-symbolic</property>
+                                <property name="margin-top">5</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="player_stop_button">
+                                <property name="has-frame">False</property>
+                                <property name="has-tooltip">True</property>
+                                <property name="icon-name">media-playback-stop-symbolic</property>
                                 <property name="margin-top">5</property>
                               </object>
                             </child>

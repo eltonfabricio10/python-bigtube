@@ -14,6 +14,16 @@ class DownloadController:
     Each unique uploader/artist gets its own visual section.
     """
 
+    _PRIO_MAP = {
+        DownloadStatus.DOWNLOADING: 0,
+        DownloadStatus.PENDING: 1,
+        DownloadStatus.PAUSED: 1,
+        DownloadStatus.INTERRUPTED: 1,
+        DownloadStatus.COMPLETED: 2,
+        DownloadStatus.ERROR: 2,
+        DownloadStatus.CANCELLED: 2,
+    }
+
     def __init__(
         self,
         groups_box: Gtk.Box,
@@ -65,18 +75,8 @@ class DownloadController:
         if not isinstance(widget_a, DownloadRow) or not isinstance(widget_b, DownloadRow):
             return 0
 
-        prio_map = {
-            DownloadStatus.DOWNLOADING: 0,
-            DownloadStatus.PENDING: 1,
-            DownloadStatus.PAUSED: 1,
-            DownloadStatus.INTERRUPTED: 1,
-            DownloadStatus.COMPLETED: 2,
-            DownloadStatus.ERROR: 2,
-            DownloadStatus.CANCELLED: 2,
-        }
-
-        prio_a = prio_map.get(widget_a.status, 2)
-        prio_b = prio_map.get(widget_b.status, 2)
+        prio_a = self._PRIO_MAP.get(widget_a.status, 2)
+        prio_b = self._PRIO_MAP.get(widget_b.status, 2)
 
         if prio_a != prio_b:
             return prio_a - prio_b
@@ -127,17 +127,19 @@ class DownloadController:
         """Advances to the previous downloaded file and plays it."""
         return self._advance_playback(-1)
 
-    def _get_flat_completed_list(self):
-        """Creates a flattened list of all completed DownloadRow widgets."""
-        completed_rows = []
+    def _iter_rows(self):
+        """Yields every DownloadRow across all artist sections."""
         for section in self._artist_sections.values():
             child = section["listbox"].get_first_child()
             while child:
-                row = child.get_child()
-                if isinstance(row, DownloadRow) and row.status == DownloadStatus.COMPLETED:
-                    completed_rows.append(row)
+                inner = child.get_child()
+                if isinstance(inner, DownloadRow):
+                    yield inner
                 child = child.get_next_sibling()
-        return completed_rows
+
+    def _get_flat_completed_list(self):
+        """Creates a flattened list of all completed DownloadRow widgets."""
+        return [r for r in self._iter_rows() if r.status == DownloadStatus.COMPLETED]
 
     def set_current_playing_row(self, row):
         # 1. Deselect everything in all sections
@@ -258,22 +260,15 @@ class DownloadController:
         if not self.status_bar:
             return
 
-        active = 0
-        queued = 0
-        paused = 0
-
-        for section in self._artist_sections.values():
-            child = section["listbox"].get_first_child()
-            while child:
-                inner = child.get_child()
-                if isinstance(inner, DownloadRow):
-                    if inner.status == DownloadStatus.DOWNLOADING:
-                        active += 1
-                    elif inner.status == DownloadStatus.PENDING:
-                        queued += 1
-                    elif inner.status == DownloadStatus.PAUSED:
-                        paused += 1
-                child = child.get_next_sibling()
+        active = queued = paused = 0
+        for row in self._iter_rows():
+            status = row.status
+            if status == DownloadStatus.DOWNLOADING:
+                active += 1
+            elif status == DownloadStatus.PENDING:
+                queued += 1
+            elif status == DownloadStatus.PAUSED:
+                paused += 1
 
         total = active + queued + paused
         self.status_bar.set_visible(total > 0)

@@ -43,6 +43,9 @@ class PlayerController:
         self.cached_artist_name = ""
         self.is_video_mode = False
         self._time_remaining = None
+        # Monotonic counter; bumped on every play_media/stop call so background
+        # stream-resolution threads can detect that their result is stale.
+        self._play_token = 0
 
         # Initialization
         self._setup_loading_spinner()
@@ -62,6 +65,9 @@ class PlayerController:
         self.ui["btn_prev"].set_sensitive(False)
         self.ui["btn_next"].set_sensitive(False)
         self.ui["btn_video"].set_sensitive(False)
+        btn_stop = self.ui.get("btn_stop")
+        if btn_stop is not None:
+            btn_stop.set_sensitive(False)
 
     def _setup_loading_spinner(self):
         """Injects a spinner next to the play button for loading states."""
@@ -88,6 +94,10 @@ class PlayerController:
         # Lambda wrappers for safe callbacks
         self.ui["btn_prev"].connect("clicked", lambda b: self.on_prev() if self.on_prev else None)
         self.ui["btn_next"].connect("clicked", lambda b: self.on_next() if self.on_next else None)
+
+        btn_stop = self.ui.get("btn_stop")
+        if btn_stop is not None:
+            btn_stop.connect("clicked", lambda b: self.stop())
 
         self.ui["progress"].connect("change-value", self.on_user_seek)
         self.ui["volume"].connect("value-changed", self.on_volume_changed)
@@ -144,26 +154,40 @@ class PlayerController:
         # Enable nav buttons immediately so user can skip if loading takes too long
         self.ui["btn_prev"].set_sensitive(True)
         self.ui["btn_next"].set_sensitive(True)
+        btn_stop = self.ui.get("btn_stop")
+        if btn_stop is not None:
+            btn_stop.set_sensitive(True)
 
         # 5. Background Stream Extraction
-        threading.Thread(target=self._resolve_and_play, args=(url, is_local), daemon=True).start()
+        self._play_token += 1
+        token = self._play_token
+        threading.Thread(
+            target=self._resolve_and_play, args=(url, is_local, token), daemon=True
+        ).start()
 
         # If local video, show window immediately
         if is_local and is_video:
             self.video_window.show_video()
 
     def stop(self):
-        """Stops playback and resets UI."""
+        """Stops playback and resets UI to idle (matches startup state)."""
+        # Invalidate any in-flight stream extraction so its result is dropped.
+        self._play_token += 1
+        self.current_url = None
+        self.cached_artist_name = ""
         self.video_window.stop()
+        if self.video_window.is_visible():
+            self.video_window.on_close_request(self.video_window)
         self._set_loading(False)
-        self.ui["lbl_title"].set_label(Res.get(StringKey.PLAYER_STOPPED))
-        self.ui["lbl_artist"].set_label("")
+        self.ui["lbl_title"].set_label(Res.get(StringKey.PLAYER_TITLE))
+        self.ui["lbl_artist"].set_label(Res.get(StringKey.PLAYER_ARTIST))
+        self.ui["img_thumb"].set_from_icon_name("image-x-generic-symbolic")
         self._reset_ui_state()
 
     # =========================================================================
     # INTERNAL LOGIC
     # =========================================================================
-    def _resolve_and_play(self, url, is_local):
+    def _resolve_and_play(self, url, is_local, token):
         """Worker thread logic to resolve URL and trigger play on Main Thread."""
         try:
             if is_local:
@@ -172,15 +196,26 @@ class PlayerController:
                 # Heavy operation: fetching stream URL via yt-dlp
                 final_uri = self._extract_stream_url(url)
 
-            # Update UI must happen on Main Thread
-            GLib.idle_add(self.video_window.play, final_uri)
+            # Drop stale results: user stopped or started a different track.
+            if token != self._play_token:
+                logger.debug("Discarding stale stream resolution (token mismatch)")
+                return
 
-            # If it's a web stream, we enable Play button now
-            GLib.idle_add(self.ui["btn_play"].set_sensitive, True)
+            # Update UI must happen on Main Thread
+            GLib.idle_add(self._start_playback_if_current, final_uri, token)
 
         except Exception as e:
             logger.error(f"Error resolving stream: {e}")
-            GLib.idle_add(self._set_loading, False)
+            if token == self._play_token:
+                GLib.idle_add(self._set_loading, False)
+
+    def _start_playback_if_current(self, uri, token):
+        """Main-thread guarded playback start; aborts if token is stale."""
+        if token != self._play_token:
+            return False
+        self.video_window.play(uri)
+        self.ui["btn_play"].set_sensitive(True)
+        return False
 
     def _set_loading(self, is_loading):
         """Toggles the spinner vs play button."""

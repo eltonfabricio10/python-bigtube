@@ -126,6 +126,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
     player_playpause_button = Gtk.Template.Child()
     player_prev_button = Gtk.Template.Child()
     player_next_button = Gtk.Template.Child()
+    player_stop_button = Gtk.Template.Child()
     player_video_toggle_button = Gtk.Template.Child()
     player_volume = Gtk.Template.Child()
     video_revealer = Gtk.Template.Child()
@@ -506,6 +507,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         self.player_prev_button.set_tooltip_text(Res.get(StringKey.TIP_PLAYER_PREV))
         self.player_playpause_button.set_tooltip_text(Res.get(StringKey.TIP_PLAYER_PLAY))
         self.player_next_button.set_tooltip_text(Res.get(StringKey.TIP_PLAYER_NEXT))
+        self.player_stop_button.set_tooltip_text(Res.get(StringKey.TIP_PLAYER_STOP))
         self.player_video_toggle_button.set_tooltip_text(Res.get(StringKey.TIP_PLAYER_VIDEO))
 
         # 11. Empty States
@@ -612,6 +614,7 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
             "btn_play": self.player_playpause_button,
             "btn_prev": self.player_prev_button,
             "btn_next": self.player_next_button,
+            "btn_stop": self.player_stop_button,
             "btn_video": self.player_video_toggle_button,
             "volume": self.player_volume,
         }
@@ -658,6 +661,21 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         """Sends an OS-level notification using Gio.Notification."""
         now = time.monotonic()
         key = (title, body)
+
+        # Bound caches: drop entries older than the longest throttle window
+        cutoff = now - max(
+            NOTIFICATION_DUPLICATE_THROTTLE_SECONDS,
+            NOTIFICATION_SIMILAR_THROTTLE_SECONDS,
+        )
+        if len(self._last_notification_by_key) > 256:
+            self._last_notification_by_key = {
+                k: t for k, t in self._last_notification_by_key.items() if t > cutoff
+            }
+        if len(self._last_notification_by_title) > 256:
+            self._last_notification_by_title = {
+                k: t for k, t in self._last_notification_by_title.items() if t > cutoff
+            }
+
         last_exact = self._last_notification_by_key.get(key, 0)
         last_similar = self._last_notification_by_title.get(title, 0)
 
@@ -828,18 +846,29 @@ class BigTubeMainWindow(Adw.ApplicationWindow):
         elif file_paths:
             self.pageview.set_visible_child(self.converter_page.get_child())
 
-        for item in unknown:
-            logger.warning("Ignoring CLI input: %s", item)
+        # Non-URL, non-file inputs are treated as a search query.
+        # Only fall back to search when no URLs were given, so we don't override
+        # an already-triggered URL search.
+        if unknown and not urls:
+            query = " ".join(unknown).strip()
+            if query:
+                self.search_entry.set_text(query)
+                self.pageview.set_visible_child(self.search_page.get_child())
+                self.search_entry.grab_focus()
+                self.search_entry.set_position(-1)
+        else:
+            for item in unknown:
+                logger.warning("Ignoring CLI input: %s", item)
 
-        if unknown:
-            prefix = Res.get(StringKey.MSG_CLI_IGNORED)
-            if len(unknown) == 1:
-                MessageManager.show(f"{prefix} {unknown[0]}", True)
-            else:
-                shown = ", ".join(unknown[:3])
-                if len(unknown) > 3:
-                    shown = f"{shown} (+{len(unknown) - 3})"
-                MessageManager.show(f"{prefix} {shown}", True)
+            if unknown:
+                prefix = Res.get(StringKey.MSG_CLI_IGNORED)
+                if len(unknown) == 1:
+                    MessageManager.show(f"{prefix} {unknown[0]}", True)
+                else:
+                    shown = ", ".join(unknown[:3])
+                    if len(unknown) > 3:
+                        shown = f"{shown} (+{len(unknown) - 3})"
+                    MessageManager.show(f"{prefix} {shown}", True)
 
         return False
 

@@ -83,7 +83,7 @@ class BigTubeLogger:
             root_logger.addHandler(cls._console_handler)
 
         cls._initialized = True
-        root_logger.info("Logging system initialized")
+        root_logger.debug("Logging system initialized")
 
     @classmethod
     def get_log_path(cls) -> Path:
