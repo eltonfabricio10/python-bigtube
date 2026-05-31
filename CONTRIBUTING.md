@@ -142,6 +142,8 @@ msgfmt po/pt_BR.po -o src/bigtube/data/locales/pt_BR/LC_MESSAGES/bigtube.mo
 ```
 
 O script `scripts/auto_translate.py` pode auxiliar na geração/atualização de traduções (polib + deep-translator).
+O workflow de release roda esse script automaticamente antes de sincronizar a versão, commitar alterações em `po/` e criar a tag.
+Em execução manual do release, o input `auto_translate` permite desativar essa etapa se o serviço externo de tradução estiver indisponível.
 
 ## CI
 

@@ -109,7 +109,7 @@ def run_command(command, quiet=False):
     if not quiet:
         print(f"[auto_translate] Running: {' '.join(command)}")
     result = subprocess.run(command, capture_output=True, text=True, check=False)
-    if result.returncode != 0 and not quiet:
+    if result.returncode != 0:
         print(f"[auto_translate] Error: {result.stderr}")
     return result.returncode == 0
 
@@ -144,9 +144,12 @@ def translate_po_file(file_path, target_lang_code):
 
     try:
         po = polib.pofile(str(file_path))
-        translator = GoogleTranslator(source="en", target=target_lang_code)
+        translator = None
+        if target_lang_code != "en":
+            translator = GoogleTranslator(source="en", target=target_lang_code)
 
         translated_count = 0
+        error_count = 0
 
         for entry in po:
             # Translate ONLY if the string is empty and not obsolete
@@ -158,7 +161,10 @@ def translate_po_file(file_path, target_lang_code):
 
                 try:
                     # 2. Translate via API
-                    translated_safe = translator.translate(safe_text)
+                    if translator is None:
+                        translated_safe = safe_text
+                    else:
+                        translated_safe = translator.translate(safe_text)
 
                     # 3. Restore variables
                     final_translation = restore_placeholders(translated_safe, placeholders)
@@ -176,6 +182,7 @@ def translate_po_file(file_path, target_lang_code):
 
                 except Exception as e:
                     print(f"[auto_translate] API Error translating '{original_text}': {e}")
+                    error_count += 1
 
         # Save changes if any new translation was made
         if translated_count > 0:
@@ -184,8 +191,11 @@ def translate_po_file(file_path, target_lang_code):
         else:
             print("[auto_translate] No new strings found. File is already 100% translated.")
 
+        return error_count == 0
+
     except Exception as e:
         print(f"[auto_translate] Fatal error processing {file_path.name}: {e}")
+        return False
 
 
 # =========================================================================
@@ -238,7 +248,8 @@ def main():
             "--add-comments=TRANSLATORS:",
             f"--package-name={APP_NAME}",
         ] + py_files
-        run_command(python_cmd)
+        if not run_command(python_cmd):
+            sys.exit(1)
 
     if ui_files:
         ui_cmd = [
@@ -249,11 +260,12 @@ def main():
             "--join-existing",
             "--add-comments=TRANSLATORS:",
         ] + ui_files
-        run_command(ui_cmd)
+        if not run_command(ui_cmd):
+            sys.exit(1)
 
     if not POT_FILE.exists():
         print("[auto_translate] Error: .pot file was not generated.")
-        return
+        sys.exit(1)
 
     # --- PHASE 2.5: Initialize Missing Languages (msginit) ---
     print("\n [auto_translate] PHASE 2: Verifying and creating missing languages...")
@@ -269,7 +281,9 @@ def main():
                 f"--locale={lang_code}",
                 f"--output={po_path}",
             ]
-            run_command(init_cmd, quiet=True)
+            if not run_command(init_cmd, quiet=True):
+                print(f"  [auto_translate] [!] Failed to create: {lang_code}.po")
+                sys.exit(1)
 
     # --- PHASE 3: Merge (msgmerge) ---
     print("\n [auto_translate] PHASE 3: Updating existing .po files...")
@@ -278,17 +292,25 @@ def main():
     for file in po_files:
         po_path = PO_DIR / file
         merge_cmd = ["msgmerge", "--update", "--backup=none", str(po_path), str(POT_FILE)]
-        run_command(merge_cmd, quiet=True)
+        if not run_command(merge_cmd, quiet=True):
+            print(f"  [auto_translate] [!] Failed to sync: {file}")
+            sys.exit(1)
         print(f"  [auto_translate] [+] Synced: {file}")
 
     # --- PHASE 4: Auto Translation ---
     print("\n [auto_translate] PHASE 4: Starting Auto-Translation Engine...")
+    translation_failed = False
     for file in po_files:
         po_path = PO_DIR / file
         lang_id = file.replace(".po", "")
 
         target_lang = LANG_MAP.get(lang_id, lang_id.split("_")[0])
-        translate_po_file(po_path, target_lang)
+        if not translate_po_file(po_path, target_lang):
+            translation_failed = True
+
+    if translation_failed:
+        print("[auto_translate] One or more translations failed.")
+        sys.exit(1)
 
     print("\n [auto_translate] Process Complete! Your codebase is synced and translated.")
 

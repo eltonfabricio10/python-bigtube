@@ -13,6 +13,11 @@ on:
         description: "Versao sem o v. Deixe vazio para calcular pela ultima tag."
         required: false
         default: ""
+      auto_translate:
+        description: "Atualizar traducoes automaticamente antes do release."
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -42,6 +47,25 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
+
+      - name: Install translation dependencies
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.auto_translate != 'false' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gettext
+          python -m pip install poetry
+          poetry install --only dev --no-root
+
+      - name: Update translation catalogs
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.auto_translate != 'false' }}
+        run: poetry run python scripts/auto_translate.py
+
+      - name: Validate translation catalogs
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.auto_translate != 'false' }}
+        run: |
+          for po_file in po/*.po; do
+            msgfmt --check "$po_file" -o /tmp/bigtube.mo
+          done
 
       - name: Configure git
         run: |
@@ -111,7 +135,7 @@ jobs:
           for po_file in po/*.po; do
             LANG=$(basename "$po_file" .po)
             mkdir -p "$LOCALES_DIR/$LANG/LC_MESSAGES"
-            msgfmt "$po_file" -o "$LOCALES_DIR/$LANG/LC_MESSAGES/bigtube.mo"
+            msgfmt --check "$po_file" -o "$LOCALES_DIR/$LANG/LC_MESSAGES/bigtube.mo"
           done
 
       - name: Build project packages

@@ -80,7 +80,7 @@ jobs:
           for po_file in po/*.po; do
             LANG=$(basename "$po_file" .po)
             mkdir -p "$LOCALES_DIR/$LANG/LC_MESSAGES"
-            msgfmt "$po_file" -o "$LOCALES_DIR/$LANG/LC_MESSAGES/bigtube.mo"
+            msgfmt --check "$po_file" -o "$LOCALES_DIR/$LANG/LC_MESSAGES/bigtube.mo"
           done
 
       - name: Build wheel and sdist
