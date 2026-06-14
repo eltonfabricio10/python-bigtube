@@ -3,7 +3,7 @@
 # This replaces the former Python implementation under the same `bigtube` package.
 pkgname=bigtube
 _pkgname=python-bigtube
-pkgver=2.0.64
+pkgver=2.0.65
 pkgrel=1
 pkgdesc="Universal Multimedia Downloader (GTK4/libadwaita + GStreamer)"
 arch=('x86_64')
