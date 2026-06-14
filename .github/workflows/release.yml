@@ -82,32 +82,54 @@ jobs:
           echo "should_release=true" >> "$GITHUB_OUTPUT"
 
   build-and-release:
-    name: Build Arch package and publish release
+    name: Build binary and publish release
     needs: prepare-release
     if: ${{ needs.prepare-release.outputs.should_release == 'true' }}
     runs-on: ubuntu-latest
     container:
+      # Build on Arch so the binary links against the same library/glibc
+      # versions Arch/Manjaro users have.
       image: archlinux:base-devel
     outputs:
       pkgver: ${{ needs.prepare-release.outputs.pkgver }}
       tag: ${{ needs.prepare-release.outputs.tag }}
     steps:
       - name: Install build tooling
-        run: pacman -Syu --noconfirm git github-cli pacman-contrib sudo
+        run: |
+          pacman -Syu --noconfirm git github-cli rust gettext \
+            gtk4 libadwaita gstreamer gst-plugins-base
 
       - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare-release.outputs.tag }}
 
-      - name: Build Rust package (makepkg)
+      - name: Compile binaries and assemble the prebuilt tarball
+        env:
+          PKGVER: ${{ needs.prepare-release.outputs.pkgver }}
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          useradd -m builduser
-          echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser
-          chown -R builduser:builduser "$GITHUB_WORKSPACE"
-          su - builduser -c "cd '$GITHUB_WORKSPACE/rust/packaging' && updpkgsums && makepkg -s --noconfirm"
+          # Plain cargo build (no makepkg LTO) so the `ring` crate links.
+          (cd rust && cargo build --release --locked)
 
-      - name: Publish GitHub Release with the Arch package
+          stage="$GITHUB_WORKSPACE/stage"
+          install -Dm755 rust/target/release/bigtube-gui "$stage/usr/bin/bigtube-gui"
+          install -Dm755 rust/target/release/bigtube     "$stage/usr/bin/bigtube"
+          install -Dm644 rust/packaging/org.big.bigtube.desktop \
+            "$stage/usr/share/applications/org.big.bigtube.desktop"
+          install -Dm644 src/bigtube/data/bigtube.png \
+            "$stage/usr/share/icons/hicolor/256x256/apps/bigtube.png"
+          for po in po/*.po; do
+            [ -e "$po" ] || continue
+            lang="$(basename "$po" .po)"
+            install -d "$stage/usr/share/locale/$lang/LC_MESSAGES"
+            msgfmt "$po" -o "$stage/usr/share/locale/$lang/LC_MESSAGES/bigtube.mo"
+          done
+          install -Dm644 LICENSE "$stage/usr/share/licenses/bigtube/LICENSE"
+
+          tar -C "$stage" -czf "bigtube-${PKGVER}-x86_64.tar.gz" usr
+          sha256sum "bigtube-${PKGVER}-x86_64.tar.gz"
+
+      - name: Publish GitHub Release with the prebuilt tarball
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.prepare-release.outputs.tag }}
@@ -115,10 +137,10 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           if gh release view "$TAG" --repo "$GH_REPO" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$GITHUB_WORKSPACE"/rust/packaging/*.pkg.tar.zst \
+            gh release upload "$TAG" "$GITHUB_WORKSPACE"/bigtube-*-x86_64.tar.gz \
               --clobber --repo "$GH_REPO"
           else
-            gh release create "$TAG" "$GITHUB_WORKSPACE"/rust/packaging/*.pkg.tar.zst \
+            gh release create "$TAG" "$GITHUB_WORKSPACE"/bigtube-*-x86_64.tar.gz \
               --title "$TAG" --generate-notes --repo "$GH_REPO"
           fi
 
@@ -164,7 +186,7 @@ jobs:
             > "$GITHUB_WORKSPACE/rust/packaging/.SRCINFO"
 
           GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts" \
-            git clone ssh://aur@aur.archlinux.org/bigtube.git aur-package
+            git clone ssh://aur@aur.archlinux.org/bigtube-bin.git aur-package
           cp "$GITHUB_WORKSPACE/rust/packaging/PKGBUILD" \
              "$GITHUB_WORKSPACE/rust/packaging/.SRCINFO" aur-package/
           cd aur-package
@@ -173,11 +195,13 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          if git diff --quiet PKGBUILD .SRCINFO; then
+          git add PKGBUILD .SRCINFO
+          # `--cached` so a brand-new (empty) AUR repo, where the files are still
+          # untracked, is correctly detected as "has changes" on the first push.
+          if git diff --cached --quiet; then
             echo "AUR package already up to date."
             exit 0
           fi
 
-          git add PKGBUILD .SRCINFO
           git commit -m "Lancamento da versao ${TAG} (Rust)"
           GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts" git push
