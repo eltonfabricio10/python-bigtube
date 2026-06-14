@@ -15,6 +15,9 @@ makedepends=('rust' 'git' 'gettext')
 optdepends=('ffmpeg: audio extraction and media conversion')
 provides=('bigtube')
 conflicts=('bigtube-rs')
+# Disable makepkg LTO: it mangles the `ring` crate's bundled C/asm objects and
+# breaks linking ("undefined symbol: ring_core_*") under ld.lld.
+options=('!lto')
 source=("${pkgname}-${pkgver}.tar.gz::https://github.com/eltonfabricio10/python-bigtube/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('SKIP')
 
