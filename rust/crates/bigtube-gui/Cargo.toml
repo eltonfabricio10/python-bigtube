@@ -1,0 +1,24 @@
+[package]
+name = "bigtube-gui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "BigTube GTK4/libadwaita GUI (Rust port)"
+
+[[bin]]
+name = "bigtube-gui"
+path = "src/main.rs"
+
+[dependencies]
+bigtube-core = { path = "../bigtube-core" }
+serde_json = { workspace = true }
+gtk = { package = "gtk4", version = "0.9", features = ["v4_12"] }
+adw = { package = "libadwaita", version = "0.7", features = ["v1_5"] }
+tracing = { workspace = true }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+async-channel = "2"
+ureq = "2"
+gdk-pixbuf = "0.20"
+gstreamer = "0.23"
+gettext-rs = { version = "0.7", features = ["gettext-system"] }

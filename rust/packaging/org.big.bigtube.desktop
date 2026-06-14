@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=BigTube
+Comment=Universal Multimedia Downloader
+Exec=bigtube-gui
+Icon=bigtube
+Terminal=false
+Categories=Video;AudioVideo;
+StartupNotify=true
+StartupWMClass=org.big.bigtube

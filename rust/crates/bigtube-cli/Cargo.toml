@@ -1,0 +1,18 @@
+[package]
+name = "bigtube-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "BigTube headless CLI (Rust port)"
+
+[[bin]]
+name = "bigtube"
+path = "src/main.rs"
+
+[dependencies]
+bigtube-core = { path = "../bigtube-core" }
+clap = { version = "4", features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

@@ -976,3 +976,22 @@ entry:focus-within {
 #video_container_box {
     box-shadow: none;
 }
+
+/* -----------------------------------------------------------------------------
+   Buttons should only look "active" under the actual pointer — not stay
+   highlighted after a click. Keyboard focus still shows via :focus-visible.
+   ----------------------------------------------------------------------------- */
+button:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+
+/* -----------------------------------------------------------------------------
+   Page title bar — a full-width highlighted strip for the Search / Downloads /
+   Converter page headers (matches the header bar colour, like an AdwBanner).
+   ----------------------------------------------------------------------------- */
+.page-title-bar {
+    background-color: var(--headerbar-bg-color);
+    color: var(--headerbar-fg-color);
+    padding: 10px 12px;
+}

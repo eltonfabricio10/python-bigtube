@@ -1,10 +1,11 @@
 name: Build and Release
 
-# Publica release no GitHub + pacote Arch + AUR automaticamente quando o CI da main passa.
+# Publica release no GitHub + pacote Arch + AUR automaticamente quando o "Rust CI"
+# da main passa. Empacota o app RUST (substitui o antigo release do app Python).
 # Também pode ser executado manualmente em Actions -> Build and Release -> Run workflow.
 on:
   workflow_run:
-    workflows: ["CI"]
+    workflows: ["Rust CI"]
     types: [completed]
     branches: [main, master]
   workflow_dispatch:
@@ -13,11 +14,6 @@ on:
         description: "Versao sem o v. Deixe vazio para calcular pela ultima tag."
         required: false
         default: ""
-      auto_translate:
-        description: "Atualizar traducoes automaticamente antes do release."
-        required: false
-        type: boolean
-        default: true
 
 permissions:
   contents: write
@@ -25,9 +21,6 @@ permissions:
 concurrency:
   group: release-${{ github.event.workflow_run.head_branch || github.ref }}
   cancel-in-progress: false
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   prepare-release:
@@ -48,25 +41,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install translation dependencies
-        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.auto_translate != 'false' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gettext
-          python -m pip install poetry
-          poetry install --only dev --no-root
-
-      - name: Update translation catalogs
-        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.auto_translate != 'false' }}
-        run: poetry run python scripts/auto_translate.py
-
-      - name: Validate translation catalogs
-        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.auto_translate != 'false' }}
-        run: |
-          for po_file in po/*.po; do
-            msgfmt --check "$po_file" -o /tmp/bigtube.mo
-          done
-
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
@@ -79,9 +53,9 @@ jobs:
           RELEASE_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
         run: |
           if [ -n "$INPUT_VERSION" ]; then
-            VERSION=$(python scripts/sync_version_from_git.py --version "$INPUT_VERSION")
+            VERSION=$(python scripts/sync_rust_version.py --version "$INPUT_VERSION")
           else
-            VERSION=$(python scripts/sync_version_from_git.py)
+            VERSION=$(python scripts/sync_rust_version.py)
           fi
 
           TAG="v${VERSION}"
@@ -94,10 +68,11 @@ jobs:
             exit 0
           fi
 
-          if ! git diff --quiet pyproject.toml PKGBUILD po/ \
-              src/bigtube/core/network_checker.py src/bigtube/core/image_loader.py; then
-            git add pyproject.toml PKGBUILD po/ \
-              src/bigtube/core/network_checker.py src/bigtube/core/image_loader.py
+          # Keep Cargo.lock's workspace member versions in sync with Cargo.toml.
+          cargo update --manifest-path rust/Cargo.toml --workspace --quiet || true
+
+          if ! git diff --quiet rust/Cargo.toml rust/Cargo.lock rust/packaging/PKGBUILD; then
+            git add rust/Cargo.toml rust/Cargo.lock rust/packaging/PKGBUILD
             git commit -m "chore: release ${TAG} [skip ci]"
             git push origin "HEAD:${RELEASE_BRANCH}"
           fi
@@ -107,106 +82,69 @@ jobs:
           echo "should_release=true" >> "$GITHUB_OUTPUT"
 
   build-and-release:
-    name: Build and publish standard release
+    name: Build Arch package and publish release
     needs: prepare-release
     if: ${{ needs.prepare-release.outputs.should_release == 'true' }}
     runs-on: ubuntu-latest
+    container:
+      image: archlinux:base-devel
     outputs:
       pkgver: ${{ needs.prepare-release.outputs.pkgver }}
       tag: ${{ needs.prepare-release.outputs.tag }}
     steps:
+      - name: Install build tooling
+        run: pacman -Syu --noconfirm git github-cli pacman-contrib sudo
+
       - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare-release.outputs.tag }}
 
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y gettext
-
-      - name: Install Poetry
-        run: python -m pip install poetry
-
-      - name: Compile translations
+      - name: Build Rust package (makepkg)
         run: |
-          LOCALES_DIR="src/bigtube/data/locales"
-          for po_file in po/*.po; do
-            LANG=$(basename "$po_file" .po)
-            mkdir -p "$LOCALES_DIR/$LANG/LC_MESSAGES"
-            msgfmt --check "$po_file" -o "$LOCALES_DIR/$LANG/LC_MESSAGES/bigtube.mo"
-          done
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          useradd -m builduser
+          echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser
+          chown -R builduser:builduser "$GITHUB_WORKSPACE"
+          su - builduser -c "cd '$GITHUB_WORKSPACE/rust/packaging' && updpkgsums && makepkg -s --noconfirm"
 
-      - name: Build project packages
-        run: poetry build
-
-      - name: Publish GitHub Release
+      - name: Publish GitHub Release with the Arch package
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.prepare-release.outputs.tag }}
           GH_REPO: ${{ github.repository }}
         run: |
-          gh release create "$TAG" dist/*.whl dist/*.tar.gz \
-            --title "$TAG" \
-            --generate-notes \
-            --repo "$GH_REPO"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          if gh release view "$TAG" --repo "$GH_REPO" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$GITHUB_WORKSPACE"/rust/packaging/*.pkg.tar.zst \
+              --clobber --repo "$GH_REPO"
+          else
+            gh release create "$TAG" "$GITHUB_WORKSPACE"/rust/packaging/*.pkg.tar.zst \
+              --title "$TAG" --generate-notes --repo "$GH_REPO"
+          fi
 
-  build-arch-package:
-    name: Build Arch Linux package
+  deploy-aur:
+    name: Deploy to Arch User Repository
     needs: build-and-release
     runs-on: ubuntu-latest
     container:
       image: archlinux:base-devel
     steps:
-      - name: Checkout release tag
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.build-and-release.outputs.tag }}
-
-      - name: Prepare Arch environment and build
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          pacman -Syu --noconfirm git github-cli pacman-contrib sudo
-          useradd -m builduser
-          echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser
-          chown -R builduser:builduser .
-          su - builduser -c "cd $PWD && updpkgsums"
-          su - builduser -c "cd $PWD && makepkg -s --noconfirm"
-
-      - name: Publish Arch package to GitHub Release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ needs.build-and-release.outputs.tag }}
-          GH_REPO: ${{ github.repository }}
-        run: gh release upload "$TAG" ./*.pkg.tar.zst --clobber --repo "$GH_REPO"
-
-  deploy-aur:
-    name: Deploy to Arch User Repository
-    needs: [build-and-release, build-arch-package]
-    runs-on: ubuntu-latest
-    container:
-      image: archlinux:base-devel
-    steps:
-      - name: Checkout release tag
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.build-and-release.outputs.tag }}
-
       - name: Install AUR deploy dependencies
-        run: |
-          cd "$GITHUB_WORKSPACE"
-          pacman -Syu --noconfirm git openssh pacman-contrib
-          useradd -m builduser
-          chown -R builduser:builduser .
-          su - builduser -c "cd $PWD && updpkgsums"
+        run: pacman -Syu --noconfirm git openssh pacman-contrib sudo
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.build-and-release.outputs.tag }}
 
       - name: Publish to AUR
         env:
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           TAG: ${{ needs.build-and-release.outputs.tag }}
         run: |
-          cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          useradd -m builduser
+          chown -R builduser:builduser "$GITHUB_WORKSPACE"
+
           install -d -m 700 ~/.ssh
           printf '%s\n' "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/aur
           chmod 600 ~/.ssh/aur
@@ -220,11 +158,15 @@ jobs:
             -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
             aur@aur.archlinux.org help >/dev/null
 
-          su - builduser -c "cd $PWD && makepkg --printsrcinfo" > .SRCINFO
+          # Refresh checksums and generate .SRCINFO from the Rust PKGBUILD.
+          su - builduser -c "cd '$GITHUB_WORKSPACE/rust/packaging' && updpkgsums"
+          su - builduser -c "cd '$GITHUB_WORKSPACE/rust/packaging' && makepkg --printsrcinfo" \
+            > "$GITHUB_WORKSPACE/rust/packaging/.SRCINFO"
 
           GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts" \
             git clone ssh://aur@aur.archlinux.org/bigtube.git aur-package
-          cp PKGBUILD .SRCINFO aur-package/
+          cp "$GITHUB_WORKSPACE/rust/packaging/PKGBUILD" \
+             "$GITHUB_WORKSPACE/rust/packaging/.SRCINFO" aur-package/
           cd aur-package
 
           git config --global --add safe.directory "$PWD"
@@ -237,5 +179,5 @@ jobs:
           fi
 
           git add PKGBUILD .SRCINFO
-          git commit -m "Lancamento da versao ${TAG}"
+          git commit -m "Lancamento da versao ${TAG} (Rust)"
           GIT_SSH_COMMAND="ssh -i $HOME/.ssh/aur -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts" git push

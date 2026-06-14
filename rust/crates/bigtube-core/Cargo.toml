@@ -1,0 +1,29 @@
+[package]
+name = "bigtube-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+regex = { workspace = true }
+url = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+once_cell = "1"
+dirs = "5"
+fs2 = "0.4"
+tempfile = "3"
+ureq = "2"
+zip = { version = "2", default-features = false, features = ["deflate"] }
+wait-timeout = "0.2"
+
+[target.'cfg(unix)'.dependencies]
+nix = { version = "0.29", features = ["signal", "process"] }
+libc = "0.2"
+
+[dev-dependencies]
+serde_json = { workspace = true }

@@ -1235,3 +1235,15 @@ msgstr "yt-dlp ausente"
 #, fuzzy
 msgid "Timeout"
 msgstr "Hora"
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "Preview Quality"
+msgstr "Qualidade da Pré-visualização"
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "Added to downloads"
+msgstr "Adicionado aos downloads"
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "Scheduled for:"
+msgstr "Agendado para:"
