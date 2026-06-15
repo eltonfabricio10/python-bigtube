@@ -100,6 +100,19 @@ pub fn redact_command(cmd: &[String]) -> Vec<String> {
 // PURE COMMAND BUILDERS
 // =============================================================================
 
+/// YouTube extractor client order, shared by BOTH metadata listing and download
+/// so the format ids shown to the user are exactly the ones that download.
+///
+/// They MUST match: each client exposes a different set/numbering of format ids.
+/// If listing uses one client and downloading another, a picked id (e.g. `137`)
+/// may not exist for the download client and yt-dlp silently falls back to
+/// `/best` — so every choice downloads the same ~360p file.
+///
+/// `web` exposes the full DASH ladder (every height); `android_vr` is the
+/// SABR-resistant fallback. Plain `android` is avoided — SABR strips its https
+/// formats.
+const YT_PLAYER_CLIENT: &str = "youtube:player_client=web,android_vr";
+
 /// Build the metadata command args (without the binary). `is_youtube` enables
 /// the YouTube-specific extractor args.
 pub fn build_metadata_args(common_args: &[String], url: &str, is_youtube: bool) -> Vec<String> {
@@ -110,7 +123,7 @@ pub fn build_metadata_args(common_args: &[String], url: &str, is_youtube: bool) 
     ];
     if is_youtube {
         cmd.push("--extractor-args".into());
-        cmd.push("youtube:player_client=web,android_vr".into());
+        cmd.push(YT_PLAYER_CLIENT.into());
         cmd.push("--extractor-args".into());
         cmd.push("youtube:player_skip=configs".into());
     }
@@ -157,12 +170,13 @@ pub fn build_download_args(
     cmd.extend(cfg.get_yt_dlp_common_args());
 
     if is_youtube_url(&params.url) {
-        // The plain `android` client has its formats stripped under YouTube's
-        // SABR experiment ("formats missing a URL"), which made exact-height
-        // selectors (e.g. 144p/240p) fail with "Requested format is not
-        // available". `android_vr` still exposes them, with `web` as a fallback.
+        // Use the SAME client as metadata listing (see YT_PLAYER_CLIENT): the
+        // format ids the user picked were produced by this client, so they must
+        // be resolved by it too. Mismatched clients made every pick fall back to
+        // ~360p. `web` exposes all heights (144p/240p included); `android_vr` is
+        // the SABR-resistant fallback.
         cmd.push("--extractor-args".into());
-        cmd.push("youtube:player_client=android_vr,web".into());
+        cmd.push(YT_PLAYER_CLIENT.into());
     }
 
     let rate_limit = cfg.get_i64("rate_limit");
@@ -834,7 +848,11 @@ mod tests {
         assert_eq!(args[f_idx + 1], "137+bestaudio/best");
         assert!(args.contains(&"--merge-output-format".to_string()));
         assert!(args.iter().any(|a| a == "/tmp/dl/My Video.mp4"));
-        assert!(args.iter().any(|a| a.contains("player_client=android")));
+        // Download must use the SAME client as metadata listing so picked
+        // format ids resolve to the same formats.
+        assert!(args
+            .iter()
+            .any(|a| a.contains("player_client=web,android_vr")));
     }
 
     #[test]
