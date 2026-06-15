@@ -1271,3 +1271,19 @@ msgstr "Abrir Configurações"
 #: rust/crates/bigtube-gui/src/app.rs
 msgid "Close"
 msgstr "Fechar"
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "File already exists"
+msgstr "Arquivo já existe"
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "A file with this name is already in the download folder."
+msgstr "Já existe um arquivo com este nome na pasta de downloads."
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "Overwrite"
+msgstr "Sobrescrever"
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "Keep Both"
+msgstr "Manter os dois"

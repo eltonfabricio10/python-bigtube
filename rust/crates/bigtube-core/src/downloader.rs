@@ -98,6 +98,53 @@ fn parse_dl_progress(line: &str) -> Option<(Option<String>, Option<String>)> {
     Some((percent, detail))
 }
 
+/// Extract the `-o` output path from a download arg list.
+fn output_path_from_args(args: &[String]) -> Option<String> {
+    args.iter()
+        .position(|a| a == "-o")
+        .and_then(|i| args.get(i + 1))
+        .cloned()
+}
+
+/// Remove yt-dlp intermediate files left next to a finished download — the
+/// separate `{stem}.fNNN.<ext>` video/audio streams (e.g. webm) plus `.part` /
+/// `.ytdl` scratch files. The merged `output` file itself is never touched.
+/// Conservative: only deletes files that match yt-dlp's own naming.
+fn cleanup_intermediates(output: &str) {
+    let out = std::path::Path::new(output);
+    let (Some(dir), Some(final_name), Some(stem)) = (
+        out.parent(),
+        out.file_name().and_then(|s| s.to_str()),
+        out.file_stem().and_then(|s| s.to_str()),
+    ) else {
+        return;
+    };
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
+    let frag = Regex::new(r"\.f\d+\.[A-Za-z0-9]+$").unwrap();
+    for entry in entries.flatten() {
+        let name = entry.file_name();
+        let Some(name) = name.to_str() else { continue };
+        if name == final_name {
+            continue;
+        }
+        // Only siblings sharing the output stem, matching a yt-dlp temp pattern.
+        if !name.starts_with(stem) {
+            continue;
+        }
+        let is_temp = frag.is_match(name)
+            || name.ends_with(".part")
+            || name.ends_with(".ytdl")
+            || name.ends_with(".temp.mp4")
+            || name.ends_with(".temp.mkv");
+        if is_temp {
+            let _ = std::fs::remove_file(entry.path());
+            tracing::info!("Removed leftover intermediate: {name}");
+        }
+    }
+}
+
 const MIN_FREE_SPACE_MB: f64 = 10.0;
 const DOWNLOAD_IDLE_TIMEOUT: Duration = Duration::from_secs(180);
 const SENSITIVE_ARGS: [&str; 4] = [
@@ -896,6 +943,11 @@ impl VideoDownloader {
         let cancelled = self.state.is_cancelled.load(Ordering::SeqCst);
 
         if code == Some(0) {
+            // Remove any leftover intermediate streams (e.g. the separate webm
+            // video/audio) once the merged file exists.
+            if let Some(out) = output_path_from_args(args) {
+                cleanup_intermediates(&out);
+            }
             progress(Progress::new(Some("100%".into()), StatusCode::Completed));
             true
         } else if signaled_term || cancelled {
@@ -1194,6 +1246,34 @@ mod tests {
         assert_eq!(real.len(), 2, "expected one row per resolution");
         let r1080 = real.iter().find(|v| v.resolution == 1080).unwrap();
         assert_eq!(r1080.id, "137", "1080p row should be the H.264 format");
+    }
+
+    #[test]
+    fn cleanup_removes_only_yt_dlp_intermediates() {
+        let dir = std::env::temp_dir().join(format!("bt_cleanup_{}", std::process::id()));
+        let _ = std::fs::create_dir_all(&dir);
+        let mk = |n: &str| {
+            let p = dir.join(n);
+            std::fs::write(&p, b"x").unwrap();
+            p
+        };
+        let out = mk("My Video.mp4");
+        let frag_v = mk("My Video.f313.webm");
+        let frag_a = mk("My Video.f251.webm");
+        let part = mk("My Video.mp4.part");
+        let unrelated = mk("Other Movie.mkv"); // different stem -> keep
+        let user_webm = mk("My Video extras.webm"); // shares prefix but not a frag -> keep
+
+        cleanup_intermediates(out.to_str().unwrap());
+
+        assert!(out.exists(), "merged output kept");
+        assert!(!frag_v.exists(), "webm video fragment removed");
+        assert!(!frag_a.exists(), "webm audio fragment removed");
+        assert!(!part.exists(), ".part removed");
+        assert!(unrelated.exists(), "unrelated file kept");
+        assert!(user_webm.exists(), "non-fragment sibling kept");
+
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

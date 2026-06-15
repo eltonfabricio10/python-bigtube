@@ -2309,7 +2309,7 @@ fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
             let thumb = thumb.clone();
             let uploader = uploader.clone();
             Rc::new(move |format_id: String, ext: String| {
-                enqueue_download(&st, &url, &title, &thumb, &uploader, &format_id, &ext);
+                enqueue_download_checked(&st, &url, &title, &thumb, &uploader, &format_id, &ext);
             })
         };
         let on_schedule: dialog::ScheduleFn = {
@@ -2464,7 +2464,86 @@ fn enqueue_download(
     format_id: &str,
     ext: &str,
 ) {
-    enqueue_common(state, url, title, thumbnail, uploader, format_id, ext, None);
+    enqueue_common(
+        state, url, title, thumbnail, uploader, format_id, ext, None, false,
+    );
+}
+
+/// Like [`enqueue_download`] but first checks whether the target file already
+/// exists and, if so, asks the user to Overwrite / Keep both / Cancel.
+#[allow(clippy::too_many_arguments)]
+fn enqueue_download_checked(
+    state: &Rc<AppState>,
+    url: &str,
+    title: &str,
+    thumbnail: &str,
+    uploader: &str,
+    format_id: &str,
+    ext: &str,
+) {
+    let path = output_path(title, format_id, ext);
+    if !std::path::Path::new(&path).exists() {
+        enqueue_download(state, url, title, thumbnail, uploader, format_id, ext);
+        return;
+    }
+    let Some(window) = state.window.borrow().clone() else {
+        return;
+    };
+    let dialog = adw::MessageDialog::new(
+        Some(&window),
+        Some(&tr("File already exists")),
+        Some(&format!(
+            "{}\n\n{}",
+            tr("A file with this name is already in the download folder."),
+            path
+        )),
+    );
+    dialog.add_response("cancel", &tr("Cancel"));
+    dialog.add_response("keep", &tr("Keep Both"));
+    dialog.add_response("overwrite", &tr("Overwrite"));
+    dialog.set_response_appearance("overwrite", adw::ResponseAppearance::Destructive);
+    dialog.set_default_response(Some("keep"));
+    dialog.set_close_response("cancel");
+    apply_theme_classes(&dialog);
+
+    // Own the strings for the response closure.
+    let (state, url, title, thumbnail, uploader, format_id, ext) = (
+        state.clone(),
+        url.to_string(),
+        title.to_string(),
+        thumbnail.to_string(),
+        uploader.to_string(),
+        format_id.to_string(),
+        ext.to_string(),
+    );
+    dialog.connect_response(None, move |dlg, resp| {
+        match resp {
+            "overwrite" => enqueue_common(
+                &state, &url, &title, &thumbnail, &uploader, &format_id, &ext, None, true,
+            ),
+            "keep" => {
+                let t = unique_title(&title, &format_id, &ext);
+                enqueue_download(&state, &url, &t, &thumbnail, &uploader, &format_id, &ext);
+            }
+            _ => {}
+        }
+        dlg.close();
+    });
+    dialog.present();
+}
+
+/// A title whose `output_path` doesn't collide, appending " (n)" as needed.
+fn unique_title(title: &str, format_id: &str, ext: &str) -> String {
+    if !std::path::Path::new(&output_path(title, format_id, ext)).exists() {
+        return title.to_string();
+    }
+    for n in 1..1000 {
+        let candidate = format!("{title} ({n})");
+        if !std::path::Path::new(&output_path(&candidate, format_id, ext)).exists() {
+            return candidate;
+        }
+    }
+    format!("{title} ({})", glib::real_time())
 }
 
 /// Format a unix timestamp as a local "DD/MM/YYYY HH:MM" string for the
@@ -2498,6 +2577,7 @@ fn enqueue_scheduled(
         format_id,
         ext,
         Some(ts),
+        false,
     );
 }
 
@@ -2511,6 +2591,7 @@ fn enqueue_common(
     format_id: &str,
     ext: &str,
     schedule_ts: Option<f64>,
+    force_overwrite: bool,
 ) {
     let key = next_key();
     let file_path = output_path(title, format_id, ext);
@@ -2593,7 +2674,7 @@ fn enqueue_common(
         format_id: format_id.to_string(),
         title: title.to_string(),
         ext: ext.to_string(),
-        force_overwrite: false,
+        force_overwrite,
         estimated_size_mb: None,
     };
     let mgr = download_manager::global();
