@@ -504,11 +504,51 @@ pub fn video_selector(format_id: &str, height: i64, codec: &str) -> String {
 // FORMAT PARSING
 // =============================================================================
 
-/// Largest audio-only track size (MB) — the track that gets merged into a
-/// video-only download. Returns 0.0 if none/unknown.
-fn best_audio_size_mb(info: &Value, duration: f64) -> f64 {
+/// Size of one format in MB plus whether it is EXACT. yt-dlp only reports a real
+/// `filesize` for some formats; otherwise it's `filesize_approx` or a bitrate
+/// estimate (`tbr × duration`), which routinely overshoots the muxed file by
+/// 20-40%. The bool lets the UI render an honest "~" for estimates so the dialog
+/// never claims a precise size it can't know before downloading.
+fn extract_size_mb(f: &Value, duration: f64) -> (f64, bool) {
+    if let Some(fs) = f
+        .get("filesize")
+        .and_then(Value::as_f64)
+        .filter(|n| *n > 0.0)
+    {
+        (fs / 1024.0 / 1024.0, true)
+    } else if let Some(fs) = f
+        .get("filesize_approx")
+        .and_then(Value::as_f64)
+        .filter(|n| *n > 0.0)
+    {
+        (fs / 1024.0 / 1024.0, false)
+    } else if let Some(tbr) = f
+        .get("tbr")
+        .and_then(Value::as_f64)
+        .filter(|_| duration > 0.0)
+    {
+        ((tbr * 1024.0 / 8.0) * duration / 1024.0 / 1024.0, false)
+    } else {
+        (0.0, false)
+    }
+}
+
+/// Format a size for display, prefixing `~` when the size is an estimate.
+fn size_label(mb: f64, exact: bool) -> String {
+    if mb <= 0.0 {
+        "? MB".to_string()
+    } else if exact {
+        format!("{mb:.1} MB")
+    } else {
+        format!("~{mb:.0} MB")
+    }
+}
+
+/// Largest audio-only track that gets merged into a video-only download, as
+/// `(size_mb, is_exact)`. Returns `(0.0, false)` if none/unknown.
+fn best_audio_size_mb(info: &Value, duration: f64) -> (f64, bool) {
     let Some(formats) = info.get("formats").and_then(Value::as_array) else {
-        return 0.0;
+        return (0.0, false);
     };
     formats
         .iter()
@@ -517,20 +557,10 @@ fn best_audio_size_mb(info: &Value, duration: f64) -> f64 {
             let a = f.get("acodec").and_then(Value::as_str);
             matches!(v, None | Some("none")) && !matches!(a, None | Some("none"))
         })
-        .filter_map(|f| {
-            f.get("filesize")
-                .and_then(Value::as_f64)
-                .or_else(|| f.get("filesize_approx").and_then(Value::as_f64))
-                .or_else(|| {
-                    f.get("tbr")
-                        .and_then(Value::as_f64)
-                        .filter(|_| duration > 0.0)
-                        .map(|tbr| (tbr * 1024.0 / 8.0) * duration)
-                })
-        })
-        .fold(0.0_f64, f64::max)
-        / 1024.0
-        / 1024.0
+        .map(|f| extract_size_mb(f, duration))
+        .filter(|(mb, _)| *mb > 0.0)
+        .max_by(|a, b| a.0.total_cmp(&b.0))
+        .unwrap_or((0.0, false))
 }
 
 /// Parse raw yt-dlp `--dump-single-json` into a clean structure (`_parse_formats`).
@@ -561,24 +591,10 @@ pub fn parse_formats(info: &Value) -> ParsedInfo {
             let vcodec = f.get("vcodec").and_then(Value::as_str);
             let acodec = f.get("acodec").and_then(Value::as_str);
 
-            // Size calculation.
-            let mut filesize = f
-                .get("filesize")
-                .and_then(Value::as_f64)
-                .or_else(|| f.get("filesize_approx").and_then(Value::as_f64));
-            if filesize.is_none() {
-                if let Some(tbr) = f.get("tbr").and_then(Value::as_f64) {
-                    if duration > 0.0 {
-                        filesize = Some((tbr * 1024.0 / 8.0) * duration);
-                    }
-                }
-            }
-            let size_mb = filesize.map(|fs| fs / 1024.0 / 1024.0).unwrap_or(0.0);
-            let size_str = if size_mb > 0.0 {
-                format!("{size_mb:.1} MB")
-            } else {
-                "? MB".to_string()
-            };
+            // Size calculation — keep the exact/estimate distinction so the UI
+            // can show "~" for bitrate-derived guesses (which overshoot).
+            let (size_mb, size_exact) = extract_size_mb(f, duration);
+            let size_str = size_label(size_mb, size_exact);
 
             let is_audio_only =
                 matches!(vcodec, None | Some("none")) && !matches!(acodec, None | Some("none"));
@@ -611,16 +627,13 @@ pub fn parse_formats(info: &Value) -> ParsedInfo {
                 // Video-only (DASH) rows merge with best audio on download, so
                 // report video size + audio size to match the final file.
                 let is_video_only = matches!(acodec, None | Some("none"));
-                let total_mb = if is_video_only {
-                    size_mb + best_audio_mb
+                let (total_mb, total_exact) = if is_video_only {
+                    // Merged size is exact only if BOTH parts were exact.
+                    (size_mb + best_audio_mb.0, size_exact && best_audio_mb.1)
                 } else {
-                    size_mb
+                    (size_mb, size_exact)
                 };
-                let total_str = if total_mb > 0.0 {
-                    format!("{total_mb:.1} MB")
-                } else {
-                    "? MB".to_string()
-                };
+                let total_str = size_label(total_mb, total_exact);
                 let fps = f.get("fps").and_then(Value::as_f64).unwrap_or(0.0);
                 let mut label = format!("{h}p");
                 if fps > 30.0 {
@@ -1440,6 +1453,48 @@ mod tests {
             (v1080.size_val - 11.0).abs() < 0.05,
             "expected ~11 MB, got {}",
             v1080.size_val
+        );
+    }
+
+    #[test]
+    fn approximate_sizes_are_marked_with_tilde() {
+        // A format with only filesize_approx (no exact filesize) is an estimate:
+        // its label must carry "~" so the dialog doesn't promise a precise size.
+        let info = json!({
+            "id": "abc", "title": "T", "duration": 235, "webpage_url": "http://x",
+            "formats": [
+                {"format_id": "140", "ext": "m4a", "vcodec": "none", "acodec": "mp4a.40.2", "abr": 128, "filesize_approx": 3000000},
+                {"format_id": "137", "ext": "mp4", "vcodec": "avc1.640028", "acodec": "none", "height": 1080, "fps": 30, "filesize_approx": 80000000}
+            ]
+        });
+        let parsed = parse_formats(&info);
+        let v = parsed.videos.iter().find(|v| v.id == "137").unwrap();
+        assert!(
+            v.size.starts_with('~'),
+            "estimate must show ~, got {}",
+            v.size
+        );
+        let a = parsed.audios.iter().find(|a| a.id == "140").unwrap();
+        assert!(
+            a.size.starts_with('~'),
+            "estimate must show ~, got {}",
+            a.size
+        );
+
+        // Exact filesize on both parts -> NO tilde.
+        let exact = json!({
+            "id": "abc", "title": "T", "duration": 100, "webpage_url": "http://x",
+            "formats": [
+                {"format_id": "140", "ext": "m4a", "vcodec": "none", "acodec": "mp4a.40.2", "abr": 128, "filesize": 1048576},
+                {"format_id": "137", "ext": "mp4", "vcodec": "avc1.640028", "acodec": "none", "height": 1080, "fps": 30, "filesize": 10485760}
+            ]
+        });
+        let parsed = parse_formats(&exact);
+        let v = parsed.videos.iter().find(|v| v.id == "137").unwrap();
+        assert!(
+            !v.size.starts_with('~'),
+            "exact must NOT show ~, got {}",
+            v.size
         );
     }
 

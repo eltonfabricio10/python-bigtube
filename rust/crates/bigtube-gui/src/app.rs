@@ -2649,10 +2649,12 @@ fn plan_summary(p: &bigtube_core::downloader::ResolvedPlan) -> String {
         });
     }
     if p.size_mb > 0.0 {
+        // Pre-download size from yt-dlp is an estimate (often overshoots); the
+        // live progress line shows the real bytes once the transfer starts.
         parts.push(if p.size_mb >= 1024.0 {
-            format!("{:.2} GiB", p.size_mb / 1024.0)
+            format!("~{:.2} GiB", p.size_mb / 1024.0)
         } else {
-            format!("{:.1} MiB", p.size_mb)
+            format!("~{:.0} MiB", p.size_mb)
         });
     }
     parts.join(" · ")
