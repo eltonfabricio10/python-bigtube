@@ -995,3 +995,12 @@ button:focus:not(:focus-visible) {
     color: var(--headerbar-fg-color);
     padding: 10px 12px;
 }
+/* -----------------------------------------------------------------------------
+   Search suggestion rows — keep them compact so each match is a thin single
+   line (no thick/bloated rows, no empty leftover in the popover).
+   ----------------------------------------------------------------------------- */
+.suggestion-row > button {
+    min-height: 0;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}

@@ -885,13 +885,21 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         width: i32,
         n_rows: usize,
     ) {
-        const ROW_H: i32 = 38; // fallback per-row height if measure() isn't ready
+        const ROW_H: i32 = 34; // fallback per-row height if nothing is measured yet
         const MAX_H: i32 = 190;
-        let (_, nat_h, _, _) = list.measure(gtk::Orientation::Vertical, width.max(320));
-        let h = if nat_h > 0 {
-            nat_h
+        // Prefer the REAL rendered height (exact, no leftover). measure() runs
+        // before layout and overshoots; the post-popup idle pass has a rendered
+        // list, so list.height() is the true content height.
+        let rendered = list.height();
+        let h = if rendered > 0 {
+            rendered
         } else {
-            (n_rows as i32 * ROW_H).max(ROW_H)
+            let (_, nat_h, _, _) = list.measure(gtk::Orientation::Vertical, width.max(320));
+            if nat_h > 0 {
+                nat_h
+            } else {
+                (n_rows as i32 * ROW_H).max(ROW_H)
+            }
         }
         .clamp(1, MAX_H);
         scroll.set_min_content_height(h);
@@ -929,6 +937,7 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             let n_matches = matches.len();
             for m in matches {
                 let rowbox = gtk::Box::new(gtk::Orientation::Horizontal, 0);
+                rowbox.add_css_class("suggestion-row");
                 let pick = gtk::Button::new();
                 pick.add_css_class("flat");
                 pick.set_hexpand(true);
@@ -938,6 +947,7 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 let inner = gtk::Box::new(gtk::Orientation::Horizontal, 6);
                 let icon = gtk::Image::from_icon_name("document-open-recent-symbolic");
                 icon.add_css_class("dim-label");
+                icon.set_pixel_size(14);
                 let lbl = gtk::Label::new(Some(&m));
                 lbl.set_xalign(0.0);
                 lbl.set_hexpand(true);
@@ -947,7 +957,7 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 pick.set_child(Some(&inner));
                 let del = gtk::Button::from_icon_name("window-close-symbolic");
                 del.add_css_class("flat");
-                del.add_css_class("circular");
+                del.set_valign(gtk::Align::Center);
                 del.set_can_focus(false);
                 del.set_focus_on_click(false);
                 del.set_tooltip_text(Some(&tr("Remove from list")));
