@@ -30,7 +30,14 @@ fn main() {
 
     let app = adw::Application::builder().application_id(APP_ID).build();
     app.connect_startup(|_| load_css());
-    app.connect_activate(app::build_window);
+    // Single instance: GApplication is already unique via APP_ID (a second launch
+    // forwards `activate` to the running process). Without this guard, that second
+    // activation would build ANOTHER window in the same process — so re-opening
+    // BigTube must just raise the existing window instead of duplicating it.
+    app.connect_activate(|app| match app.active_window() {
+        Some(win) => win.present(),
+        None => app::build_window(app),
+    });
     app.run();
 }
 
