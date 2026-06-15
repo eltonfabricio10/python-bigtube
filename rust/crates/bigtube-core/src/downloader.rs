@@ -434,8 +434,11 @@ pub fn parse_formats(info: &Value) -> ParsedInfo {
     }
 
     use std::cmp::Reverse;
-    dedupe(&mut videos);
-    videos.sort_by_key(|v| Reverse((v.resolution, v.fps, ord(v.size_val))));
+    // Collapse to a single clean entry per resolution. The full DASH ladder
+    // exposes every height in 3 codecs (H.264/VP9/AV1) and several bitrates,
+    // which floods the picker; show one row per resolution, preferring the most
+    // compatible codec, then highest fps, then best quality.
+    videos = collapse_by_resolution(videos);
     dedupe(&mut audios);
     audios.sort_by_key(|a| Reverse((ord(a.quality), ord(a.size_val))));
 
@@ -508,6 +511,56 @@ fn inject_virtual_options(videos: &mut Vec<FormatOption>, audios: &mut Vec<Forma
 fn dedupe(items: &mut Vec<FormatOption>) {
     let mut seen = std::collections::HashSet::new();
     items.retain(|i| seen.insert((i.label.clone(), i.ext.clone(), i.size_val as i64)));
+}
+
+/// Codec compatibility rank (lower = preferred). H.264/avc plays everywhere, so
+/// it's the safe default for a downloader; VP9 and AV1 are smaller but less
+/// universally supported by players/editors.
+fn codec_rank(codec: &str) -> i64 {
+    let c = codec.to_lowercase();
+    if c.contains("avc") || c.contains("h264") {
+        0
+    } else if c.contains("vp9") || c.contains("vp09") {
+        1
+    } else if c.contains("av01") || c.contains("av1") {
+        2
+    } else {
+        3
+    }
+}
+
+/// Keep one representative format per resolution (height), preferring the most
+/// compatible codec, then higher fps, then higher quality (bitrate/size).
+/// Result is sorted highest-resolution first.
+fn collapse_by_resolution(videos: Vec<FormatOption>) -> Vec<FormatOption> {
+    use std::cmp::Reverse;
+    use std::collections::HashMap;
+    let mut best: HashMap<i64, FormatOption> = HashMap::new();
+    for v in videos {
+        let cand = (
+            codec_rank(&v.codec),
+            Reverse(v.fps),
+            Reverse(ord(v.size_val)),
+        );
+        match best.get(&v.resolution) {
+            Some(cur) => {
+                let curr = (
+                    codec_rank(&cur.codec),
+                    Reverse(cur.fps),
+                    Reverse(ord(cur.size_val)),
+                );
+                if cand < curr {
+                    best.insert(v.resolution, v);
+                }
+            }
+            None => {
+                best.insert(v.resolution, v);
+            }
+        }
+    }
+    let mut out: Vec<FormatOption> = best.into_values().collect();
+    out.sort_by_key(|v| Reverse((v.resolution, v.fps)));
+    out
 }
 
 fn ord(v: f64) -> i64 {
@@ -1006,6 +1059,32 @@ mod tests {
             "expected ~11 MB, got {}",
             v1080.size_val
         );
+    }
+
+    #[test]
+    fn collapse_keeps_one_per_resolution_prefers_h264() {
+        // Same resolution in 3 codecs + a second resolution -> 2 clean rows,
+        // and the 1080p row must be the H.264 one (most compatible).
+        let info = json!({
+            "id": "abc", "title": "T", "duration": 100, "webpage_url": "http://x",
+            "formats": [
+                {"format_id": "140", "ext": "m4a", "vcodec": "none", "acodec": "mp4a.40.2", "abr": 128, "filesize": 1048576},
+                {"format_id": "399", "ext": "mp4", "vcodec": "av01.0.09M.08", "acodec": "none", "height": 1080, "fps": 30, "filesize": 5242880},
+                {"format_id": "248", "ext": "webm", "vcodec": "vp9", "acodec": "none", "height": 1080, "fps": 30, "filesize": 7340032},
+                {"format_id": "137", "ext": "mp4", "vcodec": "avc1.640028", "acodec": "none", "height": 1080, "fps": 30, "filesize": 10485760},
+                {"format_id": "136", "ext": "mp4", "vcodec": "avc1.4d401f", "acodec": "none", "height": 720, "fps": 30, "filesize": 5242880}
+            ]
+        });
+        let parsed = parse_formats(&info);
+        // Real (non-virtual) video rows: exactly one per resolution (1080, 720).
+        let real: Vec<_> = parsed
+            .videos
+            .iter()
+            .filter(|v| v.codec != "mkv_merge")
+            .collect();
+        assert_eq!(real.len(), 2, "expected one row per resolution");
+        let r1080 = real.iter().find(|v| v.resolution == 1080).unwrap();
+        assert_eq!(r1080.id, "137", "1080p row should be the H.264 format");
     }
 
     #[test]
