@@ -836,8 +836,9 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     sugg_list.set_selection_mode(gtk::SelectionMode::None);
     let sugg_scroll = gtk::ScrolledWindow::new();
     sugg_scroll.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
-    sugg_scroll.set_max_content_height(190);
-    sugg_scroll.set_propagate_natural_height(true);
+    // Height is governed explicitly by fit_suggestion_scroll (min==max content
+    // height per match count), so natural-height propagation is left off to avoid
+    // the popover keeping a stale, taller size when matches shrink to one.
     sugg_scroll.set_min_content_width(320);
     sugg_scroll.set_child(Some(&sugg_list));
     popover.set_child(Some(&sugg_scroll));
@@ -1002,6 +1003,14 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             fit_suggestion_scroll(&sugg_list, &sugg_scroll, w, n_matches);
             popover.set_size_request(w, -1);
             popover.popup();
+            // Re-fit once layout has settled: at popup() the rows aren't measured
+            // yet, so measure() can be off — this idle pass uses the real heights
+            // and shrinks the popover to hug the content exactly.
+            glib::idle_add_local_once({
+                let list = sugg_list.clone();
+                let scroll = sugg_scroll.clone();
+                move || fit_suggestion_scroll(&list, &scroll, w, n_matches)
+            });
         })
     };
 
