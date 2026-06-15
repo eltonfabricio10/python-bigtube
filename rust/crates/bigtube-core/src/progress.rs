@@ -46,6 +46,9 @@ pub enum StatusCode {
     PrivateError,
     /// ERR_FFMPEG
     FfmpegError,
+    /// YouTube "Sign in to confirm you're not a bot" — guide the user to enable
+    /// browser cookies in Settings.
+    BotBlocked,
     /// ERR_UNKNOWN
     UnknownError,
 }
@@ -61,27 +64,49 @@ impl StatusCode {
                 | Self::DrmError
                 | Self::PrivateError
                 | Self::FfmpegError
+                | Self::BotBlocked
                 | Self::UnknownError
         )
     }
 }
 
 /// A single progress update: optional percent string (e.g. "45.6%") + status.
+/// `detail` carries a pre-formatted line like
+/// "12.3MiB / 45.6MiB · 2.1MiB/s · ETA 00:15" for the download/convert rows.
 #[derive(Debug, Clone)]
 pub struct Progress {
     pub percent: Option<String>,
     pub status: StatusCode,
+    pub detail: Option<String>,
 }
 
 impl Progress {
     pub fn new(percent: Option<String>, status: StatusCode) -> Self {
-        Self { percent, status }
+        Self {
+            percent,
+            status,
+            detail: None,
+        }
+    }
+
+    /// Progress with a detail line (size/speed/ETA).
+    pub fn with_detail(
+        percent: Option<String>,
+        status: StatusCode,
+        detail: Option<String>,
+    ) -> Self {
+        Self {
+            percent,
+            status,
+            detail,
+        }
     }
 
     pub fn status(status: StatusCode) -> Self {
         Self {
             percent: None,
             status,
+            detail: None,
         }
     }
 }

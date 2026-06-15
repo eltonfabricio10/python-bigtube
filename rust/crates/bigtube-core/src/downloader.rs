@@ -30,6 +30,74 @@ use crate::Result;
 
 static PROGRESS_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\d{1,3}(?:\.\d+)?)\s*%").unwrap());
 
+/// yt-dlp `--progress-template` for the download phase. Emits a stable, parseable
+/// line: a marker followed by percent/downloaded/total/estimate/speed/eta joined
+/// by `|||` (a delimiter that won't appear in yt-dlp's human-readable values).
+const DL_MARK: &str = "@BTDL@";
+// Emit raw byte counts (downloaded/total/estimate) — yt-dlp has no
+// `_downloaded_bytes_str`, so we format bytes ourselves — plus the ready-made
+// percent/speed/eta strings.
+const DL_PROGRESS_TEMPLATE: &str = "download:@BTDL@%(progress._percent_str)s|||%(progress.downloaded_bytes)s|||%(progress.total_bytes)s|||%(progress.total_bytes_estimate)s|||%(progress._speed_str)s|||%(progress._eta_str)s";
+
+/// Human-readable byte size, e.g. `12.3 MiB`.
+fn human_bytes(n: f64) -> String {
+    const UNITS: [&str; 5] = ["B", "KiB", "MiB", "GiB", "TiB"];
+    let mut v = n;
+    let mut i = 0;
+    while v >= 1024.0 && i < UNITS.len() - 1 {
+        v /= 1024.0;
+        i += 1;
+    }
+    if i == 0 {
+        format!("{} {}", v as i64, UNITS[i])
+    } else {
+        format!("{v:.1} {}", UNITS[i])
+    }
+}
+
+/// Parse a `DL_PROGRESS_TEMPLATE` line into `(percent, detail)`.
+/// `detail` is a compact "downloaded / total · speed · ETA eta" (omitting any
+/// unknown parts). Returns `None` if the line isn't a progress line.
+fn parse_dl_progress(line: &str) -> Option<(Option<String>, Option<String>)> {
+    let rest = line.strip_prefix(DL_MARK)?;
+    let f: Vec<&str> = rest.split("|||").collect();
+    let clean = |s: Option<&&str>| {
+        s.map(|v| v.trim())
+            .filter(|v| !v.is_empty() && *v != "N/A" && *v != "NA")
+            .map(str::to_string)
+    };
+    let num = |s: Option<&&str>| -> Option<f64> {
+        clean(s)
+            .and_then(|v| v.parse::<f64>().ok())
+            .filter(|n| *n > 0.0)
+    };
+    let percent = clean(f.first());
+    let downloaded = num(f.get(1));
+    let total = num(f.get(2)).or_else(|| num(f.get(3))); // exact, else estimate
+    let speed = clean(f.get(4));
+    let eta = clean(f.get(5));
+
+    let mut parts: Vec<String> = Vec::new();
+    match (downloaded, total) {
+        (Some(d), Some(t)) => parts.push(format!("{} / {}", human_bytes(d), human_bytes(t))),
+        (Some(d), None) => parts.push(human_bytes(d)),
+        (None, Some(t)) => parts.push(human_bytes(t)),
+        (None, None) => {}
+    }
+    if let Some(s) = &speed {
+        parts.push(s.clone());
+    }
+    if let Some(e) = &eta {
+        parts.push(format!("ETA {e}"));
+    }
+    let detail = if parts.is_empty() {
+        None
+    } else {
+        Some(parts.join(" · "))
+    };
+    Some((percent, detail))
+}
+
 const MIN_FREE_SPACE_MB: f64 = 10.0;
 const DOWNLOAD_IDLE_TIMEOUT: Duration = Duration::from_secs(180);
 const SENSITIVE_ARGS: [&str; 4] = [
@@ -155,6 +223,10 @@ pub fn build_download_args(
         "--ignore-errors".to_string(),
         "--concurrent-fragments".to_string(),
         fragments.to_string(),
+        // Download progress: emit structured fields (percent/downloaded/total/
+        // speed/eta) parsed in process_line for the row's detail line.
+        "--progress-template".to_string(),
+        DL_PROGRESS_TEMPLATE.to_string(),
         "--progress-template".to_string(),
         "postprocess:[postprocess] %(progress._percent_str)s".to_string(),
         "-o".to_string(),
@@ -165,6 +237,8 @@ pub fn build_download_args(
     // No forced `player_client`: download uses yt-dlp's default client, the same
     // selection metadata listing used, so the picked ids resolve correctly while
     // staying resistant to YouTube's bot block. (See build_metadata_args.)
+    // Browser/file cookies (the fix for the bot block) are already injected via
+    // get_yt_dlp_common_args() above.
 
     let rate_limit = cfg.get_i64("rate_limit");
     if rate_limit > 0 {
@@ -574,6 +648,14 @@ pub fn analyze_error(log_lines: &VecDeque<String>) -> StatusCode {
         .to_lowercase();
     if full.contains("ffmpeg") {
         StatusCode::FfmpegError
+    } else if full.contains("confirm you")
+        || full.contains("not a bot")
+        || full.contains("sign in to confirm")
+    {
+        // YouTube bot check — distinct from DRM so the UI can point the user at
+        // the cookies setting. Must be tested before the generic "sign" rule
+        // below (this message also contains "sign").
+        StatusCode::BotBlocked
     } else if full.contains("sign") || full.contains("copyright") {
         StatusCode::DrmError
     } else if full.contains("private video") {
@@ -621,11 +703,22 @@ impl VideoDownloader {
 
     /// Fetch metadata with auto-retry; returns `None` after all retries fail.
     pub fn fetch_video_info(&self, url: &str) -> Option<ParsedInfo> {
+        self.fetch_video_info_checked(url).ok()
+    }
+
+    /// Like [`fetch_video_info`] but distinguishes the failure cause so the UI can
+    /// react — notably [`StatusCode::BotBlocked`] (suggest enabling cookies).
+    pub fn fetch_video_info_checked(
+        &self,
+        url: &str,
+    ) -> std::result::Result<ParsedInfo, StatusCode> {
+        let is_yt = is_youtube_url(url);
+        // Cookies (browser/file) are included via get_yt_dlp_common_args().
         let common = {
             let cfg = config::global().read().unwrap();
             cfg.get_yt_dlp_common_args()
         };
-        let args = build_metadata_args(&common, url, is_youtube_url(url));
+        let args = build_metadata_args(&common, url, is_yt);
 
         let result = retry_with_backoff(RetryConfig::default(), None, || {
             let (code, stdout, stderr) = run_with_timeout(
@@ -646,10 +739,29 @@ impl VideoDownloader {
         });
 
         match result {
-            Ok(info) => Some(info),
+            Ok(info) => {
+                // Empty formats on YouTube almost always means the bot check
+                // stripped them (parse_formats then leaves only the "best"
+                // fallback). Surface it so the UI can suggest cookies.
+                let only_fallback =
+                    info.audios.is_empty() && info.videos.len() == 1 && info.videos[0].id == "best";
+                if is_yt && only_fallback {
+                    Err(StatusCode::BotBlocked)
+                } else {
+                    Ok(info)
+                }
+            }
             Err(e) => {
+                let msg = e.to_string().to_lowercase();
                 tracing::error!("Failed to fetch metadata after retries: {e}");
-                None
+                if msg.contains("not a bot")
+                    || msg.contains("confirm you")
+                    || msg.contains("sign in to confirm")
+                {
+                    Err(StatusCode::BotBlocked)
+                } else {
+                    Err(StatusCode::NetworkError)
+                }
             }
         }
     }
@@ -809,19 +921,29 @@ impl VideoDownloader {
             progress(Progress::status(*current_status));
         }
 
-        if line.contains('%') {
+        // Structured download progress (our template): percent + size/speed/ETA.
+        if line.starts_with(DL_MARK) {
+            if let Some((percent, detail)) = parse_dl_progress(line) {
+                *current_status = StatusCode::Downloading;
+                progress(Progress::with_detail(
+                    percent,
+                    StatusCode::Downloading,
+                    detail,
+                ));
+            }
+            return;
+        }
+
+        // Post-process phase progress (merge/extract): percent only.
+        if line.contains('%') && line.contains("[postprocess]") {
             if let Some(c) = PROGRESS_REGEX.captures(line) {
                 let percent = format!("{}%", &c[1]);
-                if line.contains("[postprocess]") {
-                    let display = if *current_status != StatusCode::Downloading {
-                        *current_status
-                    } else {
-                        StatusCode::Processing
-                    };
-                    progress(Progress::new(Some(percent), display));
+                let display = if *current_status != StatusCode::Downloading {
+                    *current_status
                 } else {
-                    progress(Progress::new(Some(percent), StatusCode::Downloading));
-                }
+                    StatusCode::Processing
+                };
+                progress(Progress::new(Some(percent), display));
             }
         }
     }
@@ -1072,6 +1194,36 @@ mod tests {
         assert_eq!(real.len(), 2, "expected one row per resolution");
         let r1080 = real.iter().find(|v| v.resolution == 1080).unwrap();
         assert_eq!(r1080.id, "137", "1080p row should be the H.264 format");
+    }
+
+    #[test]
+    fn analyze_error_detects_bot_block_before_drm() {
+        let mut log = VecDeque::new();
+        log.push_back("ERROR: [youtube] xyz: Sign in to confirm you're not a bot.".to_string());
+        // Must be BotBlocked, NOT DrmError (the message also contains "sign").
+        assert_eq!(analyze_error(&log), StatusCode::BotBlocked);
+    }
+
+    #[test]
+    fn parse_dl_progress_builds_detail() {
+        // 12 MiB downloaded of 48 MiB total (raw byte counts).
+        let line = "@BTDL@ 25.0%|||12582912|||50331648|||NA|||2.10MiB/s|||00:15";
+        let (percent, detail) = parse_dl_progress(line).unwrap();
+        assert_eq!(percent.as_deref(), Some("25.0%"));
+        assert_eq!(
+            detail.as_deref(),
+            Some("12.0 MiB / 48.0 MiB · 2.10MiB/s · ETA 00:15")
+        );
+    }
+
+    #[test]
+    fn parse_dl_progress_falls_back_to_estimate_and_skips_na() {
+        // total NA -> use estimate; speed NA -> omitted.
+        let line = "@BTDL@ 10.0%|||1048576|||NA|||52428800|||NA|||01:00";
+        let (_p, detail) = parse_dl_progress(line).unwrap();
+        assert_eq!(detail.as_deref(), Some("1.0 MiB / 50.0 MiB · ETA 01:00"));
+        // Non-progress line -> None.
+        assert!(parse_dl_progress("[download] 50%").is_none());
     }
 
     #[test]

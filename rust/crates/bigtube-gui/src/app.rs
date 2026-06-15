@@ -25,6 +25,7 @@ use crate::row::{RowAction, SearchResultRow};
 struct DownloadRow {
     container: gtk::Box,
     status: gtk::Label,
+    detail: gtk::Label,
     progress: gtk::ProgressBar,
     pause: gtk::Button,
     cancel: gtk::Button,
@@ -86,6 +87,14 @@ impl DownloadRow {
         let progress = gtk::ProgressBar::new();
         progress.set_fraction(0.0);
 
+        // Live transfer detail: "12.3MiB / 45.6MiB · 2.1MiB/s · ETA 00:15".
+        let detail = gtk::Label::new(None);
+        detail.set_xalign(0.0);
+        detail.set_ellipsize(gtk::pango::EllipsizeMode::End);
+        detail.add_css_class("dim-label");
+        detail.add_css_class("caption");
+        detail.set_visible(false);
+
         // Footer actions revealed on completion (open folder / play / convert).
         let footer = gtk::Box::new(gtk::Orientation::Horizontal, 6);
         footer.set_halign(gtk::Align::End);
@@ -106,6 +115,7 @@ impl DownloadRow {
         pad.append(&header);
         pad.append(&path_lbl);
         pad.append(&progress);
+        pad.append(&detail);
         pad.append(&footer);
         container.append(&pad);
 
@@ -147,6 +157,7 @@ impl DownloadRow {
         Self {
             container,
             status,
+            detail,
             progress,
             pause,
             cancel,
@@ -162,7 +173,7 @@ impl DownloadRow {
         }
     }
 
-    fn update(&self, percent: Option<&str>, status: StatusCode) {
+    fn update(&self, percent: Option<&str>, status: StatusCode, detail: Option<&str>) {
         // A pause terminates the yt-dlp process, surfacing as "Cancelled"; keep
         // the row interactive while the user has it paused.
         if self.is_paused.get() && status == StatusCode::Cancelled {
@@ -175,6 +186,11 @@ impl DownloadRow {
             if let Some(f) = parse_percent(p) {
                 self.progress.set_fraction(f);
             }
+        }
+        // Live size/speed/ETA line (shown only while it carries data).
+        if let Some(d) = detail.filter(|d| !d.is_empty()) {
+            self.detail.set_text(d);
+            self.detail.set_visible(true);
         }
         if status == StatusCode::Completed {
             self.mark_completed();
@@ -203,6 +219,7 @@ impl DownloadRow {
     fn mark_completed(&self) {
         self.progress.set_fraction(1.0);
         self.set_progress_class("success");
+        self.detail.set_visible(false);
         self.pause.set_visible(false);
         self.cancel.set_visible(false);
         // Mark the row terminal so "Clear" recognizes it as removable.
@@ -221,6 +238,7 @@ enum UiMsg {
         key: String,
         percent: Option<String>,
         status: StatusCode,
+        detail: Option<String>,
     },
     Started {
         key: String,
@@ -245,12 +263,51 @@ struct AppState {
     player: RefCell<Option<Rc<crate::player::Player>>>,
     busy_spinner: gtk::Spinner,
     busy_count: Cell<i32>,
+    // Show the "enable cookies" guidance dialog only once per session.
+    bot_block_hinted: Cell<bool>,
     ui_tx: async_channel::Sender<UiMsg>,
 }
 
 impl AppState {
     fn toast(&self, msg: &str) {
         self.toasts.add_toast(adw::Toast::new(msg));
+    }
+
+    /// Tell the user YouTube blocked the request and how to fix it (enable
+    /// browser cookies in Settings). A full dialog the first time per session,
+    /// then a lighter toast on subsequent hits.
+    fn notify_bot_block(self: &Rc<Self>) {
+        if self.bot_block_hinted.get() {
+            self.toast(&tr("Blocked by YouTube — enable cookies in Settings"));
+            return;
+        }
+        self.bot_block_hinted.set(true);
+        let Some(window) = self.window.borrow().clone() else {
+            self.toast(&tr("Blocked by YouTube — enable cookies in Settings"));
+            return;
+        };
+        let dialog = adw::MessageDialog::new(
+            Some(&window),
+            Some(&tr("Blocked by YouTube")),
+            Some(&tr(
+                "YouTube asked to \"confirm you're not a bot\". To keep downloading, \
+                 open Settings and set \"Cookies From Browser\" to the browser where \
+                 you're signed in to YouTube (e.g. Firefox or Chrome).",
+            )),
+        );
+        dialog.add_response("close", &tr("Close"));
+        dialog.add_response("settings", &tr("Open Settings"));
+        dialog.set_response_appearance("settings", adw::ResponseAppearance::Suggested);
+        dialog.set_default_response(Some("settings"));
+        crate::app::apply_theme_classes(&dialog);
+        let state = self.clone();
+        dialog.connect_response(None, move |dlg, resp| {
+            if resp == "settings" {
+                state.stack.set_visible_child_name("settings");
+            }
+            dlg.close();
+        });
+        dialog.present();
     }
 
     /// Show the header busy spinner (ref-counted across concurrent tasks).
@@ -339,6 +396,7 @@ pub fn build_window(app: &adw::Application) {
         player: RefCell::new(None),
         busy_spinner: gtk::Spinner::new(),
         busy_count: Cell::new(0),
+        bot_block_hinted: Cell::new(false),
         ui_tx,
     });
 
@@ -437,9 +495,14 @@ pub fn build_window(app: &adw::Application) {
                     key,
                     percent,
                     status,
+                    detail,
                 } => {
                     if let Some(row) = state_for_loop.download_rows.borrow().get(&key) {
-                        row.update(percent.as_deref(), status);
+                        row.update(percent.as_deref(), status, detail.as_deref());
+                    }
+                    // Bot block — guide the user to enable cookies once.
+                    if status == StatusCode::BotBlocked {
+                        state_for_loop.notify_bot_block();
                     }
                 }
                 UiMsg::Started { key, downloader } => {
@@ -1732,7 +1795,8 @@ fn convert_formats_for(path: &std::path::Path) -> &'static [&'static str] {
 }
 
 enum ConvMsg {
-    Progress(f64),
+    /// `(fraction 0..1, speed_x, eta_seconds)`.
+    Progress(f64, Option<f64>, Option<f64>),
     Done(Result<String, String>),
 }
 
@@ -1993,8 +2057,8 @@ fn run_conversion(path: std::path::PathBuf, fmt: String, ui: ConvUi, cancel_flag
 
     let (tx, rx) = async_channel::unbounded::<ConvMsg>();
     let tx_progress = tx.clone();
-    let cb: ConvertProgressFn = Arc::new(move |p, _speed, _eta| {
-        let _ = tx_progress.send_blocking(ConvMsg::Progress(p));
+    let cb: ConvertProgressFn = Arc::new(move |p, speed, eta| {
+        let _ = tx_progress.send_blocking(ConvMsg::Progress(p, speed, eta));
     });
 
     let input = path.to_string_lossy().to_string();
@@ -2010,7 +2074,18 @@ fn run_conversion(path: std::path::PathBuf, fmt: String, ui: ConvUi, cancel_flag
     glib::spawn_future_local(async move {
         while let Ok(msg) = rx.recv().await {
             match msg {
-                ConvMsg::Progress(p) => ui.progress.set_fraction(p),
+                ConvMsg::Progress(p, speed, eta) => {
+                    ui.progress.set_fraction(p);
+                    let mut parts: Vec<String> = vec![format!("{:.0}%", p * 100.0)];
+                    if let Some(s) = speed.filter(|s| *s > 0.0) {
+                        parts.push(format!("{s:.1}x"));
+                    }
+                    if let Some(e) = eta.filter(|e| *e > 0.0) {
+                        parts.push(format!("ETA {}", fmt_eta(e)));
+                    }
+                    ui.status
+                        .set_text(&format!("{}: {}", tr("Converting"), parts.join(" · ")));
+                }
                 ConvMsg::Done(Ok(out)) => {
                     ui.progress.set_fraction(1.0);
                     ui.set_progress_class("success");
@@ -2197,12 +2272,15 @@ fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
     state.toast(&tr("Processing..."));
     state.busy_begin();
 
-    let (tx, rx) = async_channel::bounded::<Option<bigtube_core::downloader::ParsedInfo>>(1);
+    let (tx, rx) = async_channel::bounded::<
+        std::result::Result<bigtube_core::downloader::ParsedInfo, StatusCode>,
+    >(1);
     let url_thread = url.clone();
     std::thread::spawn(move || {
-        let info = VideoDownloader::new()
-            .ok()
-            .and_then(|d| d.fetch_video_info(&url_thread));
+        let info = match VideoDownloader::new() {
+            Ok(d) => d.fetch_video_info_checked(&url_thread),
+            Err(_) => Err(StatusCode::UnknownError),
+        };
         let _ = tx.send_blocking(info);
     });
 
@@ -2210,9 +2288,16 @@ fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
     glib::spawn_future_local(async move {
         let received = rx.recv().await;
         state.busy_end();
-        let Ok(Some(info)) = received else {
-            state.toast(&tr("No formats found"));
-            return;
+        let info = match received {
+            Ok(Ok(info)) => info,
+            Ok(Err(StatusCode::BotBlocked)) => {
+                state.notify_bot_block();
+                return;
+            }
+            _ => {
+                state.toast(&tr("No formats found"));
+                return;
+            }
         };
         let Some(window) = state.window.borrow().clone() else {
             return;
@@ -2472,6 +2557,7 @@ fn enqueue_common(
             key: k.clone(),
             percent: p.percent.clone(),
             status: p.status,
+            detail: p.detail.clone(),
         });
     });
 
@@ -2757,6 +2843,17 @@ fn add_page(stack: &adw::ViewStack, child: &gtk::Widget, name: &str, title: &str
 
 /// Translated label for a status code. The msgids match `locales.py`'s
 /// `StringKey` values so the existing `.mo` catalogs resolve them.
+/// Format a seconds count as `M:SS` (or `H:MM:SS` past an hour).
+fn fmt_eta(secs: f64) -> String {
+    let s = secs.max(0.0) as u64;
+    let (h, m, sec) = (s / 3600, (s % 3600) / 60, s % 60);
+    if h > 0 {
+        format!("{h}:{m:02}:{sec:02}")
+    } else {
+        format!("{m}:{sec:02}")
+    }
+}
+
 fn status_label(s: StatusCode) -> String {
     use StatusCode::*;
     let msgid = match s {
@@ -2778,6 +2875,7 @@ fn status_label(s: StatusCode) -> String {
         DrmError => "Content is DRM Protected!",
         PrivateError => "Video is Private!",
         FfmpegError => "FFmpeg Error - Missing or incompatible!",
+        BotBlocked => "Blocked by YouTube — enable cookies in Settings",
         UnknownError => "Unknown Error!",
     };
     tr(msgid)

@@ -1247,3 +1247,27 @@ msgstr "Adicionado aos downloads"
 #: rust/crates/bigtube-gui/src/app.rs
 msgid "Scheduled for:"
 msgstr "Agendado para:"
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "Converting"
+msgstr "Convertendo"
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "Blocked by YouTube — enable cookies in Settings"
+msgstr "Bloqueado pelo YouTube — ative os cookies nas Configurações"
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "Blocked by YouTube"
+msgstr "Bloqueado pelo YouTube"
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "YouTube asked to \"confirm you're not a bot\". To keep downloading, open Settings and set \"Cookies From Browser\" to the browser where you're signed in to YouTube (e.g. Firefox or Chrome)."
+msgstr "O YouTube pediu para \"confirmar que você não é um robô\". Para continuar baixando, abra as Configurações e defina \"Cookies do Navegador\" para o navegador onde você está logado no YouTube (ex.: Firefox ou Chrome)."
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "Open Settings"
+msgstr "Abrir Configurações"
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "Close"
+msgstr "Fechar"

@@ -170,6 +170,7 @@ fn status_label(s: StatusCode) -> &'static str {
         DrmError => "DRM protected",
         PrivateError => "Private content",
         FfmpegError => "ffmpeg error",
+        BotBlocked => "Blocked by YouTube (enable cookies)",
         UnknownError => "Unknown error",
     }
 }
