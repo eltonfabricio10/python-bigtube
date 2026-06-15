@@ -2602,6 +2602,69 @@ fn enqueue_scheduled(
     );
 }
 
+/// Pretty codec name for the resolved-plan summary line.
+fn codec_pretty(c: &str) -> String {
+    let l = c.to_lowercase();
+    if l.contains("avc") || l.contains("h264") {
+        "H.264".into()
+    } else if l.contains("av01") || l.contains("av1") {
+        "AV1".into()
+    } else if l.contains("vp9") || l.contains("vp09") {
+        "VP9".into()
+    } else if l.contains("vp8") {
+        "VP8".into()
+    } else if l.contains("mp4a") || l.contains("aac") {
+        "AAC".into()
+    } else if l.contains("opus") {
+        "Opus".into()
+    } else if l.contains("mp3") {
+        "MP3".into()
+    } else if l.contains("ac-3") || l.contains("ac3") {
+        "AC3".into()
+    } else if l.is_empty() {
+        String::new()
+    } else {
+        c.split('.').next().unwrap_or(c).to_uppercase()
+    }
+}
+
+/// One-line summary of a resolved plan, e.g. "H.264 + AAC · 1080p60 · 275.0 MiB".
+fn plan_summary(p: &bigtube_core::downloader::ResolvedPlan) -> String {
+    let mut parts: Vec<String> = Vec::new();
+    let (v, a) = (codec_pretty(&p.vcodec), codec_pretty(&p.acodec));
+    let codecs = match (v.is_empty(), a.is_empty()) {
+        (false, false) => format!("{v} + {a}"),
+        (false, true) => v,
+        (true, false) => a,
+        _ => String::new(),
+    };
+    if !codecs.is_empty() {
+        parts.push(codecs);
+    }
+    if p.height > 0 {
+        parts.push(if p.fps > 30 {
+            format!("{}p{}", p.height, p.fps)
+        } else {
+            format!("{}p", p.height)
+        });
+    }
+    if p.size_mb > 0.0 {
+        parts.push(if p.size_mb >= 1024.0 {
+            format!("{:.2} GiB", p.size_mb / 1024.0)
+        } else {
+            format!("{:.1} MiB", p.size_mb)
+        });
+    }
+    parts.join(" · ")
+}
+
+/// Should we probe the real plan before downloading? Only for immediate video
+/// downloads — scheduled tasks may run hours later (concrete ids could go
+/// stale), and audio-convert picks re-encode so a probed size wouldn't match.
+fn should_probe_plan(ext: &str, schedule_ts: Option<f64>) -> bool {
+    schedule_ts.is_none() && matches!(ext, "mp4" | "mkv" | "webm")
+}
+
 #[allow(clippy::too_many_arguments)]
 fn enqueue_common(
     state: &Rc<AppState>,
@@ -2676,6 +2739,9 @@ fn enqueue_common(
         row.set_progress_class("warning");
         state.toast(&msg);
     }
+    // Labels to update once the real plan is resolved (clones share the widget).
+    let status_lbl = row.status.clone();
+    let detail_lbl = row.detail.clone();
     state.downloads_box.append(&row.container);
     state.download_rows.borrow_mut().insert(key.clone(), row);
     state.update_downloads_empty();
@@ -2691,23 +2757,62 @@ fn enqueue_common(
         });
     });
 
-    let params = DownloadParams {
-        url: url.to_string(),
-        format_id: format_id.to_string(),
-        title: title.to_string(),
-        ext: ext.to_string(),
-        force_overwrite,
-        estimated_size_mb: None,
-        subfolder: subfolder.map(str::to_string),
-    };
+    // Build params + enqueue, given the (possibly probe-resolved) format and size.
+    let (url_o, title_o, ext_o) = (url.to_string(), title.to_string(), ext.to_string());
+    let sub_o = subfolder.map(str::to_string);
     let mgr = download_manager::global();
-    match schedule_ts {
-        Some(ts) => {
-            mgr.schedule_download(ts, params, cb, Some(on_start), 0, None);
+    let finalize: Box<dyn FnOnce(String, Option<f64>)> = Box::new(move |fmt, size| {
+        let params = DownloadParams {
+            url: url_o,
+            format_id: fmt,
+            title: title_o,
+            ext: ext_o,
+            force_overwrite,
+            estimated_size_mb: size,
+            subfolder: sub_o,
+        };
+        match schedule_ts {
+            Some(ts) => {
+                mgr.schedule_download(ts, params, cb, Some(on_start), 0, None);
+            }
+            None => {
+                mgr.add_download(params, cb, Some(on_start), 0);
+            }
         }
-        None => {
-            mgr.add_download(params, cb, Some(on_start), 0);
-        }
+    });
+
+    if should_probe_plan(ext, schedule_ts) {
+        // Exact "sondagem": ask yt-dlp what `format_id` actually resolves to, pin
+        // those concrete ids (so the file matches what we show), and display the
+        // real codecs/size. The original selector stays as a safety fallback.
+        status_lbl.set_text(&tr("Resolving format…"));
+        let orig_sel = format_id.to_string();
+        let (ptx, prx) =
+            async_channel::bounded::<Option<bigtube_core::downloader::ResolvedPlan>>(1);
+        let url_p = url.to_string();
+        let sel_p = format_id.to_string();
+        std::thread::spawn(move || {
+            let plan = VideoDownloader::new()
+                .ok()
+                .and_then(|d| d.resolve_plan(&url_p, &sel_p));
+            let _ = ptx.send_blocking(plan);
+        });
+        glib::spawn_future_local(async move {
+            let plan = prx.recv().await.ok().flatten();
+            let (fmt, size) = match &plan {
+                Some(p) if !p.format_id.is_empty() => {
+                    detail_lbl.set_text(&plan_summary(p));
+                    detail_lbl.set_visible(true);
+                    // Pin concrete ids; keep the codec-aware chain as a fallback.
+                    let f = format!("{}/{}", p.format_id, orig_sel);
+                    (f, Some(p.size_mb).filter(|s| *s > 0.0))
+                }
+                _ => (orig_sel, None),
+            };
+            finalize(fmt, size);
+        });
+    } else {
+        finalize(format_id.to_string(), None);
     }
 }
 

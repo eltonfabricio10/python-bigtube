@@ -218,6 +218,87 @@ pub fn redact_command(cmd: &[String]) -> Vec<String> {
 // PURE COMMAND BUILDERS
 // =============================================================================
 
+/// `--print` template for [`build_resolve_args`]: concrete format id, real
+/// video/audio codecs, height, fps, and total (summed) filesize, joined by `|||`.
+const RESOLVE_TEMPLATE: &str =
+    "%(format_id)s|||%(vcodec)s|||%(acodec)s|||%(height)s|||%(fps)s|||%(filesize,filesize_approx)s";
+
+/// The real download plan for a selector, as resolved by yt-dlp's own format
+/// selection (`--simulate --print`). Concrete format ids + actual codecs and
+/// summed size, so the UI can show — and the download can pin — exactly what
+/// will land on disk (no more "dialog says H.264, file is AV1").
+#[derive(Debug, Clone, PartialEq)]
+pub struct ResolvedPlan {
+    pub format_id: String, // concrete merged ids, e.g. "299+258"
+    pub vcodec: String,
+    pub acodec: String,
+    pub height: i64,
+    pub fps: i64,
+    pub size_mb: f64, // 0.0 if unknown
+}
+
+/// Build the args that ask yt-dlp to *simulate* `selector` and print the real
+/// plan (no download). Pure/testable, mirroring [`build_metadata_args`].
+pub fn build_resolve_args(
+    common_args: &[String],
+    url: &str,
+    selector: &str,
+    is_youtube: bool,
+) -> Vec<String> {
+    let mut cmd = vec![
+        "--no-warnings".to_string(),
+        "--no-playlist".to_string(),
+        "--simulate".to_string(),
+        "--ignore-no-formats-error".to_string(),
+        "-f".to_string(),
+        selector.to_string(),
+        "--print".to_string(),
+        RESOLVE_TEMPLATE.to_string(),
+    ];
+    if is_youtube {
+        cmd.push("--extractor-args".into());
+        cmd.push("youtube:player_skip=configs".into());
+    }
+    cmd.extend_from_slice(common_args);
+    cmd.push(url.to_string());
+    cmd
+}
+
+/// Parse one `RESOLVE_TEMPLATE` line into a [`ResolvedPlan`]. Returns `None` if
+/// the line is malformed or carries no concrete format id.
+pub fn parse_resolve_line(line: &str) -> Option<ResolvedPlan> {
+    let f: Vec<&str> = line.trim().split("|||").collect();
+    if f.len() < 6 {
+        return None;
+    }
+    fn clean(s: &str) -> &str {
+        let t = s.trim();
+        if t.is_empty() || t == "NA" || t == "N/A" || t == "none" {
+            ""
+        } else {
+            t
+        }
+    }
+    let format_id = clean(f[0]).to_string();
+    if format_id.is_empty() {
+        return None;
+    }
+    let size_mb = clean(f[5])
+        .parse::<f64>()
+        .ok()
+        .filter(|b| *b > 0.0)
+        .map(|b| b / 1024.0 / 1024.0)
+        .unwrap_or(0.0);
+    Some(ResolvedPlan {
+        format_id,
+        vcodec: clean(f[1]).to_string(),
+        acodec: clean(f[2]).to_string(),
+        height: clean(f[3]).parse::<i64>().unwrap_or(0),
+        fps: clean(f[4]).parse::<f64>().unwrap_or(0.0) as i64,
+        size_mb,
+    })
+}
+
 /// Build the metadata command args (without the binary). `is_youtube` enables
 /// the YouTube-specific extractor args.
 ///
@@ -851,6 +932,31 @@ impl VideoDownloader {
         }
     }
 
+    /// Resolve what `selector` will *actually* download, by asking yt-dlp to
+    /// simulate the format selection and print the concrete plan. Returns `None`
+    /// on any failure (caller should fall back to the original selector — a probe
+    /// failure must never block a download). Blocking; call off the UI thread.
+    pub fn resolve_plan(&self, url: &str, selector: &str) -> Option<ResolvedPlan> {
+        let is_yt = is_youtube_url(url);
+        let common = {
+            let cfg = config::global().read().unwrap();
+            cfg.get_yt_dlp_common_args()
+        };
+        let args = build_resolve_args(&common, url, selector, is_yt);
+        let (code, stdout, stderr) = run_with_timeout(
+            &self.binary_path,
+            &args,
+            &self.env,
+            Duration::from_secs(timeouts::SUBPROCESS_METADATA),
+        )
+        .ok()?;
+        if code != 0 {
+            tracing::warn!("resolve_plan: yt-dlp code {code}: {}", stderr.trim());
+            return None;
+        }
+        stdout.lines().find_map(parse_resolve_line)
+    }
+
     /// Start a (blocking) download, reporting progress via `progress`.
     pub fn start_download(&self, params: DownloadParams, progress: &ProgressFn) -> bool {
         *self.last_params.lock().unwrap() = Some(params.clone());
@@ -1233,6 +1339,45 @@ mod tests {
         assert!(parsed.videos.iter().any(|v| v.resolution == 1080));
         // Audio list has injected MP3 convert at index 0
         assert_eq!(parsed.audios[0].ext, "mp3");
+    }
+
+    #[test]
+    fn parse_resolve_line_extracts_real_plan() {
+        // The exact shape yt-dlp emits for a merged 1080p60 H.264 + AAC pick.
+        let plan = parse_resolve_line("299+258|||avc1.64002a|||mp4a.40.2|||1080|||60|||288387264")
+            .expect("valid line");
+        assert_eq!(plan.format_id, "299+258");
+        assert_eq!(plan.vcodec, "avc1.64002a");
+        assert_eq!(plan.acodec, "mp4a.40.2");
+        assert_eq!(plan.height, 1080);
+        assert_eq!(plan.fps, 60);
+        assert!((plan.size_mb - 275.0).abs() < 1.0); // 288387264 B ≈ 275 MiB
+    }
+
+    #[test]
+    fn parse_resolve_line_handles_na_and_malformed() {
+        // Missing size/fps come through as zero, not a parse panic.
+        let plan = parse_resolve_line("137|||avc1.640028|||NA|||1080|||NA|||NA").unwrap();
+        assert_eq!(plan.format_id, "137");
+        assert_eq!(plan.acodec, "");
+        assert_eq!(plan.fps, 0);
+        assert_eq!(plan.size_mb, 0.0);
+        // No concrete id / too few fields -> None.
+        assert!(parse_resolve_line("NA|||x|||y|||z|||0|||0").is_none());
+        assert!(parse_resolve_line("just-some-text").is_none());
+    }
+
+    #[test]
+    fn build_resolve_args_simulates_and_prints() {
+        let args = build_resolve_args(&[], "https://youtu.be/x", "137+bestaudio/best", true);
+        assert!(args.iter().any(|a| a == "--simulate"));
+        assert!(args.iter().any(|a| a == "--print"));
+        // Selector is passed verbatim after -f.
+        let i = args.iter().position(|a| a == "-f").unwrap();
+        assert_eq!(args[i + 1], "137+bestaudio/best");
+        // YouTube gets the player_skip arg; the url is last.
+        assert!(args.iter().any(|a| a == "youtube:player_skip=configs"));
+        assert_eq!(args.last().unwrap(), "https://youtu.be/x");
     }
 
     #[test]

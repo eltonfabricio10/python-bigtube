@@ -1287,3 +1287,7 @@ msgstr "Sobrescrever"
 #: rust/crates/bigtube-gui/src/app.rs
 msgid "Keep Both"
 msgstr "Manter os dois"
+
+#: rust/crates/bigtube-gui/src/app.rs
+msgid "Resolving format…"
+msgstr "Resolvendo formato…"
