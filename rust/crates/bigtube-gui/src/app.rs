@@ -525,14 +525,18 @@ pub fn build_window(app: &adw::Application) {
                     status,
                     detail,
                 } => {
-                    let file_path = state_for_loop.download_rows.borrow().get(&key).map(|row| {
+                    let info = state_for_loop.download_rows.borrow().get(&key).map(|row| {
                         row.update(percent.as_deref(), status, detail.as_deref());
-                        row.file_path.borrow().clone()
+                        (row.file_path.borrow().clone(), row.is_paused.get())
                     });
                     // On completion, probe the real file (codecs + on-disk size)
                     // off-thread and show it as the row's status.
                     if status == StatusCode::Completed {
-                        if let Some(path) = file_path.filter(|p| !p.is_empty()) {
+                        if let Some(path) = info
+                            .as_ref()
+                            .map(|(p, _)| p.clone())
+                            .filter(|p| !p.is_empty())
+                        {
                             let tx = state_for_loop.ui_tx.clone();
                             let key = key.clone();
                             std::thread::spawn(move || {
@@ -542,6 +546,24 @@ pub fn build_window(app: &adw::Application) {
                                     let _ = tx.send_blocking(UiMsg::MediaInfo { key, text });
                                 }
                             });
+                        }
+                    }
+                    // A REAL cancel (not a pause): the core already deleted the
+                    // partial files — here drop the row and its history entry.
+                    if status == StatusCode::Cancelled {
+                        if let Some((path, paused)) = &info {
+                            if !paused {
+                                if !path.is_empty() {
+                                    bigtube_core::history::HistoryManager::new(history_path())
+                                        .remove_entry(path);
+                                }
+                                if let Some(row) =
+                                    state_for_loop.download_rows.borrow_mut().remove(&key)
+                                {
+                                    remove_list_card(&state_for_loop.downloads_box, &row.container);
+                                }
+                                state_for_loop.update_downloads_empty();
+                            }
                         }
                     }
                     // Bot block — guide the user to enable cookies once.
@@ -2080,6 +2102,8 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
         let ui = ui.clone();
         let format = format.clone();
         let cancel = cancel.clone();
+        let state = state.clone();
+        let container = container.clone();
         convert.connect_clicked(move |btn| {
             let fmt = formats
                 .get(format.selected() as usize)
@@ -2096,12 +2120,26 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
             ui.folder.set_visible(false);
             ui.play.set_visible(false);
             ui.set_progress_class("");
-            run_conversion(path.clone(), fmt, ui.clone(), flag);
+            run_conversion(
+                path.clone(),
+                fmt,
+                ui.clone(),
+                flag,
+                state.clone(),
+                container.clone(),
+            );
         });
     }
 }
 
-fn run_conversion(path: std::path::PathBuf, fmt: String, ui: ConvUi, cancel_flag: Arc<AtomicBool>) {
+fn run_conversion(
+    path: std::path::PathBuf,
+    fmt: String,
+    ui: ConvUi,
+    cancel_flag: Arc<AtomicBool>,
+    state: Rc<AppState>,
+    container: gtk::Box,
+) {
     use bigtube_core::converter::{convert_media, ConvertProgressFn};
 
     let (tx, rx) = async_channel::unbounded::<ConvMsg>();
@@ -2177,8 +2215,10 @@ fn run_conversion(path: std::path::PathBuf, fmt: String, ui: ConvUi, cancel_flag
                     ui.cancel.set_visible(false);
                     ui.convert.set_visible(true);
                     if cancel_flag.load(Ordering::SeqCst) {
-                        ui.set_progress_class("warning");
-                        ui.status.set_text(&status_label(StatusCode::Cancelled));
+                        // Cancelled: core already removed the partial output —
+                        // drop the row from the list too (no history on cancel).
+                        remove_list_card(&state.converter_box, &container);
+                        state.update_converter_empty();
                     } else {
                         ui.set_progress_class("error");
                         ui.status.set_text(&format!("{}: {e}", tr("Error:")));

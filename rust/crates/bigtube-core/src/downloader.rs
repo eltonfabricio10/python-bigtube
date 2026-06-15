@@ -145,6 +145,17 @@ fn cleanup_intermediates(output: &str) {
     }
 }
 
+/// Remove every artifact of an ABORTED download: the yt-dlp intermediates
+/// (`cleanup_intermediates`) plus the incomplete merged output itself. Only for
+/// real cancels — never call this for a pause (it would delete resume data).
+fn cleanup_all_artifacts(output: &str) {
+    cleanup_intermediates(output);
+    if std::path::Path::new(output).exists() {
+        let _ = std::fs::remove_file(output);
+        tracing::info!("Removed cancelled output: {output}");
+    }
+}
+
 const MIN_FREE_SPACE_MB: f64 = 10.0;
 const DOWNLOAD_IDLE_TIMEOUT: Duration = Duration::from_secs(180);
 const SENSITIVE_ARGS: [&str; 4] = [
@@ -1108,6 +1119,14 @@ impl VideoDownloader {
             progress(Progress::new(Some("100%".into()), StatusCode::Completed));
             true
         } else if signaled_term || cancelled {
+            // Real user cancel (is_cancelled) — remove the partial artifacts AND
+            // the incomplete output. A PAUSE also lands here (SIGTERM) but must
+            // keep its files for resume, so only clean when actually cancelled.
+            if cancelled {
+                if let Some(out) = output_path_from_args(args) {
+                    cleanup_all_artifacts(&out);
+                }
+            }
             progress(Progress::status(StatusCode::Cancelled));
             false
         } else {
@@ -1548,6 +1567,31 @@ mod tests {
         assert!(!part.exists(), ".part removed");
         assert!(unrelated.exists(), "unrelated file kept");
         assert!(user_webm.exists(), "non-fragment sibling kept");
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn cleanup_all_artifacts_removes_output_and_intermediates() {
+        let dir = std::env::temp_dir().join(format!("bt_cancel_{}", std::process::id()));
+        let _ = std::fs::create_dir_all(&dir);
+        let mk = |n: &str| {
+            let p = dir.join(n);
+            std::fs::write(&p, b"x").unwrap();
+            p
+        };
+        let out = mk("My Video.mp4");
+        let frag = mk("My Video.f137.mp4");
+        let part = mk("My Video.mp4.part");
+        let unrelated = mk("Other.mkv");
+
+        cleanup_all_artifacts(out.to_str().unwrap());
+
+        // On cancel, even the (incomplete) merged output is removed.
+        assert!(!out.exists(), "cancelled output removed");
+        assert!(!frag.exists(), "fragment removed");
+        assert!(!part.exists(), ".part removed");
+        assert!(unrelated.exists(), "unrelated file kept");
 
         let _ = std::fs::remove_dir_all(&dir);
     }
