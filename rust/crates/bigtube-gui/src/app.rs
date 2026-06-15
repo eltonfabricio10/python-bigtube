@@ -876,9 +876,31 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         })
     };
 
+    /// Size the suggestion scroller to the list's natural height (capped) so the
+    /// popover hugs its content — no empty leftover row when matches are few.
+    fn fit_suggestion_scroll(
+        list: &gtk::ListBox,
+        scroll: &gtk::ScrolledWindow,
+        width: i32,
+        n_rows: usize,
+    ) {
+        const ROW_H: i32 = 38; // fallback per-row height if measure() isn't ready
+        const MAX_H: i32 = 190;
+        let (_, nat_h, _, _) = list.measure(gtk::Orientation::Vertical, width.max(320));
+        let h = if nat_h > 0 {
+            nat_h
+        } else {
+            (n_rows as i32 * ROW_H).max(ROW_H)
+        }
+        .clamp(1, MAX_H);
+        scroll.set_min_content_height(h);
+        scroll.set_max_content_height(h);
+    }
+
     // Rebuild the suggestion list for the current text.
     let rebuild: Rc<dyn Fn(&str)> = {
         let sugg_list = sugg_list.clone();
+        let sugg_scroll = sugg_scroll.clone();
         let popover = popover.clone();
         let entry = entry.clone();
         let trigger = trigger.clone();
@@ -903,6 +925,7 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 popover.popdown();
                 return;
             }
+            let n_matches = matches.len();
             for m in matches {
                 let rowbox = gtk::Box::new(gtk::Orientation::Horizontal, 0);
                 let pick = gtk::Button::new();
@@ -942,21 +965,41 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 }
                 {
                     let sugg_list = sugg_list.clone();
+                    let sugg_scroll = sugg_scroll.clone();
                     let popover = popover.clone();
+                    let entry = entry.clone();
                     let rowbox = rowbox.clone();
                     let q = m.clone();
                     del.connect_clicked(move |_| {
                         bigtube_core::search_history::SearchHistory::new(search_history_path())
                             .remove_item(&q);
                         sugg_list.remove(&rowbox);
-                        if sugg_list.first_child().is_none() {
+                        // Count what's left and re-fit, so the popover shrinks
+                        // instead of leaving the removed row's empty space.
+                        let mut remaining = 0;
+                        let mut c = sugg_list.first_child();
+                        while let Some(w) = c {
+                            remaining += 1;
+                            c = w.next_sibling();
+                        }
+                        if remaining == 0 {
                             popover.popdown();
+                        } else {
+                            fit_suggestion_scroll(
+                                &sugg_list,
+                                &sugg_scroll,
+                                entry.width().max(320),
+                                remaining,
+                            );
                         }
                     });
                 }
             }
-            // Match the popover width to the search entry so labels aren't clipped.
+            // Match the popover width to the search entry so labels aren't clipped,
+            // and size the scroller to the content so a single match shows a single
+            // row with no empty leftover (and a visible popover shrinks back).
             let w = entry.width().max(320);
+            fit_suggestion_scroll(&sugg_list, &sugg_scroll, w, n_matches);
             popover.set_size_request(w, -1);
             popover.popup();
         })
