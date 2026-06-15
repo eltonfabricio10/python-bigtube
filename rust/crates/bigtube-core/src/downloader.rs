@@ -1166,9 +1166,7 @@ mod tests {
         };
         let args = build_download_args(&c, &params, "/tmp/dl", false);
         // Output lands under the artist subfolder.
-        assert!(args
-            .iter()
-            .any(|a| a == "/tmp/dl/Some Artist/My Video.mp4"));
+        assert!(args.iter().any(|a| a == "/tmp/dl/Some Artist/My Video.mp4"));
     }
 
     #[test]
