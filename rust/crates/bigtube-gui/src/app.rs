@@ -2367,12 +2367,21 @@ fn download_all(state: &Rc<AppState>, items: Vec<VideoObject>) {
     let Some(window) = state.window.borrow().clone() else {
         return;
     };
+    // Group a playlist / multi-selection under a folder named after the first
+    // item's artist (uploader), so batches don't scatter across the download dir.
+    let artist = bigtube_core::validators::sanitize_filename(&items[0].uploader(), 100);
+    let subfolder = if artist.is_empty() {
+        None
+    } else {
+        Some(artist)
+    };
+
     let st = state.clone();
     show_quality_dialog(&window, move |q| {
         let sel = q.as_value().to_string();
         let ext = quality_ext(q);
         for o in &items {
-            enqueue_download(
+            enqueue_common(
                 &st,
                 &o.url(),
                 &o.title(),
@@ -2380,9 +2389,16 @@ fn download_all(state: &Rc<AppState>, items: Vec<VideoObject>) {
                 &o.uploader(),
                 &sel,
                 ext,
+                None,
+                false,
+                subfolder.as_deref(),
             );
         }
-        st.toast(&tr("Added to downloads"));
+        let msg = match &subfolder {
+            Some(s) => format!("{} → {s}/", tr("Added to downloads")),
+            None => tr("Added to downloads"),
+        };
+        st.toast(&msg);
     });
 }
 
@@ -2444,14 +2460,18 @@ fn show_quality_dialog(
     });
 }
 
-/// Output file path the downloader will use (`{download}/{safe_title}.{ext}`).
-fn output_path(title: &str, format_id: &str, ext: &str) -> String {
+/// Output file path the downloader will use
+/// (`{download}/[subfolder/]{safe_title}.{ext}`).
+fn output_path(title: &str, format_id: &str, ext: &str, subfolder: Option<&str>) -> String {
     let dir = config::global().read().unwrap().get_string("download_path");
     let mut safe = bigtube_core::validators::sanitize_filename(title, 200);
     if safe.is_empty() {
         safe = format!("video_{format_id}");
     }
-    format!("{dir}/{safe}.{ext}")
+    match subfolder {
+        Some(sub) if !sub.is_empty() => format!("{dir}/{sub}/{safe}.{ext}"),
+        _ => format!("{dir}/{safe}.{ext}"),
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -2465,7 +2485,7 @@ fn enqueue_download(
     ext: &str,
 ) {
     enqueue_common(
-        state, url, title, thumbnail, uploader, format_id, ext, None, false,
+        state, url, title, thumbnail, uploader, format_id, ext, None, false, None,
     );
 }
 
@@ -2481,7 +2501,7 @@ fn enqueue_download_checked(
     format_id: &str,
     ext: &str,
 ) {
-    let path = output_path(title, format_id, ext);
+    let path = output_path(title, format_id, ext, None);
     if !std::path::Path::new(&path).exists() {
         enqueue_download(state, url, title, thumbnail, uploader, format_id, ext);
         return;
@@ -2519,7 +2539,7 @@ fn enqueue_download_checked(
     dialog.connect_response(None, move |dlg, resp| {
         match resp {
             "overwrite" => enqueue_common(
-                &state, &url, &title, &thumbnail, &uploader, &format_id, &ext, None, true,
+                &state, &url, &title, &thumbnail, &uploader, &format_id, &ext, None, true, None,
             ),
             "keep" => {
                 let t = unique_title(&title, &format_id, &ext);
@@ -2534,12 +2554,12 @@ fn enqueue_download_checked(
 
 /// A title whose `output_path` doesn't collide, appending " (n)" as needed.
 fn unique_title(title: &str, format_id: &str, ext: &str) -> String {
-    if !std::path::Path::new(&output_path(title, format_id, ext)).exists() {
+    if !std::path::Path::new(&output_path(title, format_id, ext, None)).exists() {
         return title.to_string();
     }
     for n in 1..1000 {
         let candidate = format!("{title} ({n})");
-        if !std::path::Path::new(&output_path(&candidate, format_id, ext)).exists() {
+        if !std::path::Path::new(&output_path(&candidate, format_id, ext, None)).exists() {
             return candidate;
         }
     }
@@ -2578,6 +2598,7 @@ fn enqueue_scheduled(
         ext,
         Some(ts),
         false,
+        None,
     );
 }
 
@@ -2592,9 +2613,10 @@ fn enqueue_common(
     ext: &str,
     schedule_ts: Option<f64>,
     force_overwrite: bool,
+    subfolder: Option<&str>,
 ) {
     let key = next_key();
-    let file_path = output_path(title, format_id, ext);
+    let file_path = output_path(title, format_id, ext, subfolder);
 
     // Record a pending history entry up front (so it survives a crash mid-download).
     let save_history = config::global().read().unwrap().get_bool("save_history");
@@ -2676,6 +2698,7 @@ fn enqueue_common(
         ext: ext.to_string(),
         force_overwrite,
         estimated_size_mb: None,
+        subfolder: subfolder.map(str::to_string),
     };
     let mgr = download_manager::global();
     match schedule_ts {

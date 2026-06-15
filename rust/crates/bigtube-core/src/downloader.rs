@@ -163,6 +163,9 @@ pub struct DownloadParams {
     pub ext: String,
     pub force_overwrite: bool,
     pub estimated_size_mb: Option<f64>,
+    /// Optional subfolder (under the download dir) — used for playlists/batches
+    /// to group files under the artist's name. Already sanitized.
+    pub subfolder: Option<String>,
 }
 
 /// One selectable format row (`videos`/`audios` entries).
@@ -253,6 +256,12 @@ pub fn build_download_args(
         safe_title = format!("video_{}", params.format_id);
     }
 
+    // Optional artist subfolder (playlists/batches). yt-dlp creates the dir.
+    let out_dir = match params.subfolder.as_deref() {
+        Some(sub) if !sub.is_empty() => format!("{download_dir}/{sub}"),
+        _ => download_dir.to_string(),
+    };
+
     let fragments = {
         let v = cfg.get_i64("concurrent_fragments");
         if v > 0 {
@@ -277,7 +286,7 @@ pub fn build_download_args(
         "--progress-template".to_string(),
         "postprocess:[postprocess] %(progress._percent_str)s".to_string(),
         "-o".to_string(),
-        format!("{download_dir}/{safe_title}.{}", params.ext),
+        format!("{out_dir}/{safe_title}.{}", params.ext),
     ];
     cmd.extend(cfg.get_yt_dlp_common_args());
 
@@ -1130,6 +1139,7 @@ mod tests {
             ext: "mp4".into(),
             force_overwrite: false,
             estimated_size_mb: None,
+            subfolder: None,
         };
         let args = build_download_args(&c, &params, "/tmp/dl", false);
         // single video id -> "+bestaudio/best"
@@ -1143,6 +1153,25 @@ mod tests {
     }
 
     #[test]
+    fn download_args_subfolder_groups_output() {
+        let (_d, c) = cfg();
+        let params = DownloadParams {
+            url: "https://youtu.be/x".into(),
+            format_id: "137".into(),
+            title: "My Video".into(),
+            ext: "mp4".into(),
+            force_overwrite: false,
+            estimated_size_mb: None,
+            subfolder: Some("Some Artist".into()),
+        };
+        let args = build_download_args(&c, &params, "/tmp/dl", false);
+        // Output lands under the artist subfolder.
+        assert!(args
+            .iter()
+            .any(|a| a == "/tmp/dl/Some Artist/My Video.mp4"));
+    }
+
+    #[test]
     fn download_args_audio_extraction() {
         let (_d, c) = cfg();
         let params = DownloadParams {
@@ -1152,6 +1181,7 @@ mod tests {
             ext: "mp3".into(),
             force_overwrite: false,
             estimated_size_mb: None,
+            subfolder: None,
         };
         let args = build_download_args(&c, &params, "/tmp/dl", true);
         assert!(args.contains(&"--extract-audio".to_string()));

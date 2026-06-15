@@ -127,6 +127,7 @@ fn run_download(
         ext: ext.to_string(),
         force_overwrite: false,
         estimated_size_mb: None,
+        subfolder: None,
     };
 
     let progress: ProgressFn = Arc::new(print_progress);

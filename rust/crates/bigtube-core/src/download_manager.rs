@@ -345,6 +345,7 @@ mod tests {
                     ext: String::new(),
                     force_overwrite: false,
                     estimated_size_mb: None,
+                    subfolder: None,
                 },
                 progress: Arc::new(|_| {}),
                 on_start: None,
