@@ -94,7 +94,7 @@ fn format_row(
     // For video picks, use a height-aware selector so an unavailable exact id
     // falls back to the chosen resolution instead of silently dropping to ~360p.
     let sel_id = if f.kind == "video" {
-        bigtube_core::downloader::video_selector(&f.id, f.resolution)
+        bigtube_core::downloader::video_selector(&f.id, f.resolution, &f.codec)
     } else {
         f.id.clone()
     };

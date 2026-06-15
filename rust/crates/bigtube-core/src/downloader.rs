@@ -365,29 +365,58 @@ pub fn build_download_args(
     cmd
 }
 
+/// yt-dlp `vcodec` prefix for a parsed codec string, so a fallback selector can
+/// stay in the codec family the user actually saw (H.264/VP9/AV1). Returns
+/// `None` for unknown codecs (no codec constraint added).
+fn vcodec_prefix(codec: &str) -> Option<&'static str> {
+    let c = codec.to_lowercase();
+    if c.contains("avc") || c.contains("h264") {
+        Some("avc")
+    } else if c.contains("vp9") || c.contains("vp09") {
+        Some("vp")
+    } else if c.contains("av01") || c.contains("av1") {
+        Some("av01")
+    } else {
+        None
+    }
+}
+
 /// Build a height-aware download selector for a chosen *video* format id.
 ///
 /// A plain `id+bestaudio/best` selector silently falls back to `best` (often the
 /// ~360p progressive format 18) whenever the exact id isn't downloadable with
-/// the active client — so picking "1080p" can yield a 360p file. This keeps the
-/// chosen resolution on fallback: exact id first, then the best stream at or
-/// below the chosen height, only then any best.
+/// the active client — so picking "1080p" can yield a 360p file. Worse, a plain
+/// `bestvideo[height<=h]` fallback lets yt-dlp pick the most efficient codec
+/// (usually AV1), so picking an "H.264 1080p" row could yield an AV1 file.
+///
+/// This keeps BOTH the chosen resolution and codec on fallback: exact id first,
+/// then the best same-codec stream at or below the chosen height, then any
+/// stream at that height, only then any best.
 ///
 /// Composite selectors (the virtual MKV/best entries, anything already carrying
 /// `+` or `/`) and empty ids are returned unchanged.
-pub fn video_selector(format_id: &str, height: i64) -> String {
+pub fn video_selector(format_id: &str, height: i64, codec: &str) -> String {
     if format_id.is_empty() || format_id.contains('+') || format_id.contains('/') {
         return format_id.to_string();
     }
-    if height > 0 {
-        format!(
-            "{id}+bestaudio/bestvideo[height<={h}]+bestaudio/best[height<={h}]/best",
-            id = format_id,
-            h = height
-        )
-    } else {
-        format!("{format_id}+bestaudio/best")
+    if height <= 0 {
+        return format!("{format_id}+bestaudio/best");
     }
+    // Codec-constrained fallbacks come first so the downloaded file matches the
+    // codec shown in the dialog; generic height fallbacks remain as a last resort.
+    let mut chain = format!("{format_id}+bestaudio");
+    if let Some(vc) = vcodec_prefix(codec) {
+        chain.push_str(&format!(
+            "/bestvideo[height<={h}][vcodec^={vc}]+bestaudio\
+             /best[height<={h}][vcodec^={vc}]",
+            h = height
+        ));
+    }
+    chain.push_str(&format!(
+        "/bestvideo[height<={h}]+bestaudio/best[height<={h}]/best",
+        h = height
+    ));
+    chain
 }
 
 // =============================================================================
@@ -1209,20 +1238,39 @@ mod tests {
     #[test]
     fn video_selector_is_height_aware() {
         // Plain id -> exact id first, then best at/below the chosen height
-        // (never a silent drop to ~360p), then any best.
-        let sel = video_selector("137", 1080);
+        // (never a silent drop to ~360p), then any best. Unknown codec adds no
+        // codec constraint.
+        let sel = video_selector("137", 1080, "");
         assert_eq!(
             sel,
             "137+bestaudio/bestvideo[height<=1080]+bestaudio/best[height<=1080]/best"
         );
         // Unknown height -> simple fallback.
-        assert_eq!(video_selector("18", 0), "18+bestaudio/best");
+        assert_eq!(video_selector("18", 0, ""), "18+bestaudio/best");
         // Composite/virtual ids are passed through untouched.
         assert_eq!(
-            video_selector("bestvideo+bestaudio/best", 1080),
+            video_selector("bestvideo+bestaudio/best", 1080, "avc1.640028"),
             "bestvideo+bestaudio/best"
         );
-        assert_eq!(video_selector("", 720), "");
+        assert_eq!(video_selector("", 720, ""), "");
+    }
+
+    #[test]
+    fn video_selector_keeps_codec_on_fallback() {
+        // H.264 pick: the codec-constrained fallbacks (vcodec^=avc) must come
+        // BEFORE the generic ones, so an unavailable exact id stays H.264
+        // instead of silently becoming AV1.
+        let sel = video_selector("137", 1080, "avc1.640028");
+        assert_eq!(
+            sel,
+            "137+bestaudio\
+             /bestvideo[height<=1080][vcodec^=avc]+bestaudio\
+             /best[height<=1080][vcodec^=avc]\
+             /bestvideo[height<=1080]+bestaudio/best[height<=1080]/best"
+        );
+        // AV1 pick stays AV1; VP9 pick stays VP9.
+        assert!(video_selector("399", 1080, "av01.0.09M.08").contains("[vcodec^=av01]"));
+        assert!(video_selector("248", 1080, "vp9").contains("[vcodec^=vp]"));
     }
 
     #[test]
