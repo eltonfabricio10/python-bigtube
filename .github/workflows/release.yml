@@ -117,7 +117,9 @@ jobs:
           install -Dm644 rust/packaging/org.big.bigtube.desktop \
             "$stage/usr/share/applications/org.big.bigtube.desktop"
           install -Dm644 src/bigtube/data/bigtube.png \
-            "$stage/usr/share/icons/hicolor/256x256/apps/bigtube.png"
+            "$stage/usr/share/icons/hicolor/512x512/apps/bigtube.png"
+          install -Dm644 src/bigtube/data/bigtube.svg \
+            "$stage/usr/share/icons/hicolor/scalable/apps/bigtube.svg"
           for po in po/*.po; do
             [ -e "$po" ] || continue
             lang="$(basename "$po" .po)"

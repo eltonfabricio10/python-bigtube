@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C3AED"/>
+      <stop offset="0.55" stop-color="#5B5BF0"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="600" y1="600" x2="880" y2="880" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#34D399"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#1e1b4b" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- App tile -->
+  <rect x="96" y="96" width="832" height="832" rx="196" fill="url(#bg)"/>
+  <rect x="96" y="96" width="832" height="832" rx="196" fill="url(#gloss)"/>
+
+  <!-- Play triangle (rounded), centered -->
+  <path d="M 432 322
+           Q 408 308 408 340
+           L 408 612
+           Q 408 644 432 630
+           L 690 492
+           Q 716 476 690 460
+           Z"
+        fill="#ffffff" filter="url(#soft)"/>
+
+  <!-- Download badge (bottom-right), clearly separate -->
+  <circle cx="742" cy="742" r="158" fill="#ffffff"/>
+  <circle cx="742" cy="742" r="138" fill="url(#badge)"/>
+  <!-- Down arrow -->
+  <g stroke="#ffffff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <line x1="742" y1="662" x2="742" y2="788"/>
+    <polyline points="688,738 742,792 796,738"/>
+    <line x1="666" y1="828" x2="818" y2="828"/>
+  </g>
+</svg>

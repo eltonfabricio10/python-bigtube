@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1280" height="440" viewBox="0 0 1280 440" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="1280" y2="440" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0E0A1E"/>
+      <stop offset="0.5" stop-color="#1A1640"/>
+      <stop offset="1" stop-color="#0B1230"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.18" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#6D5BF0" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#6D5BF0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ibg" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C3AED"/>
+      <stop offset="0.55" stop-color="#5B5BF0"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="ibadge" x1="600" y1="600" x2="880" y2="880" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#34D399"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="word" x1="440" y1="170" x2="440" y2="290" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#C7D2FE"/>
+    </linearGradient>
+    <filter id="isoft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#120f2e" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="440" fill="url(#page)"/>
+  <rect width="1280" height="440" fill="url(#glow)"/>
+
+  <!-- App icon (embedded), left -->
+  <g transform="translate(96,70) scale(0.293)" filter="url(#isoft)">
+    <rect x="96" y="96" width="832" height="832" rx="196" fill="url(#ibg)"/>
+    <path d="M 432 322 Q 408 308 408 340 L 408 612 Q 408 644 432 630 L 690 492 Q 716 476 690 460 Z" fill="#ffffff"/>
+    <circle cx="742" cy="742" r="158" fill="#ffffff"/>
+    <circle cx="742" cy="742" r="138" fill="url(#ibadge)"/>
+    <g stroke="#ffffff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <line x1="742" y1="662" x2="742" y2="788"/>
+      <polyline points="688,738 742,792 796,738"/>
+      <line x1="666" y1="828" x2="818" y2="828"/>
+    </g>
+  </g>
+
+  <!-- Wordmark + tagline -->
+  <text x="470" y="232" font-family="DejaVu Sans, Verdana, sans-serif" font-weight="bold" font-size="128" fill="url(#word)">BigTube</text>
+  <text x="476" y="300" font-family="DejaVu Sans, Verdana, sans-serif" font-size="37" fill="#A9B4E6">Universal Multimedia Downloader</text>
+  <rect x="478" y="324" width="372" height="5" rx="2.5" fill="#34D399" opacity="0.9"/>
+</svg>
