@@ -248,13 +248,73 @@ pub fn build_download_args(
     cmd
 }
 
+/// Build a height-aware download selector for a chosen *video* format id.
+///
+/// A plain `id+bestaudio/best` selector silently falls back to `best` (often the
+/// ~360p progressive format 18) whenever the exact id isn't downloadable with
+/// the active client — so picking "1080p" can yield a 360p file. This keeps the
+/// chosen resolution on fallback: exact id first, then the best stream at or
+/// below the chosen height, only then any best.
+///
+/// Composite selectors (the virtual MKV/best entries, anything already carrying
+/// `+` or `/`) and empty ids are returned unchanged.
+pub fn video_selector(format_id: &str, height: i64) -> String {
+    if format_id.is_empty() || format_id.contains('+') || format_id.contains('/') {
+        return format_id.to_string();
+    }
+    if height > 0 {
+        format!(
+            "{id}+bestaudio/bestvideo[height<={h}]+bestaudio/best[height<={h}]/best",
+            id = format_id,
+            h = height
+        )
+    } else {
+        format!("{format_id}+bestaudio/best")
+    }
+}
+
 // =============================================================================
 // FORMAT PARSING
 // =============================================================================
 
+/// Largest audio-only track size (MB) — the track that gets merged into a
+/// video-only download. Returns 0.0 if none/unknown.
+fn best_audio_size_mb(info: &Value, duration: f64) -> f64 {
+    let Some(formats) = info.get("formats").and_then(Value::as_array) else {
+        return 0.0;
+    };
+    formats
+        .iter()
+        .filter(|f| {
+            let v = f.get("vcodec").and_then(Value::as_str);
+            let a = f.get("acodec").and_then(Value::as_str);
+            matches!(v, None | Some("none")) && !matches!(a, None | Some("none"))
+        })
+        .filter_map(|f| {
+            f.get("filesize")
+                .and_then(Value::as_f64)
+                .or_else(|| f.get("filesize_approx").and_then(Value::as_f64))
+                .or_else(|| {
+                    f.get("tbr")
+                        .and_then(Value::as_f64)
+                        .filter(|_| duration > 0.0)
+                        .map(|tbr| (tbr * 1024.0 / 8.0) * duration)
+                })
+        })
+        .fold(0.0_f64, f64::max)
+        / 1024.0
+        / 1024.0
+}
+
 /// Parse raw yt-dlp `--dump-single-json` into a clean structure (`_parse_formats`).
 pub fn parse_formats(info: &Value) -> ParsedInfo {
     let duration = info.get("duration").and_then(Value::as_f64).unwrap_or(0.0);
+
+    // Video-only (DASH) formats are downloaded merged with the best audio track,
+    // so their on-disk size = video size + audio size. Pre-scan the best audio
+    // size and add it to those rows; otherwise the displayed size (video only)
+    // never matches the final file.
+    let best_audio_mb = best_audio_size_mb(info, duration);
 
     let mut videos: Vec<FormatOption> = Vec::new();
     let mut audios: Vec<FormatOption> = Vec::new();
@@ -321,6 +381,19 @@ pub fn parse_formats(info: &Value) -> ParsedInfo {
                 });
             } else if is_video {
                 let h = height.unwrap_or(0);
+                // Video-only (DASH) rows merge with best audio on download, so
+                // report video size + audio size to match the final file.
+                let is_video_only = matches!(acodec, None | Some("none"));
+                let total_mb = if is_video_only {
+                    size_mb + best_audio_mb
+                } else {
+                    size_mb
+                };
+                let total_str = if total_mb > 0.0 {
+                    format!("{total_mb:.1} MB")
+                } else {
+                    "? MB".to_string()
+                };
                 let fps = f.get("fps").and_then(Value::as_f64).unwrap_or(0.0);
                 let mut label = format!("{h}p");
                 if fps > 30.0 {
@@ -348,8 +421,8 @@ pub fn parse_formats(info: &Value) -> ParsedInfo {
                     id: fmt_id,
                     label,
                     ext,
-                    size: size_str,
-                    size_val: size_mb,
+                    size: total_str,
+                    size_val: total_mb,
                     codec,
                     kind: "video".into(),
                     resolution: h,
@@ -889,6 +962,50 @@ mod tests {
         assert!(parsed.videos.iter().any(|v| v.resolution == 1080));
         // Audio list has injected MP3 convert at index 0
         assert_eq!(parsed.audios[0].ext, "mp3");
+    }
+
+    #[test]
+    fn video_selector_is_height_aware() {
+        // Plain id -> exact id first, then best at/below the chosen height
+        // (never a silent drop to ~360p), then any best.
+        let sel = video_selector("137", 1080);
+        assert_eq!(
+            sel,
+            "137+bestaudio/bestvideo[height<=1080]+bestaudio/best[height<=1080]/best"
+        );
+        // Unknown height -> simple fallback.
+        assert_eq!(video_selector("18", 0), "18+bestaudio/best");
+        // Composite/virtual ids are passed through untouched.
+        assert_eq!(
+            video_selector("bestvideo+bestaudio/best", 1080),
+            "bestvideo+bestaudio/best"
+        );
+        assert_eq!(video_selector("", 720), "");
+    }
+
+    #[test]
+    fn video_only_size_includes_audio() {
+        // 1080p video-only (10 MB) + best audio (1 MB) should report ~11 MB,
+        // not the bare 10 MB video size — so it matches the merged file.
+        let info = json!({
+            "id": "abc", "title": "T", "duration": 100, "webpage_url": "http://x",
+            "formats": [
+                {"format_id": "140", "ext": "m4a", "vcodec": "none", "acodec": "mp4a.40.2", "abr": 128, "filesize": 1048576},
+                {"format_id": "137", "ext": "mp4", "vcodec": "avc1.640028", "acodec": "none", "height": 1080, "fps": 30, "filesize": 10485760}
+            ]
+        });
+        let parsed = parse_formats(&info);
+        let v1080 = parsed
+            .videos
+            .iter()
+            .find(|v| v.resolution == 1080 && v.id == "137")
+            .expect("1080p row");
+        // 10 MiB video + 1 MiB audio = 11 MiB.
+        assert!(
+            (v1080.size_val - 11.0).abs() < 0.05,
+            "expected ~11 MB, got {}",
+            v1080.size_val
+        );
     }
 
     #[test]

@@ -91,13 +91,21 @@ fn format_row(
     let suffix = gtk::Box::new(gtk::Orientation::Horizontal, 6);
     suffix.set_valign(gtk::Align::Center);
 
+    // For video picks, use a height-aware selector so an unavailable exact id
+    // falls back to the chosen resolution instead of silently dropping to ~360p.
+    let sel_id = if f.kind == "video" {
+        bigtube_core::downloader::video_selector(&f.id, f.resolution)
+    } else {
+        f.id.clone()
+    };
+
     // Schedule for later.
     let schedule = gtk::Button::from_icon_name("alarm-symbolic");
     schedule.add_css_class("flat");
     schedule.set_valign(gtk::Align::Center);
     schedule.set_tooltip_text(Some(&tr("Schedule Download")));
     {
-        let id = f.id.clone();
+        let id = sel_id.clone();
         let ext = f.ext.clone();
         let on_schedule = on_schedule.clone();
         let win = win.clone();
@@ -113,7 +121,7 @@ fn format_row(
     btn.add_css_class("pill");
     btn.set_valign(gtk::Align::Center);
     {
-        let id = f.id.clone();
+        let id = sel_id.clone();
         let ext = f.ext.clone();
         let on_pick = on_pick.clone();
         let win = win.clone();
