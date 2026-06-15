@@ -244,6 +244,34 @@ enum UiMsg {
         key: String,
         downloader: Arc<VideoDownloader>,
     },
+    /// Real codecs + on-disk size, probed after a download completes.
+    MediaInfo { key: String, text: String },
+}
+
+/// Human file size from raw bytes, e.g. "57.9 MiB" / "1.23 GiB".
+fn human_size(bytes: u64) -> String {
+    let b = bytes as f64;
+    if b >= 1024.0 * 1024.0 * 1024.0 {
+        format!("{:.2} GiB", b / 1024.0 / 1024.0 / 1024.0)
+    } else {
+        format!("{:.1} MiB", b / 1024.0 / 1024.0)
+    }
+}
+
+/// "H.264 · AAC · 57.9 MiB" from a probed file (omitting unknown parts).
+fn media_summary_text(s: &bigtube_core::converter::MediaSummary) -> String {
+    let mut parts: Vec<String> = Vec::new();
+    let (v, a) = (codec_pretty(&s.vcodec), codec_pretty(&s.acodec));
+    if !v.is_empty() {
+        parts.push(v);
+    }
+    if !a.is_empty() {
+        parts.push(a);
+    }
+    if s.size_bytes > 0 {
+        parts.push(human_size(s.size_bytes));
+    }
+    parts.join(" · ")
 }
 
 struct AppState {
@@ -497,8 +525,24 @@ pub fn build_window(app: &adw::Application) {
                     status,
                     detail,
                 } => {
-                    if let Some(row) = state_for_loop.download_rows.borrow().get(&key) {
+                    let file_path = state_for_loop.download_rows.borrow().get(&key).map(|row| {
                         row.update(percent.as_deref(), status, detail.as_deref());
+                        row.file_path.borrow().clone()
+                    });
+                    // On completion, probe the real file (codecs + on-disk size)
+                    // off-thread and show it as the row's status.
+                    if status == StatusCode::Completed {
+                        if let Some(path) = file_path.filter(|p| !p.is_empty()) {
+                            let tx = state_for_loop.ui_tx.clone();
+                            let key = key.clone();
+                            std::thread::spawn(move || {
+                                let s = bigtube_core::converter::probe_media_summary(&path);
+                                let text = media_summary_text(&s);
+                                if !text.is_empty() {
+                                    let _ = tx.send_blocking(UiMsg::MediaInfo { key, text });
+                                }
+                            });
+                        }
                     }
                     // Bot block — guide the user to enable cookies once.
                     if status == StatusCode::BotBlocked {
@@ -508,6 +552,11 @@ pub fn build_window(app: &adw::Application) {
                 UiMsg::Started { key, downloader } => {
                     if let Some(row) = state_for_loop.download_rows.borrow().get(&key) {
                         row.downloader.replace(Some(downloader));
+                    }
+                }
+                UiMsg::MediaInfo { key, text } => {
+                    if let Some(row) = state_for_loop.download_rows.borrow().get(&key) {
+                        row.status.set_text(&text);
                     }
                 }
             }
@@ -2095,6 +2144,24 @@ fn run_conversion(path: std::path::PathBuf, fmt: String, ui: ConvUi, cancel_flag
                     ui.out_path.replace(out.clone());
                     ui.folder.set_visible(true);
                     ui.play.set_visible(true);
+                    // Probe the converted file (codecs + real size) and show it as
+                    // the status, replacing the generic "Success!".
+                    {
+                        let (itx, irx) = async_channel::bounded::<String>(1);
+                        let outp = out.clone();
+                        std::thread::spawn(move || {
+                            let s = bigtube_core::converter::probe_media_summary(&outp);
+                            let _ = itx.send_blocking(media_summary_text(&s));
+                        });
+                        let status_lbl = ui.status.clone();
+                        glib::spawn_future_local(async move {
+                            if let Ok(text) = irx.recv().await {
+                                if !text.is_empty() {
+                                    status_lbl.set_text(&text);
+                                }
+                            }
+                        });
+                    }
                     if config::global()
                         .read()
                         .unwrap()

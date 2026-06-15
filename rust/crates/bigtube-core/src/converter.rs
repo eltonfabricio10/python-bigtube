@@ -54,6 +54,70 @@ pub fn get_media_duration(input_path: &str) -> f64 {
     }
 }
 
+/// Real codecs + on-disk size of a finished media file (`probe_media_summary`).
+/// Codecs come from ffprobe (empty if ffprobe is missing or the stream is
+/// absent); `size_bytes` is always the real file size from the filesystem.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct MediaSummary {
+    pub vcodec: String,
+    pub acodec: String,
+    pub size_bytes: u64,
+}
+
+/// Parse ffprobe `-of json -show_entries stream=codec_type,codec_name` output
+/// into `(vcodec, acodec)`. Pure/testable.
+pub fn parse_ffprobe_streams(json: &str) -> (String, String) {
+    let (mut v, mut a) = (String::new(), String::new());
+    if let Ok(val) = serde_json::from_str::<serde_json::Value>(json) {
+        if let Some(streams) = val.get("streams").and_then(|s| s.as_array()) {
+            for s in streams {
+                let kind = s.get("codec_type").and_then(|x| x.as_str()).unwrap_or("");
+                let name = s
+                    .get("codec_name")
+                    .and_then(|x| x.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                match kind {
+                    "video" if v.is_empty() => v = name,
+                    "audio" if a.is_empty() => a = name,
+                    _ => {}
+                }
+            }
+        }
+    }
+    (v, a)
+}
+
+/// Inspect a finished file: real on-disk size (always) + video/audio codec names
+/// via ffprobe (best-effort). Used to show "H.264 · AAC · 57.9 MiB" on a row once
+/// a download/conversion completes.
+pub fn probe_media_summary(path: &str) -> MediaSummary {
+    let size_bytes = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
+    let mut summary = MediaSummary {
+        size_bytes,
+        ..Default::default()
+    };
+    if which("ffprobe").is_none() {
+        return summary;
+    }
+    let args = [
+        "-v".to_string(),
+        "error".to_string(),
+        "-show_entries".to_string(),
+        "stream=codec_type,codec_name".to_string(),
+        "-of".to_string(),
+        "json".to_string(),
+        path.to_string(),
+    ];
+    let env: HashMap<String, String> = std::env::vars().collect();
+    if let Ok((0, stdout, _)) = run_with_timeout("ffprobe", &args, &env, FFPROBE_TIMEOUT) {
+        let (v, a) = parse_ffprobe_streams(&stdout);
+        summary.vcodec = v;
+        summary.acodec = a;
+    }
+    summary
+}
+
 /// Resolve the output directory and a non-colliding output path.
 fn resolve_output_path(input_path: &str, output_format: &str) -> String {
     let input = Path::new(input_path);
@@ -273,6 +337,30 @@ fn parse_progress_line(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn parse_ffprobe_streams_picks_first_video_and_audio() {
+        let json = r#"{"streams":[
+            {"codec_type":"video","codec_name":"h264"},
+            {"codec_type":"audio","codec_name":"aac"},
+            {"codec_type":"audio","codec_name":"opus"}
+        ]}"#;
+        assert_eq!(
+            parse_ffprobe_streams(json),
+            ("h264".to_string(), "aac".to_string())
+        );
+        // Audio-only file -> empty video codec.
+        let audio = r#"{"streams":[{"codec_type":"audio","codec_name":"mp3"}]}"#;
+        assert_eq!(
+            parse_ffprobe_streams(audio),
+            (String::new(), "mp3".to_string())
+        );
+        // Garbage -> empty, no panic.
+        assert_eq!(
+            parse_ffprobe_streams("not json"),
+            (String::new(), String::new())
+        );
+    }
 
     #[test]
     fn ffmpeg_args_with_subtitles_mp4_use_mov_text() {
