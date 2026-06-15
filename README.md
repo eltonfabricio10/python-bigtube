@@ -6,7 +6,9 @@
 
 > **O Downloader Multimídia Definitivo para Linux**
 
-**BigTube** é uma aplicação desktop moderna, veloz e elegante, construída com **Python**, **GTK4** e **Libadwaita**. Projetado para quem não aceita menos que a perfeição ao baixar conteúdos da internet, o BigTube transforma a complexidade do `yt-dlp` em uma ferramenta intuitiva e poderosa.
+**BigTube** é uma aplicação desktop moderna, veloz e elegante, construída em **Rust** com **GTK4**, **Libadwaita** e **GStreamer**. Projetado para quem não aceita menos que a perfeição ao baixar conteúdos da internet, o BigTube transforma a complexidade do `yt-dlp` em uma ferramenta intuitiva e poderosa — agora como um binário nativo, sem dependências de runtime Python.
+
+> ℹ️ A partir da versão **2.0**, o BigTube foi reescrito em Rust. O pacote AUR recomendado passou a ser **`bigtube-bin`** (binário pré-compilado). O antigo pacote `bigtube` (Python) foi descontinuado.
 
 ---
 
@@ -36,7 +38,7 @@
 - Progresso em tempo real com ETA
 
 ### 📺 Player Integrado
-- Motor de reprodução **MPV**
+- Motor de reprodução **GStreamer** (nativo, integrado ao GTK4)
 - Prévia de vídeos antes do download
 - Navegação de playlist (Prev / Play-Pause / **Stop** / Next)
 - Janela de vídeo destacável
@@ -60,84 +62,89 @@
 
 | Tecnologia | Função |
 |------------|--------|
-| **Python 3.10+** | Núcleo da aplicação |
+| **Rust 2021** | Núcleo da aplicação (binário nativo) |
 | **GTK4 + Libadwaita** | Interface nativa GNOME |
+| **GStreamer** | Motor de reprodução |
 | **yt-dlp** | Motor de download |
-| **MPV** | Motor de reprodução |
 | **FFmpeg** | Conversão de mídia |
-| **Poetry** | Gerenciamento de dependências |
+| **Cargo** | Build e gerenciamento de dependências |
+
+> O projeto é um workspace Cargo com três crates: **`bigtube-core`** (lógica/engine), **`bigtube-cli`** (binário headless `bigtube`) e **`bigtube-gui`** (interface gráfica `bigtube-gui`).
 
 ---
 
 ## 🚀 Instalação
 
-### Arch Linux (AUR)
+### Arch Linux (AUR) — recomendado
+Pacote binário pré-compilado (`bigtube-bin`): instala rápido, **sem compilar nada** na sua máquina.
 ```bash
-yay -S bigtube
+yay -S bigtube-bin
 # ou
-paru -S bigtube
+paru -S bigtube-bin
 ```
+> O binário fornece e substitui o antigo pacote `bigtube` (`provides=bigtube`, `conflicts=bigtube`).
 
-### PKGBUILD Local
-```bash
-git clone https://github.com/eltonfabricio10/python-bigtube.git
-cd python-bigtube
-makepkg -si
-```
-
-### Instalação via Poetry (Desenvolvimento)
+### Compilando do código-fonte (Cargo)
+Requer o toolchain Rust (`rustup`) e as dependências de sistema listadas abaixo.
 ```bash
 # Clone o repositório
 git clone https://github.com/eltonfabricio10/python-bigtube.git
-cd python-bigtube
+cd python-bigtube/rust
 
-# Instale as dependências
-poetry install
+# Compile em modo release
+cargo build --release --locked
 
-# Execute o BigTube
-poetry run bigtube
+# Os binários ficam em rust/target/release/
+./target/release/bigtube-gui      # interface gráfica
+./target/release/bigtube --help   # modo headless (CLI)
+```
+
+Para instalar no sistema a partir do build local:
+```bash
+sudo install -Dm755 target/release/bigtube-gui /usr/bin/bigtube-gui
+sudo install -Dm755 target/release/bigtube     /usr/bin/bigtube
+sudo install -Dm644 ../src/bigtube/data/bigtube.svg /usr/share/icons/hicolor/scalable/apps/bigtube.svg
+sudo install -Dm644 ../src/bigtube/data/bigtube.png /usr/share/icons/hicolor/512x512/apps/bigtube.png
+sudo install -Dm644 packaging/org.big.bigtube.desktop /usr/share/applications/org.big.bigtube.desktop
 ```
 
 ---
 
 ## ⌨️ Linha de Comando
 
+O port Rust expõe **dois binários**:
+
+| Binário | Função |
+|---------|--------|
+| `bigtube-gui` | Abre a interface gráfica |
+| `bigtube` | Modo headless (download direto pelo terminal, sem GUI) |
+
+### Interface gráfica
 ```bash
-bigtube [opções] [URLs | termos de busca]
+bigtube-gui      # abre a janela do BigTube
 ```
 
-### Modo GUI
-| Argumento | Descrição |
-|-----------|-----------|
-| (nenhum) | Abre a interface gráfica |
-| `<url>` | Abre a GUI e inicia o download da URL |
-| `<termo>` | Abre a GUI com a busca pré-preenchida (qualquer palavra que não seja URL ou caminho de arquivo) |
-| `<caminho>` | Abre arquivos locais no conversor |
+### Modo headless (`bigtube`)
+```bash
+bigtube -d <URL> [opções]
+```
 
-### Modo headless (sem GUI)
 | Opção | Descrição |
 |-------|-----------|
 | `-d, --download URL` | Baixa a URL direto pelo terminal, sem abrir a janela |
 | `-o, --output DIR` | Pasta de destino do `--download` (padrão: pasta configurada) |
 | `--audio-only` | Com `--download`, extrai áudio em MP3 |
-| `--format FMT` | Com `--download`, formato customizado do `yt-dlp -f` |
-
-### Flags gerais
-| Opção | Descrição |
-|-------|-----------|
-| `--debug` | Ativa log detalhado para depuração |
-| `-q, --quiet` | Suprime saída não-essencial |
-| `--version` | Mostra a versão do BigTube |
+| `--format FMT` | Com `--download`, seletor de formato customizado do `yt-dlp -f` |
 | `--yt-dlp-version` | Mostra a versão do `yt-dlp` embutido |
+| `--version` | Mostra a versão do BigTube |
 | `--help` | Mostra ajuda |
 
 ### Exemplos
 ```bash
-bigtube                                         # abre a GUI
-bigtube https://youtube.com/watch?v=...         # GUI + download imediato
-bigtube "lofi beats"                            # GUI com busca pré-preenchida
-bigtube -d https://youtube.com/watch?v=...      # download headless
-bigtube -d <url> -o ~/Music --audio-only        # áudio MP3 headless
+bigtube-gui                                      # abre a GUI
+bigtube -d https://youtube.com/watch?v=...       # download headless
+bigtube -d <url> -o ~/Music --audio-only         # áudio MP3 headless
+bigtube -d <url> --format "bestvideo+bestaudio"  # formato customizado
 ```
 
 ---
@@ -253,15 +260,32 @@ As preferências são salvas em `~/.config/bigtube/config.json`. Quando o arquiv
 
 ## 📋 Dependências do Sistema
 
+Tempo de execução (necessário para rodar o binário):
+
 ```bash
 # Arch Linux
-sudo pacman -S gtk4 libadwaita mpv ffmpeg python-gobject
+sudo pacman -S gtk4 libadwaita gstreamer gst-plugins-base gst-plugins-good \
+               gst-plugins-bad gst-plugin-gtk4 yt-dlp
+# opcional: ffmpeg (extração de áudio e conversão de mídia)
+sudo pacman -S ffmpeg
 
 # Ubuntu/Debian (22.04+)
-sudo apt install libgtk-4-1 libadwaita-1-0 mpv ffmpeg python3-gi
+sudo apt install libgtk-4-1 libadwaita-1-0 \
+                 gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+                 gstreamer1.0-plugins-bad gstreamer1.0-gtk4 yt-dlp ffmpeg
 
 # Fedora
-sudo dnf install gtk4 libadwaita mpv ffmpeg python3-gobject
+sudo dnf install gtk4 libadwaita gstreamer1-plugins-base \
+                 gstreamer1-plugins-good gstreamer1-plugins-bad-free \
+                 yt-dlp ffmpeg
+```
+
+Para **compilar do código-fonte** adicione o toolchain Rust e os headers de desenvolvimento:
+
+```bash
+# Arch Linux
+sudo pacman -S rustup gtk4 libadwaita gstreamer base-devel
+rustup default stable
 ```
 
 ---
