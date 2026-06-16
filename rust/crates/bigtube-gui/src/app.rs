@@ -832,14 +832,21 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     popover.set_has_arrow(false);
     popover.set_position(gtk::PositionType::Bottom);
     popover.add_css_class("menu");
-    // A plain vertical Box placed DIRECTLY in the popover (no ScrolledWindow):
-    // the popover then sizes exactly to the box's content, so there is never any
-    // leftover space below the rows — and nothing to keep a stale stretched
-    // height. (Suggestions are capped at max_suggestions, so the list stays short.)
+    // A plain vertical Box (not a ListBox: exact natural height, no ListBoxRow
+    // overhead/inflation) inside a ScrolledWindow that PROPAGATES the box's
+    // natural height up to a cap. Few matches -> the scroll is exactly the box
+    // height (no leftover); many -> it caps and scrolls. No manual min/max-content
+    // height (that path hit a Gtk-CRITICAL); the close+reopen on each keystroke
+    // gives a fresh surface so the popover never keeps a stale height.
     let sugg_list = gtk::Box::new(gtk::Orientation::Vertical, 0);
     sugg_list.set_valign(gtk::Align::Start);
-    sugg_list.set_size_request(320, -1);
-    popover.set_child(Some(&sugg_list));
+    let sugg_scroll = gtk::ScrolledWindow::new();
+    sugg_scroll.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
+    sugg_scroll.set_propagate_natural_height(true);
+    sugg_scroll.set_max_content_height(240);
+    sugg_scroll.set_min_content_width(320);
+    sugg_scroll.set_child(Some(&sugg_list));
+    popover.set_child(Some(&sugg_scroll));
 
     // Dismiss the popover when the entry loses focus (clicking away, minimizing,
     // switching windows) so it never gets stuck on screen.
@@ -977,6 +984,15 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         let last_query = last_query.clone();
         entry.connect_search_changed(move |e| {
             let text = e.text().to_string();
+            // Empty text must ALWAYS close the popover + clear results, even when
+            // last_query is also empty (the guard below would otherwise skip it,
+            // leaving the popover open after deleting everything).
+            if text.trim().is_empty() {
+                state.search_store.remove_all();
+                state.update_search_empty();
+                rebuild(&text); // rebuild("") -> popdown
+                return;
+            }
             if text.trim() == *last_query.borrow() {
                 return; // results we just loaded for this query — keep them
             }
