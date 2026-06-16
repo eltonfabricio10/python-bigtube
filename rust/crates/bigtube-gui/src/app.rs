@@ -832,13 +832,16 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     popover.set_has_arrow(false);
     popover.set_position(gtk::PositionType::Bottom);
     popover.add_css_class("menu");
-    let sugg_list = gtk::ListBox::new();
-    sugg_list.set_selection_mode(gtk::SelectionMode::None);
+    // A plain vertical Box (not a ListBox): no auto ListBoxRow wrapper, so the
+    // measured natural height is EXACT (no per-row overhead, no inflation to fill
+    // a taller viewport when shrinking) and rows remove cleanly.
+    let sugg_list = gtk::Box::new(gtk::Orientation::Vertical, 0);
+    sugg_list.set_valign(gtk::Align::Start);
     let sugg_scroll = gtk::ScrolledWindow::new();
     sugg_scroll.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     // Height is governed explicitly by fit_suggestion_scroll (min==max content
-    // height per match count), so natural-height propagation is left off to avoid
-    // the popover keeping a stale, taller size when matches shrink to one.
+    // height = the box's exact natural height), so natural-height propagation is
+    // left off to avoid the popover keeping a stale, taller size when shrinking.
     sugg_scroll.set_min_content_width(320);
     sugg_scroll.set_child(Some(&sugg_list));
     popover.set_child(Some(&sugg_scroll));
@@ -877,29 +880,24 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         })
     };
 
-    /// Size the suggestion scroller to the list's natural height (capped) so the
+    /// Size the suggestion scroller to the box's natural height (capped) so the
     /// popover hugs its content — no empty leftover row when matches are few.
     fn fit_suggestion_scroll(
-        list: &gtk::ListBox,
+        list: &gtk::Box,
         scroll: &gtk::ScrolledWindow,
         width: i32,
         n_rows: usize,
     ) {
         const ROW_H: i32 = 34; // fallback per-row height if nothing is measured yet
         const MAX_H: i32 = 190;
-        // Prefer the REAL rendered height (exact, no leftover). measure() runs
-        // before layout and overshoots; the post-popup idle pass has a rendered
-        // list, so list.height() is the true content height.
-        let rendered = list.height();
-        let h = if rendered > 0 {
-            rendered
+        // A vertical Box's natural height == sum of its children's heights, exact
+        // and allocation-independent (unlike a ListBox, which inflates to fill a
+        // taller viewport). So measure() here is the true content height.
+        let (_, nat_h, _, _) = list.measure(gtk::Orientation::Vertical, width.max(320));
+        let h = if nat_h > 0 {
+            nat_h
         } else {
-            let (_, nat_h, _, _) = list.measure(gtk::Orientation::Vertical, width.max(320));
-            if nat_h > 0 {
-                nat_h
-            } else {
-                (n_rows as i32 * ROW_H).max(ROW_H)
-            }
+            (n_rows as i32 * ROW_H).max(ROW_H)
         }
         .clamp(1, MAX_H);
         scroll.set_min_content_height(h);
