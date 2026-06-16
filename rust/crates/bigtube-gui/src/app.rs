@@ -890,6 +890,16 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             popover.popdown();
             let query = entry.text().to_string();
             *last_query.borrow_mut() = query.trim().to_string();
+            // Auto-pick the source from the input, only at search time:
+            //  - a URL while on YouTube / YouTube Music → switch to Direct Link;
+            //  - plain text while on YouTube / YouTube Music → leave it;
+            //  - plain text while on Direct Link → back to YouTube.
+            let is_url = bigtube_core::validators::is_valid_url(query.trim());
+            match source.selected() {
+                2 if !is_url => source.set_selected(0), // Direct Link → YouTube
+                0 | 1 if is_url => source.set_selected(2), // YT/YTMusic → Direct Link
+                _ => {}
+            }
             let src = match source.selected() {
                 1 => "youtube_music",
                 2 => "url",
@@ -995,24 +1005,16 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         })
     };
 
-    // Typing refreshes suggestions and auto-picks the source. Results are NOT
-    // cleared on every keystroke — only when the field is fully emptied — so the
-    // previous results stay visible until a new search replaces them.
+    // Typing refreshes suggestions only. Results are NOT cleared on every
+    // keystroke — only when the field is fully emptied — so the previous results
+    // stay visible until a new search replaces them. (The source is auto-picked
+    // on Search, not while typing — see `trigger`.)
     {
         let state = state.clone();
         let rebuild = rebuild.clone();
         let last_query = last_query.clone();
-        let source = source.clone();
         entry.connect_search_changed(move |e| {
             let text = e.text().to_string();
-            // Auto-pick the source from the input shape: a URL → Direct Link;
-            // plain text → YouTube (but leave YouTube Music alone if the user
-            // chose it — only revert away from Direct Link).
-            if bigtube_core::validators::is_valid_url(text.trim()) {
-                source.set_selected(2); // Direct Link
-            } else if source.selected() == 2 {
-                source.set_selected(0); // YouTube
-            }
             // Clear results ONLY when all text is deleted (also closes the popover).
             if text.trim().is_empty() {
                 state.search_store.remove_all();
