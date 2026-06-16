@@ -900,6 +900,10 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             (n_rows as i32 * ROW_H).max(ROW_H)
         }
         .clamp(1, MAX_H);
+        // Lift the cap before setting min, else set_min_content_height(h) asserts
+        // when h > the previous max_content_height (GTK requires min <= max at all
+        // times). Order: clear max -> set min -> set max == min for an exact size.
+        scroll.set_max_content_height(-1);
         scroll.set_min_content_height(h);
         scroll.set_max_content_height(h);
     }
