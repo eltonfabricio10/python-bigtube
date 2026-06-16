@@ -3011,12 +3011,38 @@ fn enqueue_common(
     // Store the progress callback so the row's pause/resume can re-run it.
     row.progress_fn.replace(Some(cb.clone()));
     // For a scheduled download, show "Scheduled for: <date time>" on the row and
-    // as a toast.
+    // as a toast, and make Cancel drop the still-pending timer (the core emits no
+    // progress for a not-yet-started task, so we clean up the row here directly).
     if let Some(ts) = schedule_ts {
         let msg = format!("{} {}", tr("Scheduled for:"), format_schedule_ts(ts));
         row.status.set_text(&msg);
         row.set_progress_class("warning");
         state.toast(&msg);
+
+        let st = state.clone();
+        let key_c = key.clone();
+        let sid = sched_id.clone();
+        let dl_slot = row.downloader.clone();
+        row.cancel.connect_clicked(move |_| {
+            // Already running: the active-downloader handler cancels it and the
+            // core's Cancelled progress cleans up — nothing to do here.
+            if dl_slot.borrow().is_some() {
+                return;
+            }
+            download_manager::global().cancel_task(&sid);
+            bigtube_core::scheduled_downloads::ScheduledDownloadStore::new(
+                scheduled_downloads_path(),
+            )
+            .remove(&sid);
+            if let Some(row) = st.download_rows.borrow_mut().remove(&key_c) {
+                let fp = row.file_path.borrow().clone();
+                if !fp.is_empty() {
+                    bigtube_core::history::HistoryManager::new(history_path()).remove_entry(&fp);
+                }
+                remove_list_card(&st.downloads_box, &row.container);
+            }
+            st.update_downloads_empty();
+        });
     }
     // Labels to update once the real plan is resolved (clones share the widget).
     let status_lbl = row.status.clone();
