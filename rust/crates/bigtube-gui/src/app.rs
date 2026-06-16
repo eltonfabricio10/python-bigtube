@@ -29,6 +29,7 @@ struct DownloadRow {
     progress: gtk::ProgressBar,
     pause: gtk::Button,
     cancel: gtk::Button,
+    btn_delete: gtk::Button,
     footer: gtk::Box,
     btn_folder: gtk::Button,
     btn_play: gtk::Button,
@@ -39,6 +40,8 @@ struct DownloadRow {
     downloader: Rc<RefCell<Option<Arc<VideoDownloader>>>>,
     progress_fn: Rc<RefCell<Option<ProgressFn>>>,
     is_paused: Rc<Cell<bool>>,
+    // True once the download has errored: the pause button becomes a retry button.
+    is_error: Rc<Cell<bool>>,
 }
 
 impl DownloadRow {
@@ -71,10 +74,15 @@ impl DownloadRow {
         let cancel = gtk::Button::from_icon_name("process-stop-symbolic");
         cancel.add_css_class("flat");
         cancel.set_tooltip_text(Some(&tr("Cancel")));
+        // Per-row delete (asks history-only vs file too); wired in wire_row_footer.
+        let btn_delete = gtk::Button::from_icon_name("user-trash-symbolic");
+        btn_delete.add_css_class("flat");
+        btn_delete.set_tooltip_text(Some(&tr("Remove from list")));
         header.append(&title_lbl);
         header.append(&status);
         header.append(&pause);
         header.append(&cancel);
+        header.append(&btn_delete);
 
         // Destination path shown under the title.
         let path_lbl = gtk::Label::new(Some(file_path));
@@ -122,6 +130,7 @@ impl DownloadRow {
         let downloader: Rc<RefCell<Option<Arc<VideoDownloader>>>> = Rc::new(RefCell::new(None));
         let progress_fn: Rc<RefCell<Option<ProgressFn>>> = Rc::new(RefCell::new(None));
         let is_paused = Rc::new(Cell::new(false));
+        let is_error = Rc::new(Cell::new(false));
 
         let slot = downloader.clone();
         cancel.connect_clicked(move |_| {
@@ -130,15 +139,39 @@ impl DownloadRow {
             }
         });
 
-        // Pause / resume. Resume re-runs the (blocking) downloader on a thread.
+        // Pause / resume, or — after an error — retry. Both re-run the (blocking)
+        // downloader on a thread via `resume`.
         let dl = downloader.clone();
         let pf = progress_fn.clone();
         let paused = is_paused.clone();
+        let err = is_error.clone();
         let pause_btn = pause.clone();
+        let status_c = status.clone();
+        let progress_c = progress.clone();
+        let cancel_c = cancel.clone();
         pause.connect_clicked(move |_| {
             let Some(d) = dl.borrow().as_ref().cloned() else {
                 return;
             };
+            if err.get() {
+                // Retry a failed download: reset the row to a running look and
+                // re-run from scratch.
+                err.set(false);
+                paused.set(false);
+                pause_btn.set_icon_name("media-playback-pause-symbolic");
+                pause_btn.set_tooltip_text(Some(&tr("Pause")));
+                status_c.set_text(&tr("Queued"));
+                for c in ["success", "warning", "error"] {
+                    progress_c.remove_css_class(c);
+                }
+                cancel_c.set_sensitive(true);
+                if let Some(cb) = pf.borrow().as_ref().cloned() {
+                    std::thread::spawn(move || {
+                        d.resume(&cb);
+                    });
+                }
+                return;
+            }
             if paused.get() {
                 paused.set(false);
                 pause_btn.set_icon_name("media-playback-pause-symbolic");
@@ -165,11 +198,13 @@ impl DownloadRow {
             btn_folder,
             btn_play,
             btn_convert,
+            btn_delete,
             file_path: Rc::new(RefCell::new(file_path.to_string())),
             artist: Rc::new(RefCell::new(artist.to_string())),
             downloader,
             progress_fn,
             is_paused,
+            is_error,
         }
     }
 
@@ -195,9 +230,16 @@ impl DownloadRow {
         if status == StatusCode::Completed {
             self.mark_completed();
         } else if status.is_error() {
+            // Errored: keep the row interactive — Cancel stays, and Pause becomes
+            // a Retry button (circular arrow).
             self.set_progress_class("error");
-            self.pause.set_sensitive(false);
-            self.cancel.set_sensitive(false);
+            self.is_error.set(true);
+            self.pause.set_visible(true);
+            self.pause.set_sensitive(true);
+            self.pause.set_icon_name("view-refresh-symbolic");
+            self.pause.set_tooltip_text(Some(&tr("Retry")));
+            self.cancel.set_visible(true);
+            self.cancel.set_sensitive(true);
         } else if status == StatusCode::Cancelled {
             self.set_progress_class("warning");
             self.pause.set_sensitive(false);
@@ -217,6 +259,7 @@ impl DownloadRow {
 
     /// Switch the row to its completed look: full bar, no transport, footer shown.
     fn mark_completed(&self) {
+        self.is_error.set(false);
         self.progress.set_fraction(1.0);
         self.set_progress_class("success");
         self.detail.set_visible(false);
@@ -933,6 +976,7 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
 
     // Self-reference so a suggestion's delete button can rebuild (close+reopen)
     // the popover to resize it to the remaining matches.
+    #[allow(clippy::type_complexity)]
     let rebuild_slot: Rc<RefCell<Option<Rc<dyn Fn(&str)>>>> = Rc::new(RefCell::new(None));
 
     // Rebuild the suggestion list for the current text.
@@ -1887,24 +1931,7 @@ fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
     clear.set_tooltip_text(Some(&tr("Clear History")));
     {
         let state = state.clone();
-        clear.connect_clicked(move |_| {
-            // Remove every finished (terminal) row from the visible list. This
-            // covers both in-session rows and history-loaded rows (all tracked
-            // in download_rows now).
-            let mut rows = state.download_rows.borrow_mut();
-            rows.retain(|_, row| {
-                if !row.pause.is_sensitive() && !row.cancel.is_sensitive() {
-                    remove_list_card(&state.downloads_box, &row.container);
-                    false
-                } else {
-                    true
-                }
-            });
-            drop(rows);
-            // Wipe the saved download history so it doesn't reload on restart.
-            bigtube_core::history::HistoryManager::new(history_path()).clear_all();
-            state.update_downloads_empty();
-        });
+        clear.connect_clicked(move |_| confirm_clear_all_downloads(&state));
     }
     let header = page_header(&tr("Downloads Manager"), &[clear]);
 
@@ -3242,6 +3269,130 @@ fn wire_row_footer(state: &Rc<AppState>, row: &DownloadRow) {
             }
         });
     }
+    // Per-row delete: ask whether to drop just the history entry or the file too.
+    {
+        let state = state.clone();
+        let container = row.container.clone();
+        let fp = row.file_path.clone();
+        let downloader = row.downloader.clone();
+        row.btn_delete.connect_clicked(move |_| {
+            confirm_delete_download(&state, &container, &fp.borrow(), &downloader);
+        });
+    }
+}
+
+/// "Clear all" downloads: ask history-only vs file-too, then wipe every row.
+fn confirm_clear_all_downloads(state: &Rc<AppState>) {
+    if state.download_rows.borrow().is_empty() {
+        return;
+    }
+    let Some(window) = state.window.borrow().clone() else {
+        return;
+    };
+    let dialog = adw::MessageDialog::new(
+        Some(&window),
+        Some(&tr("Clear all downloads?")),
+        Some(&tr(
+            "Remove only the history entries, or delete the files too?",
+        )),
+    );
+    dialog.add_response("cancel", &tr("Cancel"));
+    dialog.add_response("history", &tr("Remove from history"));
+    dialog.add_response("file", &tr("Delete files too"));
+    dialog.set_response_appearance("file", adw::ResponseAppearance::Destructive);
+    dialog.set_default_response(Some("history"));
+    dialog.set_close_response("cancel");
+    apply_theme_classes(&dialog);
+
+    let state = state.clone();
+    dialog.connect_response(None, move |dlg, resp| {
+        if resp == "history" || resp == "file" {
+            let delete_files = resp == "file";
+            let mut rows = state.download_rows.borrow_mut();
+            for (_, row) in rows.drain() {
+                if let Some(d) = row.downloader.borrow().as_ref() {
+                    d.cancel();
+                }
+                if delete_files {
+                    let fp = row.file_path.borrow().clone();
+                    if !fp.is_empty() {
+                        let _ = std::fs::remove_file(&fp);
+                    }
+                }
+                remove_list_card(&state.downloads_box, &row.container);
+            }
+            drop(rows);
+            // Wipe the saved history so nothing reloads on restart.
+            bigtube_core::history::HistoryManager::new(history_path()).clear_all();
+            state.update_downloads_empty();
+        }
+        dlg.close();
+    });
+    dialog.present();
+}
+
+/// Remove a download row (by widget identity) from the list and the row map.
+fn remove_download_row(state: &Rc<AppState>, container: &gtk::Box) {
+    let mut rows = state.download_rows.borrow_mut();
+    let key = rows
+        .iter()
+        .find(|(_, r)| &r.container == container)
+        .map(|(k, _)| k.clone());
+    if let Some(k) = key {
+        if let Some(r) = rows.remove(&k) {
+            remove_list_card(&state.downloads_box, &r.container);
+        }
+    }
+    drop(rows);
+    state.update_downloads_empty();
+}
+
+/// Ask "remove from history" vs "delete file too" for one download, then apply.
+fn confirm_delete_download(
+    state: &Rc<AppState>,
+    container: &gtk::Box,
+    file_path: &str,
+    downloader: &Rc<RefCell<Option<Arc<VideoDownloader>>>>,
+) {
+    let Some(window) = state.window.borrow().clone() else {
+        return;
+    };
+    let dialog = adw::MessageDialog::new(
+        Some(&window),
+        Some(&tr("Remove download?")),
+        Some(&tr(
+            "Remove only the history entry, or delete the file too?",
+        )),
+    );
+    dialog.add_response("cancel", &tr("Cancel"));
+    dialog.add_response("history", &tr("Remove from history"));
+    dialog.add_response("file", &tr("Delete file too"));
+    dialog.set_response_appearance("file", adw::ResponseAppearance::Destructive);
+    dialog.set_default_response(Some("history"));
+    dialog.set_close_response("cancel");
+    apply_theme_classes(&dialog);
+
+    let state = state.clone();
+    let container = container.clone();
+    let downloader = downloader.clone();
+    let file_path = file_path.to_string();
+    dialog.connect_response(None, move |dlg, resp| {
+        if resp == "history" || resp == "file" {
+            // Stop the download first if it's still running.
+            if let Some(d) = downloader.borrow().as_ref() {
+                d.cancel();
+            }
+            if resp == "file" && !file_path.is_empty() {
+                let _ = std::fs::remove_file(&file_path);
+            }
+            if !file_path.is_empty() {
+                bigtube_core::history::HistoryManager::new(history_path()).remove_entry(&file_path);
+            }
+            remove_download_row(&state, &container);
+        }
+        dlg.close();
+    });
+    dialog.present();
 }
 
 fn open_containing_folder(state: &Rc<AppState>, path: &str) {
