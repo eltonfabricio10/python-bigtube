@@ -1379,3 +1379,19 @@ msgstr "Proxies conhecidos"
 #: bigtube-gui
 msgid "Local HTTP proxy"
 msgstr "Proxy HTTP local"
+
+#: bigtube-gui
+msgid "Installed browsers"
+msgstr "Navegadores instalados"
+
+#: bigtube-gui
+msgid "Invalid proxy address — use scheme://host:port."
+msgstr "Endereço de proxy inválido — use esquema://host:porta."
+
+#: bigtube-gui
+msgid "Invalid user agent."
+msgstr "User agent inválido."
+
+#: bigtube-gui
+msgid "Command not found on PATH:"
+msgstr "Comando não encontrado no PATH:"

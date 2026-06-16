@@ -1503,23 +1503,29 @@ fn build_network_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
     group.add(&entry_row_with_presets(
         &tr("User Agent"),
         &c.user_agent,
-        &tr("Common browsers"),
-        &USER_AGENT_PRESETS,
+        &tr("Installed browsers"),
+        user_agent_presets(),
         "user_agent",
+        state,
+        validate_user_agent,
     ));
     group.add(&entry_row_with_presets(
         &tr("Proxy"),
         &c.proxy,
         &tr("Known proxies"),
-        &PROXY_PRESETS,
+        to_presets(&PROXY_PRESETS),
         "proxy",
+        state,
+        validate_proxy,
     ));
     group.add(&entry_row_with_presets(
         &tr("Post-Processing Command"),
         &c.post_process_cmd,
         &tr("Common commands"),
-        &POST_PROCESS_PRESETS,
+        to_presets(&POST_PROCESS_PRESETS),
         "post_process_cmd",
+        state,
+        validate_post_process,
     ));
 
     group
@@ -1534,15 +1540,6 @@ const POST_PROCESS_PRESETS: [(&str, &str); 5] = [
     ("Update timestamp", "touch {}"),
 ];
 
-/// Current desktop/mobile browser User-Agent strings.
-const USER_AGENT_PRESETS: [(&str, &str); 5] = [
-    ("Choose a preset…", ""),
-    ("Chrome (Windows)", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"),
-    ("Firefox (Windows)", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"),
-    ("Safari (macOS)", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15"),
-    ("Chrome (Android)", "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36"),
-];
-
 /// Well-known *local* proxy endpoints. Public free-proxy IPs are ephemeral and
 /// untrustworthy, so we offer reliable local setups (Tor/Privoxy) instead — the
 /// field stays free-text for any custom proxy.
@@ -1553,32 +1550,110 @@ const PROXY_PRESETS: [(&str, &str); 4] = [
     ("Privoxy (HTTP)", "http://127.0.0.1:8118"),
 ];
 
-/// An entry row with a suffix dropdown of presets; choosing one fills the entry
-/// and persists `cfg_key`. The first preset is a no-op placeholder.
+/// A current Linux User-Agent for a detected browser key (`detect_browsers`).
+fn browser_ua(key: &str) -> Option<&'static str> {
+    const CHROME: &str = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
+    Some(match key {
+        "firefox" => "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0",
+        "chrome" | "chromium" | "brave" | "vivaldi" => CHROME,
+        "edge" => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0",
+        "opera" => "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 OPR/111.0.0.0",
+        _ => return None,
+    })
+}
+
+/// User-Agent presets for browsers actually installed on this machine.
+fn user_agent_presets() -> Vec<(String, String)> {
+    let mut out = vec![(tr("Choose a preset…"), String::new())];
+    for (key, label) in detect_browsers() {
+        if key.is_empty() {
+            continue; // the "None" sentinel
+        }
+        if let Some(ua) = browser_ua(key) {
+            out.push((label, ua.to_string()));
+        }
+    }
+    out
+}
+
+/// Translate the labels of a static preset table into an owned preset list.
+fn to_presets(arr: &[(&str, &str)]) -> Vec<(String, String)> {
+    arr.iter().map(|(l, v)| (tr(l), v.to_string())).collect()
+}
+
+/// Validator: empty (no proxy) or a `scheme://host:port` with a known scheme.
+fn validate_proxy(s: &str) -> Option<String> {
+    let (ok, _, _) = bigtube_core::config::ConfigManager::validate_proxy_url(s);
+    if ok {
+        None
+    } else {
+        Some(tr("Invalid proxy address — use scheme://host:port."))
+    }
+}
+
+/// Validator: a User-Agent must be a single printable line (no control chars).
+fn validate_user_agent(s: &str) -> Option<String> {
+    if s.chars().any(char::is_control) {
+        Some(tr("Invalid user agent."))
+    } else {
+        None
+    }
+}
+
+/// Validator: the post-processing command's program must exist on `$PATH`.
+fn validate_post_process(s: &str) -> Option<String> {
+    let prog = s.split_whitespace().next().unwrap_or("");
+    if prog.is_empty() || bigtube_core::util::which(prog).is_some() {
+        None
+    } else {
+        Some(format!("{} {}", tr("Command not found on PATH:"), prog))
+    }
+}
+
+/// An entry row with a suffix dropdown of presets and an apply-time validator;
+/// choosing a preset fills the entry and persists `cfg_key`. The first preset is
+/// a no-op placeholder. An invalid entry is rejected with a toast and reverted.
 fn entry_row_with_presets(
     title: &str,
     value: &str,
     tooltip: &str,
-    presets: &'static [(&'static str, &'static str)],
+    presets: Vec<(String, String)>,
     cfg_key: &'static str,
+    state: &Rc<AppState>,
+    validate: fn(&str) -> Option<String>,
 ) -> adw::EntryRow {
     let row = adw::EntryRow::builder()
         .title(title)
         .text(value)
         .show_apply_button(true)
         .build();
-    row.connect_apply(move |r| set_cfg(cfg_key, serde_json::json!(r.text().trim())));
+    {
+        let state = state.clone();
+        row.connect_apply(move |r| {
+            let txt = r.text().trim().to_string();
+            if !txt.is_empty() {
+                if let Some(err) = validate(&txt) {
+                    state.toast(&err);
+                    // Revert to the last saved value so the bad input doesn't stick.
+                    let saved = config::global().read().unwrap().get_string(cfg_key);
+                    r.set_text(&saved);
+                    return;
+                }
+            }
+            set_cfg(cfg_key, serde_json::json!(txt));
+        });
+    }
 
-    let labels: Vec<String> = presets.iter().map(|(l, _)| tr(l)).collect();
-    let label_refs: Vec<&str> = labels.iter().map(String::as_str).collect();
-    let dd = gtk::DropDown::from_strings(&label_refs);
+    let dd = {
+        let labels: Vec<&str> = presets.iter().map(|(l, _)| l.as_str()).collect();
+        gtk::DropDown::from_strings(&labels)
+    };
     dd.set_valign(gtk::Align::Center);
     dd.set_tooltip_text(Some(tooltip));
     {
         let row = row.clone();
         dd.connect_selected_notify(move |d| {
             if let Some((_, val)) = presets.get(d.selected() as usize) {
-                let val = *val;
                 if !val.is_empty() {
                     row.set_text(val);
                     set_cfg(cfg_key, serde_json::json!(val));
