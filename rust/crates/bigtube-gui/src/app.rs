@@ -2174,10 +2174,69 @@ fn clear_search_history(state: &Rc<AppState>) {
 }
 
 fn reset_all_data(state: &Rc<AppState>) {
-    config::global().write().unwrap().reset_all();
-    state.toast(&tr(
-        "All application data has been cleared. The app will now restart.",
-    ));
+    let Some(window) = state.window.borrow().clone() else {
+        return;
+    };
+    let confirm = adw::MessageDialog::new(
+        Some(&window),
+        Some(&tr("Reset all app data?")),
+        Some(&tr(
+            "This permanently deletes all settings, history and scheduled downloads. The app will restart.",
+        )),
+    );
+    confirm.add_response("cancel", &tr("Cancel"));
+    confirm.add_response("reset", &tr("Reset & Restart"));
+    confirm.set_response_appearance("reset", adw::ResponseAppearance::Destructive);
+    confirm.set_default_response(Some("cancel"));
+    confirm.set_close_response("cancel");
+    apply_theme_classes(&confirm);
+
+    let window_for_info = window.clone();
+    confirm.connect_response(None, move |dlg, resp| {
+        dlg.close();
+        if resp != "reset" {
+            return;
+        }
+        // Wipe config + every on-disk store (history, search, converter,
+        // scheduled). reset_all() recreates the (now-default) config dir.
+        config::global().write().unwrap().reset_all();
+
+        // Confirm to the user, then restart on close so the fresh process loads
+        // the default state (matches the dialog's promise).
+        let info = adw::MessageDialog::new(
+            Some(&window_for_info),
+            Some(&tr("Done")),
+            Some(&tr(
+                "All application data has been cleared. The app will now restart.",
+            )),
+        );
+        info.add_response("ok", &tr("Restart Now"));
+        info.set_default_response(Some("ok"));
+        info.set_close_response("ok");
+        apply_theme_classes(&info);
+        info.connect_response(None, |dlg, _| {
+            dlg.close();
+            restart_app();
+        });
+        info.present();
+    });
+    confirm.present();
+}
+
+/// Re-launch the application from scratch (after a full data reset). Uses
+/// `exec()` to replace the current process image: the single-instance D-Bus
+/// socket is close-on-exec, so its name is released and the fresh process takes
+/// over instead of just forwarding `activate` to the dying one.
+fn restart_app() {
+    use std::os::unix::process::CommandExt;
+    let Ok(exe) = std::env::current_exe() else {
+        std::process::exit(0);
+    };
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    // exec() only returns if it failed; otherwise it never comes back.
+    let err = std::process::Command::new(exe).args(args).exec();
+    tracing::error!("restart exec failed: {err}");
+    std::process::exit(0);
 }
 
 fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {

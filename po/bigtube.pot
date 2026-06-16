@@ -1305,6 +1305,28 @@ msgid "Installed browsers"
 msgstr ""
 
 #: bigtube-gui
+msgid "Reset all app data?"
+msgstr ""
+
+#: bigtube-gui
+msgid ""
+"This permanently deletes all settings, history and scheduled downloads. The "
+"app will restart."
+msgstr ""
+
+#: bigtube-gui
+msgid "Reset & Restart"
+msgstr ""
+
+#: bigtube-gui
+msgid "Done"
+msgstr ""
+
+#: bigtube-gui
+msgid "Restart Now"
+msgstr ""
+
+#: bigtube-gui
 msgid "Video"
 msgstr ""
 

@@ -189,6 +189,7 @@ impl ConfigManager {
             "history.json",
             "search_history.json",
             "converter_history.json",
+            "scheduled_downloads.json",
         ] {
             let f = self.config_dir.join(name);
             if f.exists() {
