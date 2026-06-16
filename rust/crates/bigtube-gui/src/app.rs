@@ -2005,7 +2005,7 @@ fn remove_list_card(list: &gtk::ListBox, card: &gtk::Box) {
 fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
     let page = gtk::Box::new(gtk::Orientation::Vertical, 0);
 
-    // Header with an icon "add files" button.
+    // Header with "add files" + "clear all" buttons.
     let add = gtk::Button::from_icon_name("list-add-symbolic");
     add.add_css_class("flat");
     add.set_tooltip_text(Some(&tr("Add Files")));
@@ -2013,7 +2013,14 @@ fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
         let state = state.clone();
         add.connect_clicked(move |_| pick_files(&state));
     }
-    let header = page_header(&tr("Converter Manager"), &[add]);
+    let clear = gtk::Button::from_icon_name("edit-clear-history-symbolic");
+    clear.add_css_class("flat");
+    clear.set_tooltip_text(Some(&tr("Clear History")));
+    {
+        let state = state.clone();
+        clear.connect_clicked(move |_| confirm_clear_all_converter(&state));
+    }
+    let header = page_header(&tr("Converter Manager"), &[add, clear]);
 
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
@@ -2270,13 +2277,9 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
         let state = state.clone();
         let container = container.clone();
         let source = path.to_string_lossy().to_string();
+        let out_path = ui.out_path.clone();
         remove.connect_clicked(move |_| {
-            // If this file was converted, drop its history entries too so the row
-            // doesn't reappear on restart.
-            bigtube_core::converter_history::ConverterHistoryManager::new(converter_history_path())
-                .remove_entry(&source, None);
-            remove_list_card(&state.converter_box, &container);
-            state.update_converter_empty();
+            confirm_delete_converter(&state, &container, &source, None, &out_path.borrow());
         });
     }
     // Open the converted file's folder.
@@ -3640,14 +3643,108 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
         let container = container.clone();
         let source = source.to_string();
         let format = format.to_string();
+        let out = out.clone();
         remove.connect_clicked(move |_| {
-            // Also drop it from the saved history so it doesn't reload on restart.
-            bigtube_core::converter_history::ConverterHistoryManager::new(converter_history_path())
-                .remove_entry(&source, Some(&format));
-            remove_list_card(&state.converter_box, &container);
-            state.update_converter_empty();
+            confirm_delete_converter(&state, &container, &source, Some(&format), &out);
         });
     }
+}
+
+/// "Clear all" conversions: ask history vs files, then wipe every row.
+fn confirm_clear_all_converter(state: &Rc<AppState>) {
+    if state.converter_box.first_child().is_none() {
+        return;
+    }
+    let Some(window) = state.window.borrow().clone() else {
+        return;
+    };
+    let dialog = adw::MessageDialog::new(
+        Some(&window),
+        Some(&tr("Clear all conversions?")),
+        Some(&tr(
+            "Remove only the history entries, or delete the files too?",
+        )),
+    );
+    dialog.add_response("cancel", &tr("Cancel"));
+    dialog.add_response("history", &tr("Remove from history"));
+    dialog.add_response("file", &tr("Delete files too"));
+    dialog.set_response_appearance("file", adw::ResponseAppearance::Destructive);
+    dialog.set_default_response(Some("history"));
+    dialog.set_close_response("cancel");
+    apply_theme_classes(&dialog);
+
+    let state = state.clone();
+    dialog.connect_response(None, move |dlg, resp| {
+        if resp == "history" || resp == "file" {
+            // Stop anything still queued (a running one finishes on its own).
+            state.conv_queue.borrow_mut().clear();
+            let mgr = bigtube_core::converter_history::ConverterHistoryManager::new(
+                converter_history_path(),
+            );
+            if resp == "file" {
+                for it in mgr.load() {
+                    if let Some(out) = it.get("output").and_then(|v| v.as_str()) {
+                        if !out.is_empty() {
+                            let _ = std::fs::remove_file(out);
+                        }
+                    }
+                }
+            }
+            mgr.clear_all();
+            while let Some(c) = state.converter_box.first_child() {
+                state.converter_box.remove(&c);
+            }
+            state.update_converter_empty();
+        }
+        dlg.close();
+    });
+    dialog.present();
+}
+
+/// Ask "remove from history" vs "delete output file too" for one conversion.
+fn confirm_delete_converter(
+    state: &Rc<AppState>,
+    container: &gtk::Box,
+    source: &str,
+    format: Option<&str>,
+    out_path: &str,
+) {
+    let Some(window) = state.window.borrow().clone() else {
+        return;
+    };
+    let dialog = adw::MessageDialog::new(
+        Some(&window),
+        Some(&tr("Remove conversion?")),
+        Some(&tr(
+            "Remove only the history entry, or delete the file too?",
+        )),
+    );
+    dialog.add_response("cancel", &tr("Cancel"));
+    dialog.add_response("history", &tr("Remove from history"));
+    dialog.add_response("file", &tr("Delete file too"));
+    dialog.set_response_appearance("file", adw::ResponseAppearance::Destructive);
+    dialog.set_default_response(Some("history"));
+    dialog.set_close_response("cancel");
+    apply_theme_classes(&dialog);
+
+    let state = state.clone();
+    let container = container.clone();
+    let source = source.to_string();
+    let format = format.map(str::to_string);
+    let out_path = out_path.to_string();
+    dialog.connect_response(None, move |dlg, resp| {
+        if resp == "history" || resp == "file" {
+            if resp == "file" && !out_path.is_empty() {
+                let _ = std::fs::remove_file(&out_path);
+            }
+            bigtube_core::converter_history::ConverterHistoryManager::new(converter_history_path())
+                .remove_entry(&source, format.as_deref());
+            remove_list_card(&state.converter_box, &container);
+            state.update_converter_empty();
+        }
+        dlg.close();
+    });
+    dialog.present();
 }
 
 fn history_status_label(status: &str) -> String {
