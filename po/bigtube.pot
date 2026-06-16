@@ -1211,3 +1211,79 @@ msgstr ""
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:461
 msgid "Timeout"
 msgstr ""
+
+#: bigtube-gui
+msgid "Type something to search."
+msgstr ""
+
+#: bigtube-gui
+msgid "Retry"
+msgstr ""
+
+#: bigtube-gui
+msgid "Remove download?"
+msgstr ""
+
+#: bigtube-gui
+msgid "Remove only the history entry, or delete the file too?"
+msgstr ""
+
+#: bigtube-gui
+msgid "Remove from history"
+msgstr ""
+
+#: bigtube-gui
+msgid "Delete file too"
+msgstr ""
+
+#: bigtube-gui
+msgid "Clear all downloads?"
+msgstr ""
+
+#: bigtube-gui
+msgid "Remove only the history entries, or delete the files too?"
+msgstr ""
+
+#: bigtube-gui
+msgid "Delete files too"
+msgstr ""
+
+#: bigtube-gui
+msgid "Remove conversion?"
+msgstr ""
+
+#: bigtube-gui
+msgid "Clear all conversions?"
+msgstr ""
+
+#: bigtube-gui
+msgid "Playback"
+msgstr ""
+
+#: bigtube-gui
+msgid "Network & Advanced"
+msgstr ""
+
+#: bigtube-gui
+msgid "Common commands"
+msgstr ""
+
+#: bigtube-gui
+msgid "Choose a preset…"
+msgstr ""
+
+#: bigtube-gui
+msgid "Desktop notification"
+msgstr ""
+
+#: bigtube-gui
+msgid "Open output folder"
+msgstr ""
+
+#: bigtube-gui
+msgid "Make read-only"
+msgstr ""
+
+#: bigtube-gui
+msgid "Update timestamp"
+msgstr ""

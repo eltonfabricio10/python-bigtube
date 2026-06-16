@@ -1291,3 +1291,79 @@ msgstr "Manter os dois"
 #: rust/crates/bigtube-gui/src/app.rs
 msgid "Resolving format…"
 msgstr "Resolvendo formato…"
+
+#: bigtube-gui
+msgid "Type something to search."
+msgstr "Digite algo para pesquisar."
+
+#: bigtube-gui
+msgid "Retry"
+msgstr "Tentar novamente"
+
+#: bigtube-gui
+msgid "Remove download?"
+msgstr "Remover download?"
+
+#: bigtube-gui
+msgid "Remove only the history entry, or delete the file too?"
+msgstr "Remover só do histórico, ou apagar o arquivo também?"
+
+#: bigtube-gui
+msgid "Remove from history"
+msgstr "Remover do histórico"
+
+#: bigtube-gui
+msgid "Delete file too"
+msgstr "Apagar o arquivo também"
+
+#: bigtube-gui
+msgid "Clear all downloads?"
+msgstr "Limpar todos os downloads?"
+
+#: bigtube-gui
+msgid "Remove only the history entries, or delete the files too?"
+msgstr "Remover só do histórico, ou apagar os arquivos também?"
+
+#: bigtube-gui
+msgid "Delete files too"
+msgstr "Apagar os arquivos também"
+
+#: bigtube-gui
+msgid "Remove conversion?"
+msgstr "Remover conversão?"
+
+#: bigtube-gui
+msgid "Clear all conversions?"
+msgstr "Limpar todas as conversões?"
+
+#: bigtube-gui
+msgid "Playback"
+msgstr "Reprodução"
+
+#: bigtube-gui
+msgid "Network & Advanced"
+msgstr "Rede e Avançado"
+
+#: bigtube-gui
+msgid "Common commands"
+msgstr "Comandos comuns"
+
+#: bigtube-gui
+msgid "Choose a preset…"
+msgstr "Escolher um preset…"
+
+#: bigtube-gui
+msgid "Desktop notification"
+msgstr "Notificação na área de trabalho"
+
+#: bigtube-gui
+msgid "Open output folder"
+msgstr "Abrir pasta de saída"
+
+#: bigtube-gui
+msgid "Make read-only"
+msgstr "Tornar somente leitura"
+
+#: bigtube-gui
+msgid "Update timestamp"
+msgstr "Atualizar data/hora"
