@@ -1562,16 +1562,31 @@ fn browser_ua(key: &str) -> Option<&'static str> {
     })
 }
 
-/// User-Agent presets for browsers actually installed on this machine.
+/// User-Agent presets for browsers actually installed on this machine,
+/// deduplicated by UA string — every Chromium-based browser (Chrome, Chromium,
+/// Brave, Vivaldi) reports the same UA, so we collapse them into a single
+/// "Chrome (Chromium)" entry instead of listing four identical options.
 fn user_agent_presets() -> Vec<(String, String)> {
     let mut out = vec![(tr("Choose a preset…"), String::new())];
-    for (key, label) in detect_browsers() {
+    let mut seen: Vec<&'static str> = Vec::new();
+    for (key, _label) in detect_browsers() {
         if key.is_empty() {
             continue; // the "None" sentinel
         }
-        if let Some(ua) = browser_ua(key) {
-            out.push((label, ua.to_string()));
+        let Some(ua) = browser_ua(key) else { continue };
+        if seen.contains(&ua) {
+            continue; // same UA already offered (e.g. all Chromium browsers)
         }
+        seen.push(ua);
+        // The shared Chrome UA covers chrome/chromium/brave/vivaldi.
+        let label = match key {
+            "chrome" | "chromium" | "brave" | "vivaldi" => tr("Chrome (Chromium)"),
+            "firefox" => tr("Firefox"),
+            "edge" => tr("Microsoft Edge"),
+            "opera" => tr("Opera"),
+            _ => continue,
+        };
+        out.push((label, ua.to_string()));
     }
     out
 }
