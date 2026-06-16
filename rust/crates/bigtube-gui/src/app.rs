@@ -1226,9 +1226,11 @@ fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
 
     page.add(&build_appearance_group(state, &c));
     page.add(&build_downloads_group(state, &c));
-    page.add(&build_storage_group(state, &c));
+    page.add(&build_playback_group(state, &c));
     page.add(&build_converter_group(state, &c));
     page.add(&build_search_group(state, &c));
+    page.add(&build_network_group(state, &c));
+    page.add(&build_storage_group(state, &c));
 
     page.upcast()
 }
@@ -1383,21 +1385,6 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
     });
     group.add(&quality_row);
 
-    // In-app preview/player quality. 360p is progressive (rock-solid); 480p/720p
-    // stream via HLS. Takes effect on the next item played.
-    let preview_row = combo_row(&tr("Preview Quality"), PREVIEW_QUALITIES);
-    let psel = PREVIEW_QUALITIES
-        .iter()
-        .position(|q| *q == c.preview_quality)
-        .unwrap_or(0);
-    preview_row.set_selected(psel as u32);
-    preview_row.connect_selected_notify(|row| {
-        if let Some(q) = PREVIEW_QUALITIES.get(row.selected() as usize) {
-            set_cfg("preview_quality", serde_json::json!(q));
-        }
-    });
-    group.add(&preview_row);
-
     group.add(&spin_row(
         &tr("Max Simultaneous Downloads"),
         1.0,
@@ -1440,11 +1427,38 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         c.monitor_clipboard,
         |v| set_cfg("monitor_clipboard", serde_json::json!(v)),
     ));
-    group.add(&entry_row(
-        &tr("Post-Processing Command"),
-        &c.post_process_cmd,
-        |v| set_cfg("post_process_cmd", serde_json::json!(v)),
-    ));
+
+    group
+}
+
+/// In-app player / preview settings.
+fn build_playback_group(_state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
+    let group = adw::PreferencesGroup::builder()
+        .title(tr("Playback"))
+        .build();
+
+    // In-app preview/player quality. 360p is progressive (rock-solid); 480p/720p
+    // stream via HLS. Takes effect on the next item played.
+    let preview_row = combo_row(&tr("Preview Quality"), PREVIEW_QUALITIES);
+    let psel = PREVIEW_QUALITIES
+        .iter()
+        .position(|q| *q == c.preview_quality)
+        .unwrap_or(0);
+    preview_row.set_selected(psel as u32);
+    preview_row.connect_selected_notify(|row| {
+        if let Some(q) = PREVIEW_QUALITIES.get(row.selected() as usize) {
+            set_cfg("preview_quality", serde_json::json!(q));
+        }
+    });
+    group.add(&preview_row);
+    group
+}
+
+/// Network, authentication and advanced (cookies, proxy, UA, post-processing).
+fn build_network_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
+    let group = adw::PreferencesGroup::builder()
+        .title(tr("Network & Advanced"))
+        .build();
 
     // Cookies file.
     let cookies_row = adw::ActionRow::builder()
@@ -1486,8 +1500,48 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
     group.add(&entry_row(&tr("Proxy"), &c.proxy, |v| {
         set_cfg("proxy", serde_json::json!(v.trim()))
     }));
+    group.add(&post_process_row(&c.post_process_cmd));
 
     group
+}
+
+/// Common `yt-dlp --exec` post-processing commands (`{}` = the output file).
+const POST_PROCESS_PRESETS: [(&str, &str); 5] = [
+    ("Choose a preset…", ""),
+    ("Desktop notification", "notify-send 'BigTube' 'Done: {}'"),
+    ("Open output folder", "xdg-open \"$(dirname \"{}\")\""),
+    ("Make read-only", "chmod 444 {}"),
+    ("Update timestamp", "touch {}"),
+];
+
+/// Post-processing command entry with a dropdown of common presets.
+fn post_process_row(current: &str) -> adw::EntryRow {
+    let row = adw::EntryRow::builder()
+        .title(tr("Post-Processing Command"))
+        .text(current)
+        .show_apply_button(true)
+        .build();
+    row.connect_apply(|r| set_cfg("post_process_cmd", serde_json::json!(r.text().to_string())));
+
+    let labels: Vec<String> = POST_PROCESS_PRESETS.iter().map(|(l, _)| tr(l)).collect();
+    let label_refs: Vec<&str> = labels.iter().map(String::as_str).collect();
+    let dd = gtk::DropDown::from_strings(&label_refs);
+    dd.set_valign(gtk::Align::Center);
+    dd.set_tooltip_text(Some(&tr("Common commands")));
+    {
+        let row = row.clone();
+        dd.connect_selected_notify(move |d| {
+            if let Some((_, cmd)) = POST_PROCESS_PRESETS.get(d.selected() as usize) {
+                let cmd = *cmd;
+                if !cmd.is_empty() {
+                    row.set_text(cmd);
+                    set_cfg("post_process_cmd", serde_json::json!(cmd));
+                }
+            }
+        });
+    }
+    row.add_suffix(&dd);
+    row
 }
 
 fn build_storage_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
