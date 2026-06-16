@@ -2056,6 +2056,16 @@ fn remove_list_card(list: &gtk::ListBox, card: &gtk::Box) {
     }
 }
 
+/// Delete a produced output file, defensively: only an existing **regular file**
+/// (never a directory, never an empty path) is removed, and errors are ignored.
+/// Centralizes every "delete the file too" action so none can touch a directory.
+fn delete_output_file(path: &str) {
+    let p = std::path::Path::new(path);
+    if !path.is_empty() && p.is_file() {
+        let _ = std::fs::remove_file(p);
+    }
+}
+
 fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
     let page = gtk::Box::new(gtk::Orientation::Vertical, 0);
 
@@ -3481,10 +3491,7 @@ fn confirm_clear_all_downloads(state: &Rc<AppState>) {
                     d.cancel();
                 }
                 if delete_files {
-                    let fp = row.file_path.borrow().clone();
-                    if !fp.is_empty() {
-                        let _ = std::fs::remove_file(&fp);
-                    }
+                    delete_output_file(&row.file_path.borrow());
                 }
                 remove_list_card(&state.downloads_box, &row.container);
             }
@@ -3549,8 +3556,8 @@ fn confirm_delete_download(
             if let Some(d) = downloader.borrow().as_ref() {
                 d.cancel();
             }
-            if resp == "file" && !file_path.is_empty() {
-                let _ = std::fs::remove_file(&file_path);
+            if resp == "file" {
+                delete_output_file(&file_path);
             }
             if !file_path.is_empty() {
                 bigtube_core::history::HistoryManager::new(history_path()).remove_entry(&file_path);
@@ -3842,9 +3849,7 @@ fn confirm_clear_all_converter(state: &Rc<AppState>) {
             if resp == "file" {
                 for it in mgr.load() {
                     if let Some(out) = it.get("output").and_then(|v| v.as_str()) {
-                        if !out.is_empty() {
-                            let _ = std::fs::remove_file(out);
-                        }
+                        delete_output_file(out);
                     }
                 }
             }
@@ -3892,8 +3897,8 @@ fn confirm_delete_converter(
     let out_path = out_path.to_string();
     dialog.connect_response(None, move |dlg, resp| {
         if resp == "history" || resp == "file" {
-            if resp == "file" && !out_path.is_empty() {
-                let _ = std::fs::remove_file(&out_path);
+            if resp == "file" {
+                delete_output_file(&out_path);
             }
             bigtube_core::converter_history::ConverterHistoryManager::new(converter_history_path())
                 .remove_entry(&source, format.as_deref());
