@@ -495,6 +495,10 @@ impl Player {
         // Bump the generation; drop any in-flight resolution.
         let gen = self.token.fetch_add(1, Ordering::SeqCst) + 1;
 
+        // Stop the previous stream NOW so it doesn't keep playing (audio/video)
+        // while we resolve/buffer the new one — the switch must be clean.
+        let _ = self.playbin.set_state(gst::State::Null);
+
         if item.is_local {
             let shown_artist = if item.artist.is_empty() {
                 tr("Unknown Artist")
