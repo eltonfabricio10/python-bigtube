@@ -64,6 +64,9 @@ mod imp {
             obj.set_margin_bottom(6);
             obj.set_margin_start(6);
             obj.set_margin_end(6);
+            // Inner padding so the now-playing highlight floats around the content
+            // instead of being glued to the checkbox/thumbnail edge.
+            obj.add_css_class("result-row");
 
             // Selection checkbox (hidden unless selection mode is active).
             let checkbox = gtk::CheckButton::new();

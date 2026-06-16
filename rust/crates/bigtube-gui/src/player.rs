@@ -67,6 +67,10 @@ pub struct Player {
     // Observable "current track" handle that result rows watch to highlight the
     // row being played.
     now_playing: NowPlaying,
+    // Keeps the playbin bus watch alive: its guard removes the watch on drop, so
+    // it must outlive `build()` or EOS/buffering messages stop being delivered
+    // (which silently breaks auto-advance to the next track).
+    _bus_watch: RefCell<Option<gst::bus::BusWatchGuard>>,
 }
 
 /// Build the player and its bottom bar widget.
@@ -284,6 +288,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> (Rc<Player>, gtk::Widget) {
         index: Cell::new(0),
         paused_by_user: Cell::new(false),
         now_playing: NowPlaying::new(),
+        _bus_watch: RefCell::new(None),
     });
 
     // Play / pause.
@@ -377,7 +382,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> (Rc<Player>, gtk::Widget) {
     // error.
     if let Some(bus) = playbin.bus() {
         let p = player.clone();
-        let _ = bus.add_watch_local(move |_, msg| {
+        let watch = bus.add_watch_local(move |_, msg| {
             match msg.view() {
                 // Network/adaptive (HLS) streams pause to fill the buffer and
                 // post BUFFERING messages — we MUST pause until 100%, then
@@ -408,6 +413,10 @@ pub fn build(parent: &adw::ApplicationWindow) -> (Rc<Player>, gtk::Widget) {
             }
             glib::ControlFlow::Continue
         });
+        // Hold the guard for the player's lifetime; dropping it removes the watch.
+        if let Ok(guard) = watch {
+            player._bus_watch.replace(Some(guard));
+        }
     }
 
     // Position/duration update loop.

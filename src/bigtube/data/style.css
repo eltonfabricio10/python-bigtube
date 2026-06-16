@@ -1015,8 +1015,11 @@ button:focus:not(:focus-visible) {
    Now-playing highlight — the search/playlist row whose item the player is
    currently on gets an accent strip so it's easy to spot in a long list.
    ----------------------------------------------------------------------------- */
+.result-row {
+    padding: 4px 10px;
+    border-radius: 8px;
+}
 .playing {
     background-color: alpha(var(--accent-bg-color), 0.18);
-    border-radius: 8px;
     box-shadow: inset 3px 0 0 0 var(--accent-bg-color);
 }
