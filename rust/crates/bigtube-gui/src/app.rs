@@ -2288,21 +2288,14 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
         let out_path = ui.out_path.clone();
         folder.connect_clicked(move |_| open_containing_folder(&state, &out_path.borrow()));
     }
-    // Play the converted file.
+    // Play the converted file, seeding a cyclic queue of all converted files.
     {
         let state = state.clone();
         let out_path = ui.out_path.clone();
-        play.connect_clicked(move |_| {
-            let p = out_path.borrow().clone();
-            let title = std::path::Path::new(&p)
-                .file_stem()
-                .map(|s| s.to_string_lossy().to_string())
-                .unwrap_or_default();
-            if let Some(pl) = state.player.borrow().clone() {
-                pl.play_local(&p, &title, "");
-            }
-        });
+        play.connect_clicked(move |_| play_converter_at(&state, &out_path.borrow()));
     }
+    // Highlight this row while its output is the one playing.
+    wire_play_highlight(state, &container, ui.out_path.clone());
 
     // Convert (with a cancel flag the cancel button flips).
     {
@@ -3249,19 +3242,12 @@ fn wire_row_footer(state: &Rc<AppState>, row: &DownloadRow) {
     }
     {
         let state = state.clone();
-        let fp = row.file_path.clone();
-        let artist = row.artist.clone();
-        row.btn_play.connect_clicked(move |_| {
-            let path = fp.borrow().clone();
-            let title = std::path::Path::new(&path)
-                .file_stem()
-                .map(|s| s.to_string_lossy().to_string())
-                .unwrap_or_default();
-            if let Some(p) = state.player.borrow().clone() {
-                p.play_local(&path, &title, &artist.borrow());
-            }
-        });
+        let container = row.container.clone();
+        row.btn_play
+            .connect_clicked(move |_| play_download_at(&state, &container));
     }
+    // Highlight this row while its file is the one playing.
+    wire_play_highlight(state, &row.container, row.file_path.clone());
     {
         let state = state.clone();
         let fp = row.file_path.clone();
@@ -3282,6 +3268,130 @@ fn wire_row_footer(state: &Rc<AppState>, row: &DownloadRow) {
             confirm_delete_download(&state, &container, &fp.borrow(), &downloader);
         });
     }
+}
+
+/// The card box backing a `ListBox` child (the child may be wrapped in an
+/// auto-created `ListBoxRow`).
+fn card_of(child: &gtk::Widget) -> Option<gtk::Box> {
+    if let Ok(row) = child.clone().downcast::<gtk::ListBoxRow>() {
+        row.child().and_then(|w| w.downcast::<gtk::Box>().ok())
+    } else {
+        child.clone().downcast::<gtk::Box>().ok()
+    }
+}
+
+/// Play the clicked completed download, seeding the player queue from every
+/// playable file in the list (in visual order) so prev/next/EOS cycle through
+/// them. Highlights follow via the shared NowPlaying handle.
+fn play_download_at(state: &Rc<AppState>, clicked: &gtk::Box) {
+    let Some(player) = state.player.borrow().clone() else {
+        return;
+    };
+    let rows = state.download_rows.borrow();
+    let mut items = Vec::new();
+    let mut start = 0usize;
+    let mut child = state.downloads_box.first_child();
+    while let Some(c) = child {
+        let next = c.next_sibling();
+        if let Some(card) = card_of(&c) {
+            if let Some((_, row)) = rows.iter().find(|(_, r)| r.container == card) {
+                let path = row.file_path.borrow().clone();
+                if !path.is_empty() && std::path::Path::new(&path).exists() {
+                    if card == *clicked {
+                        start = items.len();
+                    }
+                    let title = std::path::Path::new(&path)
+                        .file_stem()
+                        .map(|s| s.to_string_lossy().to_string())
+                        .unwrap_or_default();
+                    items.push(crate::player::QueueItem {
+                        url: path.clone(),
+                        title,
+                        artist: row.artist.borrow().clone(),
+                        thumbnail: String::new(),
+                        is_local: true,
+                        is_video: !is_audio_input(std::path::Path::new(&path)),
+                    });
+                }
+            }
+        }
+        child = next;
+    }
+    drop(rows);
+    if !items.is_empty() {
+        player.play_queue(items, start);
+    }
+}
+
+/// Play a converted file, seeding the queue from every converted output (from
+/// history) so prev/next/EOS cycle through them. Falls back to a single play if
+/// the clicked output isn't in history (e.g. converter history disabled).
+fn play_converter_at(state: &Rc<AppState>, clicked: &str) {
+    let Some(player) = state.player.borrow().clone() else {
+        return;
+    };
+    if clicked.is_empty() {
+        return;
+    }
+    let history: Vec<serde_json::Value> =
+        bigtube_core::json_store::load_json(converter_history_path(), Vec::new());
+    let mut items = Vec::new();
+    let mut start = 0usize;
+    let mut found = false;
+    for it in &history {
+        let out = it.get("output").and_then(|v| v.as_str()).unwrap_or("");
+        if out.is_empty() || !std::path::Path::new(out).exists() {
+            continue;
+        }
+        if out == clicked {
+            start = items.len();
+            found = true;
+        }
+        let title = std::path::Path::new(out)
+            .file_stem()
+            .map(|s| s.to_string_lossy().to_string())
+            .unwrap_or_default();
+        items.push(crate::player::QueueItem {
+            url: out.to_string(),
+            title,
+            artist: String::new(),
+            thumbnail: String::new(),
+            is_local: true,
+            is_video: !is_audio_input(std::path::Path::new(out)),
+        });
+    }
+    if found && !items.is_empty() {
+        player.play_queue(items, start);
+    } else {
+        // Not in history: just play the one file.
+        let title = std::path::Path::new(clicked)
+            .file_stem()
+            .map(|s| s.to_string_lossy().to_string())
+            .unwrap_or_default();
+        player.play_local(clicked, &title, "");
+    }
+}
+
+/// Add/remove the `.playing` highlight on `container` as the player's current
+/// track (its url/path) matches `path`. Uses a weak widget ref so a removed row
+/// isn't kept alive.
+fn wire_play_highlight(state: &Rc<AppState>, container: &gtk::Box, path: Rc<RefCell<String>>) {
+    let Some(player) = state.player.borrow().clone() else {
+        return;
+    };
+    let weak = container.downgrade();
+    player.now_playing().connect_url_notify(move |n| {
+        let Some(cont) = weak.upgrade() else {
+            return;
+        };
+        let cur = n.url();
+        let p = path.borrow();
+        if !cur.is_empty() && !p.is_empty() && *p == cur {
+            cont.add_css_class("playing");
+        } else {
+            cont.remove_css_class("playing");
+        }
+    });
 }
 
 /// "Clear all" downloads: ask history-only vs file-too, then wipe every row.
@@ -3628,16 +3738,10 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
     {
         let state = state.clone();
         let out = out.clone();
-        play.connect_clicked(move |_| {
-            let title = std::path::Path::new(&out)
-                .file_stem()
-                .map(|s| s.to_string_lossy().to_string())
-                .unwrap_or_default();
-            if let Some(pl) = state.player.borrow().clone() {
-                pl.play_local(&out, &title, "");
-            }
-        });
+        play.connect_clicked(move |_| play_converter_at(&state, &out));
     }
+    // Highlight this row while its output is the one playing.
+    wire_play_highlight(state, &container, Rc::new(RefCell::new(output.to_string())));
     {
         let state = state.clone();
         let container = container.clone();
