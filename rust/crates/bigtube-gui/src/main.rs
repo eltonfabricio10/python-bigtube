@@ -25,6 +25,15 @@ fn main() {
         )
         .init();
 
+    // Default to the software (cairo) GSK renderer. The GL/Vulkan renderers leave
+    // flickering artifacts during scroll on some Mesa drivers; UI compositing on
+    // the CPU is negligible for a downloader, and GStreamer still hardware-decodes
+    // video (only the final blit is CPU). Power users can override by exporting
+    // their own GSK_RENDERER before launch.
+    if std::env::var_os("GSK_RENDERER").is_none() {
+        std::env::set_var("GSK_RENDERER", "cairo");
+    }
+
     gstreamer::init().expect("GStreamer init failed");
     i18n::init();
 
