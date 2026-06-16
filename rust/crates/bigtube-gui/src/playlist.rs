@@ -137,7 +137,9 @@ pub fn show(
             row.set_item(&video);
         }
     });
-    let selection = gtk::SingleSelection::new(Some(store.clone()));
+    // NoSelection: avoid the ListView auto-highlighting row 0, which would
+    // compete with the now-playing highlight (rows act via their own buttons).
+    let selection = gtk::NoSelection::new(Some(store.clone()));
     let list = gtk::ListView::new(Some(selection), Some(factory));
     list.set_vexpand(true);
     let scrolled = gtk::ScrolledWindow::new();

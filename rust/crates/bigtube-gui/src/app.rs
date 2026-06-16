@@ -732,7 +732,10 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         }
     });
 
-    let selection = gtk::SingleSelection::new(Some(state.search_store.clone()));
+    // NoSelection: rows act via their own buttons / selection-mode checkboxes, so
+    // the ListView must not auto-select (and highlight) row 0 — that competes with
+    // the now-playing highlight.
+    let selection = gtk::NoSelection::new(Some(state.search_store.clone()));
     let list = gtk::ListView::new(Some(selection), Some(factory));
     list.set_vexpand(true);
     let scrolled = gtk::ScrolledWindow::new();
