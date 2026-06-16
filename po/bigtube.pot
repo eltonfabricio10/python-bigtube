@@ -1305,6 +1305,14 @@ msgid "Installed browsers"
 msgstr ""
 
 #: bigtube-gui
+msgid "Video"
+msgstr ""
+
+#: bigtube-gui
+msgid "Audio"
+msgstr ""
+
+#: bigtube-gui
 msgid "Invalid proxy address — use scheme://host:port."
 msgstr ""
 

@@ -30,7 +30,7 @@ struct DownloadRow {
     pause: gtk::Button,
     cancel: gtk::Button,
     btn_delete: gtk::Button,
-    footer: gtk::Box,
+    actions: gtk::Box,
     btn_folder: gtk::Button,
     btn_play: gtk::Button,
     btn_convert: gtk::Button,
@@ -95,18 +95,23 @@ impl DownloadRow {
         let progress = gtk::ProgressBar::new();
         progress.set_fraction(0.0);
 
-        // Live transfer detail: "12.3MiB / 45.6MiB · 2.1MiB/s · ETA 00:15".
+        // Live transfer detail ("12.3MiB / 45.6MiB · 2.1MiB/s · ETA 00:15") while
+        // running, and the media summary ("Video MP4 · h264 · 1920×1080 · …")
+        // once done. Sits at the bottom-left, on the same row as the actions.
         let detail = gtk::Label::new(None);
         detail.set_xalign(0.0);
+        detail.set_hexpand(true);
         detail.set_ellipsize(gtk::pango::EllipsizeMode::End);
         detail.add_css_class("dim-label");
         detail.add_css_class("caption");
         detail.set_visible(false);
 
-        // Footer actions revealed on completion (open folder / play / convert).
+        // Bottom row: status detail on the left, action buttons on the right.
         let footer = gtk::Box::new(gtk::Orientation::Horizontal, 6);
-        footer.set_halign(gtk::Align::End);
-        footer.set_visible(false);
+        let actions = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+        actions.set_halign(gtk::Align::End);
+        // Revealed on completion (open folder / play / convert).
+        actions.set_visible(false);
         let btn_folder = gtk::Button::from_icon_name("folder-open-symbolic");
         btn_folder.add_css_class("flat");
         btn_folder.set_tooltip_text(Some(&tr("Open Folder")));
@@ -116,14 +121,15 @@ impl DownloadRow {
         let btn_convert = gtk::Button::from_icon_name("emblem-synchronizing-symbolic");
         btn_convert.add_css_class("flat");
         btn_convert.set_tooltip_text(Some(&tr("Add to Converter")));
-        footer.append(&btn_folder);
-        footer.append(&btn_play);
-        footer.append(&btn_convert);
+        actions.append(&btn_folder);
+        actions.append(&btn_play);
+        actions.append(&btn_convert);
+        footer.append(&detail);
+        footer.append(&actions);
 
         pad.append(&header);
         pad.append(&path_lbl);
         pad.append(&progress);
-        pad.append(&detail);
         pad.append(&footer);
         container.append(&pad);
 
@@ -194,7 +200,7 @@ impl DownloadRow {
             progress,
             pause,
             cancel,
-            footer,
+            actions,
             btn_folder,
             btn_play,
             btn_convert,
@@ -271,7 +277,7 @@ impl DownloadRow {
         self.status.set_text(&status_label(StatusCode::Completed));
         // Only offer file actions if the output really exists.
         let exists = std::path::Path::new(&*self.file_path.borrow()).exists();
-        self.footer.set_visible(exists);
+        self.actions.set_visible(exists);
     }
 }
 
@@ -302,8 +308,36 @@ fn human_size(bytes: u64) -> String {
 }
 
 /// "H.264 · AAC · 57.9 MiB" from a probed file (omitting unknown parts).
-fn media_summary_text(s: &bigtube_core::converter::MediaSummary) -> String {
+/// "Video MP4" / "Audio MP3": the media kind (by presence of a video stream)
+/// plus the upper-cased file extension, derived from `path`.
+fn media_kind_label(s: &bigtube_core::converter::MediaSummary, path: &str) -> String {
+    let ext = std::path::Path::new(path)
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_uppercase())
+        .unwrap_or_default();
+    let kind = if !s.vcodec.is_empty() {
+        tr("Video")
+    } else if !s.acodec.is_empty() {
+        tr("Audio")
+    } else {
+        String::new()
+    };
+    match (kind.is_empty(), ext.is_empty()) {
+        (false, false) => format!("{kind} {ext}"),
+        (false, true) => kind,
+        (true, false) => ext,
+        (true, true) => String::new(),
+    }
+}
+
+fn media_summary_text(s: &bigtube_core::converter::MediaSummary, path: &str) -> String {
     let mut parts: Vec<String> = Vec::new();
+    // Lead with the media kind + container, e.g. "Video MP4" / "Audio MP3".
+    let kind = media_kind_label(s, path);
+    if !kind.is_empty() {
+        parts.push(kind);
+    }
     let (v, a) = (codec_pretty(&s.vcodec), codec_pretty(&s.acodec));
     if !v.is_empty() {
         parts.push(v);
@@ -604,7 +638,7 @@ pub fn build_window(app: &adw::Application) {
                             let key = key.clone();
                             std::thread::spawn(move || {
                                 let s = bigtube_core::converter::probe_media_summary(&path);
-                                let text = media_summary_text(&s);
+                                let text = media_summary_text(&s, &path);
                                 if !text.is_empty() {
                                     let _ = tx.send_blocking(UiMsg::MediaInfo { key, text });
                                 }
@@ -2458,12 +2492,10 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     let remove = gtk::Button::from_icon_name("user-trash-symbolic");
     remove.add_css_class("flat");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
+    // Top row: name + format input + delete (the action buttons live in the
+    // bottom row next to the status, mirroring the download row layout).
     header.append(&name_lbl);
     header.append(&format);
-    header.append(&convert);
-    header.append(&cancel);
-    header.append(&folder);
-    header.append(&play);
     header.append(&remove);
 
     // Conversion options (mirrors `converter_row.py`): both default on; the
@@ -2479,15 +2511,28 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
 
     let status = gtk::Label::new(Some(tr("Ready").as_str()));
     status.set_xalign(0.0);
+    status.set_hexpand(true);
+    status.set_ellipsize(gtk::pango::EllipsizeMode::End);
     status.add_css_class("dim-label");
     status.add_css_class("caption");
     let progress = gtk::ProgressBar::new();
     progress.set_fraction(0.0);
 
+    // Bottom row: status on the left, action buttons on the right.
+    let footer = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+    let actions = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+    actions.set_halign(gtk::Align::End);
+    actions.append(&convert);
+    actions.append(&cancel);
+    actions.append(&folder);
+    actions.append(&play);
+    footer.append(&status);
+    footer.append(&actions);
+
     pad.append(&header);
     pad.append(&opts);
     pad.append(&progress);
-    pad.append(&status);
+    pad.append(&footer);
     container.append(&pad);
     state.converter_box.append(&container);
     state.update_converter_empty();
@@ -2637,7 +2682,7 @@ fn run_conversion(
                         let outp = out.clone();
                         std::thread::spawn(move || {
                             let s = bigtube_core::converter::probe_media_summary(&outp);
-                            let _ = itx.send_blocking(media_summary_text(&s));
+                            let _ = itx.send_blocking(media_summary_text(&s, &outp));
                         });
                         let status_lbl = ui.status.clone();
                         glib::spawn_future_local(async move {
@@ -3860,7 +3905,7 @@ fn load_download_history(state: &Rc<AppState>) {
         row.cancel.set_sensitive(false);
         row.status.set_text(&history_status_label(status));
         let exists = !fp.is_empty() && std::path::Path::new(fp).exists();
-        row.footer.set_visible(exists);
+        row.actions.set_visible(exists);
 
         // Restore the saved media summary (codecs/resolution/size) bottom-left.
         let media = it
