@@ -49,6 +49,7 @@ pub fn show(
     player: Rc<Player>,
     on_download: RowAction,
     on_download_all: BatchAction,
+    on_schedule_all: BatchAction,
 ) {
     let win = adw::Window::builder()
         .transient_for(parent)
@@ -67,12 +68,16 @@ pub fn show(
     let dl_all = gtk::Button::from_icon_name("folder-download-symbolic");
     dl_all.set_focus_on_click(false);
     dl_all.set_tooltip_text(Some(&tr("Download all")));
+    let sched_all = gtk::Button::from_icon_name("alarm-symbolic");
+    sched_all.set_focus_on_click(false);
+    sched_all.set_tooltip_text(Some(&tr("Schedule all")));
     let select_btn = gtk::ToggleButton::new();
     select_btn.set_icon_name("selection-mode-symbolic");
     select_btn.set_focus_on_click(false);
     select_btn.set_tooltip_text(Some(&tr("Select videos")));
     header.pack_start(&play_all);
     header.pack_start(&dl_all);
+    header.pack_start(&sched_all);
     header.pack_end(&select_btn);
     toolbar.add_top_bar(&header);
 
@@ -209,6 +214,31 @@ pub fn show(
                 }
             }
             on_download_all(picked);
+        });
+    }
+
+    // Schedule: same collection as download, routed to the schedule dialog.
+    {
+        let store = store.clone();
+        let select_mode = select_mode.clone();
+        sched_all.connect_clicked(move |_| {
+            let only_selected = select_mode.get()
+                && (0..store.n_items()).any(|i| {
+                    store
+                        .item(i)
+                        .and_then(|o| o.downcast::<VideoObject>().ok())
+                        .map(|o| o.is_selected())
+                        .unwrap_or(false)
+                });
+            let mut picked = Vec::new();
+            for i in 0..store.n_items() {
+                if let Some(o) = store.item(i).and_then(|o| o.downcast::<VideoObject>().ok()) {
+                    if !only_selected || o.is_selected() {
+                        picked.push(o);
+                    }
+                }
+            }
+            on_schedule_all(picked);
         });
     }
 

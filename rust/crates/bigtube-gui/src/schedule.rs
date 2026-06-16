@@ -16,7 +16,15 @@ const RECURRENCES: [&str; 4] = ["once", "daily", "weekly", "monthly"];
 
 use crate::i18n::tr;
 
-pub fn show(parent: &adw::ApplicationWindow, on_confirm: ScheduleFn) {
+/// `default_ts` pre-selects the calendar/time (None = now); `default_recurrence`
+/// pre-selects the Repeat dropdown. Used both for a fresh schedule and to edit
+/// an existing one.
+pub fn show(
+    parent: &adw::ApplicationWindow,
+    default_ts: Option<f64>,
+    default_recurrence: &str,
+    on_confirm: ScheduleFn,
+) {
     let win = adw::Window::builder()
         .transient_for(parent)
         .modal(true)
@@ -30,19 +38,36 @@ pub fn show(parent: &adw::ApplicationWindow, on_confirm: ScheduleFn) {
     toolbar.add_top_bar(&adw::HeaderBar::new());
     let page = adw::PreferencesPage::new();
 
+    // Preselect the given instant (edit) or now (fresh schedule).
+    let preset = default_ts
+        .and_then(|ts| glib::DateTime::from_unix_local(ts as i64).ok())
+        .or_else(|| glib::DateTime::now_local().ok());
+
     // Date group with a calendar.
     let date_group = adw::PreferencesGroup::builder().title(tr("Date")).build();
     let calendar = gtk::Calendar::new();
+    if let Some(d) = preset.as_ref() {
+        if let Ok(sel) = glib::DateTime::new(
+            &glib::TimeZone::local(),
+            d.year(),
+            d.month(),
+            d.day_of_month(),
+            0,
+            0,
+            0.0,
+        ) {
+            calendar.select_day(&sel);
+        }
+    }
     let date_row = adw::ActionRow::builder().title(tr("Date")).build();
     date_row.add_suffix(&calendar);
     date_group.add(&date_row);
     page.add(&date_group);
 
-    // Time group with hour/minute spinners (defaults to now).
+    // Time group with hour/minute spinners (defaults to the preset).
     let time_group = adw::PreferencesGroup::builder().title(tr("Time")).build();
-    let now = glib::DateTime::now_local().ok();
-    let cur_h = now.as_ref().map(|d| d.hour()).unwrap_or(0);
-    let cur_m = now.as_ref().map(|d| d.minute()).unwrap_or(0);
+    let cur_h = preset.as_ref().map(|d| d.hour()).unwrap_or(0);
+    let cur_m = preset.as_ref().map(|d| d.minute()).unwrap_or(0);
     let hour = gtk::SpinButton::with_range(0.0, 23.0, 1.0);
     hour.set_value(cur_h as f64);
     hour.set_valign(gtk::Align::Center);
@@ -67,6 +92,9 @@ pub fn show(parent: &adw::ApplicationWindow, on_confirm: ScheduleFn) {
     let repeat_labels =
         gtk::StringList::new(&[once.as_str(), daily.as_str(), weekly.as_str(), monthly.as_str()]);
     repeat.set_model(Some(&repeat_labels));
+    if let Some(idx) = RECURRENCES.iter().position(|r| *r == default_recurrence) {
+        repeat.set_selected(idx as u32);
+    }
     repeat_group.add(&repeat);
     page.add(&repeat_group);
 

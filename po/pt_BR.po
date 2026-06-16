@@ -1385,6 +1385,46 @@ msgid "Installed browsers"
 msgstr "Navegadores instalados"
 
 #: bigtube-gui
+msgid "Scheduled Downloads"
+msgstr "Downloads agendados"
+
+#: bigtube-gui
+msgid "No Scheduled Downloads"
+msgstr "Nenhum download agendado"
+
+#: bigtube-gui
+msgid "Schedule a download to see it here"
+msgstr "Agende um download para vê-lo aqui"
+
+#: bigtube-gui
+msgid "Add Schedule"
+msgstr "Adicionar agendamento"
+
+#: bigtube-gui
+msgid "Schedule all"
+msgstr "Agendar todos"
+
+#: bigtube-gui
+msgid "Schedule Selected"
+msgstr "Agendar selecionados"
+
+#: bigtube-gui
+msgid "Paste a video or playlist URL to schedule."
+msgstr "Cole a URL de um vídeo ou playlist para agendar."
+
+#: bigtube-gui
+msgid "Continue"
+msgstr "Continuar"
+
+#: bigtube-gui
+msgid "Scheduled!"
+msgstr "Agendado!"
+
+#: bigtube-gui
+msgid "Edit"
+msgstr "Editar"
+
+#: bigtube-gui
 msgid "Repeat"
 msgstr "Repetir"
 
