@@ -889,6 +889,11 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         Rc::new(move || {
             popover.popdown();
             let query = entry.text().to_string();
+            // Empty search: tell the user instead of silently doing nothing.
+            if query.trim().is_empty() {
+                state.toast(&tr("Type something to search."));
+                return;
+            }
             *last_query.borrow_mut() = query.trim().to_string();
             // Auto-pick the source from the input, only at search time:
             //  - a URL while on YouTube / YouTube Music → switch to Direct Link;
@@ -910,12 +915,17 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         })
     };
 
+    // Self-reference so a suggestion's delete button can rebuild (close+reopen)
+    // the popover to resize it to the remaining matches.
+    let rebuild_slot: Rc<RefCell<Option<Rc<dyn Fn(&str)>>>> = Rc::new(RefCell::new(None));
+
     // Rebuild the suggestion list for the current text.
     let rebuild: Rc<dyn Fn(&str)> = {
         let sugg_list = sugg_list.clone();
         let popover = popover.clone();
         let entry = entry.clone();
         let trigger = trigger.clone();
+        let rebuild_slot = rebuild_slot.clone();
         Rc::new(move |text: &str| {
             // Close on every keystroke; we re-open (popup) below only when there
             // are matches. Re-opening yields a fresh surface sized to the current
@@ -982,18 +992,16 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                     });
                 }
                 {
-                    let sugg_list = sugg_list.clone();
-                    let popover = popover.clone();
-                    let rowbox = rowbox.clone();
+                    let entry = entry.clone();
+                    let rebuild_slot = rebuild_slot.clone();
                     let q = m.clone();
                     del.connect_clicked(move |_| {
                         bigtube_core::search_history::SearchHistory::new(search_history_path())
                             .remove_item(&q);
-                        sugg_list.remove(&rowbox);
-                        // No scroll: the popover hugs the box, so it shrinks on its
-                        // own. Just close it when nothing is left.
-                        if sugg_list.first_child().is_none() {
-                            popover.popdown();
+                        // Close and reopen the popover, resized to the matches that
+                        // remain (an empty result just leaves it closed).
+                        if let Some(rebuild) = rebuild_slot.borrow().as_ref() {
+                            rebuild(&entry.text());
                         }
                     });
                 }
@@ -1004,6 +1012,7 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             popover.popup();
         })
     };
+    *rebuild_slot.borrow_mut() = Some(rebuild.clone());
 
     // Typing refreshes suggestions only. Results are NOT cleared on every
     // keystroke — only when the field is fully emptied — so the previous results
