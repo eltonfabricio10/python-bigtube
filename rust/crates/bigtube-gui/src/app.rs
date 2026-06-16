@@ -264,9 +264,22 @@ fn media_summary_text(s: &bigtube_core::converter::MediaSummary) -> String {
     let (v, a) = (codec_pretty(&s.vcodec), codec_pretty(&s.acodec));
     if !v.is_empty() {
         parts.push(v);
+        // Resolution next to the video codec.
+        if s.width > 0 && s.height > 0 {
+            parts.push(format!("{}×{}", s.width, s.height));
+        }
     }
     if !a.is_empty() {
         parts.push(a);
+        // Sample rate next to the audio codec (e.g. 48 kHz).
+        if s.sample_rate > 0 {
+            let khz = s.sample_rate as f64 / 1000.0;
+            if (khz.fract()).abs() < 0.05 {
+                parts.push(format!("{khz:.0} kHz"));
+            } else {
+                parts.push(format!("{khz:.1} kHz"));
+            }
+        }
     }
     if s.size_bytes > 0 {
         parts.push(human_size(s.size_bytes));
@@ -585,7 +598,10 @@ pub fn build_window(app: &adw::Application) {
                 }
                 UiMsg::MediaInfo { key, text } => {
                     if let Some(row) = state_for_loop.download_rows.borrow().get(&key) {
-                        row.status.set_text(&text);
+                        // Show the real codecs/resolution/size at the bottom-left
+                        // (the `detail` line), leaving the header status as "Done".
+                        row.detail.set_text(&text);
+                        row.detail.set_visible(true);
                     }
                 }
             }

@@ -62,12 +62,23 @@ pub struct MediaSummary {
     pub vcodec: String,
     pub acodec: String,
     pub size_bytes: u64,
+    // Video resolution (0 when not a video / unknown).
+    pub width: u32,
+    pub height: u32,
+    // Audio sample rate in Hz (0 when unknown).
+    pub sample_rate: u32,
 }
 
 /// Parse ffprobe `-of json -show_entries stream=codec_type,codec_name` output
 /// into `(vcodec, acodec)`. Pure/testable.
 pub fn parse_ffprobe_streams(json: &str) -> (String, String) {
-    let (mut v, mut a) = (String::new(), String::new());
+    let m = parse_ffprobe_meta(json);
+    (m.vcodec, m.acodec)
+}
+
+/// Parse ffprobe stream JSON into codecs + resolution + sample rate. Pure.
+pub fn parse_ffprobe_meta(json: &str) -> MediaSummary {
+    let mut m = MediaSummary::default();
     if let Ok(val) = serde_json::from_str::<serde_json::Value>(json) {
         if let Some(streams) = val.get("streams").and_then(|s| s.as_array()) {
             for s in streams {
@@ -77,15 +88,30 @@ pub fn parse_ffprobe_streams(json: &str) -> (String, String) {
                     .and_then(|x| x.as_str())
                     .unwrap_or("")
                     .to_string();
+                let num = |k: &str| -> u32 {
+                    s.get(k)
+                        .and_then(|x| {
+                            x.as_u64()
+                                .or_else(|| x.as_str().and_then(|t| t.parse().ok()))
+                        })
+                        .unwrap_or(0) as u32
+                };
                 match kind {
-                    "video" if v.is_empty() => v = name,
-                    "audio" if a.is_empty() => a = name,
+                    "video" if m.vcodec.is_empty() => {
+                        m.vcodec = name;
+                        m.width = num("width");
+                        m.height = num("height");
+                    }
+                    "audio" if m.acodec.is_empty() => {
+                        m.acodec = name;
+                        m.sample_rate = num("sample_rate");
+                    }
                     _ => {}
                 }
             }
         }
     }
-    (v, a)
+    m
 }
 
 /// Inspect a finished file: real on-disk size (always) + video/audio codec names
@@ -104,16 +130,19 @@ pub fn probe_media_summary(path: &str) -> MediaSummary {
         "-v".to_string(),
         "error".to_string(),
         "-show_entries".to_string(),
-        "stream=codec_type,codec_name".to_string(),
+        "stream=codec_type,codec_name,width,height,sample_rate".to_string(),
         "-of".to_string(),
         "json".to_string(),
         path.to_string(),
     ];
     let env: HashMap<String, String> = std::env::vars().collect();
     if let Ok((0, stdout, _)) = run_with_timeout("ffprobe", &args, &env, FFPROBE_TIMEOUT) {
-        let (v, a) = parse_ffprobe_streams(&stdout);
-        summary.vcodec = v;
-        summary.acodec = a;
+        let m = parse_ffprobe_meta(&stdout);
+        summary.vcodec = m.vcodec;
+        summary.acodec = m.acodec;
+        summary.width = m.width;
+        summary.height = m.height;
+        summary.sample_rate = m.sample_rate;
     }
     summary
 }
