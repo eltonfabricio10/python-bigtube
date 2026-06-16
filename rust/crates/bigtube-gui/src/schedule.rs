@@ -84,13 +84,15 @@ pub fn show(
     page.add(&time_group);
 
     // Recurrence group: "Once" (the manual one-shot) plus daily/weekly/monthly.
-    let repeat_group = adw::PreferencesGroup::builder()
-        .title(tr("Repeat"))
-        .build();
+    let repeat_group = adw::PreferencesGroup::builder().title(tr("Repeat")).build();
     let repeat = adw::ComboRow::builder().title(tr("Repeat")).build();
     let (once, daily, weekly, monthly) = (tr("Once"), tr("Daily"), tr("Weekly"), tr("Monthly"));
-    let repeat_labels =
-        gtk::StringList::new(&[once.as_str(), daily.as_str(), weekly.as_str(), monthly.as_str()]);
+    let repeat_labels = gtk::StringList::new(&[
+        once.as_str(),
+        daily.as_str(),
+        weekly.as_str(),
+        monthly.as_str(),
+    ]);
     repeat.set_model(Some(&repeat_labels));
     if let Some(idx) = RECURRENCES.iter().position(|r| *r == default_recurrence) {
         repeat.set_selected(idx as u32);

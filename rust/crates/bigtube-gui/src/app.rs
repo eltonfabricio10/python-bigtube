@@ -2457,7 +2457,10 @@ fn build_scheduled_card(state: &Rc<AppState>, item: &serde_json::Value) -> Optio
         .filter(|s| !s.is_empty())
         .unwrap_or("Unknown Title")
         .to_string();
-    let ts = item.get("scheduled_time").and_then(|v| v.as_f64()).unwrap_or(0.0);
+    let ts = item
+        .get("scheduled_time")
+        .and_then(|v| v.as_f64())
+        .unwrap_or(0.0);
     let recurrence = item
         .get("recurrence")
         .and_then(|v| v.as_str())
@@ -3427,7 +3430,15 @@ fn present_download_dialog(
                 "once",
                 Rc::new(move |ts: f64, recurrence: String| {
                     enqueue_scheduled(
-                        &st, &url, &title, &thumb, &uploader, &format_id, &ext, ts, &recurrence,
+                        &st,
+                        &url,
+                        &title,
+                        &thumb,
+                        &uploader,
+                        &format_id,
+                        &ext,
+                        ts,
+                        &recurrence,
                     );
                 }),
             );
@@ -3514,7 +3525,11 @@ fn schedule_all(state: &Rc<AppState>, items: Vec<VideoObject>) {
         return;
     };
     let artist = bigtube_core::validators::sanitize_filename(&items[0].uploader(), 100);
-    let subfolder = if artist.is_empty() { None } else { Some(artist) };
+    let subfolder = if artist.is_empty() {
+        None
+    } else {
+        Some(artist)
+    };
 
     let st = state.clone();
     show_quality_dialog(&window, move |q| {
