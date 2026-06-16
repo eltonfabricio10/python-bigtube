@@ -288,6 +288,11 @@ struct AppState {
     download_rows: RefCell<HashMap<String, DownloadRow>>,
     converter_box: gtk::ListBox,
     converter_stack: gtk::Stack,
+    // Conversions run one at a time (mirrors `converter_controller.py`): a click
+    // enqueues, and each finish pumps the next. Without this they'd all run in
+    // parallel threads and thrash the CPU.
+    conv_active: Cell<bool>,
+    conv_queue: RefCell<std::collections::VecDeque<PendingConv>>,
     player: RefCell<Option<Rc<crate::player::Player>>>,
     busy_spinner: gtk::Spinner,
     busy_count: Cell<i32>,
@@ -421,6 +426,8 @@ pub fn build_window(app: &adw::Application) {
         download_rows: RefCell::new(HashMap::new()),
         converter_box: converter_box.clone(),
         converter_stack: gtk::Stack::new(),
+        conv_active: Cell::new(false),
+        conv_queue: RefCell::new(std::collections::VecDeque::new()),
         player: RefCell::new(None),
         busy_spinner: gtk::Spinner::new(),
         busy_count: Cell::new(0),
@@ -1871,10 +1878,10 @@ fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
 const VIDEO_FORMATS: [&str; 6] = ["mp4", "mkv", "webm", "mp3", "m4a", "wav"];
 const AUDIO_FORMATS: [&str; 4] = ["mp3", "m4a", "wav", "flac"];
 
-/// Output formats offered for a given source file, by media type (`converter_row.py`).
-fn convert_formats_for(path: &std::path::Path) -> &'static [&'static str] {
-    let is_audio = path
-        .extension()
+/// True when the source file is audio-only (by extension). Audio inputs never
+/// carry subtitles, so the converter hides that toggle for them (`converter_row.py`).
+fn is_audio_input(path: &std::path::Path) -> bool {
+    path.extension()
         .and_then(|e| e.to_str())
         .map(|e| {
             matches!(
@@ -1882,8 +1889,12 @@ fn convert_formats_for(path: &std::path::Path) -> &'static [&'static str] {
                 "mp3" | "m4a" | "wav" | "flac" | "ogg" | "opus" | "aac" | "wma"
             )
         })
-        .unwrap_or(false);
-    if is_audio {
+        .unwrap_or(false)
+}
+
+/// Output formats offered for a given source file, by media type (`converter_row.py`).
+fn convert_formats_for(path: &std::path::Path) -> &'static [&'static str] {
+    if is_audio_input(path) {
         &AUDIO_FORMATS
     } else {
         &VIDEO_FORMATS
@@ -1995,7 +2006,75 @@ struct ConvUi {
     cancel: gtk::Button,
     folder: gtk::Button,
     play: gtk::Button,
+    format: gtk::DropDown,
+    meta_chk: gtk::CheckButton,
+    subs_chk: gtk::CheckButton,
     out_path: Rc<RefCell<String>>,
+}
+
+impl ConvUi {
+    /// Lock/unlock the format dropdown and option toggles while a conversion
+    /// runs (mirrors `converter_row.py` disabling `combo_format`).
+    fn set_inputs_sensitive(&self, on: bool) {
+        self.format.set_sensitive(on);
+        self.meta_chk.set_sensitive(on);
+        self.subs_chk.set_sensitive(on);
+    }
+}
+
+/// A queued conversion job, awaiting its turn in the single-slot pipeline.
+struct PendingConv {
+    path: std::path::PathBuf,
+    fmt: String,
+    add_metadata: bool,
+    add_subtitles: bool,
+    ui: ConvUi,
+    cancel_flag: Arc<AtomicBool>,
+    container: gtk::Box,
+}
+
+/// Queue a conversion and try to start it. The row shows "Queued" until its
+/// turn comes (`converter_controller.py::_on_row_request_start`).
+fn enqueue_conversion(state: &Rc<AppState>, job: PendingConv) {
+    job.ui.convert.set_visible(false);
+    job.ui.cancel.set_visible(true);
+    job.ui.folder.set_visible(false);
+    job.ui.play.set_visible(false);
+    job.ui.set_inputs_sensitive(false);
+    job.ui.set_progress_class("");
+    job.ui.status.set_text(&tr("Queued"));
+    state.conv_queue.borrow_mut().push_back(job);
+    pump_conversion(state);
+}
+
+/// Start the next queued conversion if none is running. Jobs cancelled while
+/// still queued are dropped (their row removed) and the next is tried.
+fn pump_conversion(state: &Rc<AppState>) {
+    if state.conv_active.get() {
+        return;
+    }
+    let job = match state.conv_queue.borrow_mut().pop_front() {
+        Some(j) => j,
+        None => return,
+    };
+    if job.cancel_flag.load(Ordering::SeqCst) {
+        // Cancelled before it ever ran: discard the row and move on.
+        remove_list_card(&state.converter_box, &job.container);
+        state.update_converter_empty();
+        pump_conversion(state);
+        return;
+    }
+    state.conv_active.set(true);
+    run_conversion(
+        job.path,
+        job.fmt,
+        job.add_metadata,
+        job.add_subtitles,
+        job.ui,
+        job.cancel_flag,
+        state.clone(),
+        job.container,
+    );
 }
 
 impl ConvUi {
@@ -2028,6 +2107,7 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     pad.set_margin_end(12);
 
     let formats = convert_formats_for(&path);
+    let is_video = !is_audio_input(&path);
     let header = gtk::Box::new(gtk::Orientation::Horizontal, 8);
     let name_lbl = gtk::Label::new(Some(&name));
     name_lbl.set_xalign(0.0);
@@ -2061,6 +2141,17 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     header.append(&play);
     header.append(&remove);
 
+    // Conversion options (mirrors `converter_row.py`): both default on; the
+    // subtitle toggle only applies to video inputs.
+    let opts = gtk::Box::new(gtk::Orientation::Horizontal, 12);
+    let meta_chk = gtk::CheckButton::with_label(&tr("Add Metadata"));
+    meta_chk.set_active(true);
+    let subs_chk = gtk::CheckButton::with_label(&tr("Add Subtitles"));
+    subs_chk.set_active(true);
+    subs_chk.set_visible(is_video);
+    opts.append(&meta_chk);
+    opts.append(&subs_chk);
+
     let status = gtk::Label::new(Some(tr("Ready").as_str()));
     status.set_xalign(0.0);
     status.add_css_class("dim-label");
@@ -2069,6 +2160,7 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     progress.set_fraction(0.0);
 
     pad.append(&header);
+    pad.append(&opts);
     pad.append(&progress);
     pad.append(&status);
     container.append(&pad);
@@ -2083,6 +2175,9 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
         cancel: cancel.clone(),
         folder: folder.clone(),
         play: play.clone(),
+        format: format.clone(),
+        meta_chk: meta_chk.clone(),
+        subs_chk: subs_chk.clone(),
         out_path: Rc::new(RefCell::new(String::new())),
     };
 
@@ -2135,23 +2230,26 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
                 .copied()
                 .unwrap_or("mp4")
                 .to_string();
+            // Read the per-row option toggles; subtitles never apply to audio.
+            let add_metadata = ui.meta_chk.is_active();
+            let add_subtitles = is_video && ui.subs_chk.is_active();
             let flag = Arc::new(AtomicBool::new(false));
             {
                 let flag = flag.clone();
                 cancel.connect_clicked(move |_| flag.store(true, Ordering::SeqCst));
             }
-            btn.set_visible(false);
-            ui.cancel.set_visible(true);
-            ui.folder.set_visible(false);
-            ui.play.set_visible(false);
-            ui.set_progress_class("");
-            run_conversion(
-                path.clone(),
-                fmt,
-                ui.clone(),
-                flag,
-                state.clone(),
-                container.clone(),
+            let _ = btn;
+            enqueue_conversion(
+                &state,
+                PendingConv {
+                    path: path.clone(),
+                    fmt,
+                    add_metadata,
+                    add_subtitles,
+                    ui: ui.clone(),
+                    cancel_flag: flag,
+                    container: container.clone(),
+                },
             );
         });
     }
@@ -2160,6 +2258,8 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
 fn run_conversion(
     path: std::path::PathBuf,
     fmt: String,
+    add_metadata: bool,
+    add_subtitles: bool,
     ui: ConvUi,
     cancel_flag: Arc<AtomicBool>,
     state: Rc<AppState>,
@@ -2178,8 +2278,15 @@ fn run_conversion(
     let fmt_hist = fmt.clone();
     let flag = cancel_flag.clone();
     std::thread::spawn(move || {
-        let result = convert_media(&input, &fmt, Some(&cb), true, true, Some(&flag))
-            .map_err(|e| e.to_string());
+        let result = convert_media(
+            &input,
+            &fmt,
+            Some(&cb),
+            add_metadata,
+            add_subtitles,
+            Some(&flag),
+        )
+        .map_err(|e| e.to_string());
         let _ = tx.send_blocking(ConvMsg::Done(result));
     });
 
@@ -2204,6 +2311,7 @@ fn run_conversion(
                     ui.status.set_text(&tr("Success!"));
                     ui.cancel.set_visible(false);
                     ui.convert.set_visible(true);
+                    ui.set_inputs_sensitive(true);
                     ui.out_path.replace(out.clone());
                     ui.folder.set_visible(true);
                     ui.play.set_visible(true);
@@ -2239,6 +2347,7 @@ fn run_conversion(
                 ConvMsg::Done(Err(e)) => {
                     ui.cancel.set_visible(false);
                     ui.convert.set_visible(true);
+                    ui.set_inputs_sensitive(true);
                     if cancel_flag.load(Ordering::SeqCst) {
                         // Cancelled: core already removed the partial output —
                         // drop the row from the list too (no history on cancel).
@@ -2251,6 +2360,10 @@ fn run_conversion(
                 }
             }
         }
+        // This conversion finished (ok, error, or cancel): free the slot and
+        // let the next queued job start.
+        state.conv_active.set(false);
+        pump_conversion(&state);
     });
 }
 
