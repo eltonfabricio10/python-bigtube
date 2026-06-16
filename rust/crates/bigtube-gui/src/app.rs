@@ -29,6 +29,8 @@ struct DownloadRow {
     progress: gtk::ProgressBar,
     pause: gtk::Button,
     cancel: gtk::Button,
+    // Pencil shown only for a pending scheduled row: opens the schedule editor.
+    edit: gtk::Button,
     btn_delete: gtk::Button,
     actions: gtk::Box,
     btn_folder: gtk::Button,
@@ -77,12 +79,18 @@ impl DownloadRow {
         let cancel = gtk::Button::from_icon_name("process-stop-symbolic");
         cancel.add_css_class("flat");
         cancel.set_tooltip_text(Some(&tr("Cancel")));
+        // Edit pencil: shown only while this row is a pending scheduled download.
+        let edit = gtk::Button::from_icon_name("document-edit-symbolic");
+        edit.add_css_class("flat");
+        edit.set_tooltip_text(Some(&tr("Edit")));
+        edit.set_visible(false);
         // Per-row delete (asks history-only vs file too); wired in wire_row_footer.
         let btn_delete = gtk::Button::from_icon_name("user-trash-symbolic");
         btn_delete.add_css_class("flat");
         btn_delete.set_tooltip_text(Some(&tr("Remove from list")));
         header.append(&title_lbl);
         header.append(&status);
+        header.append(&edit);
         header.append(&pause);
         header.append(&cancel);
         header.append(&btn_delete);
@@ -203,6 +211,7 @@ impl DownloadRow {
             progress,
             pause,
             cancel,
+            edit,
             actions,
             btn_folder,
             btn_play,
@@ -398,9 +407,6 @@ struct AppState {
     download_rows: RefCell<HashMap<String, DownloadRow>>,
     converter_box: gtk::ListBox,
     converter_stack: gtk::Stack,
-    // "Scheduled" management tab: a list rebuilt from the persisted store.
-    scheduled_box: gtk::ListBox,
-    scheduled_stack: gtk::Stack,
     // Conversions run one at a time (mirrors `converter_controller.py`): a click
     // enqueues, and each finish pumps the next. Without this they'd all run in
     // parallel threads and thrash the CPU.
@@ -523,9 +529,6 @@ pub fn build_window(app: &adw::Application) {
     let converter_box = gtk::ListBox::new();
     converter_box.set_selection_mode(gtk::SelectionMode::None);
     converter_box.add_css_class("background");
-    let scheduled_box = gtk::ListBox::new();
-    scheduled_box.set_selection_mode(gtk::SelectionMode::None);
-    scheduled_box.add_css_class("background");
 
     let (ui_tx, ui_rx) = async_channel::unbounded::<UiMsg>();
 
@@ -544,8 +547,6 @@ pub fn build_window(app: &adw::Application) {
         download_rows: RefCell::new(HashMap::new()),
         converter_box: converter_box.clone(),
         converter_stack: gtk::Stack::new(),
-        scheduled_box: scheduled_box.clone(),
-        scheduled_stack: gtk::Stack::new(),
         conv_active: Cell::new(false),
         conv_queue: RefCell::new(std::collections::VecDeque::new()),
         player: RefCell::new(None),
@@ -558,7 +559,6 @@ pub fn build_window(app: &adw::Application) {
     // Pages.
     let search_page = build_search_page(&state);
     let downloads_page = build_downloads_page(&state);
-    let scheduled_page = build_scheduled_page(&state);
     let converter_page = build_converter_page(&state);
     let settings_page = build_settings_page(&state);
 
@@ -578,13 +578,6 @@ pub fn build_window(app: &adw::Application) {
     );
     add_page(
         &stack,
-        &scheduled_page,
-        "scheduled",
-        &tr("Scheduled"),
-        "alarm-symbolic",
-    );
-    add_page(
-        &stack,
         &converter_page,
         "converter",
         &tr("Converter"),
@@ -597,16 +590,6 @@ pub fn build_window(app: &adw::Application) {
         &tr("Settings"),
         "emblem-system-symbolic",
     );
-
-    // Rebuild the Scheduled list from the store whenever its tab is opened.
-    {
-        let state2 = state.clone();
-        stack.connect_visible_child_notify(move |s| {
-            if s.visible_child_name().as_deref() == Some("scheduled") {
-                refresh_scheduled_list(&state2);
-            }
-        });
-    }
 
     let switcher = adw::ViewSwitcher::builder()
         .stack(&stack)
@@ -718,6 +701,9 @@ pub fn build_window(app: &adw::Application) {
                 UiMsg::Started { key, downloader } => {
                     if let Some(row) = state_for_loop.download_rows.borrow().get(&key) {
                         row.downloader.replace(Some(downloader));
+                        // Once it's actually downloading it's no longer editable.
+                        row.edit.set_visible(false);
+                        row.sched_id.replace(None);
                     }
                 }
                 UiMsg::MediaInfo { key, text } => {
@@ -2390,145 +2376,8 @@ fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
 }
 
 // =============================================================================
-// SCHEDULED (management tab)
+// SCHEDULED (per-row editing)
 // =============================================================================
-
-fn build_scheduled_page(state: &Rc<AppState>) -> gtk::Widget {
-    let page = gtk::Box::new(gtk::Orientation::Vertical, 0);
-
-    // Header with an "add a new schedule" button.
-    let add = gtk::Button::from_icon_name("list-add-symbolic");
-    add.add_css_class("flat");
-    add.set_tooltip_text(Some(&tr("Add Schedule")));
-    {
-        let state = state.clone();
-        add.connect_clicked(move |_| add_scheduled_dialog(&state));
-    }
-    let header = page_header(&tr("Scheduled Downloads"), &[add]);
-
-    let scrolled = gtk::ScrolledWindow::new();
-    scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
-    scrolled.set_vexpand(true);
-    scrolled.set_child(Some(&state.scheduled_box));
-
-    let empty = status_page(
-        "alarm-symbolic",
-        &tr("No Scheduled Downloads"),
-        &tr("Schedule a download to see it here"),
-    );
-    state.scheduled_stack.set_vexpand(true);
-    state.scheduled_stack.add_named(&empty, Some("empty"));
-    state.scheduled_stack.add_named(&scrolled, Some("list"));
-    state.scheduled_stack.set_visible_child_name("empty");
-
-    page.append(&header);
-    page.append(&state.scheduled_stack);
-    page.upcast()
-}
-
-/// Rebuild the Scheduled tab's list from the persisted store.
-fn refresh_scheduled_list(state: &Rc<AppState>) {
-    let list = &state.scheduled_box;
-    while let Some(child) = list.first_child() {
-        list.remove(&child);
-    }
-    let items =
-        bigtube_core::scheduled_downloads::ScheduledDownloadStore::new(scheduled_downloads_path())
-            .load();
-    if items.is_empty() {
-        state.scheduled_stack.set_visible_child_name("empty");
-        return;
-    }
-    for item in &items {
-        if let Some(card) = build_scheduled_card(state, item) {
-            list.append(&card);
-        }
-    }
-    state.scheduled_stack.set_visible_child_name("list");
-}
-
-/// A management card for one persisted schedule: title, when/repeat, Edit/Cancel.
-fn build_scheduled_card(state: &Rc<AppState>, item: &serde_json::Value) -> Option<gtk::Box> {
-    let id = item.get("id").and_then(|v| v.as_str())?.to_string();
-    let vi = item.get("video_info").and_then(|v| v.as_object());
-    let title = vi
-        .and_then(|m| m.get("title"))
-        .and_then(|v| v.as_str())
-        .filter(|s| !s.is_empty())
-        .unwrap_or("Unknown Title")
-        .to_string();
-    let ts = item
-        .get("scheduled_time")
-        .and_then(|v| v.as_f64())
-        .unwrap_or(0.0);
-    let recurrence = item
-        .get("recurrence")
-        .and_then(|v| v.as_str())
-        .unwrap_or("once");
-
-    let container = gtk::Box::new(gtk::Orientation::Vertical, 4);
-    container.add_css_class("card");
-    container.set_margin_top(6);
-    container.set_margin_bottom(6);
-    container.set_margin_start(8);
-    container.set_margin_end(8);
-    let pad = gtk::Box::new(gtk::Orientation::Vertical, 4);
-    pad.set_margin_top(8);
-    pad.set_margin_bottom(8);
-    pad.set_margin_start(12);
-    pad.set_margin_end(12);
-
-    let header = gtk::Box::new(gtk::Orientation::Horizontal, 8);
-    let title_lbl = gtk::Label::new(Some(&title));
-    title_lbl.set_xalign(0.0);
-    title_lbl.set_hexpand(true);
-    title_lbl.set_ellipsize(gtk::pango::EllipsizeMode::End);
-    title_lbl.add_css_class("heading");
-    header.append(&title_lbl);
-
-    // When + recurrence line.
-    let mut when = format!("{} {}", tr("Scheduled for:"), format_schedule_ts(ts));
-    if let Some(rep) = recurrence_label(recurrence) {
-        when = format!("{when} · {rep}");
-    }
-    let when_lbl = gtk::Label::new(Some(&when));
-    when_lbl.set_xalign(0.0);
-    when_lbl.set_ellipsize(gtk::pango::EllipsizeMode::End);
-    when_lbl.add_css_class("dim-label");
-    when_lbl.add_css_class("caption");
-
-    // Bottom row: Edit / Cancel on the right.
-    let actions = gtk::Box::new(gtk::Orientation::Horizontal, 6);
-    actions.set_halign(gtk::Align::End);
-    let edit = gtk::Button::from_icon_name("document-edit-symbolic");
-    edit.add_css_class("flat");
-    edit.set_tooltip_text(Some(&tr("Edit")));
-    let cancel = gtk::Button::from_icon_name("user-trash-symbolic");
-    cancel.add_css_class("flat");
-    cancel.set_tooltip_text(Some(&tr("Cancel")));
-    actions.append(&edit);
-    actions.append(&cancel);
-
-    {
-        let state = state.clone();
-        let item = item.clone();
-        edit.connect_clicked(move |_| edit_scheduled(&state, &item));
-    }
-    {
-        let state = state.clone();
-        let id = id.clone();
-        cancel.connect_clicked(move |_| {
-            cancel_scheduled_by_id(&state, &id);
-            refresh_scheduled_list(&state);
-        });
-    }
-
-    pad.append(&header);
-    pad.append(&when_lbl);
-    pad.append(&actions);
-    container.append(&pad);
-    Some(container)
-}
 
 /// Cancel a scheduled download by its persisted id: drop the live (pending) row
 /// and its history entry, kill the scheduler task, and remove the store entry.
@@ -2557,126 +2406,46 @@ fn cancel_scheduled_by_id(state: &Rc<AppState>, id: &str) {
         .remove(id);
 }
 
-/// Edit a schedule: reopen the schedule dialog pre-filled, then re-arm with the
-/// new time/recurrence (cancelling the old task first).
-fn edit_scheduled(state: &Rc<AppState>, item: &serde_json::Value) {
+/// Reopen the schedule dialog pre-filled for a pending scheduled row's pencil
+/// button, then re-arm with the new time/recurrence (cancelling the old first).
+#[allow(clippy::too_many_arguments)]
+fn open_schedule_editor(
+    state: &Rc<AppState>,
+    sched_id: &str,
+    url: &str,
+    title: &str,
+    thumbnail: &str,
+    uploader: &str,
+    format_id: &str,
+    ext: &str,
+    ts: f64,
+    recurrence: &str,
+) {
     let Some(window) = state.window.borrow().clone() else {
         return;
     };
-    let id = item
-        .get("id")
-        .and_then(|v| v.as_str())
-        .unwrap_or("")
-        .to_string();
-    let ts = item.get("scheduled_time").and_then(|v| v.as_f64());
-    let recurrence = item
-        .get("recurrence")
-        .and_then(|v| v.as_str())
-        .unwrap_or("once")
-        .to_string();
-    let get = |obj: &str, k: &str| {
-        item.get(obj)
-            .and_then(|v| v.get(k))
-            .and_then(|v| v.as_str())
-            .unwrap_or("")
-            .to_string()
-    };
-    let (url, title, thumb, uploader) = (
-        get("video_info", "url"),
-        get("video_info", "title"),
-        get("video_info", "thumbnail"),
-        get("video_info", "uploader"),
-    );
-    let (format_id, ext) = (get("format_data", "id"), get("format_data", "ext"));
-
     let st = state.clone();
+    let (sid, url, title, thumb, uploader, fmt, ext) = (
+        sched_id.to_string(),
+        url.to_string(),
+        title.to_string(),
+        thumbnail.to_string(),
+        uploader.to_string(),
+        format_id.to_string(),
+        ext.to_string(),
+    );
     crate::schedule::show(
         &window,
-        ts,
-        &recurrence,
+        Some(ts),
+        recurrence,
         Rc::new(move |new_ts: f64, new_rec: String| {
             // Drop the old occurrence, then create the edited one afresh.
-            cancel_scheduled_by_id(&st, &id);
+            cancel_scheduled_by_id(&st, &sid);
             enqueue_scheduled(
-                &st, &url, &title, &thumb, &uploader, &format_id, &ext, new_ts, &new_rec,
+                &st, &url, &title, &thumb, &uploader, &fmt, &ext, new_ts, &new_rec,
             );
-            refresh_scheduled_list(&st);
         }),
     );
-}
-
-/// Prompt for a URL, then run the normal fetch → format dialog so the user can
-/// pick a format and Schedule it (the "Add" button on the Scheduled tab).
-fn add_scheduled_dialog(state: &Rc<AppState>) {
-    let Some(window) = state.window.borrow().clone() else {
-        return;
-    };
-    let dialog = adw::MessageDialog::new(
-        Some(&window),
-        Some(&tr("Add Schedule")),
-        Some(&tr("Paste a video or playlist URL to schedule.")),
-    );
-    let entry = gtk::Entry::new();
-    entry.set_input_purpose(gtk::InputPurpose::Url);
-    entry.set_placeholder_text(Some(&tr("Paste URL or type keywords...")));
-    entry.set_margin_top(8);
-    dialog.set_extra_child(Some(&entry));
-    dialog.add_response("cancel", &tr("Cancel"));
-    dialog.add_response("add", &tr("Continue"));
-    dialog.set_response_appearance("add", adw::ResponseAppearance::Suggested);
-    dialog.set_default_response(Some("add"));
-    dialog.set_close_response("cancel");
-    apply_theme_classes(&dialog);
-
-    let state = state.clone();
-    dialog.connect_response(None, move |dlg, resp| {
-        if resp == "add" {
-            let url = entry.text().trim().to_string();
-            if !url.is_empty() {
-                add_scheduled_from_url(&state, url);
-            }
-        }
-        dlg.close();
-    });
-    dialog.present();
-}
-
-/// Fetch metadata for a raw URL, then present the format dialog (with Schedule).
-fn add_scheduled_from_url(state: &Rc<AppState>, url: String) {
-    state.toast(&tr("Processing..."));
-    state.busy_begin();
-    let (tx, rx) = async_channel::bounded::<
-        std::result::Result<bigtube_core::downloader::ParsedInfo, StatusCode>,
-    >(1);
-    let url_thread = url.clone();
-    std::thread::spawn(move || {
-        let info = match VideoDownloader::new() {
-            Ok(d) => d.fetch_video_info_checked(&url_thread),
-            Err(_) => Err(StatusCode::UnknownError),
-        };
-        let _ = tx.send_blocking(info);
-    });
-
-    let state = state.clone();
-    glib::spawn_future_local(async move {
-        let received = rx.recv().await;
-        state.busy_end();
-        let info = match received {
-            Ok(Ok(info)) => info,
-            Ok(Err(StatusCode::BotBlocked)) => {
-                state.notify_bot_block();
-                return;
-            }
-            _ => {
-                state.toast(&tr("No formats found"));
-                return;
-            }
-        };
-        let title = info.title.clone();
-        let thumb = info.thumbnail.clone().unwrap_or_default();
-        let uploader = info.uploader.clone();
-        present_download_dialog(&state, info, url, title, thumb, uploader, false);
-    });
 }
 
 // =============================================================================
@@ -3380,13 +3149,57 @@ fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
                 return;
             }
         };
-        present_download_dialog(&state, info, url, title, thumb, uploader, audio_only);
+        // YouTube Music (audio_only) goes straight to audio. A normal video
+        // source first asks the user whether they want video or audio only.
+        if audio_only {
+            present_download_dialog(&state, info, url, title, thumb, uploader, true);
+            return;
+        }
+        let Some(window) = state.window.borrow().clone() else {
+            return;
+        };
+        let st = state.clone();
+        // Carry the fetched data into the (Fn) response closure via a one-shot.
+        let slot = Rc::new(RefCell::new(Some((info, url, title, thumb, uploader))));
+        choose_video_or_audio(
+            &window,
+            Rc::new(move |as_audio: bool| {
+                if let Some((info, url, title, thumb, uploader)) = slot.borrow_mut().take() {
+                    present_download_dialog(&st, info, url, title, thumb, uploader, as_audio);
+                }
+            }),
+        );
     });
 }
 
+/// Ask whether to download the video or just its audio, before listing formats.
+/// `on_choice(true)` = audio only, `on_choice(false)` = video.
+fn choose_video_or_audio(window: &adw::ApplicationWindow, on_choice: Rc<dyn Fn(bool)>) {
+    let dialog = adw::MessageDialog::new(
+        Some(window),
+        Some(&tr("Download as")),
+        Some(&tr("Choose whether to download the video or audio only.")),
+    );
+    dialog.add_response("cancel", &tr("Cancel"));
+    dialog.add_response("audio", &tr("Audio Only"));
+    dialog.add_response("video", &tr("Video"));
+    dialog.set_response_appearance("video", adw::ResponseAppearance::Suggested);
+    dialog.set_default_response(Some("video"));
+    dialog.set_close_response("cancel");
+    apply_theme_classes(&dialog);
+    dialog.connect_response(None, move |dlg, resp| {
+        dlg.close();
+        match resp {
+            "video" => on_choice(false),
+            "audio" => on_choice(true),
+            _ => {}
+        }
+    });
+    dialog.present();
+}
+
 /// Present the format-selection dialog for already-fetched `info`, wiring its
-/// Download and Schedule buttons. Shared by clicking a result and by the
-/// Scheduled tab's "Add" action (which fetches a raw URL first).
+/// Download and Schedule buttons.
 fn present_download_dialog(
     state: &Rc<AppState>,
     info: bigtube_core::downloader::ParsedInfo,
@@ -3564,7 +3377,6 @@ fn schedule_all(state: &Rc<AppState>, items: Vec<VideoObject>) {
                     );
                 }
                 st2.toast(&tr("Scheduled!"));
-                refresh_scheduled_list(&st2);
             }),
         );
     });
@@ -3953,9 +3765,30 @@ fn enqueue_common(
         }
         row.status.set_text(&msg);
         row.set_progress_class("warning");
-        // Tag the row with its schedule id so the Scheduled tab can manage it.
+        // Tag the row with its schedule id and reveal the edit pencil.
         row.sched_id.replace(Some(sched_id.clone()));
+        row.edit.set_visible(true);
         state.toast(&msg);
+
+        // Pencil → reopen the schedule dialog pre-filled and re-arm on confirm.
+        {
+            let st = state.clone();
+            let (sid, url, title, thumb, uploader, fmt, ext2, rec) = (
+                sched_id.clone(),
+                url.to_string(),
+                title.to_string(),
+                thumbnail.to_string(),
+                uploader.to_string(),
+                format_id.to_string(),
+                ext.to_string(),
+                recurrence.to_string(),
+            );
+            row.edit.connect_clicked(move |_| {
+                open_schedule_editor(
+                    &st, &sid, &url, &title, &thumb, &uploader, &fmt, &ext2, ts, &rec,
+                );
+            });
+        }
 
         let st = state.clone();
         let key_c = key.clone();

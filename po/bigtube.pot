@@ -1345,6 +1345,14 @@ msgid "Edit"
 msgstr ""
 
 #: bigtube-gui
+msgid "Download as"
+msgstr ""
+
+#: bigtube-gui
+msgid "Choose whether to download the video or audio only."
+msgstr ""
+
+#: bigtube-gui
 msgid "Repeat"
 msgstr ""
 
