@@ -645,6 +645,12 @@ pub fn build_window(app: &adw::Application) {
                         // (the `detail` line), leaving the header status as "Done".
                         row.detail.set_text(&text);
                         row.detail.set_visible(true);
+                        // Persist it so the row shows the same summary after restart.
+                        let fp = row.file_path.borrow().clone();
+                        if !fp.is_empty() {
+                            bigtube_core::history::HistoryManager::new(history_path())
+                                .set_media_summary(&fp, &text);
+                        }
                     }
                 }
             }
@@ -3691,6 +3697,66 @@ fn load_download_history(state: &Rc<AppState>) {
         row.status.set_text(&history_status_label(status));
         let exists = !fp.is_empty() && std::path::Path::new(fp).exists();
         row.footer.set_visible(exists);
+
+        // Restore the saved media summary (codecs/resolution/size) bottom-left.
+        let media = it
+            .get("media_summary")
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        if !media.is_empty() {
+            row.detail.set_text(media);
+            row.detail.set_visible(true);
+        }
+
+        // A failed download comes back retryable: red bar + a Retry button that
+        // re-enqueues from the stored url/format and drops the stale entry.
+        if status == "error" {
+            row.progress.set_visible(true);
+            row.progress.set_fraction(0.0);
+            row.set_progress_class("error");
+            row.pause.set_visible(true);
+            row.pause.set_sensitive(true);
+            row.pause.set_icon_name("view-refresh-symbolic");
+            row.pause.set_tooltip_text(Some(&tr("Retry")));
+
+            let state2 = state.clone();
+            let container = row.container.clone();
+            let u = it
+                .get("url")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            let t = title.to_string();
+            let th = it
+                .get("thumbnail")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            let up = uploader.to_string();
+            let f = it
+                .get("format_id")
+                .and_then(|v| v.as_str())
+                .unwrap_or("best")
+                .to_string();
+            let e = it
+                .get("ext")
+                .and_then(|v| v.as_str())
+                .unwrap_or("mp4")
+                .to_string();
+            let fp_owned = fp.to_string();
+            row.pause.connect_clicked(move |_| {
+                if u.is_empty() {
+                    return;
+                }
+                remove_download_row(&state2, &container);
+                if !fp_owned.is_empty() {
+                    bigtube_core::history::HistoryManager::new(history_path())
+                        .remove_entry(&fp_owned);
+                }
+                enqueue_download(&state2, &u, &t, &th, &up, &f, &e);
+            });
+        }
+
         wire_row_footer(state, &row);
         state.downloads_box.append(&row.container);
         // Track in the row map so "Clear" can find and remove them too.

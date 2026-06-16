@@ -159,6 +159,32 @@ impl HistoryManager {
         }
     }
 
+    /// Store the probed media summary (codecs/resolution/size string) on the
+    /// entry for `file_path`, so it can be shown again after a restart. Debounced.
+    pub fn set_media_summary(&self, file_path: &str, summary: &str) {
+        let mut changed = false;
+        {
+            let mut guard = self.cache.lock().unwrap();
+            if guard.is_none() {
+                *guard = Some(load_json(&self.path, Vec::new()));
+            }
+            if let Some(items) = guard.as_mut() {
+                for item in items.iter_mut() {
+                    if item.get("file_path").and_then(Value::as_str) == Some(file_path) {
+                        if item.get("media_summary").and_then(Value::as_str) != Some(summary) {
+                            item["media_summary"] = json!(summary);
+                            changed = true;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        if changed {
+            self.debouncer.touch();
+        }
+    }
+
     /// Remove the entry for `file_path` (`remove_entry`). Immediate save.
     pub fn remove_entry(&self, file_path: &str) {
         let history = self.load();
