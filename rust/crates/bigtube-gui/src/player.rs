@@ -64,6 +64,10 @@ pub struct Player {
     index: Cell<usize>,
     // True while the user has explicitly paused, so buffering doesn't auto-resume.
     paused_by_user: Cell<bool>,
+    // Consecutive stream errors with no successful playback in between. Lets us
+    // skip a broken track (e.g. an expired URL that errors instead of ending
+    // cleanly) without looping forever when every item fails.
+    error_streak: Cell<usize>,
     // Observable "current track" handle that result rows watch to highlight the
     // row being played.
     now_playing: NowPlaying,
@@ -287,6 +291,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> (Rc<Player>, gtk::Widget) {
         queue: RefCell::new(Vec::new()),
         index: Cell::new(0),
         paused_by_user: Cell::new(false),
+        error_streak: Cell::new(0),
         now_playing: NowPlaying::new(),
         _bus_watch: RefCell::new(None),
     });
@@ -407,7 +412,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> (Rc<Player>, gtk::Widget) {
                 }
                 gst::MessageView::Error(err) => {
                     tracing::error!("GStreamer error: {}", err.error());
-                    p.stop();
+                    p.handle_stream_error();
                 }
                 _ => {}
             }
@@ -483,6 +488,8 @@ impl Player {
         if items.is_empty() {
             return;
         }
+        // Fresh user-initiated playback: forget any prior error streak.
+        self.error_streak.set(0);
         let start = start.min(items.len() - 1);
         self.queue.replace(items);
         self.play_index(start);
@@ -592,6 +599,8 @@ impl Player {
         if len == 0 {
             return;
         }
+        // User navigation: don't count earlier auto-skip errors against this.
+        self.error_streak.set(0);
         let i = self.index.get();
         // Cyclic: wrap to the end from the first item.
         let prev = if i == 0 { len - 1 } else { i - 1 };
@@ -603,6 +612,30 @@ impl Player {
         if len == 0 {
             return;
         }
+        // User navigation: don't count earlier auto-skip errors against this.
+        self.error_streak.set(0);
+        let i = self.index.get();
+        self.play_index((i + 1) % len);
+    }
+
+    /// A stream errored (e.g. an expired URL that fails instead of ending
+    /// cleanly). Skip to the next track like a playlist would — but if every
+    /// item in the queue has failed in a row, give up and stop.
+    fn handle_stream_error(self: &Rc<Self>) {
+        let len = self.queue.borrow().len();
+        // Nothing useful to skip to (single item would just retry the same one).
+        if len <= 1 {
+            self.error_streak.set(0);
+            self.stop();
+            return;
+        }
+        let streak = self.error_streak.get() + 1;
+        if streak >= len {
+            self.error_streak.set(0);
+            self.stop();
+            return;
+        }
+        self.error_streak.set(streak);
         let i = self.index.get();
         self.play_index((i + 1) % len);
     }
@@ -614,6 +647,8 @@ impl Player {
         if len == 0 {
             return false;
         }
+        // Clean end means the track played fine — reset the error streak.
+        self.error_streak.set(0);
         let i = self.index.get();
         self.play_index((i + 1) % len);
         true
@@ -744,6 +779,11 @@ impl Player {
             self.scale.set_value(pos / dur);
             self.time_cur.set_text(&fmt_time(pos));
             self.time_tot.set_text(&fmt_time(dur));
+        }
+        // Real playback progress means the current track works — clear the
+        // error streak so a later failure starts skipping fresh.
+        if pos > 0.0 {
+            self.error_streak.set(0);
         }
     }
 }
