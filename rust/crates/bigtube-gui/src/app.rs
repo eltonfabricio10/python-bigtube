@@ -832,19 +832,14 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     popover.set_has_arrow(false);
     popover.set_position(gtk::PositionType::Bottom);
     popover.add_css_class("menu");
-    // A plain vertical Box (not a ListBox): no auto ListBoxRow wrapper, so the
-    // measured natural height is EXACT (no per-row overhead, no inflation to fill
-    // a taller viewport when shrinking) and rows remove cleanly.
+    // A plain vertical Box placed DIRECTLY in the popover (no ScrolledWindow):
+    // the popover then sizes exactly to the box's content, so there is never any
+    // leftover space below the rows — and nothing to keep a stale stretched
+    // height. (Suggestions are capped at max_suggestions, so the list stays short.)
     let sugg_list = gtk::Box::new(gtk::Orientation::Vertical, 0);
     sugg_list.set_valign(gtk::Align::Start);
-    let sugg_scroll = gtk::ScrolledWindow::new();
-    sugg_scroll.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
-    // Height is governed explicitly by fit_suggestion_scroll (min==max content
-    // height = the box's exact natural height), so natural-height propagation is
-    // left off to avoid the popover keeping a stale, taller size when shrinking.
-    sugg_scroll.set_min_content_width(320);
-    sugg_scroll.set_child(Some(&sugg_list));
-    popover.set_child(Some(&sugg_scroll));
+    sugg_list.set_size_request(320, -1);
+    popover.set_child(Some(&sugg_list));
 
     // Dismiss the popover when the entry loses focus (clicking away, minimizing,
     // switching windows) so it never gets stuck on screen.
@@ -880,38 +875,9 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         })
     };
 
-    /// Size the suggestion scroller to the box's natural height (capped) so the
-    /// popover hugs its content — no empty leftover row when matches are few.
-    fn fit_suggestion_scroll(
-        list: &gtk::Box,
-        scroll: &gtk::ScrolledWindow,
-        width: i32,
-        n_rows: usize,
-    ) {
-        const ROW_H: i32 = 34; // fallback per-row height if nothing is measured yet
-        const MAX_H: i32 = 190;
-        // A vertical Box's natural height == sum of its children's heights, exact
-        // and allocation-independent (unlike a ListBox, which inflates to fill a
-        // taller viewport). So measure() here is the true content height.
-        let (_, nat_h, _, _) = list.measure(gtk::Orientation::Vertical, width.max(320));
-        let h = if nat_h > 0 {
-            nat_h
-        } else {
-            (n_rows as i32 * ROW_H).max(ROW_H)
-        }
-        .clamp(1, MAX_H);
-        // Lift the cap before setting min, else set_min_content_height(h) asserts
-        // when h > the previous max_content_height (GTK requires min <= max at all
-        // times). Order: clear max -> set min -> set max == min for an exact size.
-        scroll.set_max_content_height(-1);
-        scroll.set_min_content_height(h);
-        scroll.set_max_content_height(h);
-    }
-
     // Rebuild the suggestion list for the current text.
     let rebuild: Rc<dyn Fn(&str)> = {
         let sugg_list = sugg_list.clone();
-        let sugg_scroll = sugg_scroll.clone();
         let popover = popover.clone();
         let entry = entry.clone();
         let trigger = trigger.clone();
@@ -941,7 +907,6 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 popover.popdown();
                 return;
             }
-            let n_matches = matches.len();
             for m in matches {
                 let rowbox = gtk::Box::new(gtk::Orientation::Horizontal, 0);
                 rowbox.add_css_class("suggestion-row");
@@ -983,53 +948,25 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 }
                 {
                     let sugg_list = sugg_list.clone();
-                    let sugg_scroll = sugg_scroll.clone();
                     let popover = popover.clone();
-                    let entry = entry.clone();
                     let rowbox = rowbox.clone();
                     let q = m.clone();
                     del.connect_clicked(move |_| {
                         bigtube_core::search_history::SearchHistory::new(search_history_path())
                             .remove_item(&q);
                         sugg_list.remove(&rowbox);
-                        // Count what's left and re-fit, so the popover shrinks
-                        // instead of leaving the removed row's empty space.
-                        let mut remaining = 0;
-                        let mut c = sugg_list.first_child();
-                        while let Some(w) = c {
-                            remaining += 1;
-                            c = w.next_sibling();
-                        }
-                        if remaining == 0 {
+                        // No scroll: the popover hugs the box, so it shrinks on its
+                        // own. Just close it when nothing is left.
+                        if sugg_list.first_child().is_none() {
                             popover.popdown();
-                        } else {
-                            fit_suggestion_scroll(
-                                &sugg_list,
-                                &sugg_scroll,
-                                entry.width().max(320),
-                                remaining,
-                            );
                         }
                     });
                 }
             }
-            // Match the popover width to the search entry so labels aren't clipped,
-            // and size the scroller to the content before re-opening.
-            let w = entry.width().max(320);
-            fit_suggestion_scroll(&sugg_list, &sugg_scroll, w, n_matches);
-            popover.set_size_request(w, -1);
-            // Re-open on idle so the earlier popdown() is fully processed first —
-            // this gives a brand-new surface sized to the current rows (never the
-            // stale stretched height), then a final fit with the real heights.
-            glib::idle_add_local_once({
-                let popover = popover.clone();
-                let list = sugg_list.clone();
-                let scroll = sugg_scroll.clone();
-                move || {
-                    popover.popup();
-                    fit_suggestion_scroll(&list, &scroll, w, n_matches);
-                }
-            });
+            // Match the popover width to the search entry so labels aren't clipped;
+            // the popover hugs the box height on its own (no scroll = no leftover).
+            popover.set_size_request(entry.width().max(320), -1);
+            popover.popup();
         })
     };
 
