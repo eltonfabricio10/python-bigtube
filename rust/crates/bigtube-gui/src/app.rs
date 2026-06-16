@@ -832,6 +832,7 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     popover.set_has_arrow(false);
     popover.set_position(gtk::PositionType::Bottom);
     popover.add_css_class("menu");
+    popover.add_css_class("suggestions-popover");
     // A plain vertical Box (not a ListBox: exact natural height, no ListBoxRow
     // overhead/inflation) inside a ScrolledWindow that PROPAGATES the box's
     // natural height up to a cap. Few matches -> the scroll is exactly the box

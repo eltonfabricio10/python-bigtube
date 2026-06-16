@@ -1004,3 +1004,9 @@ button:focus:not(:focus-visible) {
     padding-top: 6px;
     padding-bottom: 6px;
 }
+
+/* Tighten the popover's own inner padding so a single suggestion doesn't leave
+   a noticeable gap below the row. */
+.suggestions-popover > contents {
+    padding: 2px;
+}
