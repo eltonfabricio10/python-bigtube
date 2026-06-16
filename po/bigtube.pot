@@ -1305,6 +1305,26 @@ msgid "Installed browsers"
 msgstr ""
 
 #: bigtube-gui
+msgid "Repeat"
+msgstr ""
+
+#: bigtube-gui
+msgid "Once"
+msgstr ""
+
+#: bigtube-gui
+msgid "Daily"
+msgstr ""
+
+#: bigtube-gui
+msgid "Weekly"
+msgstr ""
+
+#: bigtube-gui
+msgid "Monthly"
+msgstr ""
+
+#: bigtube-gui
 msgid "Clear search history?"
 msgstr ""
 

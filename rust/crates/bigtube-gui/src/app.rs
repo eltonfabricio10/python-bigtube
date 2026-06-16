@@ -295,6 +295,21 @@ enum UiMsg {
     },
     /// Real codecs + on-disk size, probed after a download completes.
     MediaInfo { key: String, text: String },
+    /// A recurring scheduled download just started: arm its next occurrence.
+    Reschedule { info: RescheduleInfo, base_ts: f64 },
+}
+
+/// Everything needed to re-create the next occurrence of a recurring schedule.
+#[derive(Clone)]
+struct RescheduleInfo {
+    url: String,
+    title: String,
+    thumbnail: String,
+    uploader: String,
+    format_id: String,
+    ext: String,
+    force_overwrite: bool,
+    recurrence: String,
 }
 
 /// Human file size from raw bytes, e.g. "57.9 MiB" / "1.23 GiB".
@@ -685,6 +700,28 @@ pub fn build_window(app: &adw::Application) {
                             bigtube_core::history::HistoryManager::new(history_path())
                                 .set_media_summary(&fp, &text);
                         }
+                    }
+                }
+                UiMsg::Reschedule { info, base_ts } => {
+                    // Compute the next instant after now and enqueue a fresh
+                    // scheduled download (new id, persisted) that will itself
+                    // arm the occurrence after it — the chain self-perpetuates.
+                    let now = now_epoch_secs();
+                    if let Some(next_ts) = next_occurrence(base_ts, &info.recurrence, now) {
+                        enqueue_common(
+                            &state_for_loop,
+                            &info.url,
+                            &info.title,
+                            &info.thumbnail,
+                            &info.uploader,
+                            &info.format_id,
+                            &info.ext,
+                            Some(next_ts),
+                            info.force_overwrite,
+                            None,
+                            None,
+                            &info.recurrence,
+                        );
                     }
                 }
             }
@@ -3025,9 +3062,10 @@ fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
                 let uploader = uploader.clone();
                 crate::schedule::show(
                     &win,
-                    Rc::new(move |ts: f64| {
+                    Rc::new(move |ts: f64, recurrence: String| {
                         enqueue_scheduled(
                             &st, &url, &title, &thumb, &uploader, &format_id, &ext, ts,
+                            &recurrence,
                         );
                     }),
                 );
@@ -3089,6 +3127,7 @@ fn download_all(state: &Rc<AppState>, items: Vec<VideoObject>) {
                 false,
                 subfolder.as_deref(),
                 None,
+                "once",
             );
         }
         let msg = match &subfolder {
@@ -3182,7 +3221,7 @@ fn enqueue_download(
     ext: &str,
 ) {
     enqueue_common(
-        state, url, title, thumbnail, uploader, format_id, ext, None, false, None, None,
+        state, url, title, thumbnail, uploader, format_id, ext, None, false, None, None, "once",
     );
 }
 
@@ -3237,7 +3276,7 @@ fn enqueue_download_checked(
         match resp {
             "overwrite" => enqueue_common(
                 &state, &url, &title, &thumbnail, &uploader, &format_id, &ext, None, true, None,
-                None,
+                None, "once",
             ),
             "keep" => {
                 let t = unique_title(&title, &format_id, &ext);
@@ -3274,7 +3313,8 @@ fn format_schedule_ts(ts: f64) -> String {
         .unwrap_or_default()
 }
 
-/// Schedule a download for the Unix timestamp `ts` (seconds).
+/// Schedule a download for the Unix timestamp `ts` (seconds), with an optional
+/// recurrence ("once" / "daily" / "weekly" / "monthly").
 #[allow(clippy::too_many_arguments)]
 fn enqueue_scheduled(
     state: &Rc<AppState>,
@@ -3285,6 +3325,7 @@ fn enqueue_scheduled(
     format_id: &str,
     ext: &str,
     ts: f64,
+    recurrence: &str,
 ) {
     enqueue_common(
         state,
@@ -3298,7 +3339,36 @@ fn enqueue_scheduled(
         false,
         None,
         None,
+        recurrence,
     );
+}
+
+/// Human label for a recurrence key (for the scheduled row's status line).
+fn recurrence_label(recurrence: &str) -> Option<String> {
+    match recurrence {
+        "daily" => Some(tr("Daily")),
+        "weekly" => Some(tr("Weekly")),
+        "monthly" => Some(tr("Monthly")),
+        _ => None,
+    }
+}
+
+/// Next future occurrence of a recurring schedule: advance `base_ts` by the
+/// recurrence interval (calendar-aware, so DST and month lengths are honoured)
+/// until it lands strictly after `now`. None for "once"/unknown keys.
+fn next_occurrence(base_ts: f64, recurrence: &str, now: f64) -> Option<f64> {
+    let mut dt = glib::DateTime::from_unix_local(base_ts as i64).ok()?;
+    loop {
+        dt = match recurrence {
+            "daily" => dt.add_days(1).ok()?,
+            "weekly" => dt.add_weeks(1).ok()?,
+            "monthly" => dt.add_months(1).ok()?,
+            _ => return None,
+        };
+        if dt.to_unix() as f64 > now {
+            return Some(dt.to_unix() as f64);
+        }
+    }
 }
 
 /// Pretty codec name for the resolved-plan summary line.
@@ -3379,6 +3449,7 @@ fn enqueue_common(
     force_overwrite: bool,
     subfolder: Option<&str>,
     restore_id: Option<String>,
+    recurrence: &str,
 ) {
     let key = next_key();
     let file_path = output_path(title, format_id, ext, subfolder);
@@ -3444,7 +3515,10 @@ fn enqueue_common(
     // as a toast, and make Cancel drop the still-pending timer (the core emits no
     // progress for a not-yet-started task, so we clean up the row here directly).
     if let Some(ts) = schedule_ts {
-        let msg = format!("{} {}", tr("Scheduled for:"), format_schedule_ts(ts));
+        let mut msg = format!("{} {}", tr("Scheduled for:"), format_schedule_ts(ts));
+        if let Some(rep) = recurrence_label(recurrence) {
+            msg = format!("{msg} · {rep}");
+        }
         row.status.set_text(&msg);
         row.set_progress_class("warning");
         state.toast(&msg);
@@ -3489,12 +3563,35 @@ fn enqueue_common(
     let k2 = key.clone();
     let was_scheduled = schedule_ts.is_some();
     let start_sched_id = sched_id.clone();
+    // Owned bundle so a recurring task can spawn its next occurrence on fire.
+    let rec_start = recurrence.to_string();
+    let base_ts = schedule_ts;
+    let reschedule = RescheduleInfo {
+        url: url.to_string(),
+        title: title.to_string(),
+        thumbnail: thumbnail.to_string(),
+        uploader: uploader.to_string(),
+        format_id: format_id.to_string(),
+        ext: ext.to_string(),
+        force_overwrite,
+        recurrence: rec_start,
+    };
     let on_start: OnStartFn = Arc::new(move |dl: Arc<VideoDownloader>| {
         if was_scheduled {
             bigtube_core::scheduled_downloads::ScheduledDownloadStore::new(
                 scheduled_downloads_path(),
             )
             .remove(&start_sched_id);
+            // A recurring task arms its next occurrence the moment this one
+            // starts (the main loop computes the next instant and re-enqueues).
+            if reschedule.recurrence != "once" {
+                if let Some(ts) = base_ts {
+                    let _ = tx_started.send_blocking(UiMsg::Reschedule {
+                        info: reschedule.clone(),
+                        base_ts: ts,
+                    });
+                }
+            }
         }
         let _ = tx_started.send_blocking(UiMsg::Started {
             key: k2.clone(),
@@ -3510,6 +3607,7 @@ fn enqueue_common(
     // download after a restart). The original selector is stored, not a probed
     // concrete id (scheduled tasks run later, when those ids may be stale).
     let persist = schedule_ts.is_some() && !restoring;
+    let rec_persist = recurrence.to_string();
     let (s_url, s_title, s_thumb, s_uploader, s_fmt, s_ext, s_path) = (
         url.to_string(),
         title.to_string(),
@@ -3535,6 +3633,7 @@ fn enqueue_common(
                     let item = serde_json::json!({
                         "id": sched_id,
                         "scheduled_time": ts,
+                        "recurrence": rec_persist,
                         "video_info": {
                             "url": s_url, "title": s_title,
                             "thumbnail": s_thumb, "uploader": s_uploader,
@@ -3915,14 +4014,34 @@ fn restore_scheduled_downloads(state: &Rc<AppState>) {
             .get("force_overwrite")
             .and_then(|v| v.as_bool())
             .unwrap_or(false);
+        let recurrence = item
+            .get("recurrence")
+            .and_then(|v| v.as_str())
+            .unwrap_or("once")
+            .to_string();
 
-        // Past its time while the app was closed: drop the persisted entry and
-        // download right away (schedule_ts = None).
+        // Past its time while the app was closed. For a one-shot, download right
+        // away (schedule_ts = None). For a recurring one, skip the missed runs
+        // (cron-style) and re-arm the next future occurrence in place.
         let mut schedule_ts = item.get("scheduled_time").and_then(|v| v.as_f64());
         if let Some(ts) = schedule_ts {
             if ts <= now {
-                store.remove(id);
-                schedule_ts = None;
+                if recurrence != "once" {
+                    schedule_ts = next_occurrence(ts, &recurrence, now);
+                    match schedule_ts {
+                        Some(next) => {
+                            // Persist the advanced time on the same entry so it
+                            // isn't restored as past-due again next launch.
+                            let mut updated = item.clone();
+                            updated["scheduled_time"] = serde_json::json!(next);
+                            store.upsert(&updated);
+                        }
+                        None => store.remove(id),
+                    }
+                } else {
+                    store.remove(id);
+                    schedule_ts = None;
+                }
             }
         }
 
@@ -3938,6 +4057,7 @@ fn restore_scheduled_downloads(state: &Rc<AppState>) {
             force_overwrite,
             None,
             Some(id.to_string()),
+            &recurrence,
         );
     }
 }

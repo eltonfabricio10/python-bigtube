@@ -7,8 +7,12 @@ use std::rc::Rc;
 use adw::prelude::*;
 use gtk::glib;
 
-/// Callback receiving the chosen Unix timestamp (seconds).
-pub type ScheduleFn = Rc<dyn Fn(f64)>;
+/// Callback receiving the chosen Unix timestamp (seconds) and the recurrence key
+/// ("once" / "daily" / "weekly" / "monthly").
+pub type ScheduleFn = Rc<dyn Fn(f64, String)>;
+
+/// Recurrence option keys, indexed to match the "Repeat" dropdown order.
+const RECURRENCES: [&str; 4] = ["once", "daily", "weekly", "monthly"];
 
 use crate::i18n::tr;
 
@@ -54,6 +58,18 @@ pub fn show(parent: &adw::ApplicationWindow, on_confirm: ScheduleFn) {
     time_group.add(&time_row);
     page.add(&time_group);
 
+    // Recurrence group: "Once" (the manual one-shot) plus daily/weekly/monthly.
+    let repeat_group = adw::PreferencesGroup::builder()
+        .title(tr("Repeat"))
+        .build();
+    let repeat = adw::ComboRow::builder().title(tr("Repeat")).build();
+    let (once, daily, weekly, monthly) = (tr("Once"), tr("Daily"), tr("Weekly"), tr("Monthly"));
+    let repeat_labels =
+        gtk::StringList::new(&[once.as_str(), daily.as_str(), weekly.as_str(), monthly.as_str()]);
+    repeat.set_model(Some(&repeat_labels));
+    repeat_group.add(&repeat);
+    page.add(&repeat_group);
+
     // Confirm button.
     let confirm_group = adw::PreferencesGroup::new();
     let confirm = gtk::Button::with_label(&tr("Schedule"));
@@ -85,7 +101,12 @@ pub fn show(parent: &adw::ApplicationWindow, on_confirm: ScheduleFn) {
                 m,
                 0.0,
             ) {
-                on_confirm(dt.to_unix() as f64);
+                let recurrence = RECURRENCES
+                    .get(repeat.selected() as usize)
+                    .copied()
+                    .unwrap_or("once")
+                    .to_string();
+                on_confirm(dt.to_unix() as f64, recurrence);
             }
             win.close();
         });

@@ -1385,6 +1385,26 @@ msgid "Installed browsers"
 msgstr "Navegadores instalados"
 
 #: bigtube-gui
+msgid "Repeat"
+msgstr "Repetir"
+
+#: bigtube-gui
+msgid "Once"
+msgstr "Uma vez"
+
+#: bigtube-gui
+msgid "Daily"
+msgstr "Diariamente"
+
+#: bigtube-gui
+msgid "Weekly"
+msgstr "Semanalmente"
+
+#: bigtube-gui
+msgid "Monthly"
+msgstr "Mensalmente"
+
+#: bigtube-gui
 msgid "Clear search history?"
 msgstr "Limpar o histórico de pesquisa?"
 
