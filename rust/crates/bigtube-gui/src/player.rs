@@ -499,6 +499,13 @@ impl Player {
         // while we resolve/buffer the new one — the switch must be clean.
         let _ = self.playbin.set_state(gst::State::Null);
 
+        // Reset the time/seek display so it doesn't show the previous video's
+        // position until the new one's position updates.
+        self.duration.set(0.0);
+        self.scale.set_value(0.0);
+        self.time_cur.set_text(&fmt_time(0.0));
+        self.time_tot.set_text("--:--");
+
         if item.is_local {
             let shown_artist = if item.artist.is_empty() {
                 tr("Unknown Artist")
