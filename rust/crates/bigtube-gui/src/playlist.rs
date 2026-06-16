@@ -116,6 +116,7 @@ pub fn show(
     };
     let factory = gtk::SignalListItemFactory::new();
     let on_download_row = on_download.clone();
+    let now_playing = player.now_playing();
     factory.connect_setup(move |_, list_item| {
         let list_item = list_item.downcast_ref::<gtk::ListItem>().unwrap();
         let row = SearchResultRow::new();
@@ -125,6 +126,7 @@ pub fn show(
             Rc::new(|_| {}),
             on_copy.clone(),
         );
+        row.set_now_playing(now_playing.clone());
         list_item.set_child(Some(&row));
     });
     factory.connect_bind(|_, list_item| {

@@ -705,6 +705,7 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             );
         })
     };
+    let setup_state = state.clone();
     factory.connect_setup(move |_, list_item| {
         let list_item = list_item.downcast_ref::<gtk::ListItem>().unwrap();
         let row = SearchResultRow::new();
@@ -714,6 +715,9 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             on_open.clone(),
             on_copy.clone(),
         );
+        if let Some(player) = setup_state.player.borrow().clone() {
+            row.set_now_playing(player.now_playing());
+        }
         list_item.set_child(Some(&row));
     });
     factory.connect_bind(|_, list_item| {

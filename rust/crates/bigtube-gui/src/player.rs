@@ -23,6 +23,7 @@ use gtk::glib;
 use bigtube_core::player::extract_stream_url;
 
 use crate::i18n::tr;
+use crate::objects::NowPlaying;
 
 /// One entry in the playback queue.
 #[derive(Clone, Default)]
@@ -63,6 +64,9 @@ pub struct Player {
     index: Cell<usize>,
     // True while the user has explicitly paused, so buffering doesn't auto-resume.
     paused_by_user: Cell<bool>,
+    // Observable "current track" handle that result rows watch to highlight the
+    // row being played.
+    now_playing: NowPlaying,
 }
 
 /// Build the player and its bottom bar widget.
@@ -279,6 +283,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> (Rc<Player>, gtk::Widget) {
         queue: RefCell::new(Vec::new()),
         index: Cell::new(0),
         paused_by_user: Cell::new(false),
+        now_playing: NowPlaying::new(),
     });
 
     // Play / pause.
@@ -421,6 +426,12 @@ pub fn build(parent: &adw::ApplicationWindow) -> (Rc<Player>, gtk::Widget) {
 }
 
 impl Player {
+    /// The shared "current track" handle (clone is cheap — it's a GObject).
+    /// Result rows watch this to highlight the row that's playing.
+    pub fn now_playing(&self) -> NowPlaying {
+        self.now_playing.clone()
+    }
+
     /// Play a single remote item (resolved via yt-dlp), as a one-item queue.
     pub fn play(self: &Rc<Self>, url: &str, title: &str, artist: &str, thumbnail: &str) {
         if url.is_empty() {
@@ -478,6 +489,8 @@ impl Player {
         };
         self.index.set(i);
         self.set_controls_enabled(true);
+        // Publish the current track so result rows highlight the active one.
+        self.now_playing.set_url(item.url.as_str());
         // New item: keep the thumbnail until fresh frames arrive.
         self.showing_frames.set(false);
 
@@ -685,6 +698,8 @@ impl Player {
         self.token.fetch_add(1, Ordering::SeqCst);
         self.queue.replace(Vec::new());
         self.index.set(0);
+        // Clear the highlight: nothing is playing anymore.
+        self.now_playing.set_url("");
         self.paused_by_user.set(false);
         self.showing_frames.set(false);
         self.set_loading(false);

@@ -49,6 +49,45 @@ glib::wrapper! {
     pub struct VideoObject(ObjectSubclass<imp::VideoObject>);
 }
 
+mod now_playing_imp {
+    use super::*;
+
+    #[derive(Default, glib::Properties)]
+    #[properties(wrapper_type = super::NowPlaying)]
+    pub struct NowPlaying {
+        /// URL/path of the item the player is currently on (empty = nothing).
+        #[property(get, set)]
+        pub url: RefCell<String>,
+    }
+
+    #[glib::object_subclass]
+    impl ObjectSubclass for NowPlaying {
+        const NAME: &'static str = "BigTubeNowPlaying";
+        type Type = super::NowPlaying;
+    }
+
+    #[glib::derived_properties]
+    impl ObjectImpl for NowPlaying {}
+}
+
+glib::wrapper! {
+    /// A shared, observable "what's playing now" handle. The player writes its
+    /// current URL here; result rows watch it to highlight the active track.
+    pub struct NowPlaying(ObjectSubclass<now_playing_imp::NowPlaying>);
+}
+
+impl NowPlaying {
+    pub fn new() -> Self {
+        glib::Object::builder().build()
+    }
+}
+
+impl Default for NowPlaying {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl VideoObject {
     /// Build from a core `SearchResult`.
     pub fn from_result(r: &SearchResult) -> Self {

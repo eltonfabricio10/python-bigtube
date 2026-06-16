@@ -11,7 +11,7 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 
 use crate::i18n::tr;
-use crate::objects::VideoObject;
+use crate::objects::{NowPlaying, VideoObject};
 
 thread_local! {
     /// Main-thread texture cache so scrolling/rebinding doesn't re-download.
@@ -42,6 +42,9 @@ mod imp {
         pub thumb_gen: Cell<u64>,
         // Property bindings for the current item, cleared on rebind.
         pub bindings: RefCell<Vec<glib::Binding>>,
+        // Shared "current track" handle; the row highlights itself when its item
+        // matches the one playing.
+        pub now_playing: OnceCell<NowPlaying>,
     }
 
     #[glib::object_subclass]
@@ -195,6 +198,36 @@ impl SearchResultRow {
         Self::default()
     }
 
+    /// Give the row the shared "now playing" handle and start watching it, so it
+    /// highlights itself whenever its bound item becomes the active track.
+    pub fn set_now_playing(&self, now: NowPlaying) {
+        let weak = self.downgrade();
+        now.connect_url_notify(move |_| {
+            if let Some(row) = weak.upgrade() {
+                row.refresh_playing();
+            }
+        });
+        let _ = self.imp().now_playing.set(now);
+    }
+
+    /// Add/remove the `.playing` highlight based on whether this row's item is
+    /// the track the player is currently on.
+    fn refresh_playing(&self) {
+        let imp = self.imp();
+        let active = match (imp.item.borrow().as_ref(), imp.now_playing.get()) {
+            (Some(item), Some(now)) => {
+                let cur = now.url();
+                !cur.is_empty() && item.url() == cur
+            }
+            _ => false,
+        };
+        if active {
+            self.add_css_class("playing");
+        } else {
+            self.remove_css_class("playing");
+        }
+    }
+
     /// Install the (shared) play/download/open/copy handlers once per row.
     pub fn set_handlers(
         &self,
@@ -213,6 +246,8 @@ impl SearchResultRow {
     pub fn set_item(&self, item: &VideoObject) {
         let imp = self.imp();
         imp.item.replace(Some(item.clone()));
+        // Recompute the highlight for the newly-bound item (rows are recycled).
+        self.refresh_playing();
 
         // Rebind the selection checkbox to this item (drop the previous item's
         // bindings first, since rows are recycled).
