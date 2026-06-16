@@ -1157,37 +1157,94 @@ fn color_label(value: &str) -> &'static str {
 }
 
 /// Browsers offered for "Cookies From Browser", detected on PATH (`download_settings.py`).
+/// Detect installed browsers by probing the *real* binary at canonical absolute
+/// install paths (`/usr/bin`, `/usr/lib`, `/opt`) — deliberately NOT a `$PATH`
+/// lookup. Tools like `auto-tweaks-browser` drop wrapper scripts into
+/// `/usr/local/bin` (and `~/.local/bin`) for every browser, so a PATH/`which`
+/// scan reports browsers that aren't actually installed. We only trust the real
+/// package locations and reject anything that resolves into a wrapper.
 fn detect_browsers() -> Vec<(&'static str, String)> {
     let candidates: [(&str, &str, &[&str]); 7] = [
-        ("firefox", "Firefox", &["firefox"]),
+        (
+            "firefox",
+            "Firefox",
+            &[
+                "/usr/bin/firefox",
+                "/usr/lib/firefox/firefox",
+                "/opt/firefox/firefox",
+            ],
+        ),
         (
             "chrome",
             "Chrome",
-            &["google-chrome", "google-chrome-stable"],
+            &[
+                "/usr/bin/google-chrome-stable",
+                "/usr/bin/google-chrome",
+                "/opt/google/chrome/google-chrome",
+            ],
         ),
-        ("chromium", "Chromium", &["chromium", "chromium-browser"]),
-        ("brave", "Brave", &["brave", "brave-browser"]),
+        (
+            "chromium",
+            "Chromium",
+            &["/usr/bin/chromium", "/usr/lib/chromium/chromium"],
+        ),
+        (
+            "brave",
+            "Brave",
+            &[
+                "/usr/bin/brave",
+                "/usr/bin/brave-browser",
+                "/opt/brave-bin/brave",
+                "/opt/brave.com/brave/brave",
+            ],
+        ),
         (
             "edge",
             "Microsoft Edge",
-            &["microsoft-edge", "microsoft-edge-stable"],
+            &[
+                "/usr/bin/microsoft-edge",
+                "/usr/bin/microsoft-edge-stable",
+                "/opt/microsoft/msedge/microsoft-edge",
+            ],
         ),
-        ("vivaldi", "Vivaldi", &["vivaldi", "vivaldi-stable"]),
-        ("opera", "Opera", &["opera"]),
+        (
+            "vivaldi",
+            "Vivaldi",
+            &[
+                "/usr/bin/vivaldi",
+                "/usr/bin/vivaldi-stable",
+                "/opt/vivaldi/vivaldi",
+            ],
+        ),
+        (
+            "opera",
+            "Opera",
+            &["/usr/bin/opera", "/usr/lib/x86_64-linux-gnu/opera/opera"],
+        ),
     ];
     let mut out: Vec<(&str, String)> = vec![("", tr("None"))];
-    for (val, label, cmds) in candidates {
-        if cmds.iter().any(|c| in_path(c)) {
+    for (val, label, paths) in candidates {
+        if paths.iter().any(|p| is_real_browser_binary(p)) {
             out.push((val, label.to_string()));
         }
     }
     out
 }
 
-fn in_path(cmd: &str) -> bool {
-    std::env::var_os("PATH")
-        .map(|paths| std::env::split_paths(&paths).any(|p| p.join(cmd).exists()))
-        .unwrap_or(false)
+/// True if `path` is a real browser binary — it exists and does not resolve into
+/// a wrapper directory (`/usr/local/...`) or an `auto-tweaks-browser` shim.
+fn is_real_browser_binary(path: &str) -> bool {
+    let p = std::path::Path::new(path);
+    if !p.exists() {
+        return false;
+    }
+    match std::fs::canonicalize(p) {
+        Ok(real) => {
+            let s = real.to_string_lossy();
+            !s.starts_with("/usr/local/") && !s.contains("browser-tweaks")
+        }
+        Err(_) => true,
+    }
 }
 
 fn set_cfg(key: &str, value: serde_json::Value) {
@@ -1562,31 +1619,18 @@ fn browser_ua(key: &str) -> Option<&'static str> {
     })
 }
 
-/// User-Agent presets for browsers actually installed on this machine,
-/// deduplicated by UA string — every Chromium-based browser (Chrome, Chromium,
-/// Brave, Vivaldi) reports the same UA, so we collapse them into a single
-/// "Chrome (Chromium)" entry instead of listing four identical options.
+/// User-Agent presets for browsers actually installed on this machine — one
+/// entry per installed browser ([`detect_browsers`] already filters to real
+/// installs, not `$PATH` wrappers).
 fn user_agent_presets() -> Vec<(String, String)> {
     let mut out = vec![(tr("Choose a preset…"), String::new())];
-    let mut seen: Vec<&'static str> = Vec::new();
-    for (key, _label) in detect_browsers() {
+    for (key, label) in detect_browsers() {
         if key.is_empty() {
             continue; // the "None" sentinel
         }
-        let Some(ua) = browser_ua(key) else { continue };
-        if seen.contains(&ua) {
-            continue; // same UA already offered (e.g. all Chromium browsers)
+        if let Some(ua) = browser_ua(key) {
+            out.push((label, ua.to_string()));
         }
-        seen.push(ua);
-        // The shared Chrome UA covers chrome/chromium/brave/vivaldi.
-        let label = match key {
-            "chrome" | "chromium" | "brave" | "vivaldi" => tr("Chrome (Chromium)"),
-            "firefox" => tr("Firefox"),
-            "edge" => tr("Microsoft Edge"),
-            "opera" => tr("Opera"),
-            _ => continue,
-        };
-        out.push((label, ua.to_string()));
     }
     out
 }
