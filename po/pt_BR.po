@@ -1385,6 +1385,14 @@ msgid "Installed browsers"
 msgstr "Navegadores instalados"
 
 #: bigtube-gui
+msgid "Clear search history?"
+msgstr "Limpar o histórico de pesquisa?"
+
+#: bigtube-gui
+msgid "Clear"
+msgstr "Limpar"
+
+#: bigtube-gui
 msgid "Reset all app data?"
 msgstr "Redefinir todos os dados do app?"
 

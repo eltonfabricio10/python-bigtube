@@ -2169,8 +2169,30 @@ fn import_history(state: &Rc<AppState>) {
 }
 
 fn clear_search_history(state: &Rc<AppState>) {
-    bigtube_core::search_history::SearchHistory::new(search_history_path()).clear();
-    state.toast(&tr("History cleared successfully!"));
+    let Some(window) = state.window.borrow().clone() else {
+        return;
+    };
+    let dialog = adw::MessageDialog::new(
+        Some(&window),
+        Some(&tr("Clear search history?")),
+        Some(&tr("Delete all previous search entries")),
+    );
+    dialog.add_response("cancel", &tr("Cancel"));
+    dialog.add_response("clear", &tr("Clear"));
+    dialog.set_response_appearance("clear", adw::ResponseAppearance::Destructive);
+    dialog.set_default_response(Some("cancel"));
+    dialog.set_close_response("cancel");
+    apply_theme_classes(&dialog);
+
+    let state = state.clone();
+    dialog.connect_response(None, move |dlg, resp| {
+        dlg.close();
+        if resp == "clear" {
+            bigtube_core::search_history::SearchHistory::new(search_history_path()).clear();
+            state.toast(&tr("History cleared successfully!"));
+        }
+    });
+    dialog.present();
 }
 
 fn reset_all_data(state: &Rc<AppState>) {
