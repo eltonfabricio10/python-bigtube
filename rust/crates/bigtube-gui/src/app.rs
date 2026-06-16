@@ -885,6 +885,7 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     // Rebuild the suggestion list for the current text.
     let rebuild: Rc<dyn Fn(&str)> = {
         let sugg_list = sugg_list.clone();
+        let sugg_scroll = sugg_scroll.clone();
         let popover = popover.clone();
         let entry = entry.clone();
         let trigger = trigger.clone();
@@ -970,10 +971,33 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                     });
                 }
             }
-            // Match the popover width to the search entry so labels aren't clipped;
-            // the popover hugs the box height on its own (no scroll = no leftover).
+            // Reset the scroll to the default cap so a previous single-row's pinned
+            // height doesn't squish a now-longer list; propagate_natural_height then
+            // sizes the popup to the box, and the idle below pins the exact height.
+            sugg_scroll.set_min_content_height(-1);
+            sugg_scroll.set_max_content_height(240);
+            // Match the popover width to the search entry so labels aren't clipped.
             popover.set_size_request(entry.width().max(320), -1);
             popover.popup();
+            // Pin the scroll to the REAL rendered box height once layout settles.
+            // The box's NATURAL height (what propagate_natural_height uses) sits a
+            // few px above what actually renders, leaving a small gap under a single
+            // row; list.height() (post-layout) is the exact rendered height, so this
+            // removes that leftover. Resize-only (no popup) -> no reopen race.
+            glib::idle_add_local_once({
+                let scroll = sugg_scroll.clone();
+                let list = sugg_list.clone();
+                move || {
+                    let h = list.height();
+                    if h > 0 {
+                        let h = h.min(240);
+                        // Clear max before min so min<=max always holds (GTK asserts).
+                        scroll.set_max_content_height(-1);
+                        scroll.set_min_content_height(h);
+                        scroll.set_max_content_height(h);
+                    }
+                }
+            });
         })
     };
 
