@@ -28,8 +28,33 @@ fn main() {
     gstreamer::init().expect("GStreamer init failed");
     i18n::init();
 
+    // Drop libadwaita's one cosmetic warning about the desktop's legacy
+    // `gtk-application-prefer-dark-theme` setting (we theme via AdwStyleManager).
+    // Everything else from the Adwaita domain is passed through unchanged.
+    gtk::glib::log_set_handler(
+        Some("Adwaita"),
+        gtk::glib::LogLevels::all(),
+        false,
+        false,
+        |domain, level, message| {
+            if message.contains("gtk-application-prefer-dark-theme") {
+                return;
+            }
+            gtk::glib::log_default_handler(domain, level, Some(message));
+        },
+    );
+
     let app = adw::Application::builder().application_id(APP_ID).build();
-    app.connect_startup(|_| load_css());
+    app.connect_startup(|_| {
+        // Silence libadwaita's "gtk-application-prefer-dark-theme is unsupported"
+        // warning: many desktops set that in ~/.config/gtk-4.0/settings.ini, but
+        // we drive dark/light via AdwStyleManager. Reset the legacy flag so the
+        // two don't fight (and the warning doesn't spam the log).
+        if let Some(settings) = gtk::Settings::default() {
+            settings.set_gtk_application_prefer_dark_theme(false);
+        }
+        load_css();
+    });
     // Single instance: GApplication is already unique via APP_ID (a second launch
     // forwards `activate` to the running process). Without this guard, that second
     // activation would build ANOTHER window in the same process — so re-opening
