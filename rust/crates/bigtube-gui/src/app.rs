@@ -595,6 +595,9 @@ pub fn build_window(app: &adw::Application) {
     // Restore persisted download / converter history into their lists.
     load_download_history(&state);
     load_converter_history(&state);
+    // Recreate persisted scheduled downloads (re-arming their timers, or running
+    // immediately any whose time passed while the app was closed).
+    restore_scheduled_downloads(&state);
 
     // Always run the monitor; it honours the live `monitor_clipboard` setting.
     start_clipboard_monitor(&state);
@@ -1713,6 +1716,19 @@ fn history_path() -> std::path::PathBuf {
     bigtube_core::paths::config_dir().join("history.json")
 }
 
+/// Path to the persisted scheduled-downloads file (`scheduled_downloads.py`).
+fn scheduled_downloads_path() -> std::path::PathBuf {
+    bigtube_core::paths::config_dir().join("scheduled_downloads.json")
+}
+
+/// Current Unix time in seconds (for comparing against `scheduled_time`).
+fn now_epoch_secs() -> f64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs_f64())
+        .unwrap_or(0.0)
+}
+
 fn refresh_version_subtitle(row: &adw::ActionRow) {
     let yt_dlp = config::global().read().unwrap().yt_dlp_path.clone();
     let (tx, rx) = async_channel::bounded::<String>(1);
@@ -2259,6 +2275,7 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn run_conversion(
     path: std::path::PathBuf,
     fmt: String,
@@ -2641,6 +2658,7 @@ fn download_all(state: &Rc<AppState>, items: Vec<VideoObject>) {
                 None,
                 false,
                 subfolder.as_deref(),
+                None,
             );
         }
         let msg = match &subfolder {
@@ -2734,7 +2752,7 @@ fn enqueue_download(
     ext: &str,
 ) {
     enqueue_common(
-        state, url, title, thumbnail, uploader, format_id, ext, None, false, None,
+        state, url, title, thumbnail, uploader, format_id, ext, None, false, None, None,
     );
 }
 
@@ -2789,6 +2807,7 @@ fn enqueue_download_checked(
         match resp {
             "overwrite" => enqueue_common(
                 &state, &url, &title, &thumbnail, &uploader, &format_id, &ext, None, true, None,
+                None,
             ),
             "keep" => {
                 let t = unique_title(&title, &format_id, &ext);
@@ -2847,6 +2866,7 @@ fn enqueue_scheduled(
         ext,
         Some(ts),
         false,
+        None,
         None,
     );
 }
@@ -2928,13 +2948,21 @@ fn enqueue_common(
     schedule_ts: Option<f64>,
     force_overwrite: bool,
     subfolder: Option<&str>,
+    restore_id: Option<String>,
 ) {
     let key = next_key();
     let file_path = output_path(title, format_id, ext, subfolder);
 
+    // Restoring a persisted schedule: the entry is already in history and in the
+    // scheduled store, so don't re-add either.
+    let restoring = restore_id.is_some();
+    // Stable id shared by the scheduler task and the persisted store entry, so we
+    // can remove the right one when the download starts.
+    let sched_id = restore_id.unwrap_or_else(|| key.clone());
+
     // Record a pending history entry up front (so it survives a crash mid-download).
     let save_history = config::global().read().unwrap().get_bool("save_history");
-    if save_history {
+    if save_history && !restoring {
         let video_info = serde_json::json!({
             "title": title, "url": url, "webpage_url": url,
             "thumbnail": thumbnail, "uploader": uploader,
@@ -2998,10 +3026,20 @@ fn enqueue_common(
     state.update_downloads_empty();
     state.stack.set_visible_child_name("downloads");
 
-    // Capture the VideoDownloader when the task starts (for cancel/pause).
+    // Capture the VideoDownloader when the task starts (for cancel/pause). A
+    // scheduled task also drops its persisted store entry here — once it's
+    // running it must not be restored again on the next launch.
     let tx_started = state.ui_tx.clone();
     let k2 = key.clone();
+    let was_scheduled = schedule_ts.is_some();
+    let start_sched_id = sched_id.clone();
     let on_start: OnStartFn = Arc::new(move |dl: Arc<VideoDownloader>| {
+        if was_scheduled {
+            bigtube_core::scheduled_downloads::ScheduledDownloadStore::new(
+                scheduled_downloads_path(),
+            )
+            .remove(&start_sched_id);
+        }
         let _ = tx_started.send_blocking(UiMsg::Started {
             key: k2.clone(),
             downloader: dl,
@@ -3012,6 +3050,19 @@ fn enqueue_common(
     let (url_o, title_o, ext_o) = (url.to_string(), title.to_string(), ext.to_string());
     let sub_o = subfolder.map(str::to_string);
     let mgr = download_manager::global();
+    // Owned copies for persisting the schedule (so the entry can recreate the
+    // download after a restart). The original selector is stored, not a probed
+    // concrete id (scheduled tasks run later, when those ids may be stale).
+    let persist = schedule_ts.is_some() && !restoring;
+    let (s_url, s_title, s_thumb, s_uploader, s_fmt, s_ext, s_path) = (
+        url.to_string(),
+        title.to_string(),
+        thumbnail.to_string(),
+        uploader.to_string(),
+        format_id.to_string(),
+        ext.to_string(),
+        file_path.clone(),
+    );
     let finalize: Box<dyn FnOnce(String, Option<f64>)> = Box::new(move |fmt, size| {
         let params = DownloadParams {
             url: url_o,
@@ -3024,7 +3075,25 @@ fn enqueue_common(
         };
         match schedule_ts {
             Some(ts) => {
-                mgr.schedule_download(ts, params, cb, Some(on_start), 0, None);
+                if persist {
+                    let item = serde_json::json!({
+                        "id": sched_id,
+                        "scheduled_time": ts,
+                        "video_info": {
+                            "url": s_url, "title": s_title,
+                            "thumbnail": s_thumb, "uploader": s_uploader,
+                        },
+                        "format_data": { "id": s_fmt, "ext": s_ext },
+                        "full_path": s_path,
+                        "force_overwrite": force_overwrite,
+                        "estimated_size_mb": size,
+                    });
+                    bigtube_core::scheduled_downloads::ScheduledDownloadStore::new(
+                        scheduled_downloads_path(),
+                    )
+                    .upsert(&item);
+                }
+                mgr.schedule_download(ts, params, cb, Some(on_start), 0, Some(sched_id));
             }
             None => {
                 mgr.add_download(params, cb, Some(on_start), 0);
@@ -3112,17 +3181,102 @@ fn open_containing_folder(state: &Rc<AppState>, path: &str) {
     launcher.open_containing_folder(window.as_ref(), gtk::gio::Cancellable::NONE, |_| {});
 }
 
+/// Recreate persisted scheduled downloads after startup, mirroring
+/// `download_workflow.restore_scheduled_downloads`. Re-arms each future timer;
+/// any whose time already passed (app was closed) downloads immediately.
+fn restore_scheduled_downloads(state: &Rc<AppState>) {
+    let store =
+        bigtube_core::scheduled_downloads::ScheduledDownloadStore::new(scheduled_downloads_path());
+    let now = now_epoch_secs();
+    for item in store.load() {
+        let id = item.get("id").and_then(|v| v.as_str()).unwrap_or("");
+        let video_info = item.get("video_info").and_then(|v| v.as_object());
+        let format_data = item.get("format_data").and_then(|v| v.as_object());
+        let full_path = item.get("full_path").and_then(|v| v.as_str()).unwrap_or("");
+
+        // Drop corrupt entries we can't recreate.
+        let (Some(video_info), Some(format_data)) = (video_info, format_data) else {
+            if !id.is_empty() {
+                store.remove(id);
+            }
+            continue;
+        };
+        if full_path.is_empty() || id.is_empty() {
+            if !id.is_empty() {
+                store.remove(id);
+            }
+            continue;
+        }
+
+        let get = |m: &serde_json::Map<String, serde_json::Value>, k: &str| {
+            m.get(k).and_then(|v| v.as_str()).unwrap_or("").to_string()
+        };
+        let url = get(video_info, "url");
+        let title = get(video_info, "title");
+        let thumbnail = get(video_info, "thumbnail");
+        let uploader = get(video_info, "uploader");
+        let format_id = get(format_data, "id");
+        let ext = get(format_data, "ext");
+        let force_overwrite = item
+            .get("force_overwrite")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+
+        // Past its time while the app was closed: drop the persisted entry and
+        // download right away (schedule_ts = None).
+        let mut schedule_ts = item.get("scheduled_time").and_then(|v| v.as_f64());
+        if let Some(ts) = schedule_ts {
+            if ts <= now {
+                store.remove(id);
+                schedule_ts = None;
+            }
+        }
+
+        enqueue_common(
+            state,
+            &url,
+            &title,
+            &thumbnail,
+            &uploader,
+            &format_id,
+            &ext,
+            schedule_ts,
+            force_overwrite,
+            None,
+            Some(id.to_string()),
+        );
+    }
+}
+
 /// Load persisted download history into the Downloads list on startup.
 fn load_download_history(state: &Rc<AppState>) {
     // Pure read (see load_converter_history): avoid the manager's drop-flush.
     let items: Vec<serde_json::Value> =
         bigtube_core::json_store::load_json(history_path(), Vec::new());
+
+    // Items that are still scheduled are restored as live scheduled rows by
+    // `restore_scheduled_downloads`; skip them here so they don't show twice
+    // (once as a stale "Scheduled" history row, once as the live one).
+    let scheduled_paths: std::collections::HashSet<String> =
+        bigtube_core::scheduled_downloads::ScheduledDownloadStore::new(scheduled_downloads_path())
+            .load()
+            .iter()
+            .filter_map(|e| {
+                e.get("full_path")
+                    .and_then(|v| v.as_str())
+                    .map(str::to_string)
+            })
+            .collect();
+
     for it in &items {
         let title = it
             .get("title")
             .and_then(|v| v.as_str())
             .unwrap_or("Unknown Title");
         let fp = it.get("file_path").and_then(|v| v.as_str()).unwrap_or("");
+        if !fp.is_empty() && scheduled_paths.contains(fp) {
+            continue;
+        }
         let uploader = it.get("uploader").and_then(|v| v.as_str()).unwrap_or("");
         let status = it
             .get("status")
