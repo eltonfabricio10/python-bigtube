@@ -916,6 +916,11 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         let entry = entry.clone();
         let trigger = trigger.clone();
         Rc::new(move |text: &str| {
+            // Close on every keystroke; we re-open (popup) below only when there
+            // are matches. Re-opening yields a fresh surface sized to the current
+            // content, so the popover never keeps a stale, stretched height — and
+            // clearing the text simply leaves it closed.
+            popover.popdown();
             while let Some(c) = sugg_list.first_child() {
                 sugg_list.remove(&c);
             }
@@ -1009,19 +1014,21 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 }
             }
             // Match the popover width to the search entry so labels aren't clipped,
-            // and size the scroller to the content so a single match shows a single
-            // row with no empty leftover (and a visible popover shrinks back).
+            // and size the scroller to the content before re-opening.
             let w = entry.width().max(320);
             fit_suggestion_scroll(&sugg_list, &sugg_scroll, w, n_matches);
             popover.set_size_request(w, -1);
-            popover.popup();
-            // Re-fit once layout has settled: at popup() the rows aren't measured
-            // yet, so measure() can be off — this idle pass uses the real heights
-            // and shrinks the popover to hug the content exactly.
+            // Re-open on idle so the earlier popdown() is fully processed first —
+            // this gives a brand-new surface sized to the current rows (never the
+            // stale stretched height), then a final fit with the real heights.
             glib::idle_add_local_once({
+                let popover = popover.clone();
                 let list = sugg_list.clone();
                 let scroll = sugg_scroll.clone();
-                move || fit_suggestion_scroll(&list, &scroll, w, n_matches)
+                move || {
+                    popover.popup();
+                    fit_suggestion_scroll(&list, &scroll, w, n_matches);
+                }
             });
         })
     };
