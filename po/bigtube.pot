@@ -1287,3 +1287,15 @@ msgstr ""
 #: bigtube-gui
 msgid "Update timestamp"
 msgstr ""
+
+#: bigtube-gui
+msgid "Common browsers"
+msgstr ""
+
+#: bigtube-gui
+msgid "Known proxies"
+msgstr ""
+
+#: bigtube-gui
+msgid "Local HTTP proxy"
+msgstr ""

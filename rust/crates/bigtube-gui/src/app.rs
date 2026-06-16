@@ -1500,13 +1500,27 @@ fn build_network_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
     }
     group.add(&browser_row);
 
-    group.add(&entry_row(&tr("User Agent"), &c.user_agent, |v| {
-        set_cfg("user_agent", serde_json::json!(v))
-    }));
-    group.add(&entry_row(&tr("Proxy"), &c.proxy, |v| {
-        set_cfg("proxy", serde_json::json!(v.trim()))
-    }));
-    group.add(&post_process_row(&c.post_process_cmd));
+    group.add(&entry_row_with_presets(
+        &tr("User Agent"),
+        &c.user_agent,
+        &tr("Common browsers"),
+        &USER_AGENT_PRESETS,
+        "user_agent",
+    ));
+    group.add(&entry_row_with_presets(
+        &tr("Proxy"),
+        &c.proxy,
+        &tr("Known proxies"),
+        &PROXY_PRESETS,
+        "proxy",
+    ));
+    group.add(&entry_row_with_presets(
+        &tr("Post-Processing Command"),
+        &c.post_process_cmd,
+        &tr("Common commands"),
+        &POST_PROCESS_PRESETS,
+        "post_process_cmd",
+    ));
 
     group
 }
@@ -1520,28 +1534,54 @@ const POST_PROCESS_PRESETS: [(&str, &str); 5] = [
     ("Update timestamp", "touch {}"),
 ];
 
-/// Post-processing command entry with a dropdown of common presets.
-fn post_process_row(current: &str) -> adw::EntryRow {
+/// Current desktop/mobile browser User-Agent strings.
+const USER_AGENT_PRESETS: [(&str, &str); 5] = [
+    ("Choose a preset…", ""),
+    ("Chrome (Windows)", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"),
+    ("Firefox (Windows)", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"),
+    ("Safari (macOS)", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15"),
+    ("Chrome (Android)", "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36"),
+];
+
+/// Well-known *local* proxy endpoints. Public free-proxy IPs are ephemeral and
+/// untrustworthy, so we offer reliable local setups (Tor/Privoxy) instead — the
+/// field stays free-text for any custom proxy.
+const PROXY_PRESETS: [(&str, &str); 4] = [
+    ("Choose a preset…", ""),
+    ("Tor (SOCKS5)", "socks5://127.0.0.1:9050"),
+    ("Local HTTP proxy", "http://127.0.0.1:8080"),
+    ("Privoxy (HTTP)", "http://127.0.0.1:8118"),
+];
+
+/// An entry row with a suffix dropdown of presets; choosing one fills the entry
+/// and persists `cfg_key`. The first preset is a no-op placeholder.
+fn entry_row_with_presets(
+    title: &str,
+    value: &str,
+    tooltip: &str,
+    presets: &'static [(&'static str, &'static str)],
+    cfg_key: &'static str,
+) -> adw::EntryRow {
     let row = adw::EntryRow::builder()
-        .title(tr("Post-Processing Command"))
-        .text(current)
+        .title(title)
+        .text(value)
         .show_apply_button(true)
         .build();
-    row.connect_apply(|r| set_cfg("post_process_cmd", serde_json::json!(r.text().to_string())));
+    row.connect_apply(move |r| set_cfg(cfg_key, serde_json::json!(r.text().trim())));
 
-    let labels: Vec<String> = POST_PROCESS_PRESETS.iter().map(|(l, _)| tr(l)).collect();
+    let labels: Vec<String> = presets.iter().map(|(l, _)| tr(l)).collect();
     let label_refs: Vec<&str> = labels.iter().map(String::as_str).collect();
     let dd = gtk::DropDown::from_strings(&label_refs);
     dd.set_valign(gtk::Align::Center);
-    dd.set_tooltip_text(Some(&tr("Common commands")));
+    dd.set_tooltip_text(Some(tooltip));
     {
         let row = row.clone();
         dd.connect_selected_notify(move |d| {
-            if let Some((_, cmd)) = POST_PROCESS_PRESETS.get(d.selected() as usize) {
-                let cmd = *cmd;
-                if !cmd.is_empty() {
-                    row.set_text(cmd);
-                    set_cfg("post_process_cmd", serde_json::json!(cmd));
+            if let Some((_, val)) = presets.get(d.selected() as usize) {
+                let val = *val;
+                if !val.is_empty() {
+                    row.set_text(val);
+                    set_cfg(cfg_key, serde_json::json!(val));
                 }
             }
         });
@@ -1763,16 +1803,6 @@ fn spin_row_step(
     row.set_title(title);
     row.set_value(value);
     row.connect_value_notify(move |r| on_change(r.value()));
-    row
-}
-
-fn entry_row(title: &str, value: &str, on_apply: impl Fn(String) + 'static) -> adw::EntryRow {
-    let row = adw::EntryRow::builder()
-        .title(title)
-        .text(value)
-        .show_apply_button(true)
-        .build();
-    row.connect_apply(move |r| on_apply(r.text().to_string()));
     row
 }
 

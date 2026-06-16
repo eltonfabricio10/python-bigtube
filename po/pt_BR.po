@@ -1005,7 +1005,7 @@ msgstr "Sobrescreve o User-Agent usado pelo yt-dlp"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:397
 msgid "Proxy"
-msgstr "Procuração"
+msgstr "Proxy"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:398
 msgid ""
@@ -1367,3 +1367,15 @@ msgstr "Tornar somente leitura"
 #: bigtube-gui
 msgid "Update timestamp"
 msgstr "Atualizar data/hora"
+
+#: bigtube-gui
+msgid "Common browsers"
+msgstr "Navegadores comuns"
+
+#: bigtube-gui
+msgid "Known proxies"
+msgstr "Proxies conhecidos"
+
+#: bigtube-gui
+msgid "Local HTTP proxy"
+msgstr "Proxy HTTP local"
