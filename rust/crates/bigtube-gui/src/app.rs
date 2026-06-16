@@ -995,16 +995,25 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         })
     };
 
-    // Typing clears stale results and refreshes suggestions.
+    // Typing refreshes suggestions and auto-picks the source. Results are NOT
+    // cleared on every keystroke — only when the field is fully emptied — so the
+    // previous results stay visible until a new search replaces them.
     {
         let state = state.clone();
         let rebuild = rebuild.clone();
         let last_query = last_query.clone();
+        let source = source.clone();
         entry.connect_search_changed(move |e| {
             let text = e.text().to_string();
-            // Empty text must ALWAYS close the popover + clear results, even when
-            // last_query is also empty (the guard below would otherwise skip it,
-            // leaving the popover open after deleting everything).
+            // Auto-pick the source from the input shape: a URL → Direct Link;
+            // plain text → YouTube (but leave YouTube Music alone if the user
+            // chose it — only revert away from Direct Link).
+            if bigtube_core::validators::is_valid_url(text.trim()) {
+                source.set_selected(2); // Direct Link
+            } else if source.selected() == 2 {
+                source.set_selected(0); // YouTube
+            }
+            // Clear results ONLY when all text is deleted (also closes the popover).
             if text.trim().is_empty() {
                 state.search_store.remove_all();
                 state.update_search_empty();
@@ -1014,8 +1023,6 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             if text.trim() == *last_query.borrow() {
                 return; // results we just loaded for this query — keep them
             }
-            state.search_store.remove_all();
-            state.update_search_empty();
             rebuild(&text);
         });
     }
@@ -2451,6 +2458,11 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
     // Show the spinner page while the search runs.
     state.search_stack.set_visible_child_name("loading");
 
+    // A direct link (incl. a playlist URL) is expanded into its videos by the
+    // core, so suppress any playlist wrapper rows — a pasted playlist lists its
+    // videos inline, never a "playlist menu" row. Mirror the core's own
+    // direct-link routing (source "url" OR a pasted http/www string).
+    let is_url_search = source == "url" || query.starts_with("http") || query.starts_with("www");
     let (tx, rx) =
         async_channel::bounded::<Result<Vec<bigtube_core::search::SearchResult>, String>>(1);
     std::thread::spawn(move || {
@@ -2470,6 +2482,11 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
                     }
                     let mode = state.select_mode.get();
                     for r in &list {
+                        // Direct-link results are already expanded videos; drop any
+                        // stray playlist wrapper so no "open playlist" row appears.
+                        if is_url_search && r.is_playlist {
+                            continue;
+                        }
                         let obj = VideoObject::from_result(r);
                         obj.set_selection_mode(mode);
                         let st = state.clone();
