@@ -419,6 +419,10 @@ struct AppState {
     // Show the "enable cookies" guidance dialog only once per session.
     bot_block_hinted: Cell<bool>,
     ui_tx: async_channel::Sender<UiMsg>,
+    // Paste a URL into the search entry and run the search (set by the search
+    // page; used by the clipboard monitor's "paste detected link" prompt).
+    #[allow(clippy::type_complexity)]
+    paste_and_search: RefCell<Option<Rc<dyn Fn(String)>>>,
 }
 
 impl AppState {
@@ -555,6 +559,7 @@ pub fn build_window(app: &adw::Application) {
         busy_count: Cell::new(0),
         bot_block_hinted: Cell::new(false),
         ui_tx,
+        paste_and_search: RefCell::new(None),
     });
 
     // Pages.
@@ -1095,6 +1100,18 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             run_search(&state, query, src);
         })
     };
+
+    // Expose "paste a URL and search" so the clipboard monitor can drive it.
+    {
+        let entry = entry.clone();
+        let trigger = trigger.clone();
+        let stack = state.stack.clone();
+        *state.paste_and_search.borrow_mut() = Some(Rc::new(move |url: String| {
+            stack.set_visible_child_name("search");
+            entry.set_text(&url);
+            trigger();
+        }));
+    }
 
     // Self-reference so a suggestion's delete button can rebuild (close+reopen)
     // the popover to resize it to the remaining matches.
@@ -3051,8 +3068,11 @@ fn start_clipboard_monitor(state: &Rc<AppState>) {
         return;
     };
     let clipboard = window.clipboard();
+    let win = window.clone();
     let state = state.clone();
     let last = Rc::new(RefCell::new(String::new()));
+    // True while the prompt is open, so we don't stack dialogs each tick.
+    let prompting = Rc::new(Cell::new(false));
 
     glib::timeout_add_seconds_local(1, move || {
         // Respect the live setting; skip polling while disabled.
@@ -3063,19 +3083,60 @@ fn start_clipboard_monitor(state: &Rc<AppState>) {
         {
             return glib::ControlFlow::Continue;
         }
+        if prompting.get() {
+            return glib::ControlFlow::Continue;
+        }
         let state = state.clone();
         let last = last.clone();
+        let win = win.clone();
+        let prompting = prompting.clone();
         clipboard.read_text_async(gtk::gio::Cancellable::NONE, move |res| {
             if let Ok(Some(text)) = res {
                 let text = text.to_string();
                 if text != *last.borrow() && is_valid_url(&text) {
-                    last.replace(text);
-                    state.toast(&tr("Link detected! Paste in search to download."));
+                    last.replace(text.clone());
+                    prompt_paste_link(&state, &win, text, prompting);
                 }
             }
         });
         glib::ControlFlow::Continue
     });
+}
+
+/// Ask whether to paste a clipboard link into the search and run it.
+fn prompt_paste_link(
+    state: &Rc<AppState>,
+    window: &adw::ApplicationWindow,
+    url: String,
+    prompting: Rc<Cell<bool>>,
+) {
+    prompting.set(true);
+    let dialog = adw::MessageDialog::new(
+        Some(window),
+        Some(&tr("Link detected")),
+        Some(&format!(
+            "{}\n\n{url}",
+            tr("Paste this link in the search and download it?")
+        )),
+    );
+    dialog.add_response("no", &tr("Not Now"));
+    dialog.add_response("yes", &tr("Paste & Search"));
+    dialog.set_response_appearance("yes", adw::ResponseAppearance::Suggested);
+    dialog.set_default_response(Some("yes"));
+    dialog.set_close_response("no");
+    apply_theme_classes(&dialog);
+
+    let state = state.clone();
+    dialog.connect_response(None, move |dlg, resp| {
+        dlg.close();
+        prompting.set(false);
+        if resp == "yes" {
+            if let Some(f) = state.paste_and_search.borrow().as_ref() {
+                f(url.clone());
+            }
+        }
+    });
+    dialog.present();
 }
 
 /// Path to the persisted search-history file.

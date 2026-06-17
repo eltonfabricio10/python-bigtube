@@ -1473,6 +1473,22 @@ msgid "Clear search history?"
 msgstr "Limpar o histórico de pesquisa?"
 
 #: bigtube-gui
+msgid "Link detected"
+msgstr "Link detectado"
+
+#: bigtube-gui
+msgid "Paste this link in the search and download it?"
+msgstr "Colar este link na busca e baixá-lo?"
+
+#: bigtube-gui
+msgid "Not Now"
+msgstr "Agora não"
+
+#: bigtube-gui
+msgid "Paste & Search"
+msgstr "Colar e buscar"
+
+#: bigtube-gui
 msgid "Clear conversion history?"
 msgstr "Limpar o histórico de conversão?"
 
