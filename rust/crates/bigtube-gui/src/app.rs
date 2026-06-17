@@ -1459,6 +1459,7 @@ fn build_appearance_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGrou
         &tr("Interface Theme"),
         &[tr("System"), tr("Light"), tr("Dark")],
     );
+    theme_row.set_subtitle(&tr("Follow the system or force light/dark"));
     theme_row.set_selected(
         theme_modes
             .iter()
@@ -1487,6 +1488,7 @@ fn build_appearance_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGrou
         .collect();
     let color_labels: Vec<String> = color_values.iter().map(|v| tr(color_label(v))).collect();
     let color_row = combo_row(&tr("Color Scheme"), &color_labels);
+    color_row.set_subtitle(&tr("Accent colour used across the app"));
     color_row.set_selected(
         color_values
             .iter()
@@ -1556,6 +1558,7 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
     // Preferred quality (translated labels).
     let quality_labels: Vec<String> = QUALITY_OPTIONS.iter().map(|(l, _)| tr(l)).collect();
     let quality_row = combo_row(&tr("Preferred Quality"), &quality_labels);
+    quality_row.set_subtitle(&tr("Default quality for new downloads"));
     let qsel = QUALITY_OPTIONS
         .iter()
         .position(|(_, q)| q.as_value() == c.default_quality)
@@ -1570,6 +1573,7 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
 
     group.add(&spin_row(
         &tr("Max Simultaneous Downloads"),
+        &tr("How many downloads run at the same time"),
         1.0,
         10.0,
         c.max_concurrent as f64,
@@ -1577,6 +1581,7 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
     ));
     group.add(&spin_row(
         &tr("Concurrent Fragments"),
+        &tr("Parallel fragments per download (faster, uses more bandwidth)"),
         1.0,
         16.0,
         c.concurrent_fragments as f64,
@@ -1584,6 +1589,7 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
     ));
     group.add(&spin_row_step(
         &tr("Download Speed Limit (KB/s)"),
+        &tr("Cap the download rate (0 = unlimited)"),
         0.0,
         100_000.0,
         100.0,
@@ -1592,21 +1598,25 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
     ));
     group.add(&switch_row(
         &tr("Add Metadata to Files"),
+        &tr("Embed title, artist and other tags in the file"),
         c.add_metadata,
         |v| set_cfg("add_metadata", serde_json::json!(v)),
     ));
     group.add(&switch_row(
         &tr("Embed Subtitles"),
+        &tr("Download and embed subtitles when available"),
         c.embed_subtitles,
         |v| set_cfg("embed_subtitles", serde_json::json!(v)),
     ));
     group.add(&switch_row(
         &tr("System Notifications"),
+        &tr("Notify when a download finishes"),
         c.system_notifications,
         |v| set_cfg("system_notifications", serde_json::json!(v)),
     ));
     group.add(&switch_row(
         &tr("Enable ClipBoard Monitor"),
+        &tr("Detect copied links and offer to download them"),
         c.monitor_clipboard,
         |v| set_cfg("monitor_clipboard", serde_json::json!(v)),
     ));
@@ -1623,6 +1633,7 @@ fn build_playback_group(_state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
     // In-app preview/player quality. 360p is progressive (rock-solid); 480p/720p
     // stream via HLS. Takes effect on the next item played.
     let preview_row = combo_row(&tr("Preview Quality"), PREVIEW_QUALITIES);
+    preview_row.set_subtitle(&tr("Quality used by the in-app player"));
     let psel = PREVIEW_QUALITIES
         .iter()
         .position(|q| *q == c.preview_quality)
@@ -1663,6 +1674,7 @@ fn build_network_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
     let browsers = detect_browsers();
     let browser_labels: Vec<String> = browsers.iter().map(|(_, l)| l.clone()).collect();
     let browser_row = combo_row(&tr("Cookies From Browser"), &browser_labels);
+    browser_row.set_subtitle(&tr("Use this browser's cookies for restricted videos"));
     let bsel = browsers
         .iter()
         .position(|(v, _)| *v == c.cookies_browser)
@@ -1851,11 +1863,13 @@ fn build_storage_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
 
     group.add(&switch_row(
         &tr("Save Download History"),
+        &tr("Keep a record of completed downloads"),
         c.save_history,
         |v| set_cfg("save_history", serde_json::json!(v)),
     ));
     group.add(&switch_row(
         &tr("Clear All Data on Exit"),
+        &tr("Wipe history and finished items when the app closes"),
         c.auto_clear_finished,
         |v| set_cfg("auto_clear_finished", serde_json::json!(v)),
     ));
@@ -1919,14 +1933,26 @@ fn build_converter_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
 
     group.add(&switch_row(
         &tr("Save in Source Directory"),
+        &tr("Write the converted file next to the original"),
         c.use_source_folder,
         |v| set_cfg("use_source_folder", serde_json::json!(v)),
     ));
     group.add(&switch_row(
         &tr("Save Conversion History"),
+        &tr("Keep a record of converted files"),
         c.save_converter_history,
         |v| set_cfg("save_converter_history", serde_json::json!(v)),
     ));
+    {
+        let state = state.clone();
+        group.add(&button_row(
+            &tr("Clear Conversion History"),
+            &tr("Delete all previous conversion entries"),
+            "user-trash-symbolic",
+            false,
+            move || clear_converter_history(&state),
+        ));
+    }
 
     group
 }
@@ -1938,11 +1964,13 @@ fn build_search_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
 
     group.add(&switch_row(
         &tr("Save Search History"),
+        &tr("Remember past searches for suggestions"),
         c.save_search_history,
         |v| set_cfg("save_search_history", serde_json::json!(v)),
     ));
     group.add(&spin_row(
         &tr("Maximum Search Results"),
+        &tr("How many results to fetch per search"),
         5.0,
         100.0,
         c.search_limit as f64,
@@ -1950,11 +1978,13 @@ fn build_search_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
     ));
     group.add(&switch_row(
         &tr("Enable Search Suggestions"),
+        &tr("Show matches from your history while typing"),
         c.enable_suggestions,
         |v| set_cfg("enable_suggestions", serde_json::json!(v)),
     ));
     group.add(&spin_row(
         &tr("Maximum Suggestions"),
+        &tr("How many suggestions to show"),
         1.0,
         50.0,
         c.max_suggestions as f64,
@@ -2026,9 +2056,15 @@ fn combo_row(title: &str, options: &[impl AsRef<str>]) -> adw::ComboRow {
     adw::ComboRow::builder().title(title).model(&model).build()
 }
 
-fn switch_row(title: &str, active: bool, on_change: impl Fn(bool) + 'static) -> adw::SwitchRow {
+fn switch_row(
+    title: &str,
+    subtitle: &str,
+    active: bool,
+    on_change: impl Fn(bool) + 'static,
+) -> adw::SwitchRow {
     let row = adw::SwitchRow::builder()
         .title(title)
+        .subtitle(subtitle)
         .active(active)
         .build();
     row.connect_active_notify(move |r| on_change(r.is_active()));
@@ -2037,16 +2073,18 @@ fn switch_row(title: &str, active: bool, on_change: impl Fn(bool) + 'static) -> 
 
 fn spin_row(
     title: &str,
+    subtitle: &str,
     min: f64,
     max: f64,
     value: f64,
     on_change: impl Fn(f64) + 'static,
 ) -> adw::SpinRow {
-    spin_row_step(title, min, max, 1.0, value, on_change)
+    spin_row_step(title, subtitle, min, max, 1.0, value, on_change)
 }
 
 fn spin_row_step(
     title: &str,
+    subtitle: &str,
     min: f64,
     max: f64,
     step: f64,
@@ -2055,6 +2093,7 @@ fn spin_row_step(
 ) -> adw::SpinRow {
     let row = adw::SpinRow::with_range(min, max, step);
     row.set_title(title);
+    row.set_subtitle(subtitle);
     row.set_value(value);
     row.connect_value_notify(move |r| on_change(r.value()));
     row
@@ -2275,6 +2314,34 @@ fn clear_search_history(state: &Rc<AppState>) {
         dlg.close();
         if resp == "clear" {
             bigtube_core::search_history::SearchHistory::new(search_history_path()).clear();
+            state.toast(&tr("History cleared successfully!"));
+        }
+    });
+    dialog.present();
+}
+
+fn clear_converter_history(state: &Rc<AppState>) {
+    let Some(window) = state.window.borrow().clone() else {
+        return;
+    };
+    let dialog = adw::MessageDialog::new(
+        Some(&window),
+        Some(&tr("Clear conversion history?")),
+        Some(&tr("Delete all previous conversion entries")),
+    );
+    dialog.add_response("cancel", &tr("Cancel"));
+    dialog.add_response("clear", &tr("Clear"));
+    dialog.set_response_appearance("clear", adw::ResponseAppearance::Destructive);
+    dialog.set_default_response(Some("cancel"));
+    dialog.set_close_response("cancel");
+    apply_theme_classes(&dialog);
+
+    let state = state.clone();
+    dialog.connect_response(None, move |dlg, resp| {
+        dlg.close();
+        if resp == "clear" {
+            bigtube_core::converter_history::ConverterHistoryManager::new(converter_history_path())
+                .clear_all();
             state.toast(&tr("History cleared successfully!"));
         }
     });

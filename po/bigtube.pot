@@ -1393,6 +1393,98 @@ msgid "Clear search history?"
 msgstr ""
 
 #: bigtube-gui
+msgid "Clear conversion history?"
+msgstr ""
+
+#: bigtube-gui
+msgid "Clear Conversion History"
+msgstr ""
+
+#: bigtube-gui
+msgid "Delete all previous conversion entries"
+msgstr ""
+
+#: bigtube-gui
+msgid "How many downloads run at the same time"
+msgstr ""
+
+#: bigtube-gui
+msgid "Parallel fragments per download (faster, uses more bandwidth)"
+msgstr ""
+
+#: bigtube-gui
+msgid "Cap the download rate (0 = unlimited)"
+msgstr ""
+
+#: bigtube-gui
+msgid "Embed title, artist and other tags in the file"
+msgstr ""
+
+#: bigtube-gui
+msgid "Download and embed subtitles when available"
+msgstr ""
+
+#: bigtube-gui
+msgid "Notify when a download finishes"
+msgstr ""
+
+#: bigtube-gui
+msgid "Detect copied links and offer to download them"
+msgstr ""
+
+#: bigtube-gui
+msgid "Keep a record of completed downloads"
+msgstr ""
+
+#: bigtube-gui
+msgid "Wipe history and finished items when the app closes"
+msgstr ""
+
+#: bigtube-gui
+msgid "Write the converted file next to the original"
+msgstr ""
+
+#: bigtube-gui
+msgid "Keep a record of converted files"
+msgstr ""
+
+#: bigtube-gui
+msgid "Remember past searches for suggestions"
+msgstr ""
+
+#: bigtube-gui
+msgid "How many results to fetch per search"
+msgstr ""
+
+#: bigtube-gui
+msgid "Show matches from your history while typing"
+msgstr ""
+
+#: bigtube-gui
+msgid "How many suggestions to show"
+msgstr ""
+
+#: bigtube-gui
+msgid "Follow the system or force light/dark"
+msgstr ""
+
+#: bigtube-gui
+msgid "Accent colour used across the app"
+msgstr ""
+
+#: bigtube-gui
+msgid "Default quality for new downloads"
+msgstr ""
+
+#: bigtube-gui
+msgid "Quality used by the in-app player"
+msgstr ""
+
+#: bigtube-gui
+msgid "Use this browser's cookies for restricted videos"
+msgstr ""
+
+#: bigtube-gui
 msgid "Clear"
 msgstr ""
 

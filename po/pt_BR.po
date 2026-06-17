@@ -1473,6 +1473,98 @@ msgid "Clear search history?"
 msgstr "Limpar o histórico de pesquisa?"
 
 #: bigtube-gui
+msgid "Clear conversion history?"
+msgstr "Limpar o histórico de conversão?"
+
+#: bigtube-gui
+msgid "Clear Conversion History"
+msgstr "Limpar histórico de conversão"
+
+#: bigtube-gui
+msgid "Delete all previous conversion entries"
+msgstr "Excluir todas as conversões anteriores"
+
+#: bigtube-gui
+msgid "How many downloads run at the same time"
+msgstr "Quantos downloads rodam ao mesmo tempo"
+
+#: bigtube-gui
+msgid "Parallel fragments per download (faster, uses more bandwidth)"
+msgstr "Fragmentos paralelos por download (mais rápido, usa mais banda)"
+
+#: bigtube-gui
+msgid "Cap the download rate (0 = unlimited)"
+msgstr "Limita a taxa de download (0 = ilimitado)"
+
+#: bigtube-gui
+msgid "Embed title, artist and other tags in the file"
+msgstr "Embute título, artista e outras tags no arquivo"
+
+#: bigtube-gui
+msgid "Download and embed subtitles when available"
+msgstr "Baixa e embute legendas quando disponíveis"
+
+#: bigtube-gui
+msgid "Notify when a download finishes"
+msgstr "Notifica quando um download termina"
+
+#: bigtube-gui
+msgid "Detect copied links and offer to download them"
+msgstr "Detecta links copiados e oferece baixá-los"
+
+#: bigtube-gui
+msgid "Keep a record of completed downloads"
+msgstr "Mantém um registro dos downloads concluídos"
+
+#: bigtube-gui
+msgid "Wipe history and finished items when the app closes"
+msgstr "Apaga histórico e itens concluídos ao fechar o app"
+
+#: bigtube-gui
+msgid "Write the converted file next to the original"
+msgstr "Salva o arquivo convertido junto do original"
+
+#: bigtube-gui
+msgid "Keep a record of converted files"
+msgstr "Mantém um registro dos arquivos convertidos"
+
+#: bigtube-gui
+msgid "Remember past searches for suggestions"
+msgstr "Lembra pesquisas anteriores para sugestões"
+
+#: bigtube-gui
+msgid "How many results to fetch per search"
+msgstr "Quantos resultados buscar por pesquisa"
+
+#: bigtube-gui
+msgid "Show matches from your history while typing"
+msgstr "Mostra correspondências do histórico ao digitar"
+
+#: bigtube-gui
+msgid "How many suggestions to show"
+msgstr "Quantas sugestões exibir"
+
+#: bigtube-gui
+msgid "Follow the system or force light/dark"
+msgstr "Segue o sistema ou força claro/escuro"
+
+#: bigtube-gui
+msgid "Accent colour used across the app"
+msgstr "Cor de destaque usada no app"
+
+#: bigtube-gui
+msgid "Default quality for new downloads"
+msgstr "Qualidade padrão para novos downloads"
+
+#: bigtube-gui
+msgid "Quality used by the in-app player"
+msgstr "Qualidade usada pelo player interno"
+
+#: bigtube-gui
+msgid "Use this browser's cookies for restricted videos"
+msgstr "Usa os cookies deste navegador para vídeos restritos"
+
+#: bigtube-gui
 msgid "Clear"
 msgstr "Limpar"
 
