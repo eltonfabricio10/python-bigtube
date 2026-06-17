@@ -733,7 +733,7 @@ msgstr "Abrir lista de reprodução"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:317
 msgid "Play all"
-msgstr "Jogue tudo"
+msgstr "Reproduzir tudo"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:318
 msgid "Download all"
