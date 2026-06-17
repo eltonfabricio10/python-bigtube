@@ -3237,6 +3237,7 @@ fn choose_video_or_audio(window: &adw::ApplicationWindow, on_choice: Rc<dyn Fn(b
     dialog.add_response("cancel", &tr("Cancel"));
     dialog.add_response("audio", &tr("Audio Only"));
     dialog.add_response("video", &tr("Video"));
+    dialog.set_response_appearance("cancel", adw::ResponseAppearance::Destructive);
     dialog.set_response_appearance("video", adw::ResponseAppearance::Suggested);
     dialog.set_default_response(Some("video"));
     dialog.set_close_response("cancel");
