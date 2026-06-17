@@ -799,6 +799,22 @@ fn inject_virtual_options(videos: &mut Vec<FormatOption>, audios: &mut Vec<Forma
         mp3.codec = "mp3_convert".into();
         mp3.quality = 999.0;
         audios.insert(0, mp3);
+    } else if !videos.is_empty() {
+        // Some sources expose only combined (muxed) formats — no standalone
+        // audio stream — so nothing landed in `audios`. yt-dlp can still extract
+        // the audio track, so always offer an MP3 extraction option.
+        audios.push(FormatOption {
+            id: "bestaudio/best".into(),
+            label: "Audio MP3 (Convert)".into(),
+            ext: FileExt::Mp3.as_value().into(),
+            size: "? MB".into(),
+            size_val: 0.0,
+            codec: "mp3_convert".into(),
+            kind: "audio".into(),
+            resolution: 0,
+            fps: 0,
+            quality: 999.0,
+        });
     }
 }
 
@@ -1464,6 +1480,22 @@ mod tests {
         // No concrete id / too few fields -> None.
         assert!(parse_resolve_line("NA|||x|||y|||z|||0|||0").is_none());
         assert!(parse_resolve_line("just-some-text").is_none());
+    }
+
+    #[test]
+    fn muxed_only_video_still_offers_audio_extraction() {
+        // A source with only a combined (muxed) format — no audio-only stream.
+        let info = json!({
+            "duration": 100.0,
+            "formats": [
+                {"format_id": "18", "ext": "mp4", "vcodec": "avc1.42001E", "acodec": "mp4a.40.2", "height": 360, "filesize": 5_000_000}
+            ]
+        });
+        let parsed = parse_formats(&info);
+        // Audio tab must not be empty: an MP3 extraction option is injected.
+        assert!(!parsed.audios.is_empty());
+        assert_eq!(parsed.audios[0].id, "bestaudio/best");
+        assert_eq!(parsed.audios[0].ext, "mp3");
     }
 
     #[test]
