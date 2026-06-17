@@ -76,6 +76,19 @@ pub fn parse_ffprobe_streams(json: &str) -> (String, String) {
     (m.vcodec, m.acodec)
 }
 
+/// True when a "video" stream is really an embedded still image (cover art),
+/// not a playable video track. Checks ffprobe's `disposition.attached_pic`
+/// flag first, then falls back to the codec name (still-image codecs).
+fn is_cover_art(stream: &serde_json::Value, codec_name: &str) -> bool {
+    let attached = stream
+        .get("disposition")
+        .and_then(|d| d.get("attached_pic"))
+        .and_then(|v| v.as_u64())
+        .unwrap_or(0)
+        == 1;
+    attached || matches!(codec_name, "mjpeg" | "png" | "bmp" | "gif" | "webp")
+}
+
 /// Parse ffprobe stream JSON into codecs + resolution + sample rate. Pure.
 pub fn parse_ffprobe_meta(json: &str) -> MediaSummary {
     let mut m = MediaSummary::default();
@@ -97,6 +110,11 @@ pub fn parse_ffprobe_meta(json: &str) -> MediaSummary {
                         .unwrap_or(0) as u32
                 };
                 match kind {
+                    // A "video" stream that is actually embedded cover art (album
+                    // thumbnail) must NOT make an audio file look like a video.
+                    // ffprobe flags it with disposition.attached_pic=1; image
+                    // codecs (mjpeg/png/…) are the same thing as a fallback.
+                    "video" if is_cover_art(s, &name) => {}
                     "video" if m.vcodec.is_empty() => {
                         m.vcodec = name;
                         m.width = num("width");
@@ -130,7 +148,8 @@ pub fn probe_media_summary(path: &str) -> MediaSummary {
         "-v".to_string(),
         "error".to_string(),
         "-show_entries".to_string(),
-        "stream=codec_type,codec_name,width,height,sample_rate".to_string(),
+        "stream=codec_type,codec_name,width,height,sample_rate:stream_disposition=attached_pic"
+            .to_string(),
         "-of".to_string(),
         "json".to_string(),
         path.to_string(),
@@ -389,6 +408,29 @@ mod tests {
             parse_ffprobe_streams("not json"),
             (String::new(), String::new())
         );
+    }
+
+    #[test]
+    fn embedded_cover_art_does_not_count_as_video() {
+        // mp3 with an embedded album cover: ffprobe lists a mjpeg/png video
+        // stream flagged attached_pic. It must be ignored so the file reads as
+        // pure audio (otherwise the status shows "PNG"/"Video").
+        let json = r#"{"streams":[
+            {"codec_type":"video","codec_name":"png","disposition":{"attached_pic":1}},
+            {"codec_type":"audio","codec_name":"mp3"}
+        ]}"#;
+        let (v, a) = parse_ffprobe_streams(json);
+        assert_eq!(v, "");
+        assert_eq!(a, "mp3");
+        // Even without the disposition flag, a still-image codec is cover art.
+        let json2 = r#"{"streams":[
+            {"codec_type":"video","codec_name":"mjpeg"},
+            {"codec_type":"audio","codec_name":"flac"}
+        ]}"#;
+        assert_eq!(parse_ffprobe_streams(json2), (String::new(), "flac".into()));
+        // A genuine video track is still detected.
+        let real = r#"{"streams":[{"codec_type":"video","codec_name":"h264"}]}"#;
+        assert_eq!(parse_ffprobe_meta(real).vcodec, "h264");
     }
 
     #[test]
