@@ -294,6 +294,22 @@ msgstr "Áudio (MP3)"
 msgid "Audio (M4A)"
 msgstr "Áudio (M4A)"
 
+#: bigtube-gui
+msgid "Audio (Opus)"
+msgstr "Áudio (Opus)"
+
+#: bigtube-gui
+msgid "Audio (FLAC)"
+msgstr "Áudio (FLAC)"
+
+#: bigtube-gui
+msgid "Audio (WAV)"
+msgstr "Áudio (WAV)"
+
+#: bigtube-gui
+msgid "Audio (AAC)"
+msgstr "Áudio (AAC)"
+
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:168
 msgid "Default Blue"
 msgstr "Azul Padrão"

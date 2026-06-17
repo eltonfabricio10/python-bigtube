@@ -186,6 +186,10 @@ pub enum VideoQuality {
     Best,
     AudioMp3,
     AudioM4a,
+    AudioOpus,
+    AudioFlac,
+    AudioWav,
+    AudioAac,
 }
 
 impl VideoQuality {
@@ -204,6 +208,10 @@ impl VideoQuality {
             Self::Best => "bestvideo[ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo+bestaudio/best",
             Self::AudioMp3 => "bestaudio/best --extract-audio --audio-quality 0 --audio-format mp3 --embed-thumbnail",
             Self::AudioM4a => "bestaudio/best --format-sort acodec:m4a",
+            Self::AudioOpus => "bestaudio/best --extract-audio --audio-quality 0 --audio-format opus",
+            Self::AudioFlac => "bestaudio/best --extract-audio --audio-quality 0 --audio-format flac",
+            Self::AudioWav => "bestaudio/best --extract-audio --audio-quality 0 --audio-format wav",
+            Self::AudioAac => "bestaudio/best --extract-audio --audio-quality 0 --audio-format aac",
         }
     }
 
@@ -222,6 +230,10 @@ impl VideoQuality {
             Self::Best,
             Self::AudioMp3,
             Self::AudioM4a,
+            Self::AudioOpus,
+            Self::AudioFlac,
+            Self::AudioWav,
+            Self::AudioAac,
         ]
         .into_iter()
         .find(|q| q.as_value() == value)

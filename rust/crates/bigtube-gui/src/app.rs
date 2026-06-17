@@ -1230,7 +1230,7 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     page.upcast()
 }
 
-const QUALITY_OPTIONS: [(&str, bigtube_core::enums::VideoQuality); 12] = {
+const QUALITY_OPTIONS: [(&str, bigtube_core::enums::VideoQuality); 16] = {
     use bigtube_core::enums::VideoQuality::*;
     [
         ("Ask Every Time", Ask),
@@ -1245,6 +1245,10 @@ const QUALITY_OPTIONS: [(&str, bigtube_core::enums::VideoQuality); 12] = {
         ("Lowest (144p)", P144),
         ("Audio (MP3)", AudioMp3),
         ("Audio (M4A)", AudioM4a),
+        ("Audio (Opus)", AudioOpus),
+        ("Audio (FLAC)", AudioFlac),
+        ("Audio (WAV)", AudioWav),
+        ("Audio (AAC)", AudioAac),
     ]
 };
 
@@ -3325,6 +3329,10 @@ fn quality_ext(q: bigtube_core::enums::VideoQuality) -> &'static str {
     match q {
         AudioMp3 => "mp3",
         AudioM4a => "m4a",
+        AudioOpus => "opus",
+        AudioFlac => "flac",
+        AudioWav => "wav",
+        AudioAac => "aac",
         Best => "mkv",
         _ => "mp4",
     }
@@ -3444,7 +3452,10 @@ fn schedule_all(state: &Rc<AppState>, items: Vec<VideoObject>) {
 /// True for the audio-only batch qualities (MP3 / M4A).
 fn is_audio_quality(q: bigtube_core::enums::VideoQuality) -> bool {
     use bigtube_core::enums::VideoQuality::*;
-    matches!(q, AudioMp3 | AudioM4a)
+    matches!(
+        q,
+        AudioMp3 | AudioM4a | AudioOpus | AudioFlac | AudioWav | AudioAac
+    )
 }
 
 /// A single quality picker for batch downloads: a Video/Audio radio chooses the
@@ -3477,6 +3488,8 @@ fn show_quality_dialog(
         .modal(true)
         .title(tr("Select Quality"))
         .default_width(400)
+        // Size to content so there's no dead space below the dropdown.
+        .resizable(false)
         .build();
     let toolbar = adw::ToolbarView::new();
     let header = adw::HeaderBar::new();

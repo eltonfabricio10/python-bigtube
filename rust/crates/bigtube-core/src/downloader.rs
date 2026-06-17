@@ -422,9 +422,7 @@ pub fn build_download_args(
     let actual_format = parts.next().unwrap_or("").to_string();
     let extra: Vec<String> = parts.map(str::to_string).collect();
 
-    let is_audio_conversion = (params.ext == FileExt::Mp3.as_value()
-        || params.ext == FileExt::M4a.as_value())
-        && actual_format.contains("audio");
+    let is_audio_conversion = is_audio_ext(&params.ext) && actual_format.contains("audio");
 
     if is_audio_conversion {
         cmd.push("-f".into());
@@ -455,6 +453,11 @@ pub fn build_download_args(
 
     cmd.push(params.url.clone());
     cmd
+}
+
+/// Audio output extensions that take yt-dlp's `--extract-audio` path.
+fn is_audio_ext(ext: &str) -> bool {
+    matches!(ext, "mp3" | "m4a" | "wav" | "flac" | "opus" | "aac" | "ogg")
 }
 
 /// yt-dlp `vcodec` prefix for a parsed codec string, so a fallback selector can
