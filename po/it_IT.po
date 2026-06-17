@@ -4,18 +4,7 @@
 # Automatically generated, 2026.
 #
 msgid ""
-msgstr ""
-"Project-Id-Version: BigTube 2.0.63\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-31 02:28+0000\n"
-"PO-Revision-Date: 2026-03-11 23:04-0300\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
-"Language: it\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+msgstr "Project-Id-Version: BigTube 2.0.63\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2026-05-31 03:35+0000\nPO-Revision-Date: 2026-03-11 23:04-0300\nLast-Translator: Automatically generated\nLanguage-Team: none\nLanguage: it_IT\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:68
 msgid "BigTube"
@@ -24,7 +13,7 @@ msgstr "BigTube"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:71
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:93
 msgid "Search"
-msgstr "Ricerca"
+msgstr "Cerca"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:72
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:135
@@ -86,7 +75,7 @@ msgstr "Nessun risultato trovato!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:95
 msgid "Searching for:"
-msgstr "Alla ricerca di:"
+msgstr "Ricerca di:"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:98
 msgid "No Results"
@@ -112,7 +101,7 @@ msgstr "Riproduci video"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:115
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:353
 msgid "Download"
-msgstr "Scaricamento"
+msgstr "Scarica"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:106
 msgid "Copy Link"
@@ -124,11 +113,11 @@ msgstr "Collegamento copiato!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:108
 msgid "Ignored input:"
-msgstr "Ingresso ignorato:"
+msgstr "Input ignorato:"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:111
 msgid "Select Quality"
-msgstr "Seleziona Qualità"
+msgstr "Seleziona qualità"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:112
 msgid "Video Formats"
@@ -148,27 +137,23 @@ msgstr "Cancella cronologia"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:119
 msgid "Clear History?"
-msgstr "Cancella cronologia?"
+msgstr "Cancellare la cronologia?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:121
-msgid ""
-"This will remove all entries from the list.\n"
-"Files will remain on disk."
-msgstr ""
-"Ciò rimuoverà tutte le voci dall'elenco.\n"
-"I file rimarranno sul disco."
+msgid "This will remove all entries from the list.\nFiles will remain on disk."
+msgstr "Questa operazione rimuoverà tutte le voci dall'elenco.\nI file rimarranno sul disco."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:123
 msgid "History cleared successfully!"
-msgstr "La cronologia è stata cancellata con successo!"
+msgstr "Cronologia cancellata correttamente!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:124
 msgid "Failed to get info for"
-msgstr "Impossibile ottenere informazioni per"
+msgstr "Impossibile ottenere le informazioni per"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:127
 msgid "Download Folder"
-msgstr "Scarica la cartella"
+msgstr "Cartella dei download"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:128
 msgid "Pick Folder"
@@ -180,7 +165,7 @@ msgstr "Versione attuale"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:130
 msgid "Check for Updates"
-msgstr "Controlla gli aggiornamenti"
+msgstr "Controlla aggiornamenti"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:132
 msgid "Appearance"
@@ -204,7 +189,7 @@ msgstr "Aggiungi metadati ai file"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:138
 msgid "Enable ClipBoard Monitor"
-msgstr "Abilita il monitoraggio degli Appunti"
+msgstr "Abilita monitoraggio degli appunti"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:139
 msgid "Embed Subtitles"
@@ -212,7 +197,7 @@ msgstr "Incorpora sottotitoli"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:140
 msgid "Storage"
-msgstr "Magazzinaggio"
+msgstr "Archiviazione"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:141
 msgid "Save Download History"
@@ -245,11 +230,11 @@ msgstr "Sistema"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:150
 msgid "Light"
-msgstr "Leggero"
+msgstr "Chiaro"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:151
 msgid "Dark"
-msgstr "Buio"
+msgstr "Scuro"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:154
 msgid "Ask Every Time"
@@ -269,7 +254,7 @@ msgstr "2K (1440p)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:158
 msgid "Full HD (1080p)"
-msgstr "Full-HD (1080p)"
+msgstr "Full HD (1080p)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:159
 msgid "HD (720p)"
@@ -285,11 +270,11 @@ msgstr "Bassa definizione (360p)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:162
 msgid "Very Low (240p)"
-msgstr "Molto basso (240p)"
+msgstr "Molto bassa (240p)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:163
 msgid "Lowest (144p)"
-msgstr "Minimo (144p)"
+msgstr "Minima (144p)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:164
 msgid "Audio (MP3)"
@@ -299,13 +284,29 @@ msgstr "Audio (MP3)"
 msgid "Audio (M4A)"
 msgstr "Audio (M4A)"
 
+#: bigtube-gui
+msgid "Audio (Opus)"
+msgstr "Audio (Opus)"
+
+#: bigtube-gui
+msgid "Audio (FLAC)"
+msgstr "Audio (FLAC)"
+
+#: bigtube-gui
+msgid "Audio (WAV)"
+msgstr "Audio (WAV)"
+
+#: bigtube-gui
+msgid "Audio (AAC)"
+msgstr "Audio (AAC)"
+
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:168
 msgid "Default Blue"
 msgstr "Blu predefinito"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:169
 msgid "Modern Violet"
-msgstr "Viola moderna"
+msgstr "Viola moderno"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:170
 msgid "Emerald Green"
@@ -313,7 +314,7 @@ msgstr "Verde smeraldo"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:171
 msgid "Sunburst Orange"
-msgstr "Arancione dello sprazzo di sole"
+msgstr "Arancione solare"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:172
 msgid "Vibrant Rose"
@@ -333,23 +334,23 @@ msgstr "Gruvbox Retro"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:178
 msgid "Catppuccin Mocha"
-msgstr "Moka Catppuccin"
+msgstr "Catppuccin Mocha"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:179
 msgid "Dracula Dark"
-msgstr "Dracula Oscuro"
+msgstr "Dracula Dark"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:180
 msgid "Tokyo Night"
-msgstr "Notte di Tokio"
+msgstr "Tokyo Night"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:181
 msgid "Rosé Pine"
-msgstr "Pino rosato"
+msgstr "Rosé Pine"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:182
 msgid "Solarized Dark"
-msgstr "Scuro Solarizzato"
+msgstr "Solarized Dark"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:183
 msgid "Monokai Pro"
@@ -357,7 +358,7 @@ msgstr "Monokai Pro"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:184
 msgid "Cyberpunk Neon"
-msgstr "Neon cyberpunk"
+msgstr "Cyberpunk Neon"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:185
 msgid "BigTube Brand"
@@ -365,11 +366,11 @@ msgstr "Marchio BigTube"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:188
 msgid "Searching"
-msgstr "Ricerca"
+msgstr "Ricerca in corso"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:189
 msgid "Pending"
-msgstr "In attesa di"
+msgstr "In attesa"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:190
 msgid "Downloading..."
@@ -381,7 +382,7 @@ msgstr "Elaborazione..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:192
 msgid "Merging..."
-msgstr "Fusione..."
+msgstr "Unione..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:193
 msgid "Extracting Audio..."
@@ -402,11 +403,11 @@ msgstr "Annullato"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:197
 msgid "Confirm"
-msgstr "Confermare"
+msgstr "Conferma"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:198
 msgid "Cancel"
-msgstr "Cancellare"
+msgstr "Annulla"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:199
 msgid "Interrupted"
@@ -418,7 +419,7 @@ msgstr "In pausa"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:201
 msgid "Resuming..."
-msgstr "Riprendendo..."
+msgstr "Ripresa in corso..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:204
 msgid "Pause"
@@ -426,7 +427,7 @@ msgstr "Pausa"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:205
 msgid "Resume"
-msgstr "Riprendere"
+msgstr "Riprendi"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:206
 msgid "Cancel Conversion"
@@ -478,8 +479,7 @@ msgstr "File non trovato, rimuovere dalla cronologia?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
-msgstr ""
-"Il seguente file esiste nella cronologia ma non è stato trovato sul disco:\n"
+msgstr "Il seguente file esiste nella cronologia ma non è stato trovato sul disco:\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
 msgid "Item removed from history."
@@ -495,7 +495,7 @@ msgstr "Fermato"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:228
 msgid "Buffering..."
-msgstr "Bufferizzazione..."
+msgstr "Buffering..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:229
 msgid "BigTube Player"
@@ -515,7 +515,7 @@ msgstr "FFmpeg non trovato. Alcune funzionalità saranno limitate!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:235
 msgid "Download completed successfully!"
-msgstr "Download completato con successo!"
+msgstr "Download completato correttamente!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:236
 msgid "Download cancelled by user!"
@@ -531,7 +531,7 @@ msgstr "Download scaduto!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:239
 msgid "Starting download..."
-msgstr "Avvio download..."
+msgstr "Avvio del download..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:240
 msgid "Resuming download..."
@@ -539,11 +539,11 @@ msgstr "Ripresa del download..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:243
 msgid "No internet connection!"
-msgstr "Nessuna connessione Internet!"
+msgstr "Nessuna connessione a Internet!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:244
 msgid "yt-dlp update available:"
-msgstr "Aggiornamento yt-dlp disponibile:"
+msgstr "Aggiornamento di yt-dlp disponibile:"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:245
 msgid "Checking for updates..."
@@ -559,7 +559,7 @@ msgstr "Converti i tuoi file multimediali"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:251
 msgid "Or paste image URL / File Path"
-msgstr "Oppure incolla l'URL dell'immagine/il percorso del file"
+msgstr "Oppure incolla l'URL dell'immagine / il percorso del file"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:252
 msgid "Convert to:"
@@ -568,7 +568,7 @@ msgstr "Converti in:"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:253
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:292
 msgid "Convert"
-msgstr "Convertire"
+msgstr "Converti"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:256
 msgid "Ready"
@@ -576,7 +576,7 @@ msgstr "Pronto"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:257
 msgid "Selected: "
-msgstr "Selezionato:"
+msgstr "Selezionato: "
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:258
 msgid "Downloading image..."
@@ -588,7 +588,7 @@ msgstr "Conversione in"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:260
 msgid "Success!"
-msgstr "Successo!"
+msgstr "Riuscito!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:262
 msgid "Error occurred"
@@ -612,15 +612,15 @@ msgstr "Conversione annullata"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:271
 msgid "Select Media Files"
-msgstr "Seleziona File multimediali"
+msgstr "Seleziona file multimediali"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:272
 msgid "_Open"
-msgstr "_Aprire"
+msgstr "_Apri"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:273
 msgid "_Cancel"
-msgstr "_Cancellare"
+msgstr "_Annulla"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:274
 msgid "Media Files"
@@ -631,12 +631,8 @@ msgid "File Not Found"
 msgstr "File non trovato"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:279
-msgid ""
-"The converted file was not found. Would you like to convert it again or "
-"remove it from history?"
-msgstr ""
-"Il file convertito non è stato trovato. Desideri convertirlo di nuovo o "
-"rimuoverlo dalla cronologia?"
+msgid "The converted file was not found. Would you like to convert it again or remove it from history?"
+msgstr "Il file convertito non è stato trovato. Vuoi convertirlo di nuovo o rimuoverlo dalla cronologia?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:281
 msgid "Convert Again"
@@ -651,12 +647,8 @@ msgid "Source File Missing"
 msgstr "File di origine mancante"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:285
-msgid ""
-"The source file for this conversion is missing. Would you like to remove it "
-"from the list?"
-msgstr ""
-"Manca il file sorgente per questa conversione. Desideri rimuoverlo "
-"dall'elenco?"
+msgid "The source file for this conversion is missing. Would you like to remove it from the list?"
+msgstr "Manca il file di origine per questa conversione. Vuoi rimuoverlo dall'elenco?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:288
 msgid "Add Files"
@@ -700,11 +692,11 @@ msgstr "Nessun formato trovato"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:300
 msgid "Local File"
-msgstr "Archivio locale"
+msgstr "File locale"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:301
 msgid "ETA: "
-msgstr "ETA:"
+msgstr "Tempo stimato: "
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:304
 msgid "Select source"
@@ -720,21 +712,20 @@ msgstr "Riproduci/Pausa"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:309
 msgid "Next"
-msgstr "Prossimo"
+msgstr "Successivo"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:310
-#, fuzzy
 msgid "Stop"
-msgstr "Fermato"
+msgstr "Ferma"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:311
 msgid "Toggle Video Window"
 msgstr "Attiva/disattiva la finestra video"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:314
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "{count} videos"
-msgstr "{count} in coda"
+msgstr "{count} video"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:315
 msgid "Playlist"
@@ -746,36 +737,32 @@ msgstr "Apri la playlist"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:317
 msgid "Play all"
-msgstr "Gioca tutto"
+msgstr "Riproduci tutto"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:318
-#, fuzzy
 msgid "Download all"
-msgstr "Scaricamento"
+msgstr "Scarica tutto"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:319
-#, fuzzy
 msgid "Download selected"
-msgstr "Scarica selezionato ({count})"
+msgstr "Scarica selezionati"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:320
-#, fuzzy
 msgid "Select videos"
-msgstr "Seleziona File multimediali"
+msgstr "Seleziona video"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:321
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "{count} selected"
-msgstr "{count} in coda"
+msgstr "{count} selezionati"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:322
-#, fuzzy
 msgid "Back to results"
-msgstr "Nessun risultato"
+msgstr "Torna ai risultati"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:323
 msgid "Loading playlist…"
-msgstr "Caricamento playlist…"
+msgstr "Caricamento della playlist…"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:324
 #, python-brace-format
@@ -784,22 +771,15 @@ msgstr "Playlist: {title}"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:327
 msgid "Reset Application to Clean State?"
-msgstr "Ripristinare l'applicazione allo stato pulito?"
+msgstr "Ripristinare l'applicazione allo stato iniziale?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:329
-msgid ""
-"This will PERMANENTLY delete all settings, search history, download history,"
-" and converter history. This action cannot be undone."
-msgstr ""
-"Ciò eliminerà PERMANENTEMENTE tutte le impostazioni, la cronologia delle "
-"ricerche, la cronologia dei download e la cronologia del convertitore. "
-"Questa azione non può essere annullata."
+msgid "This will PERMANENTLY delete all settings, search history, download history, and converter history. This action cannot be undone."
+msgstr "Questa operazione eliminerà DEFINITIVAMENTE tutte le impostazioni, la cronologia delle ricerche, la cronologia dei download e la cronologia del convertitore. L'azione non può essere annullata."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
-msgstr ""
-"Tutti i dati dell'applicazione sono stati cancellati. L'app verrà ora "
-"riavviata."
+msgstr "Tutti i dati dell'applicazione sono stati cancellati. L'app verrà ora riavviata."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:332
 msgid "Failed to select folder"
@@ -807,7 +787,7 @@ msgstr "Impossibile selezionare la cartella"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:333
 msgid "Components updated successfully! ✅"
-msgstr "Componenti aggiornati con successo! ✅"
+msgstr "Componenti aggiornati correttamente! ✅"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:334
 msgid "Deno updated, but yt-dlp failed."
@@ -815,11 +795,11 @@ msgstr "Deno aggiornato, ma yt-dlp non è riuscito."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:337
 msgid "Clear All App Data (Reset)"
-msgstr "Cancella tutti i dati dell'app (Ripristina)"
+msgstr "Cancella tutti i dati dell'app (ripristino)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:338
 msgid "Update check failed."
-msgstr "Controllo dell'aggiornamento non riuscito."
+msgstr "Controllo degli aggiornamenti non riuscito."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:339
 msgid "Error:"
@@ -836,11 +816,11 @@ msgstr "In coda"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:344
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:350
 msgid "Schedule Download"
-msgstr "Scarica la pianificazione"
+msgstr "Programma download"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:345
 msgid "Select Date &amp; Time"
-msgstr "Seleziona data e data Tempo"
+msgstr "Seleziona data e ora"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:346
 msgid "Date"
@@ -848,7 +828,7 @@ msgstr "Data"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:347
 msgid "Time"
-msgstr "Tempo"
+msgstr "Ora"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:348
 msgid "Time (HH:MM)"
@@ -864,7 +844,7 @@ msgstr "Collegamento rilevato:"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:352
 msgid "Link detected! Paste in search to download."
-msgstr "Collegamento rilevato! Incolla nella ricerca per scaricare."
+msgstr "Collegamento rilevato! Incollalo nella ricerca per scaricarlo."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:354
 msgid "Scheduled:"
@@ -872,15 +852,15 @@ msgstr "Programmato:"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:357
 msgid "h"
-msgstr "H"
+msgstr "h"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:358
 msgid "m"
-msgstr "M"
+msgstr "m"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:359
 msgid "s"
-msgstr "S"
+msgstr "s"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:362
 msgid "© 2026 BigTube"
@@ -892,11 +872,11 @@ msgstr "Aiuto"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:364
 msgid "About"
-msgstr "Di"
+msgstr "Informazioni"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:365
 msgid "Quit"
-msgstr "Esentato"
+msgstr "Esci"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:368
 msgid "Toggle Selection Mode"
@@ -904,17 +884,17 @@ msgstr "Attiva/disattiva la modalità di selezione"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:369
 msgid "Select All / None"
-msgstr "Seleziona tutto/nessuno"
+msgstr "Seleziona tutto/niente"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:370
 #, python-brace-format
 msgid "Download Selected ({count})"
-msgstr "Scarica selezionato ({count})"
+msgstr "Scarica selezionati ({count})"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:371
 #, python-brace-format
 msgid "Starting batch download of {count} items..."
-msgstr "Avvio del download in batch degli elementi {count}..."
+msgstr "Avvio del download in batch di {count} elementi..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:374
 msgid "Search Settings"
@@ -922,7 +902,7 @@ msgstr "Impostazioni di ricerca"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:375
 msgid "Save Search History"
-msgstr "Salva la cronologia delle ricerche"
+msgstr "Salva cronologia delle ricerche"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:376
 msgid "Enable Search Suggestions"
@@ -930,11 +910,11 @@ msgstr "Abilita suggerimenti di ricerca"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:377
 msgid "Maximum Suggestions"
-msgstr "Suggerimenti massimi"
+msgstr "Numero massimo di suggerimenti"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:378
 msgid "Clear Search History"
-msgstr "Cancella cronologia ricerche"
+msgstr "Cancella cronologia delle ricerche"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:379
 msgid "Delete Suggestion"
@@ -942,7 +922,7 @@ msgstr "Elimina suggerimento"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:380
 msgid "Maximum Search Results"
-msgstr "Risultati di ricerca massimi"
+msgstr "Numero massimo di risultati di ricerca"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:381
 msgid "Max Simultaneous Downloads"
@@ -962,7 +942,7 @@ msgstr "Limite di velocità di download (KB/s)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:385
 msgid "Set to 0 for unlimited"
-msgstr "Impostato su 0 per illimitato"
+msgstr "Imposta su 0 per illimitato"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:386
 msgid "System Notifications"
@@ -982,11 +962,11 @@ msgstr "Comando di post-elaborazione"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:390
 msgid "Command to run after download. Use {} for filename."
-msgstr "Comando da eseguire dopo il download. Utilizzare {} come nome file."
+msgstr "Comando da eseguire dopo il download. Usa {} per il nome del file."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
 msgid "Cookies File"
-msgstr "Archivio dei cookie"
+msgstr "File dei cookie"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:392
 msgid "Path to a cookies.txt file (Netscape format)"
@@ -998,33 +978,27 @@ msgstr "Cookie dal browser"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:394
 msgid "Browser name or profile for yt-dlp (e.g., firefox)"
-msgstr "Nome o profilo del browser per yt-dlp (ad es. Firefox)"
+msgstr "Nome o profilo del browser per yt-dlp (ad es. firefox)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:395
 msgid "User Agent"
-msgstr "Agente utente"
+msgstr "User agent"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:396
 msgid "Override the User-Agent used by yt-dlp"
-msgstr "Sostituisci lo user-agent utilizzato da yt-dlp"
+msgstr "Sostituisci lo User-Agent utilizzato da yt-dlp"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:397
 msgid "Proxy"
-msgstr "Procura"
+msgstr "Proxy"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:398
-msgid ""
-"Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
-msgstr ""
-"URL proxy (ad esempio, calzini5://127.0.0.1:1080 o "
-"http://utente:pass@host:porta)"
+msgid "Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
+msgstr "URL del proxy (ad es. socks5://127.0.0.1:1080 o http://utente:pass@host:porta)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:400
-msgid ""
-"Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
-msgstr ""
-"URL proxy non valido. Utilizza schema://host:porta (http, https, calzini4, "
-"calzini5)."
+msgid "Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
+msgstr "URL del proxy non valido. Usa schema://host:porta (http, https, socks4, socks5)."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:402
 #, python-brace-format
@@ -1033,7 +1007,7 @@ msgstr "Proxy non raggiungibile: {error}"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:403
 msgid "Proxy connection successful."
-msgstr "Connessione proxy riuscita."
+msgstr "Connessione al proxy riuscita."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:404
 msgid "None"
@@ -1041,42 +1015,41 @@ msgstr "Nessuno"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:405
 msgid "History exported successfully!"
-msgstr "Cronologia esportata con successo!"
+msgstr "Cronologia esportata correttamente!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:406
 msgid "History imported successfully!"
-msgstr "La cronologia è stata importata con successo!"
+msgstr "Cronologia importata correttamente!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:407
 #, python-brace-format
 msgid "Reset failed: {error}"
-msgstr "Reimpostazione non riuscita: {error}"
+msgstr "Ripristino non riuscito: {error}"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:408
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Failed: {error}"
-msgstr "Non riuscito:"
+msgstr "Non riuscito: {error}"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:409
-#, fuzzy
 msgid "Invalid history file format"
-msgstr "Formato URL non valido"
+msgstr "Formato del file di cronologia non valido"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:410
 msgid "Error importing history file"
-msgstr "Errore durante l'importazione del file della cronologia"
+msgstr "Errore durante l'importazione del file di cronologia"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:413
 msgid "Toggle between light, dark, or system theme"
-msgstr "Alterna tra il tema chiaro, scuro o di sistema"
+msgstr "Alterna tra tema chiaro, scuro o di sistema"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:414
 msgid "Select a custom accent color for the interface"
-msgstr "Seleziona un colore personalizzato per l'interfaccia"
+msgstr "Seleziona un colore d'accento personalizzato per l'interfaccia"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:415
 msgid "Check for updates to yt-dlp and components"
-msgstr "Controlla gli aggiornamenti a yt-dlp e ai componenti"
+msgstr "Controlla gli aggiornamenti di yt-dlp e dei componenti"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:416
 msgid "Directory where downloads will be saved"
@@ -1100,7 +1073,7 @@ msgstr "Tenta di recuperare e incorporare i sottotitoli, se trovati"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:421
 msgid "Show system-level alerts for download events"
-msgstr "Mostra avvisi a livello di sistema per gli eventi di download"
+msgstr "Mostra avvisi di sistema per gli eventi di download"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:422
 msgid "Automatically detect video links in your clipboard"
@@ -1128,7 +1101,7 @@ msgstr "Elimina definitivamente tutte le impostazioni e la cronologia"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:428
 msgid "Keep track of your search queries locally"
-msgstr "Tieni traccia delle tue query di ricerca localmente"
+msgstr "Tieni traccia localmente delle tue ricerche"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:429
 msgid "Maximum number of items in search results"
@@ -1136,7 +1109,7 @@ msgstr "Numero massimo di elementi nei risultati di ricerca"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:430
 msgid "Show suggestions while typing in search bar"
-msgstr "Mostra suggerimenti durante la digitazione nella barra di ricerca"
+msgstr "Mostra i suggerimenti durante la digitazione nella barra di ricerca"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:431
 msgid "Number of suggestions to display at once"
@@ -1161,7 +1134,7 @@ msgstr "Salva i file convertiti accanto agli originali"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:438
 #, python-brace-format
 msgid "{count} downloading"
-msgstr "{count} download"
+msgstr "{count} in download"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:439
 #, python-brace-format
@@ -1175,17 +1148,11 @@ msgstr "{count} in pausa"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:444
 msgid "BigTube Help"
-msgstr "Aiuto BigTube"
+msgstr "Aiuto di BigTube"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:446
-msgid ""
-"To search for a video, paste a URL or type keywords in the search box.\n"
-"You can also drag and drop local media files onto the Converter tab to change their format.\n"
-"Check Settings to change download quality and themes."
-msgstr ""
-"Per cercare un video, incolla un URL o digita le parole chiave nella casella di ricerca.\n"
-"Puoi anche trascinare e rilasciare i file multimediali locali nella scheda Convertitore per modificarne il formato.\n"
-"Controlla le Impostazioni per modificare la qualità e i temi del download."
+msgid "To search for a video, paste a URL or type keywords in the search box.\nYou can also drag and drop local media files onto the Converter tab to change their format.\nCheck Settings to change download quality and themes."
+msgstr "Per cercare un video, incolla un URL o digita le parole chiave nella casella di ricerca.\nPuoi anche trascinare e rilasciare file multimediali locali sulla scheda Convertitore per modificarne il formato.\nApri le Impostazioni per modificare la qualità di download e i temi."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:450
 msgid "Untitled"
@@ -1197,7 +1164,7 @@ msgstr "Sconosciuto"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:452
 msgid "Best Available Quality"
-msgstr "La migliore qualità disponibile"
+msgstr "Migliore qualità disponibile"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:453
 #, python-brace-format
@@ -1206,7 +1173,7 @@ msgstr "MKV - Migliore qualità ({resolution}p)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:454
 msgid "Audio MP3 (Convert)"
-msgstr "Audio MP3 (Converti)"
+msgstr "Audio MP3 (converti)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:455
 #, python-brace-format
@@ -1219,11 +1186,11 @@ msgstr "yt-dlp v"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:457
 msgid "FFmpeg not found. Skipping metadata."
-msgstr "FFmpeg non trovato. Saltare i metadati."
+msgstr "FFmpeg non trovato. Metadati ignorati."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:458
 msgid "FFmpeg not found. Skipping subtitles."
-msgstr "FFmpeg non trovato. Saltare i sottotitoli."
+msgstr "FFmpeg non trovato. Sottotitoli ignorati."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:459
 msgid "OK"
@@ -1236,3 +1203,419 @@ msgstr "yt-dlp mancante"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:461
 msgid "Timeout"
 msgstr "Tempo scaduto"
+
+#: bigtube-gui
+msgid "Type something to search."
+msgstr "Digita qualcosa da cercare."
+
+#: bigtube-gui
+msgid "Retry"
+msgstr "Riprova"
+
+#: bigtube-gui
+msgid "Remove download?"
+msgstr "Rimuovere il download?"
+
+#: bigtube-gui
+msgid "Remove only the history entry, or delete the file too?"
+msgstr "Rimuovere solo la voce dalla cronologia o eliminare anche il file?"
+
+#: bigtube-gui
+msgid "Remove from history"
+msgstr "Rimuovi dalla cronologia"
+
+#: bigtube-gui
+msgid "Delete file too"
+msgstr "Elimina anche il file"
+
+#: bigtube-gui
+msgid "Clear all downloads?"
+msgstr "Cancellare tutti i download?"
+
+#: bigtube-gui
+msgid "Remove only the history entries, or delete the files too?"
+msgstr "Rimuovere solo le voci dalla cronologia o eliminare anche i file?"
+
+#: bigtube-gui
+msgid "Delete files too"
+msgstr "Elimina anche i file"
+
+#: bigtube-gui
+msgid "Remove conversion?"
+msgstr "Rimuovere la conversione?"
+
+#: bigtube-gui
+msgid "Clear all conversions?"
+msgstr "Cancellare tutte le conversioni?"
+
+#: bigtube-gui
+msgid "Playback"
+msgstr "Riproduzione"
+
+#: bigtube-gui
+msgid "Network & Advanced"
+msgstr "Rete e avanzate"
+
+#: bigtube-gui
+msgid "Common commands"
+msgstr "Comandi comuni"
+
+#: bigtube-gui
+msgid "Choose a preset…"
+msgstr "Scegli un preset…"
+
+#: bigtube-gui
+msgid "Desktop notification"
+msgstr "Notifica sul desktop"
+
+#: bigtube-gui
+msgid "Open output folder"
+msgstr "Apri cartella di output"
+
+#: bigtube-gui
+msgid "Make read-only"
+msgstr "Imposta come sola lettura"
+
+#: bigtube-gui
+msgid "Update timestamp"
+msgstr "Aggiorna data e ora"
+
+#: bigtube-gui
+msgid "Common browsers"
+msgstr "Browser comuni"
+
+#: bigtube-gui
+msgid "Known proxies"
+msgstr "Proxy noti"
+
+#: bigtube-gui
+msgid "Local HTTP proxy"
+msgstr "Proxy HTTP locale"
+
+#: bigtube-gui
+msgid "Installed browsers"
+msgstr "Browser installati"
+
+#: bigtube-gui
+msgid "Scheduled Downloads"
+msgstr "Download programmati"
+
+#: bigtube-gui
+msgid "No Scheduled Downloads"
+msgstr "Nessun download programmato"
+
+#: bigtube-gui
+msgid "Schedule a download to see it here"
+msgstr "Programma un download per visualizzarlo qui"
+
+#: bigtube-gui
+msgid "Add Schedule"
+msgstr "Aggiungi programmazione"
+
+#: bigtube-gui
+msgid "Schedule all"
+msgstr "Programma tutto"
+
+#: bigtube-gui
+msgid "Schedule Selected"
+msgstr "Programma selezionati"
+
+#: bigtube-gui
+msgid "Paste a video or playlist URL to schedule."
+msgstr "Incolla l'URL di un video o di una playlist da programmare."
+
+#: bigtube-gui
+msgid "Continue"
+msgstr "Continua"
+
+#: bigtube-gui
+msgid "Scheduled!"
+msgstr "Programmato!"
+
+#: bigtube-gui
+msgid "Edit"
+msgstr "Modifica"
+
+#: bigtube-gui
+msgid "Download as"
+msgstr "Scarica come"
+
+#: bigtube-gui
+msgid "Choose whether to download the video or audio only."
+msgstr "Scegli se scaricare il video o solo l'audio."
+
+#: bigtube-gui
+msgid "Repeat"
+msgstr "Ripeti"
+
+#: bigtube-gui
+msgid "Once"
+msgstr "Una volta"
+
+#: bigtube-gui
+msgid "Daily"
+msgstr "Ogni giorno"
+
+#: bigtube-gui
+msgid "Weekly"
+msgstr "Ogni settimana"
+
+#: bigtube-gui
+msgid "Monthly"
+msgstr "Ogni mese"
+
+#: bigtube-gui
+msgid "Clear search history?"
+msgstr "Cancellare la cronologia delle ricerche?"
+
+#: bigtube-gui
+msgid "Subtitles"
+msgstr "Sottotitoli"
+
+#: bigtube-gui
+msgid "Off"
+msgstr "Disattivati"
+
+#: bigtube-gui
+msgid "Embed in video"
+msgstr "Incorpora nel video"
+
+#: bigtube-gui
+msgid "Separate file"
+msgstr "File separato"
+
+#: bigtube-gui
+msgid "Embed + file"
+msgstr "Incorpora + file"
+
+#: bigtube-gui
+msgid "Download subtitles and how to store them"
+msgstr "Scarica i sottotitoli e scegli come archiviarli"
+
+#: bigtube-gui
+msgid "Languages"
+msgstr "Lingue"
+
+#: bigtube-gui
+msgid "Comma-separated language codes, e.g. pt, en, es"
+msgstr "Codici lingua separati da virgola, ad es. pt, en, es"
+
+#: bigtube-gui
+msgid "Include Auto-generated"
+msgstr "Includi quelli generati automaticamente"
+
+#: bigtube-gui
+msgid "Also fetch automatic (machine) captions"
+msgstr "Recupera anche i sottotitoli automatici (generati a macchina)"
+
+#: bigtube-gui
+msgid "Link detected"
+msgstr "Collegamento rilevato"
+
+#: bigtube-gui
+msgid "Paste this link in the search and download it?"
+msgstr "Incollare questo collegamento nella ricerca e scaricarlo?"
+
+#: bigtube-gui
+msgid "Not Now"
+msgstr "Non ora"
+
+#: bigtube-gui
+msgid "Paste & Search"
+msgstr "Incolla e cerca"
+
+#: bigtube-gui
+msgid "Clear conversion history?"
+msgstr "Cancellare la cronologia delle conversioni?"
+
+#: bigtube-gui
+msgid "Clear Conversion History"
+msgstr "Cancella cronologia delle conversioni"
+
+#: bigtube-gui
+msgid "Delete all previous conversion entries"
+msgstr "Elimina tutte le voci di conversione precedenti"
+
+#: bigtube-gui
+msgid "How many downloads run at the same time"
+msgstr "Quanti download eseguire contemporaneamente"
+
+#: bigtube-gui
+msgid "Parallel fragments per download (faster, uses more bandwidth)"
+msgstr "Frammenti paralleli per download (più veloce, usa più banda)"
+
+#: bigtube-gui
+msgid "Cap the download rate (0 = unlimited)"
+msgstr "Limita la velocità di download (0 = illimitata)"
+
+#: bigtube-gui
+msgid "Embed title, artist and other tags in the file"
+msgstr "Incorpora titolo, artista e altri tag nel file"
+
+#: bigtube-gui
+msgid "Download and embed subtitles when available"
+msgstr "Scarica e incorpora i sottotitoli, se disponibili"
+
+#: bigtube-gui
+msgid "Notify when a download finishes"
+msgstr "Avvisa al termine di un download"
+
+#: bigtube-gui
+msgid "Detect copied links and offer to download them"
+msgstr "Rileva i collegamenti copiati e proponi di scaricarli"
+
+#: bigtube-gui
+msgid "Keep a record of completed downloads"
+msgstr "Conserva un registro dei download completati"
+
+#: bigtube-gui
+msgid "Wipe history and finished items when the app closes"
+msgstr "Cancella la cronologia e gli elementi completati alla chiusura dell'app"
+
+#: bigtube-gui
+msgid "Write the converted file next to the original"
+msgstr "Scrivi il file convertito accanto all'originale"
+
+#: bigtube-gui
+msgid "Keep a record of converted files"
+msgstr "Conserva un registro dei file convertiti"
+
+#: bigtube-gui
+msgid "Remember past searches for suggestions"
+msgstr "Ricorda le ricerche precedenti per i suggerimenti"
+
+#: bigtube-gui
+msgid "How many results to fetch per search"
+msgstr "Quanti risultati recuperare per ogni ricerca"
+
+#: bigtube-gui
+msgid "Show matches from your history while typing"
+msgstr "Mostra le corrispondenze dalla cronologia durante la digitazione"
+
+#: bigtube-gui
+msgid "How many suggestions to show"
+msgstr "Quanti suggerimenti mostrare"
+
+#: bigtube-gui
+msgid "Follow the system or force light/dark"
+msgstr "Segui il sistema o forza chiaro/scuro"
+
+#: bigtube-gui
+msgid "Accent colour used across the app"
+msgstr "Colore d'accento usato in tutta l'app"
+
+#: bigtube-gui
+msgid "Default quality for new downloads"
+msgstr "Qualità predefinita per i nuovi download"
+
+#: bigtube-gui
+msgid "Quality used by the in-app player"
+msgstr "Qualità usata dal lettore integrato"
+
+#: bigtube-gui
+msgid "Use this browser's cookies for restricted videos"
+msgstr "Usa i cookie di questo browser per i video con restrizioni"
+
+#: bigtube-gui
+msgid "Clear"
+msgstr "Cancella"
+
+#: bigtube-gui
+msgid "Reset all app data?"
+msgstr "Reimpostare tutti i dati dell'app?"
+
+#: bigtube-gui
+msgid "This permanently deletes all settings, history and scheduled downloads. The app will restart."
+msgstr "Questa operazione elimina definitivamente tutte le impostazioni, la cronologia e i download programmati. L'app verrà riavviata."
+
+#: bigtube-gui
+msgid "Reset & Restart"
+msgstr "Reimposta e riavvia"
+
+#: bigtube-gui
+msgid "Done"
+msgstr "Fatto"
+
+#: bigtube-gui
+msgid "Restart Now"
+msgstr "Riavvia ora"
+
+#: bigtube-gui
+msgid "Video"
+msgstr "Video"
+
+#: bigtube-gui
+msgid "Audio"
+msgstr "Audio"
+
+#: bigtube-gui
+msgid "Invalid proxy address — use scheme://host:port."
+msgstr "Indirizzo del proxy non valido — usa schema://host:porta."
+
+#: bigtube-gui
+msgid "Invalid user agent."
+msgstr "User agent non valido."
+
+#: bigtube-gui
+msgid "Command not found on PATH:"
+msgstr "Comando non trovato nel PATH:"
+
+#: bigtube-gui
+msgid "This source has no separate audio track. The options below extract and convert its audio."
+msgstr "Questa fonte non ha una traccia audio separata. Le opzioni seguenti ne estraggono e convertono l'audio."
+
+#: bigtube-gui
+msgid "Best available quality"
+msgstr "Migliore qualità disponibile"
+
+#: bigtube-gui
+msgid "A file with this name is already in the download folder."
+msgstr "Un file con questo nome è già presente nella cartella dei download."
+
+#: bigtube-gui
+msgid "Added to downloads"
+msgstr "Aggiunto ai download"
+
+#: bigtube-gui
+msgid "Blocked by YouTube"
+msgstr "Bloccato da YouTube"
+
+#: bigtube-gui
+msgid "Blocked by YouTube — enable cookies in Settings"
+msgstr "Bloccato da YouTube — abilita i cookie nelle Impostazioni"
+
+#: bigtube-gui
+msgid "Close"
+msgstr "Chiudi"
+
+#: bigtube-gui
+msgid "Converting"
+msgstr "Conversione in corso"
+
+#: bigtube-gui
+msgid "File already exists"
+msgstr "Il file esiste già"
+
+#: bigtube-gui
+msgid "Keep Both"
+msgstr "Mantieni entrambi"
+
+#: bigtube-gui
+msgid "Open Settings"
+msgstr "Apri impostazioni"
+
+#: bigtube-gui
+msgid "Overwrite"
+msgstr "Sovrascrivi"
+
+#: bigtube-gui
+msgid "Preview Quality"
+msgstr "Qualità di anteprima"
+
+#: bigtube-gui
+msgid "Resolving format…"
+msgstr "Risoluzione del formato…"
+
+#: bigtube-gui
+msgid "Scheduled for:"
+msgstr "Programmato per:"

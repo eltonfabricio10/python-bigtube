@@ -4,18 +4,7 @@
 # Automatically generated, 2026.
 #
 msgid ""
-msgstr ""
-"Project-Id-Version: BigTube 2.0.63\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-31 02:28+0000\n"
-"PO-Revision-Date: 2026-03-11 23:04-0300\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
-"Language: sk\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+msgstr "Project-Id-Version: BigTube 2.0.63\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2026-05-31 03:35+0000\nPO-Revision-Date: 2026-03-11 23:04-0300\nLast-Translator: Automatically generated\nLanguage-Team: none\nLanguage: sk_SK\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:68
 msgid "BigTube"
@@ -29,7 +18,7 @@ msgstr "Hľadať"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:72
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:135
 msgid "Downloads"
-msgstr "sťahovanie"
+msgstr "Sťahovania"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:73
 msgid "Converter"
@@ -53,7 +42,7 @@ msgstr "Správca nastavení"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:80
 msgid "Converter Manager"
-msgstr "Správca prevodníkov"
+msgstr "Správca konvertora"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:83
 msgid "YouTube"
@@ -98,7 +87,7 @@ msgstr "Vyhľadajte videá alebo prilepte adresu URL"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:100
 msgid "No Downloads"
-msgstr "Žiadne sťahovanie"
+msgstr "Žiadne sťahovania"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:101
 msgid "Your downloads will appear here"
@@ -128,7 +117,7 @@ msgstr "Ignorovaný vstup:"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:111
 msgid "Select Quality"
-msgstr "Vyberte položku Kvalita"
+msgstr "Vyberte kvalitu"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:112
 msgid "Video Formats"
@@ -151,12 +140,8 @@ msgid "Clear History?"
 msgstr "Vymazať históriu?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:121
-msgid ""
-"This will remove all entries from the list.\n"
-"Files will remain on disk."
-msgstr ""
-"Tým sa odstránia všetky položky zo zoznamu.\n"
-"Súbory zostanú na disku."
+msgid "This will remove all entries from the list.\nFiles will remain on disk."
+msgstr "Tým sa odstránia všetky položky zo zoznamu.\nSúbory zostanú na disku."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:123
 msgid "History cleared successfully!"
@@ -172,7 +157,7 @@ msgstr "Priečinok na stiahnutie"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:128
 msgid "Pick Folder"
-msgstr "Vyberte priečinok"
+msgstr "Vybrať priečinok"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:129
 msgid "Current Version"
@@ -180,7 +165,7 @@ msgstr "Aktuálna verzia"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:130
 msgid "Check for Updates"
-msgstr "Skontrolujte aktualizácie"
+msgstr "Skontrolovať aktualizácie"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:132
 msgid "Appearance"
@@ -200,7 +185,7 @@ msgstr "Preferovaná kvalita"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:137
 msgid "Add Metadata to Files"
-msgstr "Pridajte metadáta do súborov"
+msgstr "Pridať metadáta do súborov"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:138
 msgid "Enable ClipBoard Monitor"
@@ -212,7 +197,7 @@ msgstr "Vložiť titulky"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:140
 msgid "Storage"
-msgstr "Skladovanie"
+msgstr "Úložisko"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:141
 msgid "Save Download History"
@@ -225,7 +210,7 @@ msgstr "Pri ukončení vymazať všetky údaje"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:143
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:248
 msgid "Media Converter"
-msgstr "Media Converter"
+msgstr "Konvertor médií"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:144
 msgid "Default Output Folder"
@@ -245,15 +230,15 @@ msgstr "Systém"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:150
 msgid "Light"
-msgstr "Svetlo"
+msgstr "Svetlá"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:151
 msgid "Dark"
-msgstr "Tmavý"
+msgstr "Tmavá"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:154
 msgid "Ask Every Time"
-msgstr "Opýtajte sa zakaždým"
+msgstr "Opýtať sa zakaždým"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:155
 msgid "Best (MKV)"
@@ -299,6 +284,22 @@ msgstr "Zvuk (MP3)"
 msgid "Audio (M4A)"
 msgstr "Zvuk (M4A)"
 
+#: bigtube-gui
+msgid "Audio (Opus)"
+msgstr "Zvuk (Opus)"
+
+#: bigtube-gui
+msgid "Audio (FLAC)"
+msgstr "Zvuk (FLAC)"
+
+#: bigtube-gui
+msgid "Audio (WAV)"
+msgstr "Zvuk (WAV)"
+
+#: bigtube-gui
+msgid "Audio (AAC)"
+msgstr "Zvuk (AAC)"
+
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:168
 msgid "Default Blue"
 msgstr "Predvolená modrá"
@@ -313,11 +314,11 @@ msgstr "Smaragdovo zelená"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:171
 msgid "Sunburst Orange"
-msgstr "Sunburst Orange"
+msgstr "Sýta oranžová"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:172
 msgid "Vibrant Rose"
-msgstr "Živá ruža"
+msgstr "Živá ružová"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:173
 msgid "Nordic Cyan"
@@ -333,7 +334,7 @@ msgstr "Gruvbox Retro"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:178
 msgid "Catppuccin Mocha"
-msgstr "Catpuccin Mocha"
+msgstr "Catppuccin Mocha"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:179
 msgid "Dracula Dark"
@@ -345,7 +346,7 @@ msgstr "Tokijská noc"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:181
 msgid "Rosé Pine"
-msgstr "Ružová borovica"
+msgstr "Rosé Pine"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:182
 msgid "Solarized Dark"
@@ -381,7 +382,7 @@ msgstr "Spracováva sa..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:192
 msgid "Merging..."
-msgstr "Zlučovanie..."
+msgstr "Zlučuje sa..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:193
 msgid "Extracting Audio..."
@@ -402,7 +403,7 @@ msgstr "Zrušené"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:197
 msgid "Confirm"
-msgstr "Potvrďte"
+msgstr "Potvrdiť"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:198
 msgid "Cancel"
@@ -410,7 +411,7 @@ msgstr "Zrušiť"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:199
 msgid "Interrupted"
-msgstr "Prerušený"
+msgstr "Prerušené"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:200
 msgid "Paused"
@@ -422,7 +423,7 @@ msgstr "Obnovuje sa..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:204
 msgid "Pause"
-msgstr "Pauza"
+msgstr "Pozastaviť"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:205
 msgid "Resume"
@@ -454,7 +455,7 @@ msgstr "Neznáma chyba!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:214
 msgid "FFmpeg Error - Missing or incompatible!"
-msgstr "FFmpeg Error – Chýba alebo je nekompatibilný!"
+msgstr "Chyba FFmpeg – chýba alebo je nekompatibilný!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:215
 msgid "Not enough disk space!"
@@ -571,11 +572,11 @@ msgstr "Konvertovať"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:256
 msgid "Ready"
-msgstr "Pripravený"
+msgstr "Pripravené"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:257
 msgid "Selected: "
-msgstr "Vybrané:"
+msgstr "Vybrané: "
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:258
 msgid "Downloading image..."
@@ -583,7 +584,7 @@ msgstr "Sťahuje sa obrázok..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:259
 msgid "Converting to"
-msgstr "Konverzia na"
+msgstr "Konvertuje sa na"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:260
 msgid "Success!"
@@ -611,11 +612,11 @@ msgstr "Konverzia bola zrušená"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:271
 msgid "Select Media Files"
-msgstr "Vyberte položku Mediálne súbory"
+msgstr "Vyberte mediálne súbory"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:272
 msgid "_Open"
-msgstr "_OTVORENÉ"
+msgstr "_Otvoriť"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:273
 msgid "_Cancel"
@@ -630,16 +631,12 @@ msgid "File Not Found"
 msgstr "Súbor sa nenašiel"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:279
-msgid ""
-"The converted file was not found. Would you like to convert it again or "
-"remove it from history?"
-msgstr ""
-"Skonvertovaný súbor sa nenašiel. Chcete ho znova skonvertovať alebo "
-"odstrániť z histórie?"
+msgid "The converted file was not found. Would you like to convert it again or remove it from history?"
+msgstr "Skonvertovaný súbor sa nenašiel. Chcete ho znova skonvertovať alebo odstrániť z histórie?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:281
 msgid "Convert Again"
-msgstr "Znova previesť"
+msgstr "Znova konvertovať"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:282
 msgid "Remove from History"
@@ -650,11 +647,8 @@ msgid "Source File Missing"
 msgstr "Chýba zdrojový súbor"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:285
-msgid ""
-"The source file for this conversion is missing. Would you like to remove it "
-"from the list?"
-msgstr ""
-"Chýba zdrojový súbor pre túto konverziu. Chcete ho odstrániť zo zoznamu?"
+msgid "The source file for this conversion is missing. Would you like to remove it from the list?"
+msgstr "Chýba zdrojový súbor pre túto konverziu. Chcete ho odstrániť zo zoznamu?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:288
 msgid "Add Files"
@@ -666,11 +660,11 @@ msgstr "Odstrániť zo zoznamu"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:290
 msgid "Open Folder"
-msgstr "Otvorte priečinok"
+msgstr "Otvoriť priečinok"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:291
 msgid "Play Converted File"
-msgstr "Prehrať konvertovaný súbor"
+msgstr "Prehrať skonvertovaný súbor"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:293
 msgid "Add to Converter"
@@ -678,11 +672,11 @@ msgstr "Pridať do konvertora"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:294
 msgid "Convert All"
-msgstr "Previesť všetko"
+msgstr "Konvertovať všetko"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:296
 msgid "Add Metadata"
-msgstr "Pridajte metadáta"
+msgstr "Pridať metadáta"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:297
 msgid "Add Subtitles"
@@ -702,7 +696,7 @@ msgstr "Miestny súbor"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:301
 msgid "ETA: "
-msgstr "ETA:"
+msgstr "Zostáva: "
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:304
 msgid "Select source"
@@ -721,18 +715,17 @@ msgid "Next"
 msgstr "Ďalej"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:310
-#, fuzzy
 msgid "Stop"
-msgstr "Zastavené"
+msgstr "Zastaviť"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:311
 msgid "Toggle Video Window"
 msgstr "Prepnúť video okno"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:314
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "{count} videos"
-msgstr "{count} v poradí"
+msgstr "{count} videí"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:315
 msgid "Playlist"
@@ -747,29 +740,25 @@ msgid "Play all"
 msgstr "Prehrať všetko"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:318
-#, fuzzy
 msgid "Download all"
-msgstr "Stiahnuť"
+msgstr "Stiahnuť všetko"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:319
-#, fuzzy
 msgid "Download selected"
-msgstr "Stiahnuť vybraté ({count})"
+msgstr "Stiahnuť vybraté"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:320
-#, fuzzy
 msgid "Select videos"
-msgstr "Vyberte položku Mediálne súbory"
+msgstr "Vybrať videá"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:321
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "{count} selected"
-msgstr "{count} v poradí"
+msgstr "{count} vybraných"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:322
-#, fuzzy
 msgid "Back to results"
-msgstr "Žiadne výsledky"
+msgstr "Späť na výsledky"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:323
 msgid "Loading playlist…"
@@ -778,20 +767,15 @@ msgstr "Načítava sa zoznam skladieb…"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:324
 #, python-brace-format
 msgid "Playlist: {title}"
-msgstr "Zoznam videí: {title}"
+msgstr "Zoznam skladieb: {title}"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:327
 msgid "Reset Application to Clean State?"
 msgstr "Resetovať aplikáciu do čistého stavu?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:329
-msgid ""
-"This will PERMANENTLY delete all settings, search history, download history,"
-" and converter history. This action cannot be undone."
-msgstr ""
-"Týmto sa NATRVALO odstránia všetky nastavenia, história vyhľadávania, "
-"história sťahovania a história prevodníkov. Túto akciu nie je možné vrátiť "
-"späť."
+msgid "This will PERMANENTLY delete all settings, search history, download history, and converter history. This action cannot be undone."
+msgstr "Týmto sa NATRVALO odstránia všetky nastavenia, história vyhľadávania, história sťahovania a história konvertora. Túto akciu nie je možné vrátiť späť."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
@@ -832,11 +816,11 @@ msgstr "Vo fronte"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:344
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:350
 msgid "Schedule Download"
-msgstr "Plán sťahovania"
+msgstr "Naplánovať sťahovanie"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:345
 msgid "Select Date &amp; Time"
-msgstr "Vyberte Dátum &amp; Čas"
+msgstr "Vyberte dátum &amp; čas"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:346
 msgid "Date"
@@ -852,7 +836,7 @@ msgstr "Čas (HH:MM)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:349
 msgid "Schedule"
-msgstr "Rozvrh"
+msgstr "Naplánovať"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:351
 msgid "Link Detected:"
@@ -884,15 +868,15 @@ msgstr "© 2026 BigTube"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:363
 msgid "Help"
-msgstr "Pomoc"
+msgstr "Pomocník"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:364
 msgid "About"
-msgstr "O"
+msgstr "O aplikácii"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:365
 msgid "Quit"
-msgstr "Ukončite"
+msgstr "Ukončiť"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:368
 msgid "Toggle Selection Mode"
@@ -900,7 +884,7 @@ msgstr "Prepnúť režim výberu"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:369
 msgid "Select All / None"
-msgstr "Vyberte Všetky / Žiadne"
+msgstr "Vybrať všetko / nič"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:370
 #, python-brace-format
@@ -942,7 +926,7 @@ msgstr "Maximálny počet výsledkov vyhľadávania"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:381
 msgid "Max Simultaneous Downloads"
-msgstr "Maximálny počet simultánnych sťahovaní"
+msgstr "Maximálny počet súčasných sťahovaní"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:382
 msgid "Concurrent Fragments"
@@ -966,11 +950,11 @@ msgstr "Systémové upozornenia"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:387
 msgid "Export History"
-msgstr "História exportu"
+msgstr "Exportovať históriu"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:388
 msgid "Import History"
-msgstr "História importu"
+msgstr "Importovať históriu"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:389
 msgid "Post-Processing Command"
@@ -982,7 +966,7 @@ msgstr "Príkaz na spustenie po stiahnutí. Ako názov súboru použite {}."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
 msgid "Cookies File"
-msgstr "Súbor cookie"
+msgstr "Súbor cookies"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:392
 msgid "Path to a cookies.txt file (Netscape format)"
@@ -1009,18 +993,12 @@ msgid "Proxy"
 msgstr "Proxy"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:398
-msgid ""
-"Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
-msgstr ""
-"Adresa URL proxy (napr. socks5://127.0.0.1:1080 alebo "
-"http://user:pass@host:port)"
+msgid "Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
+msgstr "Adresa URL proxy (napr. socks5://127.0.0.1:1080 alebo http://user:pass@host:port)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:400
-msgid ""
-"Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
-msgstr ""
-"Neplatná adresa URL servera proxy. Použite schému://hostiteľ:port (http, "
-"https, socks4, socks5)."
+msgid "Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
+msgstr "Neplatná adresa URL servera proxy. Použite schému://hostiteľ:port (http, https, socks4, socks5)."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:402
 #, python-brace-format
@@ -1033,7 +1011,7 @@ msgstr "Pripojenie proxy bolo úspešné."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:404
 msgid "None"
-msgstr "žiadne"
+msgstr "Žiadne"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:405
 msgid "History exported successfully!"
@@ -1049,14 +1027,13 @@ msgid "Reset failed: {error}"
 msgstr "Obnovenie zlyhalo: {error}"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:408
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Failed: {error}"
-msgstr "Neúspešné:"
+msgstr "Neúspešné: {error}"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:409
-#, fuzzy
 msgid "Invalid history file format"
-msgstr "Neplatný formát adresy URL"
+msgstr "Neplatný formát súboru histórie"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:410
 msgid "Error importing history file"
@@ -1157,12 +1134,12 @@ msgstr "Uložte skonvertované súbory vedľa originálov"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:438
 #, python-brace-format
 msgid "{count} downloading"
-msgstr "{count} sťahovanie"
+msgstr "{count} sa sťahuje"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:439
 #, python-brace-format
 msgid "{count} queued"
-msgstr "{count} v poradí"
+msgstr "{count} vo fronte"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:440
 #, python-brace-format
@@ -1174,14 +1151,8 @@ msgid "BigTube Help"
 msgstr "Pomocník BigTube"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:446
-msgid ""
-"To search for a video, paste a URL or type keywords in the search box.\n"
-"You can also drag and drop local media files onto the Converter tab to change their format.\n"
-"Check Settings to change download quality and themes."
-msgstr ""
-"Ak chcete vyhľadať video, prilepte adresu URL alebo zadajte kľúčové slová do vyhľadávacieho poľa.\n"
-"Miestne mediálne súbory môžete tiež presunúť myšou na kartu Konvertor a zmeniť ich formát.\n"
-"Ak chcete zmeniť kvalitu sťahovania a motívy, začiarknite políčko Nastavenia."
+msgid "To search for a video, paste a URL or type keywords in the search box.\nYou can also drag and drop local media files onto the Converter tab to change their format.\nCheck Settings to change download quality and themes."
+msgstr "Ak chcete vyhľadať video, prilepte adresu URL alebo zadajte kľúčové slová do vyhľadávacieho poľa.\nMiestne mediálne súbory môžete tiež presunúť myšou na kartu Konvertor a zmeniť ich formát.\nKvalitu sťahovania a témy zmeníte v Nastaveniach."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:450
 msgid "Untitled"
@@ -1198,16 +1169,16 @@ msgstr "Najlepšia dostupná kvalita"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:453
 #, python-brace-format
 msgid "MKV - Best Quality ({resolution}p)"
-msgstr "MKV – Najlepšia kvalita ({resolution}p)"
+msgstr "MKV – najlepšia kvalita ({resolution}p)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:454
 msgid "Audio MP3 (Convert)"
-msgstr "Audio MP3 (konvertovať)"
+msgstr "Zvuk MP3 (konvertovať)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:455
 #, python-brace-format
 msgid "Audio {ext} - {kbps}kbps"
-msgstr "Zvuk {ext} – {kbps}kb/s"
+msgstr "Zvuk {ext} – {kbps} kb/s"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:456
 msgid "yt-dlp v"
@@ -1215,11 +1186,11 @@ msgstr "yt-dlp v"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:457
 msgid "FFmpeg not found. Skipping metadata."
-msgstr "FFmpeg sa nenašiel. Preskakovanie metadát."
+msgstr "FFmpeg sa nenašiel. Preskakujú sa metadáta."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:458
 msgid "FFmpeg not found. Skipping subtitles."
-msgstr "FFmpeg sa nenašiel. Preskakovanie titulkov."
+msgstr "FFmpeg sa nenašiel. Preskakujú sa titulky."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:459
 msgid "OK"
@@ -1232,3 +1203,419 @@ msgstr "yt-dlp chýba"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:461
 msgid "Timeout"
 msgstr "Časový limit"
+
+#: bigtube-gui
+msgid "Type something to search."
+msgstr "Pre vyhľadávanie niečo zadajte."
+
+#: bigtube-gui
+msgid "Retry"
+msgstr "Skúsiť znova"
+
+#: bigtube-gui
+msgid "Remove download?"
+msgstr "Odstrániť sťahovanie?"
+
+#: bigtube-gui
+msgid "Remove only the history entry, or delete the file too?"
+msgstr "Odstrániť iba záznam z histórie, alebo aj samotný súbor?"
+
+#: bigtube-gui
+msgid "Remove from history"
+msgstr "Odstrániť z histórie"
+
+#: bigtube-gui
+msgid "Delete file too"
+msgstr "Odstrániť aj súbor"
+
+#: bigtube-gui
+msgid "Clear all downloads?"
+msgstr "Vymazať všetky sťahovania?"
+
+#: bigtube-gui
+msgid "Remove only the history entries, or delete the files too?"
+msgstr "Odstrániť iba záznamy z histórie, alebo aj samotné súbory?"
+
+#: bigtube-gui
+msgid "Delete files too"
+msgstr "Odstrániť aj súbory"
+
+#: bigtube-gui
+msgid "Remove conversion?"
+msgstr "Odstrániť konverziu?"
+
+#: bigtube-gui
+msgid "Clear all conversions?"
+msgstr "Vymazať všetky konverzie?"
+
+#: bigtube-gui
+msgid "Playback"
+msgstr "Prehrávanie"
+
+#: bigtube-gui
+msgid "Network & Advanced"
+msgstr "Sieť a rozšírené"
+
+#: bigtube-gui
+msgid "Common commands"
+msgstr "Bežné príkazy"
+
+#: bigtube-gui
+msgid "Choose a preset…"
+msgstr "Vyberte predvoľbu…"
+
+#: bigtube-gui
+msgid "Desktop notification"
+msgstr "Upozornenie na pracovnej ploche"
+
+#: bigtube-gui
+msgid "Open output folder"
+msgstr "Otvoriť výstupný priečinok"
+
+#: bigtube-gui
+msgid "Make read-only"
+msgstr "Nastaviť iba na čítanie"
+
+#: bigtube-gui
+msgid "Update timestamp"
+msgstr "Aktualizovať časovú značku"
+
+#: bigtube-gui
+msgid "Common browsers"
+msgstr "Bežné prehliadače"
+
+#: bigtube-gui
+msgid "Known proxies"
+msgstr "Známe proxy servery"
+
+#: bigtube-gui
+msgid "Local HTTP proxy"
+msgstr "Miestny HTTP proxy"
+
+#: bigtube-gui
+msgid "Installed browsers"
+msgstr "Nainštalované prehliadače"
+
+#: bigtube-gui
+msgid "Scheduled Downloads"
+msgstr "Naplánované sťahovania"
+
+#: bigtube-gui
+msgid "No Scheduled Downloads"
+msgstr "Žiadne naplánované sťahovania"
+
+#: bigtube-gui
+msgid "Schedule a download to see it here"
+msgstr "Naplánujte sťahovanie a zobrazí sa tu"
+
+#: bigtube-gui
+msgid "Add Schedule"
+msgstr "Pridať plán"
+
+#: bigtube-gui
+msgid "Schedule all"
+msgstr "Naplánovať všetko"
+
+#: bigtube-gui
+msgid "Schedule Selected"
+msgstr "Naplánovať vybraté"
+
+#: bigtube-gui
+msgid "Paste a video or playlist URL to schedule."
+msgstr "Na naplánovanie prilepte adresu URL videa alebo zoznamu skladieb."
+
+#: bigtube-gui
+msgid "Continue"
+msgstr "Pokračovať"
+
+#: bigtube-gui
+msgid "Scheduled!"
+msgstr "Naplánované!"
+
+#: bigtube-gui
+msgid "Edit"
+msgstr "Upraviť"
+
+#: bigtube-gui
+msgid "Download as"
+msgstr "Stiahnuť ako"
+
+#: bigtube-gui
+msgid "Choose whether to download the video or audio only."
+msgstr "Vyberte, či chcete stiahnuť video alebo iba zvuk."
+
+#: bigtube-gui
+msgid "Repeat"
+msgstr "Opakovať"
+
+#: bigtube-gui
+msgid "Once"
+msgstr "Raz"
+
+#: bigtube-gui
+msgid "Daily"
+msgstr "Denne"
+
+#: bigtube-gui
+msgid "Weekly"
+msgstr "Týždenne"
+
+#: bigtube-gui
+msgid "Monthly"
+msgstr "Mesačne"
+
+#: bigtube-gui
+msgid "Clear search history?"
+msgstr "Vymazať históriu vyhľadávania?"
+
+#: bigtube-gui
+msgid "Subtitles"
+msgstr "Titulky"
+
+#: bigtube-gui
+msgid "Off"
+msgstr "Vypnuté"
+
+#: bigtube-gui
+msgid "Embed in video"
+msgstr "Vložiť do videa"
+
+#: bigtube-gui
+msgid "Separate file"
+msgstr "Samostatný súbor"
+
+#: bigtube-gui
+msgid "Embed + file"
+msgstr "Vložiť + súbor"
+
+#: bigtube-gui
+msgid "Download subtitles and how to store them"
+msgstr "Stiahnutie titulkov a spôsob ich uloženia"
+
+#: bigtube-gui
+msgid "Languages"
+msgstr "Jazyky"
+
+#: bigtube-gui
+msgid "Comma-separated language codes, e.g. pt, en, es"
+msgstr "Kódy jazykov oddelené čiarkami, napr. pt, en, es"
+
+#: bigtube-gui
+msgid "Include Auto-generated"
+msgstr "Zahrnúť automaticky generované"
+
+#: bigtube-gui
+msgid "Also fetch automatic (machine) captions"
+msgstr "Načítať aj automatické (strojové) titulky"
+
+#: bigtube-gui
+msgid "Link detected"
+msgstr "Zistený odkaz"
+
+#: bigtube-gui
+msgid "Paste this link in the search and download it?"
+msgstr "Vložiť tento odkaz do vyhľadávania a stiahnuť ho?"
+
+#: bigtube-gui
+msgid "Not Now"
+msgstr "Teraz nie"
+
+#: bigtube-gui
+msgid "Paste & Search"
+msgstr "Vložiť a hľadať"
+
+#: bigtube-gui
+msgid "Clear conversion history?"
+msgstr "Vymazať históriu konverzií?"
+
+#: bigtube-gui
+msgid "Clear Conversion History"
+msgstr "Vymazať históriu konverzií"
+
+#: bigtube-gui
+msgid "Delete all previous conversion entries"
+msgstr "Odstrániť všetky predchádzajúce záznamy konverzií"
+
+#: bigtube-gui
+msgid "How many downloads run at the same time"
+msgstr "Koľko sťahovaní beží súčasne"
+
+#: bigtube-gui
+msgid "Parallel fragments per download (faster, uses more bandwidth)"
+msgstr "Paralelné fragmenty na stiahnutie (rýchlejšie, využíva viac šírky pásma)"
+
+#: bigtube-gui
+msgid "Cap the download rate (0 = unlimited)"
+msgstr "Obmedzte rýchlosť sťahovania (0 = neobmedzené)"
+
+#: bigtube-gui
+msgid "Embed title, artist and other tags in the file"
+msgstr "Vložiť názov, interpreta a ďalšie značky do súboru"
+
+#: bigtube-gui
+msgid "Download and embed subtitles when available"
+msgstr "Stiahnuť a vložiť titulky, ak sú dostupné"
+
+#: bigtube-gui
+msgid "Notify when a download finishes"
+msgstr "Upozorniť po dokončení sťahovania"
+
+#: bigtube-gui
+msgid "Detect copied links and offer to download them"
+msgstr "Zisťovať skopírované odkazy a ponúknuť ich stiahnutie"
+
+#: bigtube-gui
+msgid "Keep a record of completed downloads"
+msgstr "Uchovávať záznam o dokončených sťahovaniach"
+
+#: bigtube-gui
+msgid "Wipe history and finished items when the app closes"
+msgstr "Vymazať históriu a dokončené položky pri zatvorení aplikácie"
+
+#: bigtube-gui
+msgid "Write the converted file next to the original"
+msgstr "Uložiť skonvertovaný súbor vedľa originálu"
+
+#: bigtube-gui
+msgid "Keep a record of converted files"
+msgstr "Uchovávať záznam o konvertovaných súboroch"
+
+#: bigtube-gui
+msgid "Remember past searches for suggestions"
+msgstr "Zapamätať si predchádzajúce vyhľadávania pre návrhy"
+
+#: bigtube-gui
+msgid "How many results to fetch per search"
+msgstr "Koľko výsledkov sa načíta na jedno vyhľadávanie"
+
+#: bigtube-gui
+msgid "Show matches from your history while typing"
+msgstr "Zobrazovať zhody z histórie počas písania"
+
+#: bigtube-gui
+msgid "How many suggestions to show"
+msgstr "Koľko návrhov sa má zobraziť"
+
+#: bigtube-gui
+msgid "Follow the system or force light/dark"
+msgstr "Sledovať systém alebo vynútiť svetlú/tmavú"
+
+#: bigtube-gui
+msgid "Accent colour used across the app"
+msgstr "Zvýrazňujúca farba použitá v celej aplikácii"
+
+#: bigtube-gui
+msgid "Default quality for new downloads"
+msgstr "Predvolená kvalita pre nové sťahovania"
+
+#: bigtube-gui
+msgid "Quality used by the in-app player"
+msgstr "Kvalita použitá vstavaným prehrávačom"
+
+#: bigtube-gui
+msgid "Use this browser's cookies for restricted videos"
+msgstr "Použiť súbory cookie tohto prehliadača pre obmedzené videá"
+
+#: bigtube-gui
+msgid "Clear"
+msgstr "Vymazať"
+
+#: bigtube-gui
+msgid "Reset all app data?"
+msgstr "Resetovať všetky údaje aplikácie?"
+
+#: bigtube-gui
+msgid "This permanently deletes all settings, history and scheduled downloads. The app will restart."
+msgstr "Týmto sa natrvalo odstránia všetky nastavenia, história a naplánované sťahovania. Aplikácia sa reštartuje."
+
+#: bigtube-gui
+msgid "Reset & Restart"
+msgstr "Resetovať a reštartovať"
+
+#: bigtube-gui
+msgid "Done"
+msgstr "Hotovo"
+
+#: bigtube-gui
+msgid "Restart Now"
+msgstr "Reštartovať teraz"
+
+#: bigtube-gui
+msgid "Video"
+msgstr "Video"
+
+#: bigtube-gui
+msgid "Audio"
+msgstr "Zvuk"
+
+#: bigtube-gui
+msgid "Invalid proxy address — use scheme://host:port."
+msgstr "Neplatná adresa proxy – použite schému://hostiteľ:port."
+
+#: bigtube-gui
+msgid "Invalid user agent."
+msgstr "Neplatný user agent."
+
+#: bigtube-gui
+msgid "Command not found on PATH:"
+msgstr "Príkaz sa nenašiel v PATH:"
+
+#: bigtube-gui
+msgid "This source has no separate audio track. The options below extract and convert its audio."
+msgstr "Tento zdroj nemá samostatnú zvukovú stopu. Možnosti nižšie extrahujú a skonvertujú jeho zvuk."
+
+#: bigtube-gui
+msgid "Best available quality"
+msgstr "Najlepšia dostupná kvalita"
+
+#: bigtube-gui
+msgid "A file with this name is already in the download folder."
+msgstr "Súbor s týmto názvom sa už nachádza v priečinku na stiahnutie."
+
+#: bigtube-gui
+msgid "Added to downloads"
+msgstr "Pridané do sťahovaní"
+
+#: bigtube-gui
+msgid "Blocked by YouTube"
+msgstr "Blokované službou YouTube"
+
+#: bigtube-gui
+msgid "Blocked by YouTube — enable cookies in Settings"
+msgstr "Blokované službou YouTube – povoľte súbory cookie v Nastaveniach"
+
+#: bigtube-gui
+msgid "Close"
+msgstr "Zavrieť"
+
+#: bigtube-gui
+msgid "Converting"
+msgstr "Konvertuje sa"
+
+#: bigtube-gui
+msgid "File already exists"
+msgstr "Súbor už existuje"
+
+#: bigtube-gui
+msgid "Keep Both"
+msgstr "Ponechať oba"
+
+#: bigtube-gui
+msgid "Open Settings"
+msgstr "Otvoriť nastavenia"
+
+#: bigtube-gui
+msgid "Overwrite"
+msgstr "Prepísať"
+
+#: bigtube-gui
+msgid "Preview Quality"
+msgstr "Kvalita ukážky"
+
+#: bigtube-gui
+msgid "Resolving format…"
+msgstr "Zisťuje sa formát…"
+
+#: bigtube-gui
+msgid "Scheduled for:"
+msgstr "Naplánované na:"

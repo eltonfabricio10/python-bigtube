@@ -1587,9 +1587,63 @@ msgid "Command not found on PATH:"
 msgstr ""
 
 #: bigtube-gui
-msgid "This source has no separate audio track. The options below extract and convert its audio."
+msgid ""
+"This source has no separate audio track. The options below extract and "
+"convert its audio."
 msgstr ""
 
 #: bigtube-gui
 msgid "Best available quality"
+msgstr ""
+
+#: bigtube-gui
+msgid "A file with this name is already in the download folder."
+msgstr ""
+
+#: bigtube-gui
+msgid "Added to downloads"
+msgstr ""
+
+#: bigtube-gui
+msgid "Blocked by YouTube"
+msgstr ""
+
+#: bigtube-gui
+msgid "Blocked by YouTube — enable cookies in Settings"
+msgstr ""
+
+#: bigtube-gui
+msgid "Close"
+msgstr ""
+
+#: bigtube-gui
+msgid "Converting"
+msgstr ""
+
+#: bigtube-gui
+msgid "File already exists"
+msgstr ""
+
+#: bigtube-gui
+msgid "Keep Both"
+msgstr ""
+
+#: bigtube-gui
+msgid "Open Settings"
+msgstr ""
+
+#: bigtube-gui
+msgid "Overwrite"
+msgstr ""
+
+#: bigtube-gui
+msgid "Preview Quality"
+msgstr ""
+
+#: bigtube-gui
+msgid "Resolving format…"
+msgstr ""
+
+#: bigtube-gui
+msgid "Scheduled for:"
 msgstr ""
