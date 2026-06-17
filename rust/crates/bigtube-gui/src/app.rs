@@ -78,6 +78,7 @@ impl DownloadRow {
         pause.set_tooltip_text(Some(&tr("Pause")));
         let cancel = gtk::Button::from_icon_name("process-stop-symbolic");
         cancel.add_css_class("flat");
+        cancel.add_css_class("destructive-action");
         cancel.set_tooltip_text(Some(&tr("Cancel")));
         // Edit pencil: shown only while this row is a pending scheduled download.
         let edit = gtk::Button::from_icon_name("document-edit-symbolic");
@@ -87,6 +88,7 @@ impl DownloadRow {
         // Per-row delete (asks history-only vs file too); wired in wire_row_footer.
         let btn_delete = gtk::Button::from_icon_name("user-trash-symbolic");
         btn_delete.add_css_class("flat");
+        btn_delete.add_css_class("destructive-action");
         btn_delete.set_tooltip_text(Some(&tr("Remove from list")));
         header.append(&title_lbl);
         header.append(&status);
@@ -2714,6 +2716,7 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     convert.set_tooltip_text(Some(&tr("Convert")));
     let cancel = gtk::Button::from_icon_name("process-stop-symbolic");
     cancel.add_css_class("flat");
+    cancel.add_css_class("destructive-action");
     cancel.set_tooltip_text(Some(&tr("Cancel")));
     cancel.set_visible(false);
     let folder = gtk::Button::from_icon_name("folder-open-symbolic");
@@ -2726,6 +2729,7 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     play.set_visible(false);
     let remove = gtk::Button::from_icon_name("user-trash-symbolic");
     remove.add_css_class("flat");
+    remove.add_css_class("destructive-action");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
     // Top row: name + format input + convert/cancel (next to the dropdown) +
     // delete. Only play/folder live in the bottom row next to the status.
@@ -4610,6 +4614,7 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
     play.set_tooltip_text(Some(&tr("Play Video")));
     let remove = gtk::Button::from_icon_name("user-trash-symbolic");
     remove.add_css_class("flat");
+    remove.add_css_class("destructive-action");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
     header.append(&name_lbl);
     header.append(&fmt_lbl);
