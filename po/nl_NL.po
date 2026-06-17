@@ -4,7 +4,18 @@
 # Automatically generated, 2026.
 #
 msgid ""
-msgstr "Project-Id-Version: BigTube 2.0.63\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2026-05-31 03:35+0000\nPO-Revision-Date: 2026-03-11 23:04-0300\nLast-Translator: Automatically generated\nLanguage-Team: none\nLanguage: nl_NL\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
+msgstr ""
+"Project-Id-Version: BigTube 2.0.63\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-31 03:35+0000\n"
+"PO-Revision-Date: 2026-03-11 23:04-0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:68
 msgid "BigTube"
@@ -140,8 +151,12 @@ msgid "Clear History?"
 msgstr "Geschiedenis wissen?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:121
-msgid "This will remove all entries from the list.\nFiles will remain on disk."
-msgstr "Hierdoor worden alle vermeldingen uit de lijst verwijderd.\nBestanden blijven op schijf staan."
+msgid ""
+"This will remove all entries from the list.\n"
+"Files will remain on disk."
+msgstr ""
+"Hierdoor worden alle vermeldingen uit de lijst verwijderd.\n"
+"Bestanden blijven op schijf staan."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:123
 msgid "History cleared successfully!"
@@ -479,7 +494,9 @@ msgstr "Bestand niet gevonden, verwijderen uit geschiedenis?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
-msgstr "Het volgende bestand bestaat in de geschiedenis, maar is niet op schijf gevonden:\n"
+msgstr ""
+"Het volgende bestand bestaat in de geschiedenis, maar is niet op schijf "
+"gevonden:\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
 msgid "Item removed from history."
@@ -631,8 +648,12 @@ msgid "File Not Found"
 msgstr "Bestand niet gevonden"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:279
-msgid "The converted file was not found. Would you like to convert it again or remove it from history?"
-msgstr "Het geconverteerde bestand is niet gevonden. Wilt u het opnieuw converteren of uit de geschiedenis verwijderen?"
+msgid ""
+"The converted file was not found. Would you like to convert it again or "
+"remove it from history?"
+msgstr ""
+"Het geconverteerde bestand is niet gevonden. Wilt u het opnieuw converteren "
+"of uit de geschiedenis verwijderen?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:281
 msgid "Convert Again"
@@ -647,8 +668,12 @@ msgid "Source File Missing"
 msgstr "Bronbestand ontbreekt"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:285
-msgid "The source file for this conversion is missing. Would you like to remove it from the list?"
-msgstr "Het bronbestand voor deze conversie ontbreekt. Wilt u dit uit de lijst verwijderen?"
+msgid ""
+"The source file for this conversion is missing. Would you like to remove it "
+"from the list?"
+msgstr ""
+"Het bronbestand voor deze conversie ontbreekt. Wilt u dit uit de lijst "
+"verwijderen?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:288
 msgid "Add Files"
@@ -774,8 +799,13 @@ msgid "Reset Application to Clean State?"
 msgstr "Toepassing opnieuw instellen op schone status?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:329
-msgid "This will PERMANENTLY delete all settings, search history, download history, and converter history. This action cannot be undone."
-msgstr "Hiermee worden PERMANENT alle instellingen, zoekgeschiedenis, downloadgeschiedenis en conversiegeschiedenis verwijderd. Deze actie kan niet ongedaan worden gemaakt."
+msgid ""
+"This will PERMANENTLY delete all settings, search history, download history,"
+" and converter history. This action cannot be undone."
+msgstr ""
+"Hiermee worden PERMANENT alle instellingen, zoekgeschiedenis, "
+"downloadgeschiedenis en conversiegeschiedenis verwijderd. Deze actie kan "
+"niet ongedaan worden gemaakt."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
@@ -962,7 +992,9 @@ msgstr "Nabewerkingscommando"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:390
 msgid "Command to run after download. Use {} for filename."
-msgstr "Commando om uit te voeren na het downloaden. Gebruik {} voor de bestandsnaam."
+msgstr ""
+"Commando om uit te voeren na het downloaden. Gebruik {} voor de "
+"bestandsnaam."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
 msgid "Cookies File"
@@ -993,12 +1025,18 @@ msgid "Proxy"
 msgstr "Proxy"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:398
-msgid "Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
-msgstr "Proxy-URL (bijvoorbeeld socks5://127.0.0.1:1080 of http://user:pass@host:port)"
+msgid ""
+"Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
+msgstr ""
+"Proxy-URL (bijvoorbeeld socks5://127.0.0.1:1080 of "
+"http://user:pass@host:port)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:400
-msgid "Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
-msgstr "Ongeldige proxy-URL. Gebruik scheme://host:port (http, https, socks4, socks5)."
+msgid ""
+"Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
+msgstr ""
+"Ongeldige proxy-URL. Gebruik scheme://host:port (http, https, socks4, "
+"socks5)."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:402
 #, python-brace-format
@@ -1151,8 +1189,14 @@ msgid "BigTube Help"
 msgstr "BigTube-help"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:446
-msgid "To search for a video, paste a URL or type keywords in the search box.\nYou can also drag and drop local media files onto the Converter tab to change their format.\nCheck Settings to change download quality and themes."
-msgstr "Om naar een video te zoeken, plakt u een URL of typt u trefwoorden in het zoekvak.\nU kunt ook lokale mediabestanden naar het tabblad Converter slepen en neerzetten om hun formaat te wijzigen.\nGa naar Instellingen om de downloadkwaliteit en thema's te wijzigen."
+msgid ""
+"To search for a video, paste a URL or type keywords in the search box.\n"
+"You can also drag and drop local media files onto the Converter tab to change their format.\n"
+"Check Settings to change download quality and themes."
+msgstr ""
+"Om naar een video te zoeken, plakt u een URL of typt u trefwoorden in het zoekvak.\n"
+"U kunt ook lokale mediabestanden naar het tabblad Converter slepen en neerzetten om hun formaat te wijzigen.\n"
+"Ga naar Instellingen om de downloadkwaliteit en thema's te wijzigen."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:450
 msgid "Untitled"
@@ -1218,7 +1262,9 @@ msgstr "Download verwijderen?"
 
 #: bigtube-gui
 msgid "Remove only the history entry, or delete the file too?"
-msgstr "Alleen de geschiedenisvermelding verwijderen, of ook het bestand verwijderen?"
+msgstr ""
+"Alleen de geschiedenisvermelding verwijderen, of ook het bestand "
+"verwijderen?"
 
 #: bigtube-gui
 msgid "Remove from history"
@@ -1234,7 +1280,9 @@ msgstr "Alle downloads wissen?"
 
 #: bigtube-gui
 msgid "Remove only the history entries, or delete the files too?"
-msgstr "Alleen de geschiedenisvermeldingen verwijderen, of ook de bestanden verwijderen?"
+msgstr ""
+"Alleen de geschiedenisvermeldingen verwijderen, of ook de bestanden "
+"verwijderen?"
 
 #: bigtube-gui
 msgid "Delete files too"
@@ -1442,7 +1490,8 @@ msgstr "Hoeveel downloads er tegelijkertijd worden uitgevoerd"
 
 #: bigtube-gui
 msgid "Parallel fragments per download (faster, uses more bandwidth)"
-msgstr "Parallelle fragmenten per download (sneller, gebruikt meer bandbreedte)"
+msgstr ""
+"Parallelle fragmenten per download (sneller, gebruikt meer bandbreedte)"
 
 #: bigtube-gui
 msgid "Cap the download rate (0 = unlimited)"
@@ -1525,8 +1574,12 @@ msgid "Reset all app data?"
 msgstr "Alle app-gegevens opnieuw instellen?"
 
 #: bigtube-gui
-msgid "This permanently deletes all settings, history and scheduled downloads. The app will restart."
-msgstr "Hiermee worden alle instellingen, geschiedenis en geplande downloads permanent verwijderd. De app zal opnieuw opstarten."
+msgid ""
+"This permanently deletes all settings, history and scheduled downloads. The "
+"app will restart."
+msgstr ""
+"Hiermee worden alle instellingen, geschiedenis en geplande downloads "
+"permanent verwijderd. De app zal opnieuw opstarten."
 
 #: bigtube-gui
 msgid "Reset & Restart"
@@ -1561,8 +1614,12 @@ msgid "Command not found on PATH:"
 msgstr "Commando niet gevonden in PATH:"
 
 #: bigtube-gui
-msgid "This source has no separate audio track. The options below extract and convert its audio."
-msgstr "Deze bron heeft geen aparte audiotrack. De onderstaande opties extraheren en converteren de audio ervan."
+msgid ""
+"This source has no separate audio track. The options below extract and "
+"convert its audio."
+msgstr ""
+"Deze bron heeft geen aparte audiotrack. De onderstaande opties extraheren en"
+" converteren de audio ervan."
 
 #: bigtube-gui
 msgid "Best available quality"
@@ -1623,3 +1680,11 @@ msgstr "Gepland voor:"
 #: bigtube-gui
 msgid "Audio Formats"
 msgstr "Audioformaten"
+
+#. bigtube-gui
+msgid "Best"
+msgstr "Beste"
+
+#. bigtube-gui
+msgid "Convert to"
+msgstr "Converteren naar"

@@ -4,7 +4,18 @@
 # Automatically generated, 2026.
 #
 msgid ""
-msgstr "Project-Id-Version: BigTube 2.0.63\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2026-05-31 03:35+0000\nPO-Revision-Date: 2026-03-11 23:04-0300\nLast-Translator: Automatically generated\nLanguage-Team: none\nLanguage: hu_HU\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
+msgstr ""
+"Project-Id-Version: BigTube 2.0.63\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-31 03:35+0000\n"
+"PO-Revision-Date: 2026-03-11 23:04-0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: hu_HU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:68
 msgid "BigTube"
@@ -140,8 +151,12 @@ msgid "Clear History?"
 msgstr "Törli az előzményeket?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:121
-msgid "This will remove all entries from the list.\nFiles will remain on disk."
-msgstr "Ezzel eltávolítja az összes bejegyzést a listáról.\nA fájlok a lemezen maradnak."
+msgid ""
+"This will remove all entries from the list.\n"
+"Files will remain on disk."
+msgstr ""
+"Ezzel eltávolítja az összes bejegyzést a listáról.\n"
+"A fájlok a lemezen maradnak."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:123
 msgid "History cleared successfully!"
@@ -479,7 +494,8 @@ msgstr "A fájl nem található, eltávolítja az előzményekből?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
-msgstr "A következő fájl létezik az előzményekben, de nem található a lemezen:\n"
+msgstr ""
+"A következő fájl létezik az előzményekben, de nem található a lemezen:\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
 msgid "Item removed from history."
@@ -631,8 +647,12 @@ msgid "File Not Found"
 msgstr "A fájl nem található"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:279
-msgid "The converted file was not found. Would you like to convert it again or remove it from history?"
-msgstr "Az átalakított fájl nem található. Szeretné újra átalakítani, vagy eltávolítani az előzményekből?"
+msgid ""
+"The converted file was not found. Would you like to convert it again or "
+"remove it from history?"
+msgstr ""
+"Az átalakított fájl nem található. Szeretné újra átalakítani, vagy "
+"eltávolítani az előzményekből?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:281
 msgid "Convert Again"
@@ -647,8 +667,11 @@ msgid "Source File Missing"
 msgstr "Hiányzik a forrásfájl"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:285
-msgid "The source file for this conversion is missing. Would you like to remove it from the list?"
-msgstr "Az átalakítás forrásfájlja hiányzik. Szeretné eltávolítani a listáról?"
+msgid ""
+"The source file for this conversion is missing. Would you like to remove it "
+"from the list?"
+msgstr ""
+"Az átalakítás forrásfájlja hiányzik. Szeretné eltávolítani a listáról?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:288
 msgid "Add Files"
@@ -774,8 +797,12 @@ msgid "Reset Application to Clean State?"
 msgstr "Visszaállítja az alkalmazást tiszta állapotra?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:329
-msgid "This will PERMANENTLY delete all settings, search history, download history, and converter history. This action cannot be undone."
-msgstr "Ezzel VÉGLEGESEN törli az összes beállítást, keresési előzményt, letöltési előzményt és átalakítási előzményt. Ez a művelet nem vonható vissza."
+msgid ""
+"This will PERMANENTLY delete all settings, search history, download history,"
+" and converter history. This action cannot be undone."
+msgstr ""
+"Ezzel VÉGLEGESEN törli az összes beállítást, keresési előzményt, letöltési "
+"előzményt és átalakítási előzményt. Ez a művelet nem vonható vissza."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
@@ -993,12 +1020,17 @@ msgid "Proxy"
 msgstr "Proxy"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:398
-msgid "Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
-msgstr "Proxy URL (pl. socks5://127.0.0.1:1080 vagy http://user:pass@host:port)"
+msgid ""
+"Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
+msgstr ""
+"Proxy URL (pl. socks5://127.0.0.1:1080 vagy http://user:pass@host:port)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:400
-msgid "Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
-msgstr "Érvénytelen proxy URL. Használja a séma://hoszt:port formátumot (http, https, socks4, socks5)."
+msgid ""
+"Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
+msgstr ""
+"Érvénytelen proxy URL. Használja a séma://hoszt:port formátumot (http, "
+"https, socks4, socks5)."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:402
 #, python-brace-format
@@ -1073,7 +1105,8 @@ msgstr "Feliratok letöltésének és beágyazásának megkísérlése, ha talá
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:421
 msgid "Show system-level alerts for download events"
-msgstr "Rendszerszintű figyelmeztetések megjelenítése a letöltési eseményekről"
+msgstr ""
+"Rendszerszintű figyelmeztetések megjelenítése a letöltési eseményekről"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:422
 msgid "Automatically detect video links in your clipboard"
@@ -1151,8 +1184,14 @@ msgid "BigTube Help"
 msgstr "BigTube Súgó"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:446
-msgid "To search for a video, paste a URL or type keywords in the search box.\nYou can also drag and drop local media files onto the Converter tab to change their format.\nCheck Settings to change download quality and themes."
-msgstr "Videó kereséséhez illesszen be egy URL-t, vagy írjon be kulcsszavakat a keresőmezőbe.\nA helyi médiafájlokat az Átalakító lapra is áthúzhatja a formátumuk módosításához.\nA letöltési minőség és a témák módosításához nézze meg a Beállításokat."
+msgid ""
+"To search for a video, paste a URL or type keywords in the search box.\n"
+"You can also drag and drop local media files onto the Converter tab to change their format.\n"
+"Check Settings to change download quality and themes."
+msgstr ""
+"Videó kereséséhez illesszen be egy URL-t, vagy írjon be kulcsszavakat a keresőmezőbe.\n"
+"A helyi médiafájlokat az Átalakító lapra is áthúzhatja a formátumuk módosításához.\n"
+"A letöltési minőség és a témák módosításához nézze meg a Beállításokat."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:450
 msgid "Untitled"
@@ -1442,7 +1481,8 @@ msgstr "Hány letöltés fut egyszerre"
 
 #: bigtube-gui
 msgid "Parallel fragments per download (faster, uses more bandwidth)"
-msgstr "Párhuzamos töredékek letöltésenként (gyorsabb, több sávszélességet használ)"
+msgstr ""
+"Párhuzamos töredékek letöltésenként (gyorsabb, több sávszélességet használ)"
 
 #: bigtube-gui
 msgid "Cap the download rate (0 = unlimited)"
@@ -1470,7 +1510,8 @@ msgstr "A befejezett letöltések nyilvántartása"
 
 #: bigtube-gui
 msgid "Wipe history and finished items when the app closes"
-msgstr "Az előzmények és a befejezett elemek törlése az alkalmazás bezárásakor"
+msgstr ""
+"Az előzmények és a befejezett elemek törlése az alkalmazás bezárásakor"
 
 #: bigtube-gui
 msgid "Write the converted file next to the original"
@@ -1525,8 +1566,12 @@ msgid "Reset all app data?"
 msgstr "Visszaállítja az összes alkalmazásadatot?"
 
 #: bigtube-gui
-msgid "This permanently deletes all settings, history and scheduled downloads. The app will restart."
-msgstr "Ez véglegesen törli az összes beállítást, előzményt és ütemezett letöltést. Az alkalmazás újraindul."
+msgid ""
+"This permanently deletes all settings, history and scheduled downloads. The "
+"app will restart."
+msgstr ""
+"Ez véglegesen törli az összes beállítást, előzményt és ütemezett letöltést. "
+"Az alkalmazás újraindul."
 
 #: bigtube-gui
 msgid "Reset & Restart"
@@ -1561,8 +1606,12 @@ msgid "Command not found on PATH:"
 msgstr "A parancs nem található a PATH-on:"
 
 #: bigtube-gui
-msgid "This source has no separate audio track. The options below extract and convert its audio."
-msgstr "Ennek a forrásnak nincs külön hangsávja. Az alábbi lehetőségek kibontják és átalakítják a hangját."
+msgid ""
+"This source has no separate audio track. The options below extract and "
+"convert its audio."
+msgstr ""
+"Ennek a forrásnak nincs külön hangsávja. Az alábbi lehetőségek kibontják és "
+"átalakítják a hangját."
 
 #: bigtube-gui
 msgid "Best available quality"
@@ -1623,3 +1672,11 @@ msgstr "Ütemezve ekkorra:"
 #: bigtube-gui
 msgid "Audio Formats"
 msgstr "Hangformátumok"
+
+#. bigtube-gui
+msgid "Best"
+msgstr "Legjobb"
+
+#. bigtube-gui
+msgid "Convert to"
+msgstr "Átalakítás erre:"

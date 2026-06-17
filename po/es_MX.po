@@ -4,7 +4,18 @@
 # Automatically generated, 2026.
 #
 msgid ""
-msgstr "Project-Id-Version: BigTube 2.0.63\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2026-05-31 03:35+0000\nPO-Revision-Date: 2026-03-11 23:04-0300\nLast-Translator: Automatically generated\nLanguage-Team: none\nLanguage: es_MX\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
+msgstr ""
+"Project-Id-Version: BigTube 2.0.63\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-31 03:35+0000\n"
+"PO-Revision-Date: 2026-03-11 23:04-0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: es_MX\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:68
 msgid "BigTube"
@@ -140,8 +151,12 @@ msgid "Clear History?"
 msgstr "¿Borrar historial?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:121
-msgid "This will remove all entries from the list.\nFiles will remain on disk."
-msgstr "Esto eliminará todas las entradas de la lista.\nLos archivos permanecerán en el disco."
+msgid ""
+"This will remove all entries from the list.\n"
+"Files will remain on disk."
+msgstr ""
+"Esto eliminará todas las entradas de la lista.\n"
+"Los archivos permanecerán en el disco."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:123
 msgid "History cleared successfully!"
@@ -479,7 +494,9 @@ msgstr "Archivo no encontrado, ¿eliminar del historial?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
-msgstr "El siguiente archivo existe en el historial pero no se encontró en el disco:\n"
+msgstr ""
+"El siguiente archivo existe en el historial pero no se encontró en el "
+"disco:\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
 msgid "Item removed from history."
@@ -631,8 +648,12 @@ msgid "File Not Found"
 msgstr "Archivo no encontrado"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:279
-msgid "The converted file was not found. Would you like to convert it again or remove it from history?"
-msgstr "No se encontró el archivo convertido. ¿Quieres convertirlo de nuevo o eliminarlo del historial?"
+msgid ""
+"The converted file was not found. Would you like to convert it again or "
+"remove it from history?"
+msgstr ""
+"No se encontró el archivo convertido. ¿Quieres convertirlo de nuevo o "
+"eliminarlo del historial?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:281
 msgid "Convert Again"
@@ -647,8 +668,12 @@ msgid "Source File Missing"
 msgstr "Falta el archivo de origen"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:285
-msgid "The source file for this conversion is missing. Would you like to remove it from the list?"
-msgstr "Falta el archivo de origen de esta conversión. ¿Quieres eliminarlo de la lista?"
+msgid ""
+"The source file for this conversion is missing. Would you like to remove it "
+"from the list?"
+msgstr ""
+"Falta el archivo de origen de esta conversión. ¿Quieres eliminarlo de la "
+"lista?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:288
 msgid "Add Files"
@@ -774,12 +799,19 @@ msgid "Reset Application to Clean State?"
 msgstr "¿Restablecer la aplicación a un estado limpio?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:329
-msgid "This will PERMANENTLY delete all settings, search history, download history, and converter history. This action cannot be undone."
-msgstr "Esto eliminará PERMANENTEMENTE toda la configuración, el historial de búsqueda, el historial de descargas y el historial del convertidor. Esta acción no se puede deshacer."
+msgid ""
+"This will PERMANENTLY delete all settings, search history, download history,"
+" and converter history. This action cannot be undone."
+msgstr ""
+"Esto eliminará PERMANENTEMENTE toda la configuración, el historial de "
+"búsqueda, el historial de descargas y el historial del convertidor. Esta "
+"acción no se puede deshacer."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
-msgstr "Se borraron todos los datos de la aplicación. La aplicación se reiniciará ahora."
+msgstr ""
+"Se borraron todos los datos de la aplicación. La aplicación se reiniciará "
+"ahora."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:332
 msgid "Failed to select folder"
@@ -962,7 +994,9 @@ msgstr "Comando de posprocesamiento"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:390
 msgid "Command to run after download. Use {} for filename."
-msgstr "Comando para ejecutar después de la descarga. Usa {} para el nombre del archivo."
+msgstr ""
+"Comando para ejecutar después de la descarga. Usa {} para el nombre del "
+"archivo."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
 msgid "Cookies File"
@@ -993,12 +1027,18 @@ msgid "Proxy"
 msgstr "Proxy"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:398
-msgid "Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
-msgstr "URL del proxy (por ejemplo, socks5://127.0.0.1:1080 o http://usuario:contraseña@host:puerto)"
+msgid ""
+"Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
+msgstr ""
+"URL del proxy (por ejemplo, socks5://127.0.0.1:1080 o "
+"http://usuario:contraseña@host:puerto)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:400
-msgid "Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
-msgstr "URL de proxy no válida. Usa esquema://host:puerto (http, https, socks4, socks5)."
+msgid ""
+"Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
+msgstr ""
+"URL de proxy no válida. Usa esquema://host:puerto (http, https, socks4, "
+"socks5)."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:402
 #, python-brace-format
@@ -1151,8 +1191,14 @@ msgid "BigTube Help"
 msgstr "Ayuda de BigTube"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:446
-msgid "To search for a video, paste a URL or type keywords in the search box.\nYou can also drag and drop local media files onto the Converter tab to change their format.\nCheck Settings to change download quality and themes."
-msgstr "Para buscar un video, pega una URL o escribe palabras clave en el cuadro de búsqueda.\nTambién puedes arrastrar y soltar archivos multimedia locales en la pestaña Convertidor para cambiar su formato.\nRevisa la Configuración para cambiar la calidad de descarga y los temas."
+msgid ""
+"To search for a video, paste a URL or type keywords in the search box.\n"
+"You can also drag and drop local media files onto the Converter tab to change their format.\n"
+"Check Settings to change download quality and themes."
+msgstr ""
+"Para buscar un video, pega una URL o escribe palabras clave en el cuadro de búsqueda.\n"
+"También puedes arrastrar y soltar archivos multimedia locales en la pestaña Convertidor para cambiar su formato.\n"
+"Revisa la Configuración para cambiar la calidad de descarga y los temas."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:450
 msgid "Untitled"
@@ -1442,7 +1488,8 @@ msgstr "Cuántas descargas se ejecutan al mismo tiempo"
 
 #: bigtube-gui
 msgid "Parallel fragments per download (faster, uses more bandwidth)"
-msgstr "Fragmentos paralelos por descarga (más rápido, usa más ancho de banda)"
+msgstr ""
+"Fragmentos paralelos por descarga (más rápido, usa más ancho de banda)"
 
 #: bigtube-gui
 msgid "Cap the download rate (0 = unlimited)"
@@ -1470,7 +1517,8 @@ msgstr "Mantén un registro de las descargas completadas"
 
 #: bigtube-gui
 msgid "Wipe history and finished items when the app closes"
-msgstr "Borra el historial y los elementos terminados cuando se cierra la aplicación"
+msgstr ""
+"Borra el historial y los elementos terminados cuando se cierra la aplicación"
 
 #: bigtube-gui
 msgid "Write the converted file next to the original"
@@ -1525,8 +1573,12 @@ msgid "Reset all app data?"
 msgstr "¿Restablecer todos los datos de la aplicación?"
 
 #: bigtube-gui
-msgid "This permanently deletes all settings, history and scheduled downloads. The app will restart."
-msgstr "Esto elimina permanentemente toda la configuración, el historial y las descargas programadas. La aplicación se reiniciará."
+msgid ""
+"This permanently deletes all settings, history and scheduled downloads. The "
+"app will restart."
+msgstr ""
+"Esto elimina permanentemente toda la configuración, el historial y las "
+"descargas programadas. La aplicación se reiniciará."
 
 #: bigtube-gui
 msgid "Reset & Restart"
@@ -1561,8 +1613,12 @@ msgid "Command not found on PATH:"
 msgstr "Comando no encontrado en PATH:"
 
 #: bigtube-gui
-msgid "This source has no separate audio track. The options below extract and convert its audio."
-msgstr "Esta fuente no tiene una pista de audio separada. Las opciones de abajo extraen y convierten su audio."
+msgid ""
+"This source has no separate audio track. The options below extract and "
+"convert its audio."
+msgstr ""
+"Esta fuente no tiene una pista de audio separada. Las opciones de abajo "
+"extraen y convierten su audio."
 
 #: bigtube-gui
 msgid "Best available quality"
@@ -1623,3 +1679,11 @@ msgstr "Programado para:"
 #: bigtube-gui
 msgid "Audio Formats"
 msgstr "Formatos de audio"
+
+#. bigtube-gui
+msgid "Best"
+msgstr "Mejor"
+
+#. bigtube-gui
+msgid "Convert to"
+msgstr "Convertir a"

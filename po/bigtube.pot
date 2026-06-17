@@ -1651,3 +1651,11 @@ msgstr ""
 #: bigtube-gui
 msgid "Audio Formats"
 msgstr ""
+
+#: bigtube-gui
+msgid "Best"
+msgstr ""
+
+#: bigtube-gui
+msgid "Convert to"
+msgstr ""

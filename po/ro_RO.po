@@ -4,7 +4,18 @@
 # Automatically generated, 2026.
 #
 msgid ""
-msgstr "Project-Id-Version: BigTube 2.0.63\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2026-05-31 03:35+0000\nPO-Revision-Date: 2026-03-11 23:04-0300\nLast-Translator: Automatically generated\nLanguage-Team: none\nLanguage: ro_RO\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2;\n"
+msgstr ""
+"Project-Id-Version: BigTube 2.0.63\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-31 03:35+0000\n"
+"PO-Revision-Date: 2026-03-11 23:04-0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: ro_RO\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2;\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:68
 msgid "BigTube"
@@ -140,8 +151,12 @@ msgid "Clear History?"
 msgstr "Ștergeți istoricul?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:121
-msgid "This will remove all entries from the list.\nFiles will remain on disk."
-msgstr "Aceasta va elimina toate intrările din listă.\nFișierele vor rămâne pe disc."
+msgid ""
+"This will remove all entries from the list.\n"
+"Files will remain on disk."
+msgstr ""
+"Aceasta va elimina toate intrările din listă.\n"
+"Fișierele vor rămâne pe disc."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:123
 msgid "History cleared successfully!"
@@ -631,8 +646,12 @@ msgid "File Not Found"
 msgstr "Fișierul nu a fost găsit"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:279
-msgid "The converted file was not found. Would you like to convert it again or remove it from history?"
-msgstr "Fișierul convertit nu a fost găsit. Doriți să îl convertiți din nou sau să îl eliminați din istoric?"
+msgid ""
+"The converted file was not found. Would you like to convert it again or "
+"remove it from history?"
+msgstr ""
+"Fișierul convertit nu a fost găsit. Doriți să îl convertiți din nou sau să "
+"îl eliminați din istoric?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:281
 msgid "Convert Again"
@@ -647,8 +666,12 @@ msgid "Source File Missing"
 msgstr "Fișierul sursă lipsește"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:285
-msgid "The source file for this conversion is missing. Would you like to remove it from the list?"
-msgstr "Fișierul sursă pentru această conversie lipsește. Doriți să îl eliminați din listă?"
+msgid ""
+"The source file for this conversion is missing. Would you like to remove it "
+"from the list?"
+msgstr ""
+"Fișierul sursă pentru această conversie lipsește. Doriți să îl eliminați din"
+" listă?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:288
 msgid "Add Files"
@@ -774,8 +797,13 @@ msgid "Reset Application to Clean State?"
 msgstr "Resetați aplicația la starea inițială?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:329
-msgid "This will PERMANENTLY delete all settings, search history, download history, and converter history. This action cannot be undone."
-msgstr "Aceasta va șterge PERMANENT toate setările, istoricul căutărilor, istoricul descărcărilor și istoricul convertorului. Această acțiune nu poate fi anulată."
+msgid ""
+"This will PERMANENTLY delete all settings, search history, download history,"
+" and converter history. This action cannot be undone."
+msgstr ""
+"Aceasta va șterge PERMANENT toate setările, istoricul căutărilor, istoricul "
+"descărcărilor și istoricul convertorului. Această acțiune nu poate fi "
+"anulată."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
@@ -962,7 +990,8 @@ msgstr "Comandă de post-procesare"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:390
 msgid "Command to run after download. Use {} for filename."
-msgstr "Comandă de rulat după descărcare. Utilizați {} pentru numele fișierului."
+msgstr ""
+"Comandă de rulat după descărcare. Utilizați {} pentru numele fișierului."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
 msgid "Cookies File"
@@ -993,12 +1022,18 @@ msgid "Proxy"
 msgstr "Proxy"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:398
-msgid "Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
-msgstr "Adresa URL proxy (de exemplu, socks5://127.0.0.1:1080 sau http://user:pass@host:port)"
+msgid ""
+"Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
+msgstr ""
+"Adresa URL proxy (de exemplu, socks5://127.0.0.1:1080 sau "
+"http://user:pass@host:port)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:400
-msgid "Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
-msgstr "Adresa URL proxy nevalidă. Utilizați schemă://gazdă:port (http, https, socks4, socks5)."
+msgid ""
+"Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
+msgstr ""
+"Adresa URL proxy nevalidă. Utilizați schemă://gazdă:port (http, https, "
+"socks4, socks5)."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:402
 #, python-brace-format
@@ -1151,8 +1186,14 @@ msgid "BigTube Help"
 msgstr "Ajutor BigTube"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:446
-msgid "To search for a video, paste a URL or type keywords in the search box.\nYou can also drag and drop local media files onto the Converter tab to change their format.\nCheck Settings to change download quality and themes."
-msgstr "Pentru a căuta un videoclip, inserați o adresă URL sau introduceți cuvinte cheie în caseta de căutare.\nDe asemenea, puteți trage și plasa fișiere media locale în fila Convertor pentru a le schimba formatul.\nVerificați Setări pentru a schimba calitatea descărcărilor și temele."
+msgid ""
+"To search for a video, paste a URL or type keywords in the search box.\n"
+"You can also drag and drop local media files onto the Converter tab to change their format.\n"
+"Check Settings to change download quality and themes."
+msgstr ""
+"Pentru a căuta un videoclip, inserați o adresă URL sau introduceți cuvinte cheie în caseta de căutare.\n"
+"De asemenea, puteți trage și plasa fișiere media locale în fila Convertor pentru a le schimba formatul.\n"
+"Verificați Setări pentru a schimba calitatea descărcărilor și temele."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:450
 msgid "Untitled"
@@ -1322,7 +1363,9 @@ msgstr "Programează selectate"
 
 #: bigtube-gui
 msgid "Paste a video or playlist URL to schedule."
-msgstr "Inserați adresa URL a unui videoclip sau a unei liste de redare pentru a o programa."
+msgstr ""
+"Inserați adresa URL a unui videoclip sau a unei liste de redare pentru a o "
+"programa."
 
 #: bigtube-gui
 msgid "Continue"
@@ -1442,7 +1485,9 @@ msgstr "Câte descărcări rulează în același timp"
 
 #: bigtube-gui
 msgid "Parallel fragments per download (faster, uses more bandwidth)"
-msgstr "Fragmente paralele per descărcare (mai rapid, folosește mai multă lățime de bandă)"
+msgstr ""
+"Fragmente paralele per descărcare (mai rapid, folosește mai multă lățime de "
+"bandă)"
 
 #: bigtube-gui
 msgid "Cap the download rate (0 = unlimited)"
@@ -1514,7 +1559,8 @@ msgstr "Calitatea folosită de playerul din aplicație"
 
 #: bigtube-gui
 msgid "Use this browser's cookies for restricted videos"
-msgstr "Folosește cookie-urile acestui browser pentru videoclipuri restricționate"
+msgstr ""
+"Folosește cookie-urile acestui browser pentru videoclipuri restricționate"
 
 #: bigtube-gui
 msgid "Clear"
@@ -1525,8 +1571,12 @@ msgid "Reset all app data?"
 msgstr "Resetați toate datele aplicației?"
 
 #: bigtube-gui
-msgid "This permanently deletes all settings, history and scheduled downloads. The app will restart."
-msgstr "Aceasta șterge definitiv toate setările, istoricul și descărcările programate. Aplicația va reporni."
+msgid ""
+"This permanently deletes all settings, history and scheduled downloads. The "
+"app will restart."
+msgstr ""
+"Aceasta șterge definitiv toate setările, istoricul și descărcările "
+"programate. Aplicația va reporni."
 
 #: bigtube-gui
 msgid "Reset & Restart"
@@ -1561,8 +1611,12 @@ msgid "Command not found on PATH:"
 msgstr "Comanda nu a fost găsită în PATH:"
 
 #: bigtube-gui
-msgid "This source has no separate audio track. The options below extract and convert its audio."
-msgstr "Această sursă nu are o pistă audio separată. Opțiunile de mai jos extrag și convertesc audio din ea."
+msgid ""
+"This source has no separate audio track. The options below extract and "
+"convert its audio."
+msgstr ""
+"Această sursă nu are o pistă audio separată. Opțiunile de mai jos extrag și "
+"convertesc audio din ea."
 
 #: bigtube-gui
 msgid "Best available quality"
@@ -1623,3 +1677,11 @@ msgstr "Programat pentru:"
 #: bigtube-gui
 msgid "Audio Formats"
 msgstr "Formate audio"
+
+#. bigtube-gui
+msgid "Best"
+msgstr "Cea mai bună"
+
+#. bigtube-gui
+msgid "Convert to"
+msgstr "Convertește în"

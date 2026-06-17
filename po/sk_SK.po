@@ -4,7 +4,18 @@
 # Automatically generated, 2026.
 #
 msgid ""
-msgstr "Project-Id-Version: BigTube 2.0.63\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2026-05-31 03:35+0000\nPO-Revision-Date: 2026-03-11 23:04-0300\nLast-Translator: Automatically generated\nLanguage-Team: none\nLanguage: sk_SK\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+msgstr ""
+"Project-Id-Version: BigTube 2.0.63\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-31 03:35+0000\n"
+"PO-Revision-Date: 2026-03-11 23:04-0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: sk_SK\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:68
 msgid "BigTube"
@@ -140,8 +151,12 @@ msgid "Clear History?"
 msgstr "Vymazať históriu?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:121
-msgid "This will remove all entries from the list.\nFiles will remain on disk."
-msgstr "Tým sa odstránia všetky položky zo zoznamu.\nSúbory zostanú na disku."
+msgid ""
+"This will remove all entries from the list.\n"
+"Files will remain on disk."
+msgstr ""
+"Tým sa odstránia všetky položky zo zoznamu.\n"
+"Súbory zostanú na disku."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:123
 msgid "History cleared successfully!"
@@ -631,8 +646,12 @@ msgid "File Not Found"
 msgstr "Súbor sa nenašiel"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:279
-msgid "The converted file was not found. Would you like to convert it again or remove it from history?"
-msgstr "Skonvertovaný súbor sa nenašiel. Chcete ho znova skonvertovať alebo odstrániť z histórie?"
+msgid ""
+"The converted file was not found. Would you like to convert it again or "
+"remove it from history?"
+msgstr ""
+"Skonvertovaný súbor sa nenašiel. Chcete ho znova skonvertovať alebo "
+"odstrániť z histórie?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:281
 msgid "Convert Again"
@@ -647,8 +666,11 @@ msgid "Source File Missing"
 msgstr "Chýba zdrojový súbor"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:285
-msgid "The source file for this conversion is missing. Would you like to remove it from the list?"
-msgstr "Chýba zdrojový súbor pre túto konverziu. Chcete ho odstrániť zo zoznamu?"
+msgid ""
+"The source file for this conversion is missing. Would you like to remove it "
+"from the list?"
+msgstr ""
+"Chýba zdrojový súbor pre túto konverziu. Chcete ho odstrániť zo zoznamu?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:288
 msgid "Add Files"
@@ -774,8 +796,13 @@ msgid "Reset Application to Clean State?"
 msgstr "Resetovať aplikáciu do čistého stavu?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:329
-msgid "This will PERMANENTLY delete all settings, search history, download history, and converter history. This action cannot be undone."
-msgstr "Týmto sa NATRVALO odstránia všetky nastavenia, história vyhľadávania, história sťahovania a história konvertora. Túto akciu nie je možné vrátiť späť."
+msgid ""
+"This will PERMANENTLY delete all settings, search history, download history,"
+" and converter history. This action cannot be undone."
+msgstr ""
+"Týmto sa NATRVALO odstránia všetky nastavenia, história vyhľadávania, "
+"história sťahovania a história konvertora. Túto akciu nie je možné vrátiť "
+"späť."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
@@ -993,12 +1020,18 @@ msgid "Proxy"
 msgstr "Proxy"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:398
-msgid "Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
-msgstr "Adresa URL proxy (napr. socks5://127.0.0.1:1080 alebo http://user:pass@host:port)"
+msgid ""
+"Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
+msgstr ""
+"Adresa URL proxy (napr. socks5://127.0.0.1:1080 alebo "
+"http://user:pass@host:port)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:400
-msgid "Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
-msgstr "Neplatná adresa URL servera proxy. Použite schému://hostiteľ:port (http, https, socks4, socks5)."
+msgid ""
+"Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
+msgstr ""
+"Neplatná adresa URL servera proxy. Použite schému://hostiteľ:port (http, "
+"https, socks4, socks5)."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:402
 #, python-brace-format
@@ -1151,8 +1184,14 @@ msgid "BigTube Help"
 msgstr "Pomocník BigTube"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:446
-msgid "To search for a video, paste a URL or type keywords in the search box.\nYou can also drag and drop local media files onto the Converter tab to change their format.\nCheck Settings to change download quality and themes."
-msgstr "Ak chcete vyhľadať video, prilepte adresu URL alebo zadajte kľúčové slová do vyhľadávacieho poľa.\nMiestne mediálne súbory môžete tiež presunúť myšou na kartu Konvertor a zmeniť ich formát.\nKvalitu sťahovania a témy zmeníte v Nastaveniach."
+msgid ""
+"To search for a video, paste a URL or type keywords in the search box.\n"
+"You can also drag and drop local media files onto the Converter tab to change their format.\n"
+"Check Settings to change download quality and themes."
+msgstr ""
+"Ak chcete vyhľadať video, prilepte adresu URL alebo zadajte kľúčové slová do vyhľadávacieho poľa.\n"
+"Miestne mediálne súbory môžete tiež presunúť myšou na kartu Konvertor a zmeniť ich formát.\n"
+"Kvalitu sťahovania a témy zmeníte v Nastaveniach."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:450
 msgid "Untitled"
@@ -1442,7 +1481,8 @@ msgstr "Koľko sťahovaní beží súčasne"
 
 #: bigtube-gui
 msgid "Parallel fragments per download (faster, uses more bandwidth)"
-msgstr "Paralelné fragmenty na stiahnutie (rýchlejšie, využíva viac šírky pásma)"
+msgstr ""
+"Paralelné fragmenty na stiahnutie (rýchlejšie, využíva viac šírky pásma)"
 
 #: bigtube-gui
 msgid "Cap the download rate (0 = unlimited)"
@@ -1525,8 +1565,12 @@ msgid "Reset all app data?"
 msgstr "Resetovať všetky údaje aplikácie?"
 
 #: bigtube-gui
-msgid "This permanently deletes all settings, history and scheduled downloads. The app will restart."
-msgstr "Týmto sa natrvalo odstránia všetky nastavenia, história a naplánované sťahovania. Aplikácia sa reštartuje."
+msgid ""
+"This permanently deletes all settings, history and scheduled downloads. The "
+"app will restart."
+msgstr ""
+"Týmto sa natrvalo odstránia všetky nastavenia, história a naplánované "
+"sťahovania. Aplikácia sa reštartuje."
 
 #: bigtube-gui
 msgid "Reset & Restart"
@@ -1561,8 +1605,12 @@ msgid "Command not found on PATH:"
 msgstr "Príkaz sa nenašiel v PATH:"
 
 #: bigtube-gui
-msgid "This source has no separate audio track. The options below extract and convert its audio."
-msgstr "Tento zdroj nemá samostatnú zvukovú stopu. Možnosti nižšie extrahujú a skonvertujú jeho zvuk."
+msgid ""
+"This source has no separate audio track. The options below extract and "
+"convert its audio."
+msgstr ""
+"Tento zdroj nemá samostatnú zvukovú stopu. Možnosti nižšie extrahujú a "
+"skonvertujú jeho zvuk."
 
 #: bigtube-gui
 msgid "Best available quality"
@@ -1623,3 +1671,11 @@ msgstr "Naplánované na:"
 #: bigtube-gui
 msgid "Audio Formats"
 msgstr "Zvukové formáty"
+
+#. bigtube-gui
+msgid "Best"
+msgstr "Najlepšie"
+
+#. bigtube-gui
+msgid "Convert to"
+msgstr "Konvertovať na"

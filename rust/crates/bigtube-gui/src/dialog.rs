@@ -133,6 +133,81 @@ pub fn show(
     win.present();
 }
 
+/// Pretty, vendor-neutral codec name for display (avc1 → H.264, mp4a → AAC…).
+fn codec_display(codec: &str) -> String {
+    let c = codec.to_lowercase();
+    if c.contains("avc") || c.contains("h264") {
+        "H.264".into()
+    } else if c.contains("hev") || c.contains("h265") {
+        "H.265".into()
+    } else if c.contains("vp9") || c.contains("vp09") {
+        "VP9".into()
+    } else if c.contains("vp8") {
+        "VP8".into()
+    } else if c.contains("av01") || c.contains("av1") {
+        "AV1".into()
+    } else if c.contains("mp4a") || c.contains("aac") {
+        "AAC".into()
+    } else if c.contains("opus") {
+        "Opus".into()
+    } else if c.contains("vorbis") {
+        "Vorbis".into()
+    } else if c.contains("flac") {
+        "FLAC".into()
+    } else if c.contains("mp3") {
+        "MP3".into()
+    } else if c.contains("eac3") || c.contains("ac3") {
+        "AC-3".into()
+    } else if codec.is_empty() {
+        String::new()
+    } else {
+        codec.to_uppercase()
+    }
+}
+
+/// Compose the row title from the structured format fields, translating the few
+/// human words (the codec/ext tokens are proper nouns and stay as-is). Built in
+/// the GUI — not the core — so every language gets a localized label.
+fn display_label(f: &FormatOption) -> String {
+    // Virtual rows, identified by their synthetic codec markers.
+    if f.codec == "mkv_merge" {
+        return format!("{} · MKV ({}p)", tr("Best"), f.resolution);
+    }
+    if f.codec == "unknown" {
+        return tr("Best available quality");
+    }
+    if f.codec.ends_with("_convert") {
+        return format!("{} {}", tr("Convert to"), f.ext.to_uppercase());
+    }
+    if f.kind == "audio" {
+        let mut s = codec_display(&f.codec);
+        let kbps = f.quality as i64;
+        if kbps > 0 {
+            if !s.is_empty() {
+                s.push_str(" · ");
+            }
+            s.push_str(&format!("{kbps} kbps"));
+        }
+        if !f.ext.is_empty() {
+            s.push_str(&format!(" ({})", f.ext));
+        }
+        return s;
+    }
+    // Real video stream: "1080p 60fps · AV1 (webm)".
+    let mut s = format!("{}p", f.resolution);
+    if f.fps > 30 {
+        s.push_str(&format!(" {}fps", f.fps));
+    }
+    let cd = codec_display(&f.codec);
+    if !cd.is_empty() {
+        s.push_str(&format!(" · {cd}"));
+    }
+    if !f.ext.is_empty() {
+        s.push_str(&format!(" ({})", f.ext));
+    }
+    s
+}
+
 fn format_row(
     f: &FormatOption,
     win: &adw::Window,
@@ -140,15 +215,14 @@ fn format_row(
     on_schedule: &ScheduleFn,
     picked: &Rc<Cell<bool>>,
 ) -> adw::ActionRow {
-    // Virtual "convert" rows have no real size/codec ("? MB • mp3_convert"),
-    // which reads as broken — show a meaningful note instead.
-    let subtitle = if f.codec.ends_with("_convert") {
+    // Virtual "convert" rows have no real size — show a meaningful note instead.
+    let subtitle = if f.codec.ends_with("_convert") || f.codec == "unknown" {
         tr("Best available quality")
     } else {
-        format!("{} • {}", f.size, f.codec)
+        f.size.clone()
     };
     let row = adw::ActionRow::builder()
-        .title(&f.label)
+        .title(display_label(f))
         .subtitle(subtitle)
         .build();
 
