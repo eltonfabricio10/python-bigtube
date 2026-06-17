@@ -65,58 +65,67 @@ pub fn show(
         tr("This source has no separate audio track. The options below extract and convert its audio.")
     });
 
-    // Outer container: a horizontal row of columns (two-col) or a single column.
-    let content = gtk::Box::new(gtk::Orientation::Horizontal, 18);
-    content.set_margin_top(12);
-    content.set_margin_bottom(12);
-    content.set_margin_start(12);
-    content.set_margin_end(12);
-    content.set_homogeneous(two_col);
-
-    let mut count = 0;
     if two_col {
-        // Left: video formats. Right: audio. Each column top-aligned and equal
-        // width, so the dialog's height is the taller column — not their sum.
+        // Two columns: video (left) + audio (right), equal width and top-aligned.
+        // Only the VIDEO column scrolls (capped height), so its long codec ladder
+        // doesn't blow up the dialog while the short audio column stays fully
+        // visible. No outer scroll — the dialog height tracks the taller column.
+        let row = gtk::Box::new(gtk::Orientation::Horizontal, 18);
+        row.set_margin_top(12);
+        row.set_margin_bottom(12);
+        row.set_margin_start(12);
+        row.set_margin_end(12);
+        row.set_homogeneous(true);
+
         let video = make_group(tr("Video Formats"), None, &info.videos);
         video.set_valign(gtk::Align::Start);
-        video.set_hexpand(true);
-        content.append(&video);
-        count += info.videos.len();
+        let video_scroll = gtk::ScrolledWindow::new();
+        video_scroll.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
+        video_scroll.set_propagate_natural_height(true);
+        video_scroll.set_max_content_height(460);
+        video_scroll.set_hexpand(true);
+        video_scroll.set_valign(gtk::Align::Start);
+        video_scroll.set_child(Some(&video));
+        row.append(&video_scroll);
+
         if !info.audios.is_empty() {
             let audio = make_group(tr("Audio Formats"), audio_desc, &info.audios);
             audio.set_valign(gtk::Align::Start);
             audio.set_hexpand(true);
-            content.append(&audio);
-            count += info.audios.len();
+            row.append(&audio);
         }
-    } else if !info.audios.is_empty() {
-        // Audio-only source (YouTube Music): single audio column.
-        let audio = make_group(tr("Audio Formats"), audio_desc, &info.audios);
-        audio.set_hexpand(true);
-        content.append(&audio);
-        count += info.audios.len();
-    }
+        toolbar.set_content(Some(&row));
+    } else {
+        // Single column (YouTube Music audio, or fallback) inside one scroll that
+        // grows with the content up to a cap, then scrolls.
+        let page = gtk::Box::new(gtk::Orientation::Vertical, 18);
+        page.set_margin_top(12);
+        page.set_margin_bottom(12);
+        page.set_margin_start(12);
+        page.set_margin_end(12);
 
-    // Empty fallback so the dialog never renders blank.
-    if count == 0 {
-        let group = adw::PreferencesGroup::new();
-        group.add(
-            &adw::ActionRow::builder()
-                .title(tr("No formats found"))
-                .build(),
-        );
-        group.set_hexpand(true);
-        content.append(&group);
-    }
+        if !info.audios.is_empty() {
+            let audio = make_group(tr("Audio Formats"), audio_desc, &info.audios);
+            audio.set_hexpand(true);
+            page.append(&audio);
+        } else {
+            // Empty fallback so the dialog never renders blank.
+            let group = adw::PreferencesGroup::new();
+            group.add(
+                &adw::ActionRow::builder()
+                    .title(tr("No formats found"))
+                    .build(),
+            );
+            page.append(&group);
+        }
 
-    // Grow with the content up to a cap, then scroll — short lists yield a short
-    // dialog (no dead space); a very long column still scrolls as a safety net.
-    let scrolled = gtk::ScrolledWindow::new();
-    scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
-    scrolled.set_propagate_natural_height(true);
-    scrolled.set_max_content_height(640);
-    scrolled.set_child(Some(&content));
-    toolbar.set_content(Some(&scrolled));
+        let scrolled = gtk::ScrolledWindow::new();
+        scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
+        scrolled.set_propagate_natural_height(true);
+        scrolled.set_max_content_height(640);
+        scrolled.set_child(Some(&page));
+        toolbar.set_content(Some(&scrolled));
+    }
     win.set_content(Some(&toolbar));
 
     // Closing without a pick → notify the caller.
