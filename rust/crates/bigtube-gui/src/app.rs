@@ -2727,10 +2727,12 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     let remove = gtk::Button::from_icon_name("user-trash-symbolic");
     remove.add_css_class("flat");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
-    // Top row: name + format input + delete (the action buttons live in the
-    // bottom row next to the status, mirroring the download row layout).
+    // Top row: name + format input + convert/cancel (next to the dropdown) +
+    // delete. Only play/folder live in the bottom row next to the status.
     header.append(&name_lbl);
     header.append(&format);
+    header.append(&convert);
+    header.append(&cancel);
     header.append(&remove);
 
     // Conversion options (mirrors `converter_row.py`): both default on; the
@@ -2753,12 +2755,10 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     let progress = gtk::ProgressBar::new();
     progress.set_fraction(0.0);
 
-    // Bottom row: status on the left, action buttons on the right.
+    // Bottom row: status on the left, play/folder (post-conversion) on the right.
     let footer = gtk::Box::new(gtk::Orientation::Horizontal, 6);
     let actions = gtk::Box::new(gtk::Orientation::Horizontal, 6);
     actions.set_halign(gtk::Align::End);
-    actions.append(&convert);
-    actions.append(&cancel);
     actions.append(&folder);
     actions.append(&play);
     footer.append(&status);
@@ -3149,27 +3149,77 @@ fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
                 return;
             }
         };
-        // YouTube Music (audio_only) goes straight to audio. A normal video
-        // source first asks the user whether they want video or audio only.
-        if audio_only {
-            present_download_dialog(&state, info, url, title, thumb, uploader, true);
-            return;
-        }
-        let Some(window) = state.window.borrow().clone() else {
-            return;
-        };
-        let st = state.clone();
-        // Carry the fetched data into the (Fn) response closure via a one-shot.
-        let slot = Rc::new(RefCell::new(Some((info, url, title, thumb, uploader))));
-        choose_video_or_audio(
-            &window,
-            Rc::new(move |as_audio: bool| {
-                if let Some((info, url, title, thumb, uploader)) = slot.borrow_mut().take() {
-                    present_download_dialog(&st, info, url, title, thumb, uploader, as_audio);
-                }
-            }),
-        );
+        run_download_flow(&state, info, url, title, thumb, uploader, audio_only);
     });
+}
+
+/// Drive the post-fetch flow: YouTube Music (audio_only) goes straight to the
+/// audio formats; a video source first asks Video-or-Audio, and closing the
+/// format dialog returns to that chooser.
+fn run_download_flow(
+    state: &Rc<AppState>,
+    info: bigtube_core::downloader::ParsedInfo,
+    url: String,
+    title: String,
+    thumb: String,
+    uploader: String,
+    audio_only: bool,
+) {
+    let info = Rc::new(info);
+    if audio_only {
+        // No chooser to go back to — closing just closes.
+        show_format_dialog(state, info, url, title, thumb, uploader, true, None);
+    } else {
+        show_kind_chooser(state, info, url, title, thumb, uploader);
+    }
+}
+
+/// Show the Video/Audio chooser; the pick opens the format dialog, whose close
+/// returns here (so cancelling the formats re-asks the kind).
+fn show_kind_chooser(
+    state: &Rc<AppState>,
+    info: Rc<bigtube_core::downloader::ParsedInfo>,
+    url: String,
+    title: String,
+    thumb: String,
+    uploader: String,
+) {
+    let Some(window) = state.window.borrow().clone() else {
+        return;
+    };
+    let st = state.clone();
+    choose_video_or_audio(
+        &window,
+        Rc::new(move |as_audio: bool| {
+            // Re-open this chooser if the user closes the format dialog.
+            let on_back: dialog::CloseFn = {
+                let st = st.clone();
+                let info = info.clone();
+                let (url, title, thumb, uploader) =
+                    (url.clone(), title.clone(), thumb.clone(), uploader.clone());
+                Rc::new(move || {
+                    show_kind_chooser(
+                        &st,
+                        info.clone(),
+                        url.clone(),
+                        title.clone(),
+                        thumb.clone(),
+                        uploader.clone(),
+                    )
+                })
+            };
+            show_format_dialog(
+                &st,
+                info.clone(),
+                url.clone(),
+                title.clone(),
+                thumb.clone(),
+                uploader.clone(),
+                as_audio,
+                Some(on_back),
+            );
+        }),
+    );
 }
 
 /// Ask whether to download the video or just its audio, before listing formats.
@@ -3199,15 +3249,18 @@ fn choose_video_or_audio(window: &adw::ApplicationWindow, on_choice: Rc<dyn Fn(b
 }
 
 /// Present the format-selection dialog for already-fetched `info`, wiring its
-/// Download and Schedule buttons.
-fn present_download_dialog(
+/// Download and Schedule buttons. `on_back`, if set, runs when the dialog is
+/// closed without a pick (re-opening the Video/Audio chooser).
+#[allow(clippy::too_many_arguments)]
+fn show_format_dialog(
     state: &Rc<AppState>,
-    info: bigtube_core::downloader::ParsedInfo,
+    info: Rc<bigtube_core::downloader::ParsedInfo>,
     url: String,
     title: String,
     thumb: String,
     uploader: String,
     audio_only: bool,
+    on_back: Option<dialog::CloseFn>,
 ) {
     let Some(window) = state.window.borrow().clone() else {
         return;
@@ -3257,7 +3310,8 @@ fn present_download_dialog(
             );
         })
     };
-    dialog::show(&window, &info, audio_only, on_pick, on_schedule);
+    let on_close: dialog::CloseFn = on_back.unwrap_or_else(|| Rc::new(|| {}));
+    dialog::show(&window, &info, audio_only, on_pick, on_schedule, on_close);
 }
 
 /// File extension that pairs with a quality selector (audio/MKV/MP4).

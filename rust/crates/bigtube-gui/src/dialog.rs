@@ -1,6 +1,7 @@
 //! Format-selection dialog, mirroring `format_dialog.py`. Lists the parsed
 //! video/audio formats; picking one invokes `on_pick(format_id, ext)`.
 
+use std::cell::Cell;
 use std::rc::Rc;
 
 use adw::prelude::*;
@@ -13,6 +14,8 @@ use crate::i18n::tr;
 pub type PickFn = Rc<dyn Fn(String, String)>;
 /// Callback: `(format_id, ext)` — open the schedule flow for this format.
 pub type ScheduleFn = Rc<dyn Fn(String, String)>;
+/// Callback: the dialog was closed without picking a format (go back).
+pub type CloseFn = Rc<dyn Fn()>;
 
 pub fn show(
     parent: &adw::ApplicationWindow,
@@ -20,6 +23,7 @@ pub fn show(
     audio_only: bool,
     on_pick: PickFn,
     on_schedule: ScheduleFn,
+    on_close: CloseFn,
 ) {
     let win = adw::Window::builder()
         .transient_for(parent)
@@ -35,6 +39,10 @@ pub fn show(
 
     let page = adw::PreferencesPage::new();
 
+    // True once a format is picked/scheduled, so closing the window then doesn't
+    // count as "cancelled" (which would re-open the Video/Audio chooser).
+    let picked = Rc::new(Cell::new(false));
+
     // YouTube Music → audio only; normal YouTube → video only.
     let mut count = 0;
     if !audio_only && !info.videos.is_empty() {
@@ -42,7 +50,7 @@ pub fn show(
             .title(tr("Video Formats"))
             .build();
         for f in &info.videos {
-            group.add(&format_row(f, &win, &on_pick, &on_schedule));
+            group.add(&format_row(f, &win, &on_pick, &on_schedule, &picked));
         }
         page.add(&group);
         count += info.videos.len();
@@ -52,7 +60,7 @@ pub fn show(
             .title(tr("Audio Only"))
             .build();
         for f in &info.audios {
-            group.add(&format_row(f, &win, &on_pick, &on_schedule));
+            group.add(&format_row(f, &win, &on_pick, &on_schedule, &picked));
         }
         page.add(&group);
         count += info.audios.len();
@@ -74,6 +82,18 @@ pub fn show(
     scrolled.set_child(Some(&page));
     toolbar.set_content(Some(&scrolled));
     win.set_content(Some(&toolbar));
+
+    // Closing without a pick → notify the caller (re-opens the kind chooser).
+    {
+        let on_close = on_close.clone();
+        let picked = picked.clone();
+        win.connect_close_request(move |_| {
+            if !picked.get() {
+                on_close();
+            }
+            gtk::glib::Propagation::Proceed
+        });
+    }
     win.present();
 }
 
@@ -82,6 +102,7 @@ fn format_row(
     win: &adw::Window,
     on_pick: &PickFn,
     on_schedule: &ScheduleFn,
+    picked: &Rc<Cell<bool>>,
 ) -> adw::ActionRow {
     let row = adw::ActionRow::builder()
         .title(&f.label)
@@ -109,7 +130,9 @@ fn format_row(
         let ext = f.ext.clone();
         let on_schedule = on_schedule.clone();
         let win = win.clone();
+        let picked = picked.clone();
         schedule.connect_clicked(move |_| {
+            picked.set(true);
             on_schedule(id.clone(), ext.clone());
             win.close();
         });
@@ -125,7 +148,9 @@ fn format_row(
         let ext = f.ext.clone();
         let on_pick = on_pick.clone();
         let win = win.clone();
+        let picked = picked.clone();
         btn.connect_clicked(move |_| {
+            picked.set(true);
             on_pick(id.clone(), ext.clone());
             win.close();
         });

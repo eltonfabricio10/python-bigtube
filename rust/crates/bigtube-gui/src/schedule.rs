@@ -35,7 +35,13 @@ pub fn show(
     crate::app::apply_theme_classes(&win);
 
     let toolbar = adw::ToolbarView::new();
-    toolbar.add_top_bar(&adw::HeaderBar::new());
+    let header = adw::HeaderBar::new();
+    // Confirm lives in the header bar so it's always visible (never pushed below
+    // the fold by the calendar). Wired after the inputs exist.
+    let confirm = gtk::Button::with_label(&tr("Schedule"));
+    confirm.add_css_class("suggested-action");
+    header.pack_end(&confirm);
+    toolbar.add_top_bar(&header);
     let page = adw::PreferencesPage::new();
 
     // Preselect the given instant (edit) or now (fresh schedule).
@@ -100,20 +106,7 @@ pub fn show(
     repeat_group.add(&repeat);
     page.add(&repeat_group);
 
-    // Confirm button.
-    let confirm_group = adw::PreferencesGroup::new();
-    let confirm = gtk::Button::with_label(&tr("Schedule"));
-    confirm.add_css_class("pill");
-    confirm.add_css_class("suggested-action");
-    confirm.set_halign(gtk::Align::Center);
-    confirm.set_margin_top(12);
-    confirm_group.add(&confirm);
-    page.add(&confirm_group);
-
-    let scrolled = gtk::ScrolledWindow::new();
-    scrolled.set_vexpand(true);
-    scrolled.set_child(Some(&page));
-    toolbar.set_content(Some(&scrolled));
+    toolbar.set_content(Some(&page));
     win.set_content(Some(&toolbar));
 
     {
