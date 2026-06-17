@@ -3436,19 +3436,36 @@ fn schedule_all(state: &Rc<AppState>, items: Vec<VideoObject>) {
     });
 }
 
-/// A single quality picker for batch downloads. Lists every quality (minus
-/// "Ask Every Time"), defaulting to the configured preferred quality.
+/// True for the audio-only batch qualities (MP3 / M4A).
+fn is_audio_quality(q: bigtube_core::enums::VideoQuality) -> bool {
+    use bigtube_core::enums::VideoQuality::*;
+    matches!(q, AudioMp3 | AudioM4a)
+}
+
+/// A single quality picker for batch downloads: a Video/Audio radio chooses the
+/// kind, and the dropdown lists the qualities for that kind. Defaults to the
+/// configured preferred quality.
 fn show_quality_dialog(
     parent: &adw::ApplicationWindow,
     on_pick: impl Fn(bigtube_core::enums::VideoQuality) + 'static,
 ) {
     use bigtube_core::enums::VideoQuality;
-    let opts: Vec<(&str, VideoQuality)> = QUALITY_OPTIONS
+    // Split the (non-"Ask") options into video and audio sets.
+    let video: Vec<(&str, VideoQuality)> = QUALITY_OPTIONS
         .iter()
         .copied()
-        .filter(|(_, q)| !matches!(q, VideoQuality::Ask))
+        .filter(|(_, q)| !matches!(q, VideoQuality::Ask) && !is_audio_quality(*q))
         .collect();
-    let labels: Vec<String> = opts.iter().map(|(l, _)| tr(l)).collect();
+    let audio: Vec<(&str, VideoQuality)> = QUALITY_OPTIONS
+        .iter()
+        .copied()
+        .filter(|(_, q)| is_audio_quality(*q))
+        .collect();
+    let default_quality = config::global()
+        .read()
+        .unwrap()
+        .get_string("default_quality");
+    let start_audio = audio.iter().any(|(_, q)| q.as_value() == default_quality);
 
     let win = adw::Window::builder()
         .transient_for(parent)
@@ -3464,30 +3481,66 @@ fn show_quality_dialog(
     header.pack_end(&dl_btn);
     toolbar.add_top_bar(&header);
 
+    let content = gtk::Box::new(gtk::Orientation::Vertical, 12);
+    content.set_margin_top(12);
+    content.set_margin_bottom(12);
+    content.set_margin_start(12);
+    content.set_margin_end(12);
+
+    // Video/Audio radio.
+    let kind = gtk::Box::new(gtk::Orientation::Horizontal, 12);
+    kind.set_halign(gtk::Align::Center);
+    let video_radio = gtk::CheckButton::with_label(&tr("Video"));
+    let audio_radio = gtk::CheckButton::with_label(&tr("Audio"));
+    audio_radio.set_group(Some(&video_radio));
+    video_radio.set_active(!start_audio);
+    audio_radio.set_active(start_audio);
+    kind.append(&video_radio);
+    kind.append(&audio_radio);
+    content.append(&kind);
+
     let group = adw::PreferencesGroup::new();
-    group.set_margin_top(12);
-    group.set_margin_bottom(12);
-    group.set_margin_start(12);
-    group.set_margin_end(12);
-    let combo = combo_row(&tr("Preferred Quality"), &labels);
-    let default_quality = config::global()
-        .read()
-        .unwrap()
-        .get_string("default_quality");
-    let sel = opts
-        .iter()
-        .position(|(_, q)| q.as_value() == default_quality)
-        .unwrap_or(0);
-    combo.set_selected(sel as u32);
+    let combo = combo_row(&tr("Preferred Quality"), &[] as &[&str]);
     group.add(&combo);
-    toolbar.set_content(Some(&group));
+    content.append(&group);
+
+    // The qualities currently shown in the dropdown (kept in sync with the radio).
+    let current: Rc<RefCell<Vec<VideoQuality>>> = Rc::new(RefCell::new(Vec::new()));
+
+    // Repopulate the dropdown for the selected kind, preselecting the default.
+    let populate: Rc<dyn Fn(bool)> = {
+        let combo = combo.clone();
+        let current = current.clone();
+        let video = video.clone();
+        let audio = audio.clone();
+        let default_quality = default_quality.clone();
+        Rc::new(move |as_audio: bool| {
+            let list = if as_audio { &audio } else { &video };
+            let labels: Vec<String> = list.iter().map(|(l, _)| tr(l)).collect();
+            let refs: Vec<&str> = labels.iter().map(String::as_str).collect();
+            combo.set_model(Some(&gtk::StringList::new(&refs)));
+            let sel = list
+                .iter()
+                .position(|(_, q)| q.as_value() == default_quality)
+                .unwrap_or(0);
+            combo.set_selected(sel as u32);
+            *current.borrow_mut() = list.iter().map(|(_, q)| *q).collect();
+        })
+    };
+    populate(start_audio);
+    {
+        let populate = populate.clone();
+        audio_radio.connect_toggled(move |b| populate(b.is_active()));
+    }
+
+    toolbar.set_content(Some(&content));
     win.set_content(Some(&toolbar));
     apply_theme_classes(&win);
     win.present();
 
     let on_pick = Rc::new(on_pick);
     dl_btn.connect_clicked(move |_| {
-        if let Some((_, q)) = opts.get(combo.selected() as usize) {
+        if let Some(q) = current.borrow().get(combo.selected() as usize) {
             on_pick(*q);
         }
         win.close();
