@@ -88,7 +88,6 @@ impl DownloadRow {
         // Per-row delete (asks history-only vs file too); wired in wire_row_footer.
         let btn_delete = gtk::Button::from_icon_name("user-trash-symbolic");
         btn_delete.add_css_class("flat");
-        btn_delete.add_css_class("destructive-action");
         btn_delete.set_tooltip_text(Some(&tr("Remove from list")));
         header.append(&title_lbl);
         header.append(&status);
@@ -2630,7 +2629,6 @@ struct PendingConv {
     add_subtitles: bool,
     ui: ConvUi,
     cancel_flag: Arc<AtomicBool>,
-    container: gtk::Box,
 }
 
 /// Queue a conversion and try to start it. The row shows "Queued" until its
@@ -2658,9 +2656,8 @@ fn pump_conversion(state: &Rc<AppState>) {
         None => return,
     };
     if job.cancel_flag.load(Ordering::SeqCst) {
-        // Cancelled before it ever ran: discard the row and move on.
-        remove_list_card(&state.converter_box, &job.container);
-        state.update_converter_empty();
+        // Cancelled while still queued: reset the row (keep it for re-convert).
+        job.ui.reset_ready();
         pump_conversion(state);
         return;
     }
@@ -2673,7 +2670,6 @@ fn pump_conversion(state: &Rc<AppState>) {
         job.ui,
         job.cancel_flag,
         state.clone(),
-        job.container,
     );
 }
 
@@ -2685,6 +2681,17 @@ impl ConvUi {
         if !class.is_empty() {
             self.progress.add_css_class(class);
         }
+    }
+
+    /// Reset the row to its initial idle look (after a cancel), so another
+    /// format can be chosen and converted again — the row is NOT removed.
+    fn reset_ready(&self) {
+        self.cancel.set_visible(false);
+        self.convert.set_visible(true);
+        self.set_inputs_sensitive(true);
+        self.set_progress_class("");
+        self.progress.set_fraction(0.0);
+        self.status.set_text(&tr("Ready"));
     }
 }
 
@@ -2733,7 +2740,6 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     play.set_visible(false);
     let remove = gtk::Button::from_icon_name("user-trash-symbolic");
     remove.add_css_class("flat");
-    remove.add_css_class("destructive-action");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
     // Top row: name + format input + convert/cancel (next to the dropdown) +
     // delete. Only play/folder live in the bottom row next to the status.
@@ -2825,7 +2831,6 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
         let format = format.clone();
         let cancel = cancel.clone();
         let state = state.clone();
-        let container = container.clone();
         convert.connect_clicked(move |btn| {
             let fmt = formats
                 .get(format.selected() as usize)
@@ -2850,7 +2855,6 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
                     add_subtitles,
                     ui: ui.clone(),
                     cancel_flag: flag,
-                    container: container.clone(),
                 },
             );
         });
@@ -2866,7 +2870,6 @@ fn run_conversion(
     ui: ConvUi,
     cancel_flag: Arc<AtomicBool>,
     state: Rc<AppState>,
-    container: gtk::Box,
 ) {
     use bigtube_core::converter::{convert_media, ConvertProgressFn};
 
@@ -2948,15 +2951,15 @@ fn run_conversion(
                     }
                 }
                 ConvMsg::Done(Err(e)) => {
-                    ui.cancel.set_visible(false);
-                    ui.convert.set_visible(true);
-                    ui.set_inputs_sensitive(true);
                     if cancel_flag.load(Ordering::SeqCst) {
-                        // Cancelled: core already removed the partial output —
-                        // drop the row from the list too (no history on cancel).
-                        remove_list_card(&state.converter_box, &container);
-                        state.update_converter_empty();
+                        // Cancelled by the user: the core removed the partial
+                        // output; keep the row and reset it so another format can
+                        // be picked and converted again.
+                        ui.reset_ready();
                     } else {
+                        ui.cancel.set_visible(false);
+                        ui.convert.set_visible(true);
+                        ui.set_inputs_sensitive(true);
                         ui.set_progress_class("error");
                         ui.status.set_text(&format!("{}: {e}", tr("Error:")));
                     }
@@ -4628,7 +4631,6 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
     play.set_tooltip_text(Some(&tr("Play Video")));
     let remove = gtk::Button::from_icon_name("user-trash-symbolic");
     remove.add_css_class("flat");
-    remove.add_css_class("destructive-action");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
     header.append(&name_lbl);
     header.append(&fmt_lbl);
