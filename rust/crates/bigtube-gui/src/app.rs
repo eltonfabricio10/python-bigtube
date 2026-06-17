@@ -3196,6 +3196,19 @@ fn search_history_path() -> std::path::PathBuf {
     bigtube_core::paths::config_dir().join("search_history.json")
 }
 
+/// Extract a clean, catalog-translatable message from a search error. The
+/// error's Display adds a prefix ("search error: …") that would stop tr() from
+/// matching, so for the message-carrying variants we return the inner string
+/// (which IS a catalog msgid) and let the toast translate it.
+fn search_error_message(e: &bigtube_core::errors::BigTubeError) -> String {
+    use bigtube_core::errors::BigTubeError::*;
+    match e {
+        Search(m) | Network(m) | Config(m) => m.clone(),
+        BinaryNotFound(b) => format!("{} {}", tr("Command not found on PATH:"), b),
+        other => other.to_string(),
+    }
+}
+
 fn run_search(state: &Rc<AppState>, query: String, source: String) {
     let query = query.trim().to_string();
     if query.is_empty() {
@@ -3222,8 +3235,11 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
         async_channel::bounded::<Result<Vec<bigtube_core::search::SearchResult>, String>>(1);
     std::thread::spawn(move || {
         let result = SearchEngine::new()
-            .map_err(|e| e.to_string())
-            .and_then(|eng| eng.search(&query, &source).map_err(|e| e.to_string()));
+            .map_err(|e| search_error_message(&e))
+            .and_then(|eng| {
+                eng.search(&query, &source)
+                    .map_err(|e| search_error_message(&e))
+            });
         let _ = tx.send_blocking(result);
     });
 
