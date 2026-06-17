@@ -436,6 +436,19 @@ pub fn build_download_args(
             cmd.push("--audio-quality".into());
             cmd.push("0".into());
         }
+        // Embed the cover art (album thumbnail) into the audio whenever the
+        // container supports it. Convert it to jpg first so embedding always
+        // succeeds — otherwise yt-dlp leaves the raw webp/png sitting in the
+        // download folder. WAV has no cover-art support, so skip it there.
+        if has_ffmpeg && supports_cover_art(&params.ext) {
+            if !extra.iter().any(|f| f == "--embed-thumbnail") {
+                cmd.push("--embed-thumbnail".into());
+            }
+            if !extra.iter().any(|f| f == "--convert-thumbnails") {
+                cmd.push("--convert-thumbnails".into());
+                cmd.push("jpg".into());
+            }
+        }
     } else {
         cmd.push("-f".into());
         if !actual_format.contains("+bestaudio") && !actual_format.contains('/') {
@@ -496,6 +509,12 @@ fn subtitle_args(mode: &str, langs: &str, auto: bool, has_ffmpeg: bool) -> Vec<S
 /// Audio output extensions that take yt-dlp's `--extract-audio` path.
 fn is_audio_ext(ext: &str) -> bool {
     matches!(ext, "mp3" | "m4a" | "wav" | "flac" | "opus" | "aac" | "ogg")
+}
+
+/// Audio containers that can carry embedded cover art (album thumbnail).
+/// WAV is intentionally excluded — it has no standard tag for cover images.
+fn supports_cover_art(ext: &str) -> bool {
+    matches!(ext, "mp3" | "m4a" | "flac" | "opus" | "aac" | "ogg")
 }
 
 /// yt-dlp `vcodec` prefix for a parsed codec string, so a fallback selector can
@@ -1455,6 +1474,38 @@ mod tests {
         let af = args.iter().position(|a| a == "--audio-format").unwrap();
         assert_eq!(args[af + 1], "mp3");
         assert!(args.contains(&"--audio-quality".to_string()));
+        // Cover art is embedded (and normalized to jpg so nothing is left over).
+        assert!(args.contains(&"--embed-thumbnail".to_string()));
+        let ct = args
+            .iter()
+            .position(|a| a == "--convert-thumbnails")
+            .unwrap();
+        assert_eq!(args[ct + 1], "jpg");
+    }
+
+    #[test]
+    fn download_args_audio_cover_skipped_for_wav_and_without_ffmpeg() {
+        let (_d, c) = cfg();
+        let params = DownloadParams {
+            url: "https://youtu.be/x".into(),
+            format_id: "bestaudio/best".into(),
+            title: "Song".into(),
+            ext: "wav".into(),
+            force_overwrite: false,
+            estimated_size_mb: None,
+            subfolder: None,
+        };
+        // WAV cannot carry cover art → never embed.
+        let args = build_download_args(&c, &params, "/tmp/dl", true);
+        assert!(!args.contains(&"--embed-thumbnail".to_string()));
+
+        // No ffmpeg → can't convert/embed thumbnails, so skip for mp3 too.
+        let mp3 = DownloadParams {
+            ext: "mp3".into(),
+            ..params
+        };
+        let args = build_download_args(&c, &mp3, "/tmp/dl", false);
+        assert!(!args.contains(&"--embed-thumbnail".to_string()));
     }
 
     #[test]
