@@ -25,10 +25,14 @@ pub fn show(
     on_schedule: ScheduleFn,
     on_close: CloseFn,
 ) {
+    // Normal sources show Video + Audio side by side (two columns, one screen,
+    // no Video/Audio prompt); YouTube Music shows the single Audio column.
+    let two_col = !audio_only && !info.videos.is_empty();
+
     let win = adw::Window::builder()
         .transient_for(parent)
         .modal(true)
-        .default_width(520)
+        .default_width(if two_col { 860 } else { 520 })
         .title(tr("Select Quality"))
         .build();
     crate::app::apply_theme_classes(&win);
@@ -36,48 +40,60 @@ pub fn show(
     let toolbar = adw::ToolbarView::new();
     toolbar.add_top_bar(&adw::HeaderBar::new());
 
-    // A plain Box of groups (not a PreferencesPage) so the ScrolledWindow can
-    // size to the content's natural height — no dead space below the last row.
-    let page = gtk::Box::new(gtk::Orientation::Vertical, 18);
-    page.set_margin_top(12);
-    page.set_margin_bottom(12);
-    page.set_margin_start(12);
-    page.set_margin_end(12);
-
     // True once a format is picked/scheduled, so closing the window then doesn't
-    // count as "cancelled" (which would re-open the Video/Audio chooser).
+    // count as "cancelled".
     let picked = Rc::new(Cell::new(false));
 
-    // YouTube Music → audio only; normal YouTube → video only.
-    let mut count = 0;
-    if !audio_only && !info.videos.is_empty() {
-        let group = adw::PreferencesGroup::builder()
-            .title(tr("Video Formats"))
-            .build();
-        for f in &info.videos {
-            group.add(&format_row(f, &win, &on_pick, &on_schedule, &picked));
-        }
-        page.append(&group);
-        count += info.videos.len();
-    }
-    if audio_only && !info.audios.is_empty() {
-        // When every audio row is a virtual "convert" option, the source had no
-        // separate audio track — tell the user the audio is extracted/converted.
-        let no_original = info.audios.iter().all(|f| f.codec.ends_with("_convert"));
-        let builder = adw::PreferencesGroup::builder().title(tr("Audio Only"));
-        let group = if no_original {
-            builder
-                .description(tr(
-                    "This source has no separate audio track. The options below extract and convert its audio.",
-                ))
-                .build()
-        } else {
-            builder.build()
+    // Builds one column's PreferencesGroup from a list of formats.
+    let make_group = |title: String, description: Option<String>, formats: &[FormatOption]| {
+        let builder = adw::PreferencesGroup::builder().title(title);
+        let group = match description {
+            Some(d) => builder.description(d).build(),
+            None => builder.build(),
         };
-        for f in &info.audios {
+        for f in formats {
             group.add(&format_row(f, &win, &on_pick, &on_schedule, &picked));
         }
-        page.append(&group);
+        group
+    };
+
+    // When every audio row is a virtual "convert" option, the source had no
+    // separate audio track — tell the user the audio is extracted/converted.
+    let audio_desc = (!info.audios.is_empty()
+        && info.audios.iter().all(|f| f.codec.ends_with("_convert")))
+    .then(|| {
+        tr("This source has no separate audio track. The options below extract and convert its audio.")
+    });
+
+    // Outer container: a horizontal row of columns (two-col) or a single column.
+    let content = gtk::Box::new(gtk::Orientation::Horizontal, 18);
+    content.set_margin_top(12);
+    content.set_margin_bottom(12);
+    content.set_margin_start(12);
+    content.set_margin_end(12);
+    content.set_homogeneous(two_col);
+
+    let mut count = 0;
+    if two_col {
+        // Left: video formats. Right: audio. Each column top-aligned and equal
+        // width, so the dialog's height is the taller column — not their sum.
+        let video = make_group(tr("Video Formats"), None, &info.videos);
+        video.set_valign(gtk::Align::Start);
+        video.set_hexpand(true);
+        content.append(&video);
+        count += info.videos.len();
+        if !info.audios.is_empty() {
+            let audio = make_group(tr("Audio Only"), audio_desc, &info.audios);
+            audio.set_valign(gtk::Align::Start);
+            audio.set_hexpand(true);
+            content.append(&audio);
+            count += info.audios.len();
+        }
+    } else if !info.audios.is_empty() {
+        // Audio-only source (YouTube Music): single audio column.
+        let audio = make_group(tr("Audio Only"), audio_desc, &info.audios);
+        audio.set_hexpand(true);
+        content.append(&audio);
         count += info.audios.len();
     }
 
@@ -89,20 +105,21 @@ pub fn show(
                 .title(tr("No formats found"))
                 .build(),
         );
-        page.append(&group);
+        group.set_hexpand(true);
+        content.append(&group);
     }
 
-    // Grow with the content up to a cap, then scroll — no fixed height, so a
-    // short list yields a short dialog (no dead space) and a long one scrolls.
+    // Grow with the content up to a cap, then scroll — short lists yield a short
+    // dialog (no dead space); a very long column still scrolls as a safety net.
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_propagate_natural_height(true);
-    scrolled.set_max_content_height(620);
-    scrolled.set_child(Some(&page));
+    scrolled.set_max_content_height(640);
+    scrolled.set_child(Some(&content));
     toolbar.set_content(Some(&scrolled));
     win.set_content(Some(&toolbar));
 
-    // Closing without a pick → notify the caller (re-opens the kind chooser).
+    // Closing without a pick → notify the caller.
     {
         let on_close = on_close.clone();
         let picked = picked.clone();

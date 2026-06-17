@@ -3344,9 +3344,9 @@ fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
     });
 }
 
-/// Drive the post-fetch flow: YouTube Music (audio_only) goes straight to the
-/// audio formats; a video source first asks Video-or-Audio, and closing the
-/// format dialog returns to that chooser.
+/// Drive the post-fetch flow: a single format dialog. YouTube Music
+/// (`audio_only`) shows just the Audio column; a normal source shows Video and
+/// Audio side by side (two columns) in one screen — no Video/Audio prompt.
 fn run_download_flow(
     state: &Rc<AppState>,
     info: bigtube_core::downloader::ParsedInfo,
@@ -3357,92 +3357,11 @@ fn run_download_flow(
     audio_only: bool,
 ) {
     let info = Rc::new(info);
-    if audio_only {
-        // No chooser to go back to — closing just closes.
-        show_format_dialog(state, info, url, title, thumb, uploader, true, None);
-    } else {
-        show_kind_chooser(state, info, url, title, thumb, uploader);
-    }
-}
-
-/// Show the Video/Audio chooser; the pick opens the format dialog, whose close
-/// returns here (so cancelling the formats re-asks the kind).
-fn show_kind_chooser(
-    state: &Rc<AppState>,
-    info: Rc<bigtube_core::downloader::ParsedInfo>,
-    url: String,
-    title: String,
-    thumb: String,
-    uploader: String,
-) {
-    let Some(window) = state.window.borrow().clone() else {
-        return;
-    };
-    let st = state.clone();
-    choose_video_or_audio(
-        &window,
-        Rc::new(move |as_audio: bool| {
-            // Re-open this chooser if the user closes the format dialog.
-            let on_back: dialog::CloseFn = {
-                let st = st.clone();
-                let info = info.clone();
-                let (url, title, thumb, uploader) =
-                    (url.clone(), title.clone(), thumb.clone(), uploader.clone());
-                Rc::new(move || {
-                    show_kind_chooser(
-                        &st,
-                        info.clone(),
-                        url.clone(),
-                        title.clone(),
-                        thumb.clone(),
-                        uploader.clone(),
-                    )
-                })
-            };
-            show_format_dialog(
-                &st,
-                info.clone(),
-                url.clone(),
-                title.clone(),
-                thumb.clone(),
-                uploader.clone(),
-                as_audio,
-                Some(on_back),
-            );
-        }),
-    );
-}
-
-/// Ask whether to download the video or just its audio, before listing formats.
-/// `on_choice(true)` = audio only, `on_choice(false)` = video.
-fn choose_video_or_audio(window: &adw::ApplicationWindow, on_choice: Rc<dyn Fn(bool)>) {
-    let dialog = adw::MessageDialog::new(
-        Some(window),
-        Some(&tr("Download as")),
-        Some(&tr("Choose whether to download the video or audio only.")),
-    );
-    dialog.add_response("cancel", &tr("Cancel"));
-    dialog.add_response("audio", &tr("Audio Only"));
-    dialog.add_response("video", &tr("Video"));
-    dialog.set_response_appearance("cancel", adw::ResponseAppearance::Destructive);
-    dialog.set_response_appearance("video", adw::ResponseAppearance::Suggested);
-    dialog.set_default_response(Some("video"));
-    dialog.set_close_response("cancel");
-    apply_theme_classes(&dialog);
-    dialog.connect_response(None, move |dlg, resp| {
-        dlg.close();
-        match resp {
-            "video" => on_choice(false),
-            "audio" => on_choice(true),
-            _ => {}
-        }
-    });
-    dialog.present();
+    show_format_dialog(state, info, url, title, thumb, uploader, audio_only);
 }
 
 /// Present the format-selection dialog for already-fetched `info`, wiring its
-/// Download and Schedule buttons. `on_back`, if set, runs when the dialog is
-/// closed without a pick (re-opening the Video/Audio chooser).
+/// Download and Schedule buttons. Closing without a pick just closes.
 #[allow(clippy::too_many_arguments)]
 fn show_format_dialog(
     state: &Rc<AppState>,
@@ -3452,7 +3371,6 @@ fn show_format_dialog(
     thumb: String,
     uploader: String,
     audio_only: bool,
-    on_back: Option<dialog::CloseFn>,
 ) {
     let Some(window) = state.window.borrow().clone() else {
         return;
@@ -3502,7 +3420,7 @@ fn show_format_dialog(
             );
         })
     };
-    let on_close: dialog::CloseFn = on_back.unwrap_or_else(|| Rc::new(|| {}));
+    let on_close: dialog::CloseFn = Rc::new(|| {});
     dialog::show(&window, &info, audio_only, on_pick, on_schedule, on_close);
 }
 
