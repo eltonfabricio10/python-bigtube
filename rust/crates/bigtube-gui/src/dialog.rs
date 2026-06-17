@@ -29,7 +29,6 @@ pub fn show(
         .transient_for(parent)
         .modal(true)
         .default_width(520)
-        .default_height(640)
         .title(tr("Select Quality"))
         .build();
     crate::app::apply_theme_classes(&win);
@@ -37,7 +36,13 @@ pub fn show(
     let toolbar = adw::ToolbarView::new();
     toolbar.add_top_bar(&adw::HeaderBar::new());
 
-    let page = adw::PreferencesPage::new();
+    // A plain Box of groups (not a PreferencesPage) so the ScrolledWindow can
+    // size to the content's natural height — no dead space below the last row.
+    let page = gtk::Box::new(gtk::Orientation::Vertical, 18);
+    page.set_margin_top(12);
+    page.set_margin_bottom(12);
+    page.set_margin_start(12);
+    page.set_margin_end(12);
 
     // True once a format is picked/scheduled, so closing the window then doesn't
     // count as "cancelled" (which would re-open the Video/Audio chooser).
@@ -52,7 +57,7 @@ pub fn show(
         for f in &info.videos {
             group.add(&format_row(f, &win, &on_pick, &on_schedule, &picked));
         }
-        page.add(&group);
+        page.append(&group);
         count += info.videos.len();
     }
     if audio_only && !info.audios.is_empty() {
@@ -62,7 +67,7 @@ pub fn show(
         for f in &info.audios {
             group.add(&format_row(f, &win, &on_pick, &on_schedule, &picked));
         }
-        page.add(&group);
+        page.append(&group);
         count += info.audios.len();
     }
 
@@ -74,11 +79,15 @@ pub fn show(
                 .title(tr("No formats found"))
                 .build(),
         );
-        page.add(&group);
+        page.append(&group);
     }
 
+    // Grow with the content up to a cap, then scroll — no fixed height, so a
+    // short list yields a short dialog (no dead space) and a long one scrolls.
     let scrolled = gtk::ScrolledWindow::new();
-    scrolled.set_vexpand(true);
+    scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
+    scrolled.set_propagate_natural_height(true);
+    scrolled.set_max_content_height(620);
     scrolled.set_child(Some(&page));
     toolbar.set_content(Some(&scrolled));
     win.set_content(Some(&toolbar));
