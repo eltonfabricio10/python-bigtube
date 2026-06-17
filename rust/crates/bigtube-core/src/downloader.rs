@@ -404,15 +404,12 @@ pub fn build_download_args(
     if cfg.get_bool("add_metadata") && has_ffmpeg {
         cmd.push("--embed-metadata".into());
     }
-    if cfg.get_bool("embed_subtitles") && has_ffmpeg {
-        cmd.extend([
-            "--write-sub".into(),
-            "--write-auto-sub".into(),
-            "--sub-langs".into(),
-            "en.*,pt.*,es.*".into(),
-            "--embed-subs".into(),
-        ]);
-    }
+    cmd.extend(subtitle_args(
+        &cfg.get_string("subtitle_mode"),
+        &cfg.get_string("subtitle_langs"),
+        cfg.get_bool("subtitle_auto"),
+        has_ffmpeg,
+    ));
     if params.force_overwrite {
         cmd.push("--force-overwrites".into());
     }
@@ -453,6 +450,47 @@ pub fn build_download_args(
 
     cmd.push(params.url.clone());
     cmd
+}
+
+/// Normalize a comma list of subtitle languages ("pt, en ,, es" → "pt,en,es").
+/// Falls back to a sensible default when nothing usable is given.
+fn sanitize_sub_langs(langs: &str) -> String {
+    let cleaned: Vec<&str> = langs
+        .split(',')
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .collect();
+    if cleaned.is_empty() {
+        "en,pt,es".to_string()
+    } else {
+        cleaned.join(",")
+    }
+}
+
+/// yt-dlp subtitle flags for the chosen mode/languages. Pure and testable.
+/// `mode`: "off" | "embed" | "file" | "both". Without ffmpeg, an embed request
+/// degrades to writing a sidecar file so subtitles are never silently lost.
+fn subtitle_args(mode: &str, langs: &str, auto: bool, has_ffmpeg: bool) -> Vec<String> {
+    if !matches!(mode, "embed" | "file" | "both") {
+        return Vec::new();
+    }
+    let mut embed = matches!(mode, "embed" | "both");
+    let mut file = matches!(mode, "file" | "both");
+    if embed && !has_ffmpeg {
+        embed = false;
+        file = true;
+    }
+    let mut out = vec!["--sub-langs".to_string(), sanitize_sub_langs(langs)];
+    if file {
+        out.push("--write-sub".to_string());
+    }
+    if auto {
+        out.push("--write-auto-sub".to_string());
+    }
+    if embed {
+        out.push("--embed-subs".to_string());
+    }
+    out
 }
 
 /// Audio output extensions that take yt-dlp's `--extract-audio` path.
@@ -1016,7 +1054,8 @@ impl VideoDownloader {
             if cfg.get_bool("add_metadata") && !has_ffmpeg {
                 progress(Progress::status(StatusCode::FfmpegMissingMetadata));
             }
-            if cfg.get_bool("embed_subtitles") && !has_ffmpeg {
+            // Embedding subtitles needs ffmpeg; warn (we degrade to a sidecar).
+            if matches!(cfg.get_string("subtitle_mode").as_str(), "embed" | "both") && !has_ffmpeg {
                 progress(Progress::status(StatusCode::FfmpegMissingSubtitles));
             }
         }
@@ -1276,6 +1315,31 @@ mod tests {
         let mut c = ConfigManager::new(dir.path().join("config"), dir.path().join("data"));
         c.ensure_dirs();
         (dir, c)
+    }
+
+    #[test]
+    fn subtitle_args_modes() {
+        assert!(subtitle_args("off", "en", true, true).is_empty());
+
+        let embed = subtitle_args("embed", "pt, en", false, true);
+        assert!(embed.contains(&"--embed-subs".to_string()));
+        assert!(!embed.contains(&"--write-sub".to_string()));
+        let i = embed.iter().position(|a| a == "--sub-langs").unwrap();
+        assert_eq!(embed[i + 1], "pt,en");
+
+        let file = subtitle_args("file", "en", false, true);
+        assert!(file.contains(&"--write-sub".to_string()));
+        assert!(!file.contains(&"--embed-subs".to_string()));
+
+        let both = subtitle_args("both", "en", true, true);
+        assert!(both.contains(&"--write-sub".to_string()));
+        assert!(both.contains(&"--embed-subs".to_string()));
+        assert!(both.contains(&"--write-auto-sub".to_string()));
+
+        // No ffmpeg: an embed request degrades to writing a sidecar file.
+        let no_ff = subtitle_args("embed", "en", false, false);
+        assert!(no_ff.contains(&"--write-sub".to_string()));
+        assert!(!no_ff.contains(&"--embed-subs".to_string()));
     }
 
     #[test]

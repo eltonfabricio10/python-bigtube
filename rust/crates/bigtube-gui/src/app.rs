@@ -1404,7 +1404,9 @@ fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
             concurrent_fragments: cfg.get_i64("concurrent_fragments"),
             rate_limit: cfg.get_i64("rate_limit"),
             add_metadata: cfg.get_bool("add_metadata"),
-            embed_subtitles: cfg.get_bool("embed_subtitles"),
+            subtitle_mode: cfg.get_string("subtitle_mode"),
+            subtitle_langs: cfg.get_string("subtitle_langs"),
+            subtitle_auto: cfg.get_bool("subtitle_auto"),
             system_notifications: cfg.get_bool("system_notifications"),
             monitor_clipboard: cfg.get_bool("monitor_clipboard"),
             post_process_cmd: cfg.get_string("post_process_cmd"),
@@ -1426,6 +1428,7 @@ fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
 
     page.add(&build_appearance_group(state, &c));
     page.add(&build_downloads_group(state, &c));
+    page.add(&build_subtitles_group(state, &c));
     page.add(&build_playback_group(state, &c));
     page.add(&build_converter_group(state, &c));
     page.add(&build_search_group(state, &c));
@@ -1446,7 +1449,9 @@ struct Cfg {
     concurrent_fragments: i64,
     rate_limit: i64,
     add_metadata: bool,
-    embed_subtitles: bool,
+    subtitle_mode: String,
+    subtitle_langs: String,
+    subtitle_auto: bool,
     system_notifications: bool,
     monitor_clipboard: bool,
     post_process_cmd: String,
@@ -1620,12 +1625,6 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         |v| set_cfg("add_metadata", serde_json::json!(v)),
     ));
     group.add(&switch_row(
-        &tr("Embed Subtitles"),
-        &tr("Download and embed subtitles when available"),
-        c.embed_subtitles,
-        |v| set_cfg("embed_subtitles", serde_json::json!(v)),
-    ));
-    group.add(&switch_row(
         &tr("System Notifications"),
         &tr("Notify when a download finishes"),
         c.system_notifications,
@@ -1636,6 +1635,59 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         &tr("Detect copied links and offer to download them"),
         c.monitor_clipboard,
         |v| set_cfg("monitor_clipboard", serde_json::json!(v)),
+    ));
+
+    group
+}
+
+/// Subtitle download settings: mode, languages, and auto-generated captions.
+fn build_subtitles_group(_state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
+    let group = adw::PreferencesGroup::builder()
+        .title(tr("Subtitles"))
+        .build();
+
+    // Mode: off / embed in the video / separate file / both.
+    let modes = ["off", "embed", "file", "both"];
+    let mode_row = combo_row(
+        &tr("Subtitles"),
+        &[
+            tr("Off"),
+            tr("Embed in video"),
+            tr("Separate file"),
+            tr("Embed + file"),
+        ],
+    );
+    mode_row.set_subtitle(&tr("Download subtitles and how to store them"));
+    mode_row.set_selected(
+        modes
+            .iter()
+            .position(|m| *m == c.subtitle_mode)
+            .unwrap_or(0) as u32,
+    );
+    mode_row.connect_selected_notify(move |row| {
+        let val = modes.get(row.selected() as usize).copied().unwrap_or("off");
+        set_cfg("subtitle_mode", serde_json::json!(val));
+    });
+    group.add(&mode_row);
+
+    // Languages (comma-separated, validated lightly).
+    let lang_row = adw::EntryRow::builder()
+        .title(tr("Languages"))
+        .text(&c.subtitle_langs)
+        .show_apply_button(true)
+        .build();
+    lang_row.set_tooltip_text(Some(&tr("Comma-separated language codes, e.g. pt, en, es")));
+    lang_row.connect_apply(|r| {
+        let txt = r.text().trim().to_string();
+        set_cfg("subtitle_langs", serde_json::json!(txt));
+    });
+    group.add(&lang_row);
+
+    group.add(&switch_row(
+        &tr("Include Auto-generated"),
+        &tr("Also fetch automatic (machine) captions"),
+        c.subtitle_auto,
+        |v| set_cfg("subtitle_auto", serde_json::json!(v)),
     ));
 
     group

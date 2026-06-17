@@ -1473,6 +1473,46 @@ msgid "Clear search history?"
 msgstr "Limpar o histórico de pesquisa?"
 
 #: bigtube-gui
+msgid "Subtitles"
+msgstr "Legendas"
+
+#: bigtube-gui
+msgid "Off"
+msgstr "Desligado"
+
+#: bigtube-gui
+msgid "Embed in video"
+msgstr "Embutir no vídeo"
+
+#: bigtube-gui
+msgid "Separate file"
+msgstr "Arquivo separado"
+
+#: bigtube-gui
+msgid "Embed + file"
+msgstr "Embutir + arquivo"
+
+#: bigtube-gui
+msgid "Download subtitles and how to store them"
+msgstr "Baixar legendas e como armazená-las"
+
+#: bigtube-gui
+msgid "Languages"
+msgstr "Idiomas"
+
+#: bigtube-gui
+msgid "Comma-separated language codes, e.g. pt, en, es"
+msgstr "Códigos de idioma separados por vírgula, ex.: pt, en, es"
+
+#: bigtube-gui
+msgid "Include Auto-generated"
+msgstr "Incluir legendas automáticas"
+
+#: bigtube-gui
+msgid "Also fetch automatic (machine) captions"
+msgstr "Também baixa legendas automáticas (geradas por máquina)"
+
+#: bigtube-gui
 msgid "Link detected"
 msgstr "Link detectado"
 

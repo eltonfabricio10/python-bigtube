@@ -1393,6 +1393,46 @@ msgid "Clear search history?"
 msgstr ""
 
 #: bigtube-gui
+msgid "Subtitles"
+msgstr ""
+
+#: bigtube-gui
+msgid "Off"
+msgstr ""
+
+#: bigtube-gui
+msgid "Embed in video"
+msgstr ""
+
+#: bigtube-gui
+msgid "Separate file"
+msgstr ""
+
+#: bigtube-gui
+msgid "Embed + file"
+msgstr ""
+
+#: bigtube-gui
+msgid "Download subtitles and how to store them"
+msgstr ""
+
+#: bigtube-gui
+msgid "Languages"
+msgstr ""
+
+#: bigtube-gui
+msgid "Comma-separated language codes, e.g. pt, en, es"
+msgstr ""
+
+#: bigtube-gui
+msgid "Include Auto-generated"
+msgstr ""
+
+#: bigtube-gui
+msgid "Also fetch automatic (machine) captions"
+msgstr ""
+
+#: bigtube-gui
 msgid "Link detected"
 msgstr ""
 

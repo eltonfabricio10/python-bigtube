@@ -104,6 +104,7 @@ impl ConfigManager {
         // here while keeping the get/set alias behavior identical.
         let had_old = loaded.contains_key("download_subtitles");
         let had_new = loaded.contains_key("embed_subtitles");
+        let had_subtitle_mode = loaded.contains_key("subtitle_mode");
 
         let mut data = self.defaults.clone();
         for (k, v) in loaded {
@@ -115,6 +116,12 @@ impl ConfigManager {
             }
         }
         data.remove("download_subtitles");
+        // New subtitle model: an old config that had `embed_subtitles` on (and no
+        // explicit `subtitle_mode`) keeps embedding by default.
+        if !had_subtitle_mode && data.get("embed_subtitles").and_then(Value::as_bool) == Some(true)
+        {
+            data.insert("subtitle_mode".into(), json!("embed"));
+        }
         self.data = data;
     }
 
@@ -337,6 +344,11 @@ fn build_defaults() -> Map<String, Value> {
     m.insert("max_concurrent_downloads".into(), json!(3));
     m.insert("add_metadata".into(), json!(false));
     m.insert("embed_subtitles".into(), json!(false));
+    // Subtitles: mode "off"|"embed"|"file"|"both", comma-separated languages,
+    // and whether to include auto-generated captions.
+    m.insert("subtitle_mode".into(), json!("off"));
+    m.insert("subtitle_langs".into(), json!("en,pt,es"));
+    m.insert("subtitle_auto".into(), json!(true));
     m.insert("save_history".into(), json!(true));
     m.insert("save_search_history".into(), json!(true));
     m.insert("enable_suggestions".into(), json!(true));
