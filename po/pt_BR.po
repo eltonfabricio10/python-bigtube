@@ -1667,3 +1667,7 @@ msgstr "User agent inválido."
 #: bigtube-gui
 msgid "Command not found on PATH:"
 msgstr "Comando não encontrado no PATH:"
+
+#: bigtube-gui
+msgid "This source has no separate audio track. The options below extract and convert its audio."
+msgstr "Esta fonte não tem faixa de áudio separada. As opções abaixo extraem e convertem o áudio."

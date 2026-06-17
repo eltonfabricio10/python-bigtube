@@ -61,9 +61,19 @@ pub fn show(
         count += info.videos.len();
     }
     if audio_only && !info.audios.is_empty() {
-        let group = adw::PreferencesGroup::builder()
-            .title(tr("Audio Only"))
-            .build();
+        // When every audio row is a virtual "convert" option, the source had no
+        // separate audio track — tell the user the audio is extracted/converted.
+        let no_original = info.audios.iter().all(|f| f.codec.ends_with("_convert"));
+        let builder = adw::PreferencesGroup::builder().title(tr("Audio Only"));
+        let group = if no_original {
+            builder
+                .description(tr(
+                    "This source has no separate audio track. The options below extract and convert its audio.",
+                ))
+                .build()
+        } else {
+            builder.build()
+        };
         for f in &info.audios {
             group.add(&format_row(f, &win, &on_pick, &on_schedule, &picked));
         }

@@ -1585,3 +1585,7 @@ msgstr ""
 #: bigtube-gui
 msgid "Command not found on PATH:"
 msgstr ""
+
+#: bigtube-gui
+msgid "This source has no separate audio track. The options below extract and convert its audio."
+msgstr ""

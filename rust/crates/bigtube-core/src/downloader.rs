@@ -791,13 +791,18 @@ fn inject_virtual_options(videos: &mut Vec<FormatOption>, audios: &mut Vec<Forma
         mkv.codec = "mkv_merge".into();
         videos.insert(0, mkv);
     }
-    // Offer the full set of audio-extraction targets (MP3/M4A/Opus/AAC/FLAC/WAV)
-    // whenever there's any content — yt-dlp can extract audio even from sources
-    // that only expose combined (muxed) formats, so the audio tab is never empty.
-    if !videos.is_empty() || !audios.is_empty() {
-        let mut combined = audio_convert_options();
-        combined.append(audios); // real audio-only streams (if any) listed after
-        *audios = combined;
+    // Audio tab strategy:
+    // - When the source exposes real audio-only streams, keep them as-is and just
+    //   prepend a single MP3 "convert" shortcut on top (lean, like before).
+    // - When there's no separate audio track (muxed-only sources), there's nothing
+    //   to list, so we offer the full extraction set (MP3/M4A/Opus/AAC/FLAC/WAV).
+    //   The GUI detects this case (all rows are virtual converts) and shows a note.
+    if audios.is_empty() {
+        if !videos.is_empty() {
+            *audios = audio_convert_options();
+        }
+    } else if let Some(mp3) = audio_convert_options().into_iter().next() {
+        audios.insert(0, mp3);
     }
 }
 
