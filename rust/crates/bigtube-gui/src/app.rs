@@ -3253,7 +3253,9 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
                 }
                 Err(e) => {
                     state.update_search_empty();
-                    state.toast(&e);
+                    // The core returns a known English message; translate it via
+                    // the catalog (tr() returns the input unchanged if unknown).
+                    state.toast(&tr(&e));
                 }
             }
         }
