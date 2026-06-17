@@ -791,31 +791,45 @@ fn inject_virtual_options(videos: &mut Vec<FormatOption>, audios: &mut Vec<Forma
         mkv.codec = "mkv_merge".into();
         videos.insert(0, mkv);
     }
-    if let Some(best) = audios.first().cloned() {
-        let mut mp3 = best.clone();
-        mp3.id = "bestaudio/best".into();
-        mp3.label = "Audio MP3 (Convert)".into();
-        mp3.ext = FileExt::Mp3.as_value().into();
-        mp3.codec = "mp3_convert".into();
-        mp3.quality = 999.0;
-        audios.insert(0, mp3);
-    } else if !videos.is_empty() {
-        // Some sources expose only combined (muxed) formats — no standalone
-        // audio stream — so nothing landed in `audios`. yt-dlp can still extract
-        // the audio track, so always offer an MP3 extraction option.
-        audios.push(FormatOption {
+    // Offer the full set of audio-extraction targets (MP3/M4A/Opus/AAC/FLAC/WAV)
+    // whenever there's any content — yt-dlp can extract audio even from sources
+    // that only expose combined (muxed) formats, so the audio tab is never empty.
+    if !videos.is_empty() || !audios.is_empty() {
+        let mut combined = audio_convert_options();
+        combined.append(audios); // real audio-only streams (if any) listed after
+        *audios = combined;
+    }
+}
+
+/// Virtual "extract & convert audio" rows, one per supported target format.
+/// All use `bestaudio/best`; the downloader adds `--extract-audio --audio-format
+/// <ext>` from each row's `ext`. Ordered lossy-common first, lossless last.
+fn audio_convert_options() -> Vec<FormatOption> {
+    const TARGETS: [(&str, &str); 6] = [
+        ("MP3", "mp3"),
+        ("M4A", "m4a"),
+        ("Opus", "opus"),
+        ("AAC", "aac"),
+        ("FLAC", "flac"),
+        ("WAV", "wav"),
+    ];
+    TARGETS
+        .iter()
+        .enumerate()
+        .map(|(i, (name, ext))| FormatOption {
             id: "bestaudio/best".into(),
-            label: "Audio MP3 (Convert)".into(),
-            ext: FileExt::Mp3.as_value().into(),
+            label: format!("Audio {name} (Convert)"),
+            ext: (*ext).into(),
             size: "? MB".into(),
             size_val: 0.0,
-            codec: "mp3_convert".into(),
+            codec: format!("{ext}_convert"),
             kind: "audio".into(),
             resolution: 0,
             fps: 0,
-            quality: 999.0,
-        });
-    }
+            // Descending so they keep this order above the real streams.
+            quality: 999.0 - i as f64,
+        })
+        .collect()
 }
 
 fn dedupe(items: &mut Vec<FormatOption>) {
