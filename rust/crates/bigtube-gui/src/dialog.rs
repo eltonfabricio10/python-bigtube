@@ -83,7 +83,7 @@ pub fn show(
         content.append(&video);
         count += info.videos.len();
         if !info.audios.is_empty() {
-            let audio = make_group(tr("Audio Only"), audio_desc, &info.audios);
+            let audio = make_group(tr("Audio Formats"), audio_desc, &info.audios);
             audio.set_valign(gtk::Align::Start);
             audio.set_hexpand(true);
             content.append(&audio);
@@ -91,7 +91,7 @@ pub fn show(
         }
     } else if !info.audios.is_empty() {
         // Audio-only source (YouTube Music): single audio column.
-        let audio = make_group(tr("Audio Only"), audio_desc, &info.audios);
+        let audio = make_group(tr("Audio Formats"), audio_desc, &info.audios);
         audio.set_hexpand(true);
         content.append(&audio);
         count += info.audios.len();

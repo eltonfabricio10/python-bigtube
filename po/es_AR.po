@@ -1619,3 +1619,7 @@ msgstr "Resolviendo formato…"
 #: bigtube-gui
 msgid "Scheduled for:"
 msgstr "Programado para:"
+
+#: bigtube-gui
+msgid "Audio Formats"
+msgstr "Formatos de audio"

@@ -1619,3 +1619,7 @@ msgstr "Zjišťování formátu…"
 #: bigtube-gui
 msgid "Scheduled for:"
 msgstr "Naplánováno na:"
+
+#: bigtube-gui
+msgid "Audio Formats"
+msgstr "Zvukové formáty"

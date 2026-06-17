@@ -1619,3 +1619,7 @@ msgstr "Formátum feloldása…"
 #: bigtube-gui
 msgid "Scheduled for:"
 msgstr "Ütemezve ekkorra:"
+
+#: bigtube-gui
+msgid "Audio Formats"
+msgstr "Hangformátumok"
