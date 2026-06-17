@@ -1671,3 +1671,7 @@ msgstr "Comando não encontrado no PATH:"
 #: bigtube-gui
 msgid "This source has no separate audio track. The options below extract and convert its audio."
 msgstr "Esta fonte não tem faixa de áudio separada. As opções abaixo extraem e convertem o áudio."
+
+#: bigtube-gui
+msgid "Best available quality"
+msgstr "Melhor qualidade disponível"

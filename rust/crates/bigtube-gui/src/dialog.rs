@@ -123,9 +123,16 @@ fn format_row(
     on_schedule: &ScheduleFn,
     picked: &Rc<Cell<bool>>,
 ) -> adw::ActionRow {
+    // Virtual "convert" rows have no real size/codec ("? MB • mp3_convert"),
+    // which reads as broken — show a meaningful note instead.
+    let subtitle = if f.codec.ends_with("_convert") {
+        tr("Best available quality")
+    } else {
+        format!("{} • {}", f.size, f.codec)
+    };
     let row = adw::ActionRow::builder()
         .title(&f.label)
-        .subtitle(format!("{} • {}", f.size, f.codec))
+        .subtitle(subtitle)
         .build();
 
     let suffix = gtk::Box::new(gtk::Orientation::Horizontal, 6);

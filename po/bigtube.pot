@@ -1589,3 +1589,7 @@ msgstr ""
 #: bigtube-gui
 msgid "This source has no separate audio track. The options below extract and convert its audio."
 msgstr ""
+
+#: bigtube-gui
+msgid "Best available quality"
+msgstr ""
