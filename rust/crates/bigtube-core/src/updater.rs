@@ -13,6 +13,47 @@ use std::time::Duration;
 const YT_DLP_URL: &str = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux";
 const DENO_URL: &str =
     "https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip";
+const YT_DLP_LATEST_API: &str = "https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest";
+
+/// Outcome of a startup update check for yt-dlp.
+#[derive(Debug, Default, Clone)]
+pub struct UpdateCheck {
+    pub local: Option<String>,
+    pub latest: Option<String>,
+}
+
+impl UpdateCheck {
+    /// True only when both versions are known, valid, and differ — so a flaky
+    /// network or a missing binary never produces a false "update available".
+    pub fn update_available(&self) -> bool {
+        match (self.local.as_deref(), self.latest.as_deref()) {
+            (Some(local), Some(latest)) => {
+                !latest.is_empty() && !matches!(local, "" | "Unknown" | "Error") && local != latest
+            }
+            _ => false,
+        }
+    }
+}
+
+/// Compare the installed yt-dlp version against the latest GitHub release.
+/// Best-effort and blocking — run off the UI thread.
+pub fn check_yt_dlp_update(yt_dlp_path: &Path) -> UpdateCheck {
+    UpdateCheck {
+        local: get_local_version(yt_dlp_path),
+        latest: latest_yt_dlp_version(),
+    }
+}
+
+/// Latest yt-dlp version tag from GitHub's release API (e.g. "2024.08.06"),
+/// which matches `yt-dlp --version`. `None` on any network/parse error.
+pub fn latest_yt_dlp_version() -> Option<String> {
+    let bytes = download(YT_DLP_LATEST_API, Duration::from_secs(15)).ok()?;
+    let json: serde_json::Value = serde_json::from_slice(&bytes).ok()?;
+    json.get("tag_name")
+        .and_then(|v| v.as_str())
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+}
 
 /// Query the local yt-dlp binary's version (`get_local_version`).
 /// `None` if missing; `"Unknown"`/`"Error"` mirror the Python sentinels.
@@ -97,6 +138,8 @@ fn download(url: &str, timeout: Duration) -> std::io::Result<Vec<u8>> {
     let agent = ureq::AgentBuilder::new().timeout(timeout).build();
     let resp = agent
         .get(url)
+        // GitHub's API rejects requests without a User-Agent (HTTP 403).
+        .set("User-Agent", "bigtube")
         .call()
         .map_err(|e| std::io::Error::other(e.to_string()))?;
     let mut buf = Vec::new();
@@ -135,4 +178,31 @@ fn set_executable(path: &Path) -> std::io::Result<()> {
 #[cfg(not(unix))]
 fn set_executable(_path: &Path) -> std::io::Result<()> {
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::UpdateCheck;
+
+    fn check(local: Option<&str>, latest: Option<&str>) -> UpdateCheck {
+        UpdateCheck {
+            local: local.map(str::to_string),
+            latest: latest.map(str::to_string),
+        }
+    }
+
+    #[test]
+    fn update_available_only_when_versions_differ_and_valid() {
+        // Different valid versions → update available.
+        assert!(check(Some("2024.01.01"), Some("2024.08.06")).update_available());
+        // Same version → none.
+        assert!(!check(Some("2024.08.06"), Some("2024.08.06")).update_available());
+        // Missing local (not installed) → never (the installer path handles it).
+        assert!(!check(None, Some("2024.08.06")).update_available());
+        // Network failure (no latest) → never a false positive.
+        assert!(!check(Some("2024.01.01"), None).update_available());
+        // Sentinels from a broken local binary → never.
+        assert!(!check(Some("Unknown"), Some("2024.08.06")).update_available());
+        assert!(!check(Some("Error"), Some("2024.08.06")).update_available());
+    }
 }

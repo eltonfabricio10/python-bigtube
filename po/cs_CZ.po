@@ -1677,3 +1677,21 @@ msgstr "Nejlepší"
 #. bigtube-gui
 msgid "Convert to"
 msgstr "Převést na"
+
+#. bigtube-gui
+msgid "Check for Updates on Startup"
+msgstr "Kontrolovat aktualizace při spuštění"
+
+#. bigtube-gui
+msgid ""
+"On launch, download missing components and notify if yt-dlp has an update"
+msgstr ""
+"Při spuštění stáhne chybějící komponenty a upozorní na aktualizaci yt-dlp"
+
+#. bigtube-gui
+msgid "Components installed successfully! ✅"
+msgstr "Komponenty úspěšně nainstalovány! ✅"
+
+#. bigtube-gui
+msgid "yt-dlp update available"
+msgstr "Dostupná aktualizace yt-dlp"

@@ -359,8 +359,9 @@ fn build_defaults() -> Map<String, Value> {
     m.insert("converter_path".into(), json!(converted.to_string_lossy()));
     m.insert("use_source_folder".into(), json!(false));
     m.insert("monitor_clipboard".into(), json!(false));
-    m.insert("concurrent_fragments".into(), json!(4));
+    m.insert("concurrent_fragments".into(), json!(16));
     m.insert("rate_limit".into(), json!(0));
+    m.insert("check_updates_on_startup".into(), json!(true));
     m.insert("system_notifications".into(), json!(true));
     m.insert("post_process_cmd".into(), json!(""));
     m.insert("cookies_file".into(), json!(""));

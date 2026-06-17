@@ -1680,3 +1680,22 @@ msgstr "Legjobb"
 #. bigtube-gui
 msgid "Convert to"
 msgstr "Átalakítás erre:"
+
+#. bigtube-gui
+msgid "Check for Updates on Startup"
+msgstr "Frissítések keresése indításkor"
+
+#. bigtube-gui
+msgid ""
+"On launch, download missing components and notify if yt-dlp has an update"
+msgstr ""
+"Indításkor letölti a hiányzó összetevőket, és értesít, ha van yt-dlp "
+"frissítés"
+
+#. bigtube-gui
+msgid "Components installed successfully! ✅"
+msgstr "Az összetevők sikeresen telepítve! ✅"
+
+#. bigtube-gui
+msgid "yt-dlp update available"
+msgstr "Elérhető yt-dlp frissítés"

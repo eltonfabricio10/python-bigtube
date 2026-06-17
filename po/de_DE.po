@@ -1685,3 +1685,22 @@ msgstr "Beste"
 #. bigtube-gui
 msgid "Convert to"
 msgstr "Konvertieren zu"
+
+#. bigtube-gui
+msgid "Check for Updates on Startup"
+msgstr "Beim Start nach Updates suchen"
+
+#. bigtube-gui
+msgid ""
+"On launch, download missing components and notify if yt-dlp has an update"
+msgstr ""
+"Beim Start fehlende Komponenten herunterladen und bei yt-dlp-Update "
+"benachrichtigen"
+
+#. bigtube-gui
+msgid "Components installed successfully! ✅"
+msgstr "Komponenten erfolgreich installiert! ✅"
+
+#. bigtube-gui
+msgid "yt-dlp update available"
+msgstr "yt-dlp-Update verfügbar"

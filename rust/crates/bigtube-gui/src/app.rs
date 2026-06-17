@@ -762,7 +762,54 @@ pub fn build_window(app: &adw::Application) {
     // Always run the monitor; it honours the live `monitor_clipboard` setting.
     start_clipboard_monitor(&state);
 
+    // Optional background check: install missing components and flag a yt-dlp
+    // update. Off the UI thread so it never delays the window appearing.
+    start_update_check(&state);
+
     window.present();
+}
+
+/// On launch (when `check_updates_on_startup` is on), make sure yt-dlp/deno are
+/// present and notify if a newer yt-dlp exists. Fully background — startup is
+/// never blocked, and any network failure is silent.
+fn start_update_check(state: &Rc<AppState>) {
+    if !config::global()
+        .read()
+        .unwrap()
+        .get_bool("check_updates_on_startup")
+    {
+        return;
+    }
+    let (yt_dlp, deno) = {
+        let c = config::global().read().unwrap();
+        (c.yt_dlp_path.clone(), c.deno_path.clone())
+    };
+
+    struct UpdateMsg {
+        installed: bool,
+        check: bigtube_core::updater::UpdateCheck,
+    }
+    let (tx, rx) = async_channel::bounded::<UpdateMsg>(1);
+    std::thread::spawn(move || {
+        // Download whichever binary is missing first (fresh install), then
+        // compare the installed yt-dlp against the latest release.
+        let installed = !yt_dlp.exists() || !deno.exists();
+        bigtube_core::updater::ensure_exists(&yt_dlp, &deno);
+        let check = bigtube_core::updater::check_yt_dlp_update(&yt_dlp);
+        let _ = tx.send_blocking(UpdateMsg { installed, check });
+    });
+
+    let state = state.clone();
+    glib::spawn_future_local(async move {
+        if let Ok(msg) = rx.recv().await {
+            if msg.installed {
+                state.toast(&tr("Components installed successfully! ✅"));
+            } else if msg.check.update_available() {
+                let latest = msg.check.latest.unwrap_or_default();
+                state.toast(&format!("{} ({latest})", tr("yt-dlp update available")));
+            }
+        }
+    });
 }
 
 /// Register the app-scoped `about` / `quit` actions used by the primary menu.
@@ -1402,6 +1449,7 @@ fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
             download_path: cfg.get_string("download_path"),
             max_concurrent: cfg.get_i64("max_concurrent_downloads"),
             concurrent_fragments: cfg.get_i64("concurrent_fragments"),
+            check_updates_on_startup: cfg.get_bool("check_updates_on_startup"),
             rate_limit: cfg.get_i64("rate_limit"),
             add_metadata: cfg.get_bool("add_metadata"),
             subtitle_mode: cfg.get_string("subtitle_mode"),
@@ -1447,6 +1495,7 @@ struct Cfg {
     download_path: String,
     max_concurrent: i64,
     concurrent_fragments: i64,
+    check_updates_on_startup: bool,
     rate_limit: i64,
     add_metadata: bool,
     subtitle_mode: String,
@@ -1552,6 +1601,13 @@ fn build_appearance_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGrou
             run_update(&state, &version_row, btn.clone());
         });
     }
+
+    group.add(&switch_row(
+        &tr("Check for Updates on Startup"),
+        &tr("On launch, download missing components and notify if yt-dlp has an update"),
+        c.check_updates_on_startup,
+        |v| set_cfg("check_updates_on_startup", serde_json::json!(v)),
+    ));
 
     group
 }
