@@ -16,6 +16,26 @@
 
 ---
 
+## 📸 Capturas de Tela
+
+<p align="center">
+  <img src="screenshots/01-main.png" alt="BigTube — Gerenciador de Busca" width="80%">
+</p>
+
+<p align="center">
+  <img src="screenshots/04-formats.png" alt="Seletor de qualidade de vídeo e áudio lado a lado" width="48%">
+  &nbsp;
+  <img src="screenshots/02-settings.png" alt="Configurações" width="48%">
+</p>
+
+<p align="center">
+  <img src="screenshots/03-converter.png" alt="Conversor de mídia integrado" width="48%">
+  &nbsp;
+  <img src="screenshots/05-donations.png" alt="Janela de Doações" width="30%">
+</p>
+
+---
+
 ## ✨ Funcionalidades
 
 ### 🔍 Busca & Descoberta
@@ -87,6 +107,22 @@ yay -S bigtube-bin
 paru -S bigtube-bin
 ```
 > O binário fornece e substitui o antigo pacote `bigtube` (`provides=bigtube`, `conflicts=bigtube`).
+
+### Flatpak — qualquer distribuição Linux
+O Flatpak empacota o GTK4/libadwaita corretos, o GStreamer **e** uma build do
+`ffmpeg`, então roda igual em qualquer distro (Ubuntu, Fedora, Debian, openSUSE,
+Arch, …), independentemente das versões das bibliotecas do sistema.
+
+```bash
+# Compilar e instalar localmente a partir do manifesto
+flatpak install flathub org.gnome.Platform//47 org.gnome.Sdk//47 \
+    org.freedesktop.Sdk.Extension.rust-stable//24.08
+flatpak-builder --user --install --force-clean build-dir flatpak/org.big.bigtube.yaml
+flatpak run org.big.bigtube
+```
+
+> O CI gera um pacote `bigtube.flatpak` a cada alteração (workflow **Flatpak**).
+> A publicação no Flathub está planejada para instalação com um único comando.
 
 ### Compilando do código-fonte (Cargo)
 Requer o toolchain Rust (`rustup`) e as dependências de sistema listadas abaixo.

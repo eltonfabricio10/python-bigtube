@@ -20,6 +20,14 @@ use crate::i18n::tr;
 use crate::objects::VideoObject;
 use crate::row::{RowAction, SearchResultRow};
 
+/// Translate, then escape Pango markup. Widgets like `AdwPreferencesGroup` and
+/// `AdwActionRow` render their title with markup enabled, so a raw `&` (valid in
+/// English source strings such as "Network & Advanced") breaks rendering. This
+/// keeps those titles correct in every locale.
+fn tr_markup(s: &str) -> String {
+    glib::markup_escape_text(&tr(s)).to_string()
+}
+
 /// One visible download (a row in the Downloads list).
 #[derive(Clone)]
 struct DownloadRow {
@@ -1048,7 +1056,7 @@ fn show_donations_dialog(parent: &impl IsA<gtk::Window>) {
 
     // "Pix Copia e Cola" — copy the full BR Code for apps that paste it.
     let copia = adw::ActionRow::builder()
-        .title(tr("Pix Copy & Paste"))
+        .title(tr_markup("Pix Copy & Paste"))
         .build();
     let copy_code = gtk::Button::with_label(&tr("Copy"));
     copy_code.add_css_class("flat");
@@ -2039,7 +2047,7 @@ fn build_playback_group(_state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
 /// Network, authentication and advanced (cookies, proxy, UA, post-processing).
 fn build_network_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
     let group = adw::PreferencesGroup::builder()
-        .title(tr("Network & Advanced"))
+        .title(tr_markup("Network & Advanced"))
         .build();
 
     // Cookies file.

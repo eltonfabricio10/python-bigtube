@@ -1,0 +1,36 @@
+name: Flatpak
+
+# Builds a Flatpak bundle so BigTube can be installed on any Linux distro that
+# has Flatpak, regardless of its system GTK4/libadwaita versions. Runs on changes
+# that affect the package and can be triggered manually.
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'flatpak/**'
+      - 'rust/**'
+      - 'po/**'
+      - 'src/bigtube/data/**'
+      - '.github/workflows/flatpak.yml'
+  pull_request:
+    paths:
+      - 'flatpak/**'
+      - '.github/workflows/flatpak.yml'
+  workflow_dispatch:
+
+jobs:
+  flatpak:
+    name: Build Flatpak bundle
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-47
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build
+        uses: flathub-infra/flatpak-github-actions/flatpak-builder@master
+        with:
+          bundle: bigtube.flatpak
+          manifest-path: flatpak/org.big.bigtube.yaml
+          cache-key: flatpak-builder-${{ github.sha }}

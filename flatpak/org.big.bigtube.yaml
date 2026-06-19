@@ -1,0 +1,99 @@
+# Flatpak manifest for BigTube — Universal Multimedia Downloader.
+#
+# Local build (development):
+#   flatpak install flathub org.gnome.Platform//47 org.gnome.Sdk//47 \
+#       org.freedesktop.Sdk.Extension.rust-stable//24.08
+#   flatpak-builder --user --install --force-clean build-dir flatpak/org.big.bigtube.yaml
+#   flatpak run org.big.bigtube
+#
+# The bigtube module fetches crates from the network at build time, which the
+# local flatpak-builder allows. For a Flathub submission this must be made
+# offline by vendoring Cargo dependencies with flatpak-cargo-generator
+# (generates cargo-sources.json from rust/Cargo.lock) and adding it to the
+# module sources with `--offline` cargo flags.
+id: org.big.bigtube
+runtime: org.gnome.Platform
+runtime-version: '47'
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+command: bigtube-gui
+
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --socket=pulseaudio
+  - --device=dri
+  # Default download location used by the app (~/Downloads/BigTube).
+  - --filesystem=xdg-download
+  - --filesystem=xdg-videos
+  - --filesystem=xdg-music
+
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /share/man
+  - '*.a'
+  - '*.la'
+
+modules:
+  # MP3 encoder, needed by yt-dlp/ffmpeg for audio extraction to MP3.
+  - name: lame
+    sources:
+      - type: archive
+        url: https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz
+        sha256: ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e
+    config-opts:
+      - --disable-static
+      - --enable-nasm
+      - --disable-frontend
+
+  # ffmpeg CLI — yt-dlp uses it to merge streams and extract/convert audio.
+  # (The GNOME runtime ships ffmpeg libraries but not the command-line tool.)
+  - name: ffmpeg
+    sources:
+      - type: archive
+        url: https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz
+        sha256: 40973d44970dbc83ef302b0609f2e74982be2d85916dd2ee7472d30678a7abe6
+    config-opts:
+      - --disable-static
+      - --enable-shared
+      - --disable-doc
+      - --disable-debug
+      - --enable-gpl
+      - --enable-libmp3lame
+      - --enable-encoder=aac
+      - --enable-encoder=opus
+
+  - name: bigtube
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/rust-stable/bin
+      env:
+        CARGO_HOME: /run/build/bigtube/cargo
+      # Cargo needs network to fetch crates for a local (non-Flathub) build.
+      build-args:
+        - --share=network
+    build-commands:
+      - cargo build --release --manifest-path rust/Cargo.toml -p bigtube-gui -p bigtube-cli
+      - install -Dm755 rust/target/release/bigtube-gui /app/bin/bigtube-gui
+      - install -Dm755 rust/target/release/bigtube /app/bin/bigtube
+      - install -Dm644 src/bigtube/data/org.big.bigtube.desktop /app/share/applications/org.big.bigtube.desktop
+      - install -Dm644 src/bigtube/data/org.big.bigtube.metainfo.xml /app/share/metainfo/org.big.bigtube.metainfo.xml
+      - install -Dm644 src/bigtube/data/bigtube.svg /app/share/icons/hicolor/scalable/apps/bigtube.svg
+      - install -Dm644 src/bigtube/data/bigtube.png /app/share/icons/hicolor/256x256/apps/bigtube.png
+      # Compile translations shipped in po/ into the app's locale tree.
+      - |
+        for po in po/*.po; do
+          [ -e "$po" ] || continue
+          lang=$(basename "$po" .po)
+          install -d "/app/share/locale/$lang/LC_MESSAGES"
+          msgfmt "$po" -o "/app/share/locale/$lang/LC_MESSAGES/bigtube.mo"
+        done
+    sources:
+      # Local working tree. For Flathub, replace with a `type: git` source
+      # pinned to a tagged commit.
+      - type: dir
+        path: ..
