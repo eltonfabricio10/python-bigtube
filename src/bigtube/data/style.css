@@ -1033,9 +1033,11 @@ button:focus:not(:focus-visible) {
 }
 .busy-card {
     padding: 10px 6px;
-    /* Opaque card so the dimmed scrim never bleeds through the content. */
-    background-color: var(--card-bg-color);
-    color: var(--card-fg-color);
+    /* Use an OPAQUE surface colour: libadwaita's card_bg_color is translucent
+       (meant to sit on the window bg), so over the dark scrim it looks see-
+       through. window_bg_color is solid in both light and dark themes. */
+    background-color: @window_bg_color;
+    color: @window_fg_color;
     border-radius: 14px;
     box-shadow: 0 2px 12px alpha(black, 0.4);
 }
