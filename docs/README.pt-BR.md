@@ -108,22 +108,6 @@ paru -S bigtube-bin
 ```
 > O binário fornece e substitui o antigo pacote `bigtube` (`provides=bigtube`, `conflicts=bigtube`).
 
-### Flatpak — qualquer distribuição Linux
-O Flatpak empacota o GTK4/libadwaita corretos, o GStreamer **e** uma build do
-`ffmpeg`, então roda igual em qualquer distro (Ubuntu, Fedora, Debian, openSUSE,
-Arch, …), independentemente das versões das bibliotecas do sistema.
-
-```bash
-# Compilar e instalar localmente a partir do manifesto
-flatpak install flathub org.gnome.Platform//47 org.gnome.Sdk//47 \
-    org.freedesktop.Sdk.Extension.rust-stable//24.08
-flatpak-builder --user --install --force-clean build-dir flatpak/io.github.eltonfabricio10.bigtube.yaml
-flatpak run io.github.eltonfabricio10.bigtube
-```
-
-> O CI gera um pacote `bigtube.flatpak` a cada alteração (workflow **Flatpak**).
-> A publicação no Flathub está planejada para instalação com um único comando.
-
 ### Compilando do código-fonte (Cargo)
 Requer o toolchain Rust (`rustup`) e as dependências de sistema listadas abaixo.
 ```bash

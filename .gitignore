@@ -222,9 +222,3 @@ docs/build/
 # Arquivos de log do sistema
 system.log
 error.log
-
-# Flatpak local build artifacts
-/.flatpak-builder/
-/build-dir/
-/cargo/
-*.flatpak
