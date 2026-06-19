@@ -3402,19 +3402,26 @@ fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
     let state = state.clone();
     glib::spawn_future_local(async move {
         let received = rx.recv().await;
-        state.busy_end();
+        // Keep the busy spinner running until the format dialog is actually on
+        // screen — on slow machines, parsing + building the dialog takes a beat,
+        // and ending "busy" early left a dead gap with no feedback. End it on
+        // each terminal branch instead (right as the dialog/toast appears).
         let info = match received {
             Ok(Ok(info)) => info,
             Ok(Err(StatusCode::BotBlocked)) => {
+                state.busy_end();
                 state.notify_bot_block();
                 return;
             }
             _ => {
+                state.busy_end();
                 state.toast(&tr("No formats found"));
                 return;
             }
         };
         run_download_flow(&state, info, url, title, thumb, uploader, audio_only);
+        // Dialog is built and presented — safe to stop the spinner now.
+        state.busy_end();
     });
 }
 
