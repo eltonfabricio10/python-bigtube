@@ -1039,5 +1039,11 @@ button:focus:not(:focus-visible) {
     background-color: @window_bg_color;
     color: @window_fg_color;
     border-radius: 18px;
+    /* Match the active accent theme with a subtle tinted border. */
+    border: 1px solid alpha(var(--bigtube-accent), 0.45);
     box-shadow: 0 3px 16px alpha(black, 0.45);
+}
+/* Tint the spinner with the current accent so it matches the theme. */
+.busy-card spinner {
+    color: var(--bigtube-accent);
 }
