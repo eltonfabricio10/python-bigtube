@@ -1048,3 +1048,8 @@ button:focus:not(:focus-visible) {
 .busy-card spinner {
     color: var(--bigtube-accent);
 }
+/* Message text follows the theme's window foreground (explicit so a title-*
+   style class can't override it). */
+.busy-card label {
+    color: var(--window-fg-color, @window_fg_color);
+}
