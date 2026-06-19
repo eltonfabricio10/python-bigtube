@@ -1033,11 +1033,12 @@ button:focus:not(:focus-visible) {
 }
 .busy-card {
     padding: 14px 8px;
-    /* Use an OPAQUE surface colour: libadwaita's card_bg_color is translucent
-       (meant to sit on the window bg), so over the dark scrim it looks see-
-       through. window_bg_color is solid in both light and dark themes. */
-    background-color: @window_bg_color;
-    color: @window_fg_color;
+    /* Match the theme's WINDOW background (opaque). The custom themes set
+       --window-bg-color; the default/standard accents don't, so fall back to
+       libadwaita's @window_bg_color (also opaque) — never the translucent
+       card_bg_color, which would let the dark scrim bleed through. */
+    background-color: var(--window-bg-color, @window_bg_color);
+    color: var(--window-fg-color, @window_fg_color);
     border-radius: 18px;
     /* Match the active accent theme with a subtle tinted border. */
     border: 1px solid alpha(var(--bigtube-accent), 0.45);
