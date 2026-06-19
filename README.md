@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <b>English</b> · <a href="docs/README.pt-BR.md">Português (BR)</a>
+  <b>English</b> · <a href="docs/README.pt-BR.md">Português (BR)</a> · <a href="docs/README.es.md">Español</a> · <a href="docs/README.fr.md">Français</a>
 </p>
 
 # 🎬 BigTube
