@@ -11,8 +11,8 @@ Este documento descreve a estrutura do projeto, como rodar testes e lint, e conv
 ## Configuração do ambiente
 
 ```bash
-git clone https://github.com/eltonfabricio10/python-bigtube.git
-cd python-bigtube
+git clone https://github.com/eltonfabricio10/bigtube.git
+cd bigtube
 poetry install
 ```
 

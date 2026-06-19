@@ -869,8 +869,8 @@ fn setup_app_actions(app: &adw::Application) {
                 .developer_name("Elton Fabricio a.k.a eltonff")
                 .version(env!("CARGO_PKG_VERSION"))
                 .license_type(gtk::License::MitX11)
-                .website("https://github.com/eltonfabricio10/python-bigtube")
-                .issue_url("https://github.com/eltonfabricio10/python-bigtube/issues")
+                .website("https://github.com/eltonfabricio10/bigtube")
+                .issue_url("https://github.com/eltonfabricio10/bigtube/issues")
                 .build();
             dialog.present(app.active_window().as_ref());
         });

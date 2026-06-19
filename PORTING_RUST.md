@@ -1,6 +1,6 @@
 # BigTube → Rust: Análise Profunda e Plano de Port
 
-> Documento de análise técnica do projeto **python-bigtube** (v2.0.63) com vistas a um
+> Documento de análise técnica do projeto **bigtube** (v2.0.63) com vistas a um
 > reescrita em Rust. Cobre arquitetura, dependências, pontos de atrito e um plano de
 > migração faseado. Gerado em 2026-06-13.
 

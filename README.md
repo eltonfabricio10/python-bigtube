@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/eltonfabricio10/python-bigtube/main/assets/banner.png" alt="BigTube Banner" width="100%">
+  <img src="https://raw.githubusercontent.com/eltonfabricio10/bigtube/main/assets/banner.png" alt="BigTube Banner" width="100%">
 </p>
 
 # 🎬 BigTube
@@ -88,8 +88,8 @@ paru -S bigtube-bin
 Requer o toolchain Rust (`rustup`) e as dependências de sistema listadas abaixo.
 ```bash
 # Clone o repositório
-git clone https://github.com/eltonfabricio10/python-bigtube.git
-cd python-bigtube/rust
+git clone https://github.com/eltonfabricio10/bigtube.git
+cd bigtube/rust
 
 # Compile em modo release
 cargo build --release --locked

@@ -4,12 +4,12 @@
 # a GitHub Release asset, so installing does NOT compile anything on the user's
 # machine.
 pkgname=bigtube-bin
-_pkgname=python-bigtube
+_pkgname=bigtube
 pkgver=2.1.71
 pkgrel=1
 pkgdesc="Universal Multimedia Downloader (GTK4/libadwaita + GStreamer)"
 arch=('x86_64')
-url="https://github.com/eltonfabricio10/python-bigtube"
+url="https://github.com/eltonfabricio10/bigtube"
 license=('MIT')
 depends=('gtk4' 'libadwaita' 'gstreamer' 'gst-plugins-base' 'gst-plugins-good'
          'gst-plugins-bad' 'gst-plugin-gtk4' 'yt-dlp')
