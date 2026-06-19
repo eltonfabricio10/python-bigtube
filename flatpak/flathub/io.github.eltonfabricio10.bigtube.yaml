@@ -88,6 +88,6 @@ modules:
     sources:
       - type: git
         url: https://github.com/eltonfabricio10/bigtube.git
-        tag: v2.1.77
-        commit: debe3b5d2cd40426c2d5d3db2252a879369586a8
+        tag: v2.1.79
+        commit: 80b82a9a9fd9730edc2e7124b2647cf98d439808
       - cargo-sources.json
