@@ -1032,12 +1032,12 @@ button:focus:not(:focus-visible) {
     background-color: alpha(black, 0.45);
 }
 .busy-card {
-    padding: 10px 6px;
+    padding: 18px 10px;
     /* Use an OPAQUE surface colour: libadwaita's card_bg_color is translucent
        (meant to sit on the window bg), so over the dark scrim it looks see-
        through. window_bg_color is solid in both light and dark themes. */
     background-color: @window_bg_color;
     color: @window_fg_color;
-    border-radius: 14px;
-    box-shadow: 0 2px 12px alpha(black, 0.4);
+    border-radius: 18px;
+    box-shadow: 0 3px 16px alpha(black, 0.45);
 }
