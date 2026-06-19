@@ -642,7 +642,9 @@ pub fn build_window(app: &adw::Application) {
         let card = gtk::Box::new(gtk::Orientation::Vertical, 14);
         card.set_halign(gtk::Align::Center);
         card.set_valign(gtk::Align::Center);
-        card.add_css_class("card");
+        // In a vertical box a single child packs to the TOP; vexpand gives the
+        // card the full height so valign=Center actually centers it vertically.
+        card.set_vexpand(true);
         card.add_css_class("busy-card");
         state.busy_spinner.set_size_request(40, 40);
         state.busy_spinner.set_margin_top(28);

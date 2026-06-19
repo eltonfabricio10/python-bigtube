@@ -1032,5 +1032,10 @@ button:focus:not(:focus-visible) {
     background-color: alpha(black, 0.45);
 }
 .busy-card {
-    padding: 8px 4px;
+    padding: 10px 6px;
+    /* Opaque card so the dimmed scrim never bleeds through the content. */
+    background-color: var(--card-bg-color);
+    color: var(--card-fg-color);
+    border-radius: 14px;
+    box-shadow: 0 2px 12px alpha(black, 0.4);
 }
