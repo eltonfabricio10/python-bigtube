@@ -300,6 +300,22 @@ Contribuições são bem-vindas! Sinta-se à vontade para:
 
 ---
 
+## 💖 Apoie o Projeto
+
+Se o **BigTube** é útil para você, considere apoiar o desenvolvimento. Qualquer ajuda é muito bem-vinda! ❤️
+
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub-Sponsors-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/eltonfabricio10)
+
+**PIX** (chave aleatória):
+
+```
+a30c24f3-490f-424b-93d3-f1181380bc30
+```
+
+> Dica: você também encontra essas opções dentro do app, em **Menu → Doações** (com QR Code do PIX e "Copia e Cola").
+
+---
+
 ## 📄 Licença
 
 Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
