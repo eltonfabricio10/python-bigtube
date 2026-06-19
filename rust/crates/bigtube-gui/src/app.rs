@@ -893,7 +893,10 @@ fn setup_app_actions(app: &adw::Application) {
 const PIX_KEY: &str = "a30c24f3-490f-424b-93d3-f1181380bc30";
 /// Online donation links. Leave a URL empty to hide that row until it's set.
 const DONATE_LINKS: &[(&str, &str)] = &[
-    ("GitHub Sponsors", "https://github.com/sponsors/eltonfabricio10"),
+    (
+        "GitHub Sponsors",
+        "https://github.com/sponsors/eltonfabricio10",
+    ),
     ("Ko-fi", ""),
     ("PayPal", ""),
 ];
