@@ -1,0 +1,45 @@
+name: Flathub offline build
+
+# Validates the Flathub manifest exactly like Flathub's buildbot: flatpak-builder
+# runs with --sandbox, which forbids build-time network access. The build only
+# succeeds if every Rust crate is present in the vendored cargo-sources.json, so
+# this proves the offline manifest is complete and reproducible before opening a
+# Flathub PR. Heavy (compiles ffmpeg + the app), so it only runs on changes to
+# the Flathub packaging or on demand.
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'flatpak/flathub/**'
+      - '.github/workflows/flathub-check.yml'
+  pull_request:
+    paths:
+      - 'flatpak/flathub/**'
+      - '.github/workflows/flathub-check.yml'
+  workflow_dispatch:
+
+jobs:
+  offline-build:
+    name: Build with --sandbox (no build-time network)
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-47
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Ensure Flathub remote
+        run: |
+          flatpak remote-add --system --if-not-exists \
+            flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+      - name: Build offline
+        run: |
+          flatpak-builder \
+            --sandbox \
+            --disable-rofiles-fuse \
+            --install-deps-from=flathub \
+            --force-clean \
+            --default-branch=ci \
+            build-dir \
+            flatpak/flathub/io.github.eltonfabricio10.bigtube.yaml
