@@ -2,104 +2,108 @@
   <img src="https://raw.githubusercontent.com/eltonfabricio10/bigtube/main/assets/banner.png" alt="BigTube Banner" width="100%">
 </p>
 
+<p align="center">
+  <b>English</b> · <a href="docs/README.pt-BR.md">Português (BR)</a>
+</p>
+
 # 🎬 BigTube
 
-> **O Downloader Multimídia Definitivo para Linux**
+> **The Ultimate Multimedia Downloader for Linux**
 
-**BigTube** é uma aplicação desktop moderna, veloz e elegante, construída em **Rust** com **GTK4**, **Libadwaita** e **GStreamer**. Projetado para quem não aceita menos que a perfeição ao baixar conteúdos da internet, o BigTube transforma a complexidade do `yt-dlp` em uma ferramenta intuitiva e poderosa — agora como um binário nativo, sem dependências de runtime Python.
+**BigTube** is a modern, fast, and elegant desktop application built in **Rust** with **GTK4**, **Libadwaita**, and **GStreamer**. Designed for those who accept nothing less than perfection when downloading content from the internet, BigTube turns the complexity of `yt-dlp` into an intuitive and powerful tool — now as a native binary, with no Python runtime dependencies.
 
-> ℹ️ A partir da versão **2.0**, o BigTube foi reescrito em Rust. O pacote AUR recomendado passou a ser **`bigtube-bin`** (binário pré-compilado). O antigo pacote `bigtube` (Python) foi descontinuado.
-
----
-
-## ✨ Funcionalidades
-
-### 🔍 Busca & Descoberta
-- **Busca integrada do YouTube** - Pesquise vídeos sem abrir o navegador
-- **Busca no YouTube Music** - Encontre músicas, clipes e podcasts
-- **Links Diretos** - Suporte a 400+ sites via URL
-- **Playlists nos resultados** - Buscas no YouTube trazem playlists junto dos vídeos; clique em **Open playlist** para abrir um modal com todos os vídeos, com botões para **Play all**, **Download all** e modo de seleção pra baixar só os marcados
-- **Playlists por link** - Cole um link de playlist do YouTube (`playlist?list=` ou `watch?v=...&list=`) e a busca lista todos os vídeos
-
-### ⬇️ Downloads Avançados
-| Recurso | Descrição |
-|---------|-----------|
-| **Qualidade de Vídeo** | 4K (2160p), 2K (1440p), 1080p, 720p, 480p, 360p, 240p, 144p |
-| **Formatos de Áudio** | MP3, M4A com extração de alta qualidade |
-| **Metadados** | Incorporação automática de tags, álbum e artista |
-| **Legendas** | Download e incorporação de legendas (automáticas + manuais) |
-| **Retomada** | Continuar downloads interrompidos |
-
-### 🔄 Conversor de Mídia
-- Conversão de vídeo para vídeo (MKV, MP4, WebM)
-- Extração e conversão de áudio
-- Mesclagem de legendas
-- Fila de conversão em lote
-- Progresso em tempo real com ETA
-
-### 📺 Player Integrado
-- Motor de reprodução **GStreamer** (nativo, integrado ao GTK4)
-- Prévia de vídeos antes do download
-- Navegação de playlist (Prev / Play-Pause / **Stop** / Next)
-- Janela de vídeo destacável
-
-### 🎨 Personalização de Aparência
-| Modo | Descrição |
-|------|-----------|
-| **Tema** | Claro / Escuro / Seguir Sistema |
-| **Cores** | 10+ esquemas de cores (Padrão, Violeta, Esmeralda, Nordic, Gruvbox, Catppuccin, Dracula, Tokyo Night, Rosé Pine, Solarized, Monokai, Cyberpunk, BigTube Brand) |
-| **Estilo** | Interface Glassmorphism moderna |
-
-### 📊 Gerenciamento
-- Histórico de downloads
-- Histórico de conversões
-- Histórico de buscas
-- Opção de limpar dados automaticamente ao sair
+> ℹ️ As of version **2.0**, BigTube has been rewritten in Rust. The recommended AUR package is now **`bigtube-bin`** (precompiled binary). The old `bigtube` (Python) package has been discontinued.
 
 ---
 
-## 🛠️ Tecnologias
+## ✨ Features
 
-| Tecnologia | Função |
-|------------|--------|
-| **Rust 2021** | Núcleo da aplicação (binário nativo) |
-| **GTK4 + Libadwaita** | Interface nativa GNOME |
-| **GStreamer** | Motor de reprodução |
-| **yt-dlp** | Motor de download |
-| **FFmpeg** | Conversão de mídia |
-| **Cargo** | Build e gerenciamento de dependências |
+### 🔍 Search & Discovery
+- **Built-in YouTube search** - Search for videos without opening a browser
+- **YouTube Music search** - Find songs, music videos, and podcasts
+- **Direct Links** - Support for 400+ sites via URL
+- **Playlists in results** - YouTube searches return playlists alongside videos; click **Open playlist** to open a modal with all videos, with buttons for **Play all**, **Download all**, and a selection mode to download only the checked ones
+- **Playlists by link** - Paste a YouTube playlist link (`playlist?list=` or `watch?v=...&list=`) and the search lists all its videos
 
-> O projeto é um workspace Cargo com três crates: **`bigtube-core`** (lógica/engine), **`bigtube-cli`** (binário headless `bigtube`) e **`bigtube-gui`** (interface gráfica `bigtube-gui`).
+### ⬇️ Advanced Downloads
+| Feature | Description |
+|---------|-------------|
+| **Video Quality** | 4K (2160p), 2K (1440p), 1080p, 720p, 480p, 360p, 240p, 144p |
+| **Audio Formats** | MP3, M4A with high-quality extraction |
+| **Metadata** | Automatic embedding of tags, album, and artist |
+| **Subtitles** | Download and embed subtitles (automatic + manual) |
+| **Resume** | Continue interrupted downloads |
+
+### 🔄 Media Converter
+- Video-to-video conversion (MKV, MP4, WebM)
+- Audio extraction and conversion
+- Subtitle merging
+- Batch conversion queue
+- Real-time progress with ETA
+
+### 📺 Built-in Player
+- **GStreamer** playback engine (native, integrated with GTK4)
+- Video preview before downloading
+- Playlist navigation (Prev / Play-Pause / **Stop** / Next)
+- Detachable video window
+
+### 🎨 Appearance Customization
+| Mode | Description |
+|------|-------------|
+| **Theme** | Light / Dark / Follow System |
+| **Colors** | 10+ color schemes (Default, Violet, Emerald, Nordic, Gruvbox, Catppuccin, Dracula, Tokyo Night, Rosé Pine, Solarized, Monokai, Cyberpunk, BigTube Brand) |
+| **Style** | Modern glassmorphism interface |
+
+### 📊 Management
+- Download history
+- Conversion history
+- Search history
+- Option to automatically clear data on exit
 
 ---
 
-## 🚀 Instalação
+## 🛠️ Technologies
 
-### Arch Linux (AUR) — recomendado
-Pacote binário pré-compilado (`bigtube-bin`): instala rápido, **sem compilar nada** na sua máquina.
+| Technology | Role |
+|------------|------|
+| **Rust 2021** | Application core (native binary) |
+| **GTK4 + Libadwaita** | Native GNOME interface |
+| **GStreamer** | Playback engine |
+| **yt-dlp** | Download engine |
+| **FFmpeg** | Media conversion |
+| **Cargo** | Build and dependency management |
+
+> The project is a Cargo workspace with three crates: **`bigtube-core`** (logic/engine), **`bigtube-cli`** (headless `bigtube` binary), and **`bigtube-gui`** (graphical interface `bigtube-gui`).
+
+---
+
+## 🚀 Installation
+
+### Arch Linux (AUR) — recommended
+Precompiled binary package (`bigtube-bin`): installs fast, **without compiling anything** on your machine.
 ```bash
 yay -S bigtube-bin
-# ou
+# or
 paru -S bigtube-bin
 ```
-> O binário fornece e substitui o antigo pacote `bigtube` (`provides=bigtube`, `conflicts=bigtube`).
+> The binary provides and replaces the old `bigtube` package (`provides=bigtube`, `conflicts=bigtube`).
 
-### Compilando do código-fonte (Cargo)
-Requer o toolchain Rust (`rustup`) e as dependências de sistema listadas abaixo.
+### Building from source (Cargo)
+Requires the Rust toolchain (`rustup`) and the system dependencies listed below.
 ```bash
-# Clone o repositório
+# Clone the repository
 git clone https://github.com/eltonfabricio10/bigtube.git
 cd bigtube/rust
 
-# Compile em modo release
+# Build in release mode
 cargo build --release --locked
 
-# Os binários ficam em rust/target/release/
-./target/release/bigtube-gui      # interface gráfica
-./target/release/bigtube --help   # modo headless (CLI)
+# The binaries end up in rust/target/release/
+./target/release/bigtube-gui      # graphical interface
+./target/release/bigtube --help   # headless mode (CLI)
 ```
 
-Para instalar no sistema a partir do build local:
+To install system-wide from a local build:
 ```bash
 sudo install -Dm755 target/release/bigtube-gui /usr/bin/bigtube-gui
 sudo install -Dm755 target/release/bigtube     /usr/bin/bigtube
@@ -110,163 +114,163 @@ sudo install -Dm644 packaging/org.big.bigtube.desktop /usr/share/applications/or
 
 ---
 
-## ⌨️ Linha de Comando
+## ⌨️ Command Line
 
-O port Rust expõe **dois binários**:
+The Rust port exposes **two binaries**:
 
-| Binário | Função |
-|---------|--------|
-| `bigtube-gui` | Abre a interface gráfica |
-| `bigtube` | Modo headless (download direto pelo terminal, sem GUI) |
+| Binary | Role |
+|--------|------|
+| `bigtube-gui` | Opens the graphical interface |
+| `bigtube` | Headless mode (download directly from the terminal, no GUI) |
 
-### Interface gráfica
+### Graphical interface
 ```bash
-bigtube-gui      # abre a janela do BigTube
+bigtube-gui      # opens the BigTube window
 ```
 
-### Modo headless (`bigtube`)
+### Headless mode (`bigtube`)
 ```bash
-bigtube -d <URL> [opções]
+bigtube -d <URL> [options]
 ```
 
-| Opção | Descrição |
-|-------|-----------|
-| `-d, --download URL` | Baixa a URL direto pelo terminal, sem abrir a janela |
-| `-o, --output DIR` | Pasta de destino do `--download` (padrão: pasta configurada) |
-| `--audio-only` | Com `--download`, extrai áudio em MP3 |
-| `--format FMT` | Com `--download`, seletor de formato customizado do `yt-dlp -f` |
-| `--yt-dlp-version` | Mostra a versão do `yt-dlp` embutido |
-| `--version` | Mostra a versão do BigTube |
-| `--help` | Mostra ajuda |
+| Option | Description |
+|--------|-------------|
+| `-d, --download URL` | Downloads the URL directly from the terminal, without opening the window |
+| `-o, --output DIR` | Destination folder for `--download` (default: configured folder) |
+| `--audio-only` | With `--download`, extracts audio as MP3 |
+| `--format FMT` | With `--download`, custom format selector for `yt-dlp -f` |
+| `--yt-dlp-version` | Shows the bundled `yt-dlp` version |
+| `--version` | Shows the BigTube version |
+| `--help` | Shows help |
 
-### Exemplos
+### Examples
 ```bash
-bigtube-gui                                      # abre a GUI
-bigtube -d https://youtube.com/watch?v=...       # download headless
-bigtube -d <url> -o ~/Music --audio-only         # áudio MP3 headless
-bigtube -d <url> --format "bestvideo+bestaudio"  # formato customizado
+bigtube-gui                                      # opens the GUI
+bigtube -d https://youtube.com/watch?v=...       # headless download
+bigtube -d <url> -o ~/Music --audio-only         # headless MP3 audio
+bigtube -d <url> --format "bestvideo+bestaudio"  # custom format
 ```
 
 ---
 
-## 📁 Estrutura de Diretórios
+## 📁 Directory Structure
 
-| Localização | Conteúdo |
-|-------------|----------|
-| `~/.config/bigtube/` | Configurações e históricos |
-| `~/.config/bigtube/config.json` | Configurações do aplicativo |
-| `~/.config/bigtube/history.json` | Histórico de downloads |
-| `~/.local/share/bigtube/bin/` | Binários (yt-dlp) |
-| `~/.cache/bigtube/thumbnails/` | Cache de miniaturas |
-| `~/Downloads/BigTube/` | Pasta padrão de downloads |
+| Location | Contents |
+|----------|----------|
+| `~/.config/bigtube/` | Settings and histories |
+| `~/.config/bigtube/config.json` | Application settings |
+| `~/.config/bigtube/history.json` | Download history |
+| `~/.local/share/bigtube/bin/` | Binaries (yt-dlp) |
+| `~/.cache/bigtube/thumbnails/` | Thumbnail cache |
+| `~/Downloads/BigTube/` | Default downloads folder |
 
 ---
 
-## ⚙️ Configurações Disponíveis
+## ⚙️ Available Settings
 
-As preferências são salvas em `~/.config/bigtube/config.json`. Quando o arquivo não existe ou está corrompido, o BigTube recria a configuração com os valores padrão. Caminhos vazios ou opções desativadas simplesmente fazem o aplicativo usar o comportamento padrão.
+Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't exist or is corrupted, BigTube recreates the configuration with default values. Empty paths or disabled options simply make the app fall back to default behavior.
 
-### Aparência e componentes
-| Configuração | Padrão | Explicação |
-|--------------|--------|------------|
-| **Tema da interface** | Seguir sistema | Define se a interface usa o tema do sistema, força tema claro ou força tema escuro. |
-| **Esquema de cores** | Default Blue | Altera a paleta/acento visual da interface. Opções: Default Blue, Modern Violet, Emerald Green, Sunburst Orange, Vibrant Rose, Nordic Cyan, Nordic Snow, Gruvbox Retro, Catppuccin Mocha, Dracula Dark, Tokyo Night, Rosé Pine, Solarized Dark, Monokai Pro, Cyberpunk Neon e BigTube Brand. |
-| **Versão atual / atualizar componentes** | Automático | Mostra a versão local do `yt-dlp` e permite atualizar os componentes baixados pelo app, como `yt-dlp` e `deno`, em `~/.local/share/bigtube/bin/`. |
+### Appearance and components
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Interface theme** | Follow system | Defines whether the interface uses the system theme, forces a light theme, or forces a dark theme. |
+| **Color scheme** | Default Blue | Changes the visual palette/accent of the interface. Options: Default Blue, Modern Violet, Emerald Green, Sunburst Orange, Vibrant Rose, Nordic Cyan, Nordic Snow, Gruvbox Retro, Catppuccin Mocha, Dracula Dark, Tokyo Night, Rosé Pine, Solarized Dark, Monokai Pro, Cyberpunk Neon, and BigTube Brand. |
+| **Current version / update components** | Automatic | Shows the local `yt-dlp` version and lets you update the components downloaded by the app, such as `yt-dlp` and `deno`, in `~/.local/share/bigtube/bin/`. |
 
-### Busca
-| Configuração | Padrão | Explicação |
-|--------------|--------|------------|
-| **Salvar histórico de busca** | Ativado | Guarda localmente as pesquisas feitas em `search_history.json`, permitindo reutilizar consultas anteriores. |
-| **Ativar sugestões de busca** | Ativado | Mostra sugestões enquanto você digita, usando o histórico local de buscas. |
-| **Máximo de sugestões** | 10 | Define quantas sugestões podem aparecer por vez. Aceita valores de 1 a 50. |
-| **Limpar histórico de busca** | Ação manual | Remove todas as entradas salvas do histórico de busca. Não apaga arquivos baixados. |
-| **Máximo de resultados de busca** | 15 | Define quantos resultados o BigTube pede ao `yt-dlp` em buscas por texto. Aceita valores de 5 a 100. |
+### Search
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Save search history** | Enabled | Stores your searches locally in `search_history.json`, allowing you to reuse previous queries. |
+| **Enable search suggestions** | Enabled | Shows suggestions as you type, using the local search history. |
+| **Maximum suggestions** | 10 | Defines how many suggestions can appear at once. Accepts values from 1 to 50. |
+| **Clear search history** | Manual action | Removes all saved search history entries. Does not delete downloaded files. |
+| **Maximum search results** | 15 | Defines how many results BigTube requests from `yt-dlp` for text searches. Accepts values from 5 to 100. |
 
 ### Downloads
-| Configuração | Padrão | Explicação |
-|--------------|--------|------------|
-| **Downloads simultâneos** | 3 | Controla quantos vídeos podem baixar ao mesmo tempo. Aceita valores de 1 a 10. |
-| **Pasta de download** | `~/Downloads/BigTube/` | Define onde os arquivos baixados são salvos. O app cria a pasta quando necessário. |
-| **Monitor da área de transferência** | Desativado | Detecta automaticamente links de vídeo copiados para a área de transferência enquanto o app está aberto. |
-| **Notificações do sistema** | Ativado | Controla avisos do sistema para eventos e erros de download. |
-| **Qualidade preferida** | Perguntar sempre | Define o formato padrão para novos downloads. Pode perguntar a cada download, baixar o melhor vídeo, escolher 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p ou baixar somente áudio em MP3/M4A. |
-| **Adicionar metadados** | Desativado | Tenta incorporar artista, álbum, capa e outros metadados aos arquivos baixados. Requer `ffmpeg`; se ele não estiver instalado, o app ignora essa etapa. |
-| **Incorporar legendas** | Desativado | Tenta baixar legendas manuais e automáticas e incorporá-las ao arquivo final. Atualmente procura idiomas `en.*`, `pt.*` e `es.*`. Requer `ffmpeg`. |
-| **Fragmentos simultâneos** | 4 | Define quantos fragmentos paralelos o `yt-dlp` usa por download. Aceita valores de 1 a 16. Valores maiores podem acelerar downloads segmentados, mas também aumentam uso de rede. |
-| **Limite de velocidade** | 0 KB/s | Limita a velocidade do download em KB/s. `0` significa sem limite. |
-| **Comando de pós-processamento** | Vazio | Executa um comando após o download usando `yt-dlp --exec`. Use `{}` no comando para representar o arquivo baixado. |
-| **Arquivo de cookies** | Vazio | Usa um arquivo `cookies.txt` no formato Netscape com `yt-dlp --cookies`, útil para conteúdo que exige sessão autenticada. |
-| **Cookies do navegador** | Nenhum | Importa cookies diretamente de um navegador detectado, como Firefox, Chrome, Chromium, Brave, Microsoft Edge, Vivaldi ou Opera, usando `yt-dlp --cookies-from-browser`. |
-| **User-Agent** | Padrão do BigTube | Sobrescreve o User-Agent enviado ao `yt-dlp`. Se ficar vazio, o app usa um User-Agent seguro baseado em Chrome. |
-| **Proxy** | Vazio | Envia buscas, metadados, player e downloads pelo proxy informado. Aceita URLs `http`, `https`, `socks4`, `socks4a`, `socks5` e `socks5h`, por exemplo `socks5://127.0.0.1:1080`. |
-| **Salvar histórico de downloads** | Ativado | Mantém um registro local dos downloads em `history.json`, usado pela tela de histórico/lista. |
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Simultaneous downloads** | 3 | Controls how many videos can download at the same time. Accepts values from 1 to 10. |
+| **Download folder** | `~/Downloads/BigTube/` | Defines where downloaded files are saved. The app creates the folder when needed. |
+| **Clipboard monitor** | Disabled | Automatically detects video links copied to the clipboard while the app is open. |
+| **System notifications** | Enabled | Controls system notifications for download events and errors. |
+| **Preferred quality** | Ask every time | Defines the default format for new downloads. It can ask on each download, download the best video, or choose 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p, or download audio only as MP3/M4A. |
+| **Add metadata** | Disabled | Tries to embed artist, album, cover, and other metadata into downloaded files. Requires `ffmpeg`; if it isn't installed, the app skips this step. |
+| **Embed subtitles** | Disabled | Tries to download manual and automatic subtitles and embed them into the final file. Currently looks for `en.*`, `pt.*`, and `es.*` languages. Requires `ffmpeg`. |
+| **Concurrent fragments** | 16 | Defines how many parallel fragments `yt-dlp` uses per download. Accepts values from 1 to 16. Higher values can speed up segmented downloads but also increase network usage. |
+| **Speed limit** | 0 KB/s | Limits download speed in KB/s. `0` means no limit. |
+| **Post-processing command** | Empty | Runs a command after the download using `yt-dlp --exec`. Use `{}` in the command to represent the downloaded file. |
+| **Cookies file** | Empty | Uses a Netscape-format `cookies.txt` file with `yt-dlp --cookies`, useful for content that requires an authenticated session. |
+| **Browser cookies** | None | Imports cookies directly from a detected browser, such as Firefox, Chrome, Chromium, Brave, Microsoft Edge, Vivaldi, or Opera, using `yt-dlp --cookies-from-browser`. |
+| **User-Agent** | BigTube default | Overrides the User-Agent sent to `yt-dlp`. If left empty, the app uses a safe Chrome-based User-Agent. |
+| **Proxy** | Empty | Routes searches, metadata, player, and downloads through the given proxy. Accepts `http`, `https`, `socks4`, `socks4a`, `socks5`, and `socks5h` URLs, e.g. `socks5://127.0.0.1:1080`. |
+| **Save download history** | Enabled | Keeps a local record of downloads in `history.json`, used by the history/list view. |
 
-#### Opções de qualidade
-| Opção | Explicação |
-|-------|------------|
-| **Perguntar sempre** | Mostra a escolha de qualidade/formato no momento do download. |
-| **Best (MKV)** | Baixa a melhor combinação de vídeo e áudio disponível e mescla o resultado. |
-| **4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p** | Prioriza vídeo MP4/AVC na resolução escolhida com áudio M4A; se não existir exatamente esse formato, o `yt-dlp` usa a melhor alternativa compatível definida no preset. |
-| **Audio (MP3)** | Extrai somente o áudio, converte para MP3 com qualidade alta e tenta incorporar miniatura. |
-| **Audio (M4A)** | Baixa somente áudio priorizando codec/container M4A. |
+#### Quality options
+| Option | Explanation |
+|--------|-------------|
+| **Ask every time** | Shows the quality/format choice at download time. |
+| **Best (MKV)** | Downloads the best available video and audio combination and merges the result. |
+| **4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p** | Prioritizes MP4/AVC video at the chosen resolution with M4A audio; if that exact format doesn't exist, `yt-dlp` uses the best compatible alternative defined in the preset. |
+| **Audio (MP3)** | Extracts audio only, converts to high-quality MP3, and tries to embed the thumbnail. |
+| **Audio (M4A)** | Downloads audio only, prioritizing the M4A codec/container. |
 
-### Conversor de mídia
-| Configuração | Padrão | Explicação |
-|--------------|--------|------------|
-| **Salvar na pasta de origem** | Desativado | Quando ativado, o arquivo convertido é salvo ao lado do arquivo original. |
-| **Pasta de saída padrão** | `~/Downloads/BigTube/Converted/` | Define a pasta usada pelo conversor quando a opção de salvar na pasta de origem está desativada. |
-| **Salvar histórico de conversões** | Ativado | Mantém um registro local das conversões em `converter_history.json`. |
+### Media converter
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Save to source folder** | Disabled | When enabled, the converted file is saved next to the original file. |
+| **Default output folder** | `~/Downloads/BigTube/Converted/` | Defines the folder used by the converter when "save to source folder" is disabled. |
+| **Save conversion history** | Enabled | Keeps a local record of conversions in `converter_history.json`. |
 
-### Armazenamento e privacidade
-| Configuração | Padrão | Explicação |
-|--------------|--------|------------|
-| **Limpar dados ao sair** | Desativado | Ao fechar o app, limpa os históricos de downloads, buscas e conversões. A configuração do app é preservada. Quando ativada, as opções de salvar histórico ficam desabilitadas na interface. |
-| **Exportar histórico** | Ação manual | Salva o histórico de downloads em um arquivo JSON, por padrão `bigtube_history.json`. |
-| **Importar histórico** | Ação manual | Restaura um histórico de downloads a partir de um arquivo JSON válido. |
-| **Limpar todos os dados do app** | Ação manual | Apaga permanentemente `config.json`, `history.json`, `search_history.json` e `converter_history.json`, recria a configuração padrão e encerra o aplicativo. |
+### Storage and privacy
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Clear data on exit** | Disabled | When closing the app, clears the download, search, and conversion histories. App settings are preserved. When enabled, the "save history" options are disabled in the interface. |
+| **Export history** | Manual action | Saves the download history to a JSON file, by default `bigtube_history.json`. |
+| **Import history** | Manual action | Restores a download history from a valid JSON file. |
+| **Clear all app data** | Manual action | Permanently deletes `config.json`, `history.json`, `search_history.json`, and `converter_history.json`, recreates the default configuration, and quits the application. |
 
-### Chaves do `config.json`
-| Chave | Valor padrão | Usada por |
-|-------|--------------|-----------|
-| `download_path` | `~/Downloads/BigTube/` | Pasta de download |
-| `theme_mode` | `system` | Tema da interface |
-| `theme_color` | `default` | Esquema de cores |
-| `default_quality` | `ask` | Qualidade preferida |
-| `max_concurrent_downloads` | `3` | Downloads simultâneos |
-| `add_metadata` | `false` | Metadados nos downloads |
-| `embed_subtitles` | `false` | Legendas nos downloads |
-| `save_history` | `true` | Histórico de downloads |
-| `save_search_history` | `true` | Histórico de busca |
-| `enable_suggestions` | `true` | Sugestões de busca |
-| `max_suggestions` | `10` | Quantidade de sugestões |
-| `search_limit` | `15` | Quantidade de resultados de busca |
-| `save_converter_history` | `true` | Histórico do conversor |
-| `auto_clear_finished` | `false` | Limpeza de históricos ao sair |
-| `converter_path` | `~/Downloads/BigTube/Converted/` | Pasta de saída do conversor |
-| `use_source_folder` | `false` | Conversor salvar na origem |
-| `monitor_clipboard` | `false` | Monitor da área de transferência |
-| `concurrent_fragments` | `4` | Fragmentos paralelos por download |
-| `rate_limit` | `0` | Limite de velocidade em KB/s |
-| `system_notifications` | `true` | Notificações do sistema |
-| `post_process_cmd` | `""` | Comando pós-download |
-| `cookies_file` | `""` | Arquivo de cookies |
-| `cookies_browser` | `""` | Cookies do navegador |
-| `user_agent` | `""` | User-Agent customizado |
+### `config.json` keys
+| Key | Default value | Used by |
+|-----|---------------|---------|
+| `download_path` | `~/Downloads/BigTube/` | Download folder |
+| `theme_mode` | `system` | Interface theme |
+| `theme_color` | `default` | Color scheme |
+| `default_quality` | `ask` | Preferred quality |
+| `max_concurrent_downloads` | `3` | Simultaneous downloads |
+| `add_metadata` | `false` | Metadata on downloads |
+| `embed_subtitles` | `false` | Subtitles on downloads |
+| `save_history` | `true` | Download history |
+| `save_search_history` | `true` | Search history |
+| `enable_suggestions` | `true` | Search suggestions |
+| `max_suggestions` | `10` | Number of suggestions |
+| `search_limit` | `15` | Number of search results |
+| `save_converter_history` | `true` | Converter history |
+| `auto_clear_finished` | `false` | Clear histories on exit |
+| `converter_path` | `~/Downloads/BigTube/Converted/` | Converter output folder |
+| `use_source_folder` | `false` | Converter saves to source |
+| `monitor_clipboard` | `false` | Clipboard monitor |
+| `concurrent_fragments` | `16` | Parallel fragments per download |
+| `rate_limit` | `0` | Speed limit in KB/s |
+| `system_notifications` | `true` | System notifications |
+| `post_process_cmd` | `""` | Post-download command |
+| `cookies_file` | `""` | Cookies file |
+| `cookies_browser` | `""` | Browser cookies |
+| `user_agent` | `""` | Custom User-Agent |
 | `proxy` | `""` | Proxy |
 
-> Compatibilidade: configurações antigas com a chave `download_subtitles` são migradas automaticamente para `embed_subtitles`.
+> Compatibility: older configurations with the `download_subtitles` key are automatically migrated to `embed_subtitles`.
 
 ---
 
-## 📋 Dependências do Sistema
+## 📋 System Dependencies
 
-Tempo de execução (necessário para rodar o binário):
+Runtime (required to run the binary):
 
 ```bash
 # Arch Linux
 sudo pacman -S gtk4 libadwaita gstreamer gst-plugins-base gst-plugins-good \
                gst-plugins-bad gst-plugin-gtk4 yt-dlp
-# opcional: ffmpeg (extração de áudio e conversão de mídia)
+# optional: ffmpeg (audio extraction and media conversion)
 sudo pacman -S ffmpeg
 
 # Ubuntu/Debian (22.04+)
@@ -280,7 +284,7 @@ sudo dnf install gtk4 libadwaita gstreamer1-plugins-base \
                  yt-dlp ffmpeg
 ```
 
-Para **compilar do código-fonte** adicione o toolchain Rust e os headers de desenvolvimento:
+To **build from source**, add the Rust toolchain and development headers:
 
 ```bash
 # Arch Linux
@@ -290,38 +294,38 @@ rustup default stable
 
 ---
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-Contribuições são bem-vindas! Sinta-se à vontade para:
+Contributions are welcome! Feel free to:
 
-1. Abrir uma **Issue** para reportar bugs ou sugerir funcionalidades
-2. Enviar um **Pull Request** com melhorias
-3. Ajudar com traduções
+1. Open an **Issue** to report bugs or suggest features
+2. Submit a **Pull Request** with improvements
+3. Help with translations
 
 ---
 
-## 💖 Apoie o Projeto
+## 💖 Support the Project
 
-Se o **BigTube** é útil para você, considere apoiar o desenvolvimento. Qualquer ajuda é muito bem-vinda! ❤️
+If **BigTube** is useful to you, consider supporting its development. Any help is very welcome! ❤️
 
 [![GitHub Sponsors](https://img.shields.io/badge/GitHub-Sponsors-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/eltonfabricio10)
 
-**PIX** (chave aleatória):
+**PIX** (random key, for donations from Brazil):
 
 ```
 a30c24f3-490f-424b-93d3-f1181380bc30
 ```
 
-> Dica: você também encontra essas opções dentro do app, em **Menu → Doações** (com QR Code do PIX e "Copia e Cola").
+> Tip: you can also find these options inside the app, under **Menu → Donations** (with a PIX QR code and "Copy & Paste").
 
 ---
 
-## 📄 Licença
+## 📄 License
 
-Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+This project is licensed under the **MIT** license. See the [LICENSE](LICENSE) file for more details.
 
 ---
 
 <p align="center">
-  Desenvolvido com ❤️ por <a href="https://github.com/eltonfabricio10">eltonff</a>
+  Made with ❤️ by <a href="https://github.com/eltonfabricio10">eltonff</a>
 </p>
