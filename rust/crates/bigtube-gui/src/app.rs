@@ -415,6 +415,9 @@ struct AppState {
     conv_queue: RefCell<std::collections::VecDeque<PendingConv>>,
     player: RefCell<Option<Rc<crate::player::Player>>>,
     busy_spinner: gtk::Spinner,
+    // Centered "busy" card (spinner + message) shown over the whole window
+    // during a background fetch, instead of a header spinner + bottom toast.
+    busy_overlay: gtk::Box,
     busy_count: Cell<i32>,
     // Show the "enable cookies" guidance dialog only once per session.
     bot_block_hinted: Cell<bool>,
@@ -428,15 +431,6 @@ struct AppState {
 impl AppState {
     fn toast(&self, msg: &str) {
         self.toasts.add_toast(adw::Toast::new(msg));
-    }
-
-    /// Like [`toast`], but returns the handle so a long-running operation can
-    /// dismiss it the moment it finishes (instead of letting it linger past the
-    /// result appearing).
-    fn toast_handle(&self, msg: &str) -> adw::Toast {
-        let toast = adw::Toast::new(msg);
-        self.toasts.add_toast(toast.clone());
-        toast
     }
 
     /// Tell the user YouTube blocked the request and how to fix it (enable
@@ -479,8 +473,8 @@ impl AppState {
     /// Show the header busy spinner (ref-counted across concurrent tasks).
     fn busy_begin(&self) {
         self.busy_count.set(self.busy_count.get() + 1);
-        self.busy_spinner.set_visible(true);
         self.busy_spinner.start();
+        self.busy_overlay.set_visible(true);
     }
 
     fn busy_end(&self) {
@@ -488,7 +482,7 @@ impl AppState {
         self.busy_count.set(n);
         if n == 0 {
             self.busy_spinner.stop();
-            self.busy_spinner.set_visible(false);
+            self.busy_overlay.set_visible(false);
         }
     }
 
@@ -565,6 +559,7 @@ pub fn build_window(app: &adw::Application) {
         conv_queue: RefCell::new(std::collections::VecDeque::new()),
         player: RefCell::new(None),
         busy_spinner: gtk::Spinner::new(),
+        busy_overlay: gtk::Box::new(gtk::Orientation::Vertical, 14),
         busy_count: Cell::new(0),
         bot_block_hinted: Cell::new(false),
         ui_tx,
@@ -612,9 +607,6 @@ pub fn build_window(app: &adw::Application) {
         .build();
     let header = adw::HeaderBar::new();
     header.set_title_widget(Some(&switcher));
-    // Global busy spinner for background yt-dlp tasks (hidden when idle).
-    state.busy_spinner.set_visible(false);
-    header.pack_start(&state.busy_spinner);
 
     // Primary (hamburger) menu: About / Quit.
     let menu = gio::Menu::new();
@@ -632,7 +624,33 @@ pub fn build_window(app: &adw::Application) {
     // Narrow-window navigation: a bottom view-switcher bar (auto-reveals).
     let switcher_bar = adw::ViewSwitcherBar::builder().stack(&stack).build();
     toolbar.add_bottom_bar(&switcher_bar);
-    toasts.set_child(Some(&toolbar));
+
+    // Centered "busy" card: a large spinner + message floating in the middle of
+    // the window during a background fetch (replaces the old header spinner and
+    // "Processing…" toast). Built once, shown/hidden by busy_begin/busy_end.
+    {
+        let card = &state.busy_overlay;
+        card.set_halign(gtk::Align::Center);
+        card.set_valign(gtk::Align::Center);
+        card.add_css_class("card");
+        card.set_visible(false);
+        // Don't swallow clicks on the rest of the UI when hidden; when shown it
+        // simply floats on top (the spinner conveys the app is working).
+        card.set_can_target(false);
+        state.busy_spinner.set_size_request(40, 40);
+        state.busy_spinner.set_margin_top(28);
+        state.busy_spinner.set_margin_start(48);
+        state.busy_spinner.set_margin_end(48);
+        let label = gtk::Label::new(Some(&tr("Processing...")));
+        label.add_css_class("title-4");
+        label.set_margin_bottom(28);
+        card.append(&state.busy_spinner);
+        card.append(&label);
+    }
+    let overlay = gtk::Overlay::new();
+    overlay.set_child(Some(&toolbar));
+    overlay.add_overlay(&state.busy_overlay);
+    toasts.set_child(Some(&overlay));
 
     // Size the window to a comfortable fraction of the monitor.
     let (win_w, win_h) = comfortable_window_size();
@@ -3393,9 +3411,8 @@ fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
     let thumb = item.thumbnail();
     let uploader = item.uploader();
     let audio_only = !item.is_video();
-    // Keep the toast handle so it's dismissed exactly when the result appears,
-    // rather than lingering on its own (longer) timeout past the dialog opening.
-    let processing = state.toast_handle(&tr("Processing..."));
+    // The centered busy card (spinner + "Processing…") conveys progress; it's
+    // shown by busy_begin and hidden by busy_end right as the result appears.
     state.busy_begin();
 
     let (tx, rx) = async_channel::bounded::<
@@ -3420,22 +3437,19 @@ fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
         let info = match received {
             Ok(Ok(info)) => info,
             Ok(Err(StatusCode::BotBlocked)) => {
-                processing.dismiss();
                 state.busy_end();
                 state.notify_bot_block();
                 return;
             }
             _ => {
-                processing.dismiss();
                 state.busy_end();
                 state.toast(&tr("No formats found"));
                 return;
             }
         };
         run_download_flow(&state, info, url, title, thumb, uploader, audio_only);
-        // Dialog is built and presented — dismiss the toast and stop the spinner
-        // together, so neither lingers past the options appearing.
-        processing.dismiss();
+        // Dialog is built and presented — hide the busy card now, so it doesn't
+        // linger past the options appearing.
         state.busy_end();
     });
 }
