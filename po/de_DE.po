@@ -1731,3 +1731,16 @@ msgstr ""
 #. bigtube-gui
 msgid "Pix Copy & Paste"
 msgstr "Pix Kopieren & Einfügen"
+
+msgid "No video or audio"
+msgstr "Kein Video oder Audio"
+
+msgid "This link has no video or audio. Remove it from the search history?"
+msgstr ""
+"Dieser Link enthält kein Video oder Audio. Aus dem Suchverlauf entfernen?"
+
+msgid "Couldn't get video or audio from this link."
+msgstr "Video oder Audio konnte von diesem Link nicht abgerufen werden."
+
+msgid "Keep"
+msgstr "Behalten"

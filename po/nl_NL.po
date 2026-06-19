@@ -1735,3 +1735,16 @@ msgstr ""
 #. bigtube-gui
 msgid "Pix Copy & Paste"
 msgstr "Pix Kopiëren en plakken"
+
+msgid "No video or audio"
+msgstr "Geen video of audio"
+
+msgid "This link has no video or audio. Remove it from the search history?"
+msgstr ""
+"Deze link bevat geen video of audio. Verwijderen uit de zoekgeschiedenis?"
+
+msgid "Couldn't get video or audio from this link."
+msgstr "Kon geen video of audio van deze link ophalen."
+
+msgid "Keep"
+msgstr "Behouden"

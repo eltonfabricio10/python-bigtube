@@ -792,8 +792,8 @@ msgstr ""
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:329
 msgid ""
-"This will PERMANENTLY delete all settings, search history, download history, "
-"and converter history. This action cannot be undone."
+"This will PERMANENTLY delete all settings, search history, download history,"
+" and converter history. This action cannot be undone."
 msgstr ""
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
@@ -1012,7 +1012,8 @@ msgid "Proxy"
 msgstr ""
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:398
-msgid "Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
+msgid ""
+"Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
 msgstr ""
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:400
@@ -1173,8 +1174,7 @@ msgstr ""
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:446
 msgid ""
 "To search for a video, paste a URL or type keywords in the search box.\n"
-"You can also drag and drop local media files onto the Converter tab to "
-"change their format.\n"
+"You can also drag and drop local media files onto the Converter tab to change their format.\n"
 "Check Settings to change download quality and themes."
 msgstr ""
 
@@ -1665,7 +1665,8 @@ msgid "Check for Updates on Startup"
 msgstr ""
 
 #: bigtube-gui
-msgid "On launch, download missing components and notify if yt-dlp has an update"
+msgid ""
+"On launch, download missing components and notify if yt-dlp has an update"
 msgstr ""
 
 #: bigtube-gui
@@ -1693,9 +1694,23 @@ msgid "Open"
 msgstr ""
 
 #: bigtube-gui
-msgid "If BigTube is useful to you, consider supporting its development. Thank you! ❤️"
+msgid ""
+"If BigTube is useful to you, consider supporting its development. Thank you!"
+" ❤️"
 msgstr ""
 
 #: bigtube-gui
 msgid "Pix Copy & Paste"
+msgstr ""
+
+msgid "No video or audio"
+msgstr ""
+
+msgid "This link has no video or audio. Remove it from the search history?"
+msgstr ""
+
+msgid "Couldn't get video or audio from this link."
+msgstr ""
+
+msgid "Keep"
 msgstr ""

@@ -1722,3 +1722,16 @@ msgstr ""
 #. bigtube-gui
 msgid "Pix Copy & Paste"
 msgstr "Pix Kopírovat a vložit"
+
+msgid "No video or audio"
+msgstr "Žádné video ani zvuk"
+
+msgid "This link has no video or audio. Remove it from the search history?"
+msgstr ""
+"Tento odkaz neobsahuje žádné video ani zvuk. Odebrat jej z historie hledání?"
+
+msgid "Couldn't get video or audio from this link."
+msgstr "Z tohoto odkazu se nepodařilo získat video ani zvuk."
+
+msgid "Keep"
+msgstr "Ponechat"

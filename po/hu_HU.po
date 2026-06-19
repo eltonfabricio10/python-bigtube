@@ -1727,3 +1727,17 @@ msgstr ""
 #. bigtube-gui
 msgid "Pix Copy & Paste"
 msgstr "Pix másolás és beillesztés"
+
+msgid "No video or audio"
+msgstr "Nincs videó vagy hang"
+
+msgid "This link has no video or audio. Remove it from the search history?"
+msgstr ""
+"Ez a hivatkozás nem tartalmaz videót vagy hangot. Eltávolítja a keresési "
+"előzményekből?"
+
+msgid "Couldn't get video or audio from this link."
+msgstr "Nem sikerült videót vagy hangot lekérni erről a hivatkozásról."
+
+msgid "Keep"
+msgstr "Megtartás"

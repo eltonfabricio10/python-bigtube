@@ -3558,6 +3558,9 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
     // videos inline, never a "playlist menu" row. Mirror the core's own
     // direct-link routing (source "url" OR a pasted http/www string).
     let is_url_search = source == "url" || query.starts_with("http") || query.starts_with("www");
+    // Kept for the "link has no media" prompt, since `query` is moved into the
+    // worker thread below.
+    let query_for_prompt = query.clone();
     let (tx, rx) =
         async_channel::bounded::<Result<Vec<bigtube_core::search::SearchResult>, String>>(1);
     std::thread::spawn(move || {
@@ -3575,9 +3578,6 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
         if let Ok(result) = rx.recv().await {
             match result {
                 Ok(list) => {
-                    if list.is_empty() {
-                        state.toast(&tr("No results found!"));
-                    }
                     let mode = state.select_mode.get();
                     for r in &list {
                         // Direct-link results are already expanded videos; drop any
@@ -3593,16 +3593,65 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
                     }
                     state.update_search_empty();
                     state.refresh_selection_count();
+                    // Nothing playable came back.
+                    if state.search_store.n_items() == 0 {
+                        if is_url_search && save {
+                            // A pasted link with no media: offer to drop the junk
+                            // query from the search history.
+                            ask_remove_link_from_history(
+                                &state,
+                                &query_for_prompt,
+                                tr("This link has no video or audio. Remove it from the search history?"),
+                            );
+                        } else {
+                            state.toast(&tr("No results found!"));
+                        }
+                    }
                 }
                 Err(e) => {
                     state.update_search_empty();
                     // The core returns a known English message; translate it via
                     // the catalog (tr() returns the input unchanged if unknown).
-                    state.toast(&tr(&e));
+                    if is_url_search && save {
+                        let body = format!(
+                            "{}\n\n{}",
+                            tr("Couldn't get video or audio from this link."),
+                            tr(&e)
+                        );
+                        ask_remove_link_from_history(&state, &query_for_prompt, body);
+                    } else {
+                        state.toast(&tr(&e));
+                    }
                 }
             }
         }
     });
+}
+
+/// A link search returned no playable media; ask whether to drop the query from
+/// the search history (it was already saved before the search ran).
+fn ask_remove_link_from_history(state: &Rc<AppState>, query: &str, body: String) {
+    let Some(window) = state.window.borrow().clone() else {
+        return;
+    };
+    let dialog =
+        adw::MessageDialog::new(Some(&window), Some(&tr("No video or audio")), Some(&body));
+    dialog.add_response("keep", &tr("Keep"));
+    dialog.add_response("remove", &tr("Remove from history"));
+    dialog.set_response_appearance("remove", adw::ResponseAppearance::Destructive);
+    dialog.set_default_response(Some("keep"));
+    dialog.set_close_response("keep");
+    apply_theme_classes(&dialog);
+
+    let query = query.to_string();
+    dialog.connect_response(None, move |dlg, resp| {
+        if resp == "remove" {
+            bigtube_core::search_history::SearchHistory::new(search_history_path())
+                .remove_item(&query);
+        }
+        dlg.close();
+    });
+    dialog.present();
 }
 
 /// Play `clicked`, seeding the player queue from the playable items of `store`

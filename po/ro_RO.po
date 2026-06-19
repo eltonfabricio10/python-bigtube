@@ -1732,3 +1732,17 @@ msgstr ""
 #. bigtube-gui
 msgid "Pix Copy & Paste"
 msgstr "Pix Copiază și lipește"
+
+msgid "No video or audio"
+msgstr "Niciun videoclip sau audio"
+
+msgid "This link has no video or audio. Remove it from the search history?"
+msgstr ""
+"Acest link nu conține videoclip sau audio. Îl eliminați din istoricul "
+"căutărilor?"
+
+msgid "Couldn't get video or audio from this link."
+msgstr "Nu s-a putut obține videoclip sau audio de la acest link."
+
+msgid "Keep"
+msgstr "Păstrează"
