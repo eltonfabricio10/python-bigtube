@@ -12,4 +12,4 @@ Categories=Video;AudioVideo;Network;
 Keywords=download;video;audio;youtube;converter;mp3;mp4;yt-dlp;
 Keywords[pt_BR]=baixar;download;video;audio;youtube;conversor;mp3;mp4;
 StartupNotify=true
-StartupWMClass=org.big.bigtube
+StartupWMClass=io.github.eltonfabricio10.bigtube

@@ -7,7 +7,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Application constants (from `enums.py` module scope).
-pub const APP_ID: &str = "org.big.bigtube";
+pub const APP_ID: &str = "io.github.eltonfabricio10.bigtube";
 pub const APP_NAME: &str = "bigtube";
 
 /// `GtkStack` child names.

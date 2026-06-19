@@ -117,8 +117,8 @@ Arch, …) regardless of the system library versions.
 # Build and install locally from the manifest
 flatpak install flathub org.gnome.Platform//47 org.gnome.Sdk//47 \
     org.freedesktop.Sdk.Extension.rust-stable//24.08
-flatpak-builder --user --install --force-clean build-dir flatpak/org.big.bigtube.yaml
-flatpak run org.big.bigtube
+flatpak-builder --user --install --force-clean build-dir flatpak/io.github.eltonfabricio10.bigtube.yaml
+flatpak run io.github.eltonfabricio10.bigtube
 ```
 
 > CI builds a `bigtube.flatpak` bundle on every change (see the **Flatpak**
@@ -145,7 +145,7 @@ sudo install -Dm755 target/release/bigtube-gui /usr/bin/bigtube-gui
 sudo install -Dm755 target/release/bigtube     /usr/bin/bigtube
 sudo install -Dm644 ../src/bigtube/data/bigtube.svg /usr/share/icons/hicolor/scalable/apps/bigtube.svg
 sudo install -Dm644 ../src/bigtube/data/bigtube.png /usr/share/icons/hicolor/512x512/apps/bigtube.png
-sudo install -Dm644 packaging/org.big.bigtube.desktop /usr/share/applications/org.big.bigtube.desktop
+sudo install -Dm644 packaging/io.github.eltonfabricio10.bigtube.desktop /usr/share/applications/io.github.eltonfabricio10.bigtube.desktop
 ```
 
 ---

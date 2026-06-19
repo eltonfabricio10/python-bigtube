@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2026 Elton Fabricio -->
 <component type="desktop-application">
-  <id>org.big.bigtube</id>
+  <id>io.github.eltonfabricio10.bigtube</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
 
@@ -26,7 +26,7 @@
     </ul>
   </description>
 
-  <launchable type="desktop-id">org.big.bigtube.desktop</launchable>
+  <launchable type="desktop-id">io.github.eltonfabricio10.bigtube.desktop</launchable>
 
   <screenshots>
     <screenshot type="default">
@@ -75,7 +75,7 @@
   </keywords>
 
   <releases>
-    <release version="2.1.75" date="2026-06-19">
+    <release version="2.1.77" date="2026-06-19">
       <description>
         <p>Two-column video/audio format picker, cover-art embedding, startup update check and many translation improvements.</p>
       </description>

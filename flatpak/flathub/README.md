@@ -5,31 +5,26 @@ This folder contains everything needed to publish BigTube on
 
 | File | Purpose |
 |------|---------|
-| `org.big.bigtube.yaml` | Offline, reproducible manifest (vendored Rust crates) |
+| `io.github.eltonfabricio10.bigtube.yaml` | Offline, reproducible manifest (vendored Rust crates) |
 | `cargo-sources.json`   | Vendored crates generated from `rust/Cargo.lock` |
 
 The app's AppStream metadata and desktop entry live in the main repo at
-`src/bigtube/data/org.big.bigtube.metainfo.xml` and
-`src/bigtube/data/org.big.bigtube.desktop`.
+`src/bigtube/data/io.github.eltonfabricio10.bigtube.metainfo.xml` and
+`src/bigtube/data/io.github.eltonfabricio10.bigtube.desktop`.
 
 ---
 
-## ⚠️ Before submitting: the App ID
+## App ID
 
-Flathub requires the application ID to be based on a **domain or code-hosting
-account you control**. `org.big.bigtube` maps to the domain `big.org`, which is
-**not** ours — Flathub reviewers will reject it.
+The app uses the ID **`io.github.eltonfabricio10.bigtube`**, derived from the
+GitHub account hosting the project. Flathub requires IDs to map to a domain or
+code-hosting account you control, and `io.github.<user>.<app>` is the accepted
+form for GitHub-hosted projects without their own domain — so this ID is ready
+for submission as-is.
 
-For a GitHub-hosted project without its own domain, the correct ID is:
-
-```
-io.github.eltonfabricio10.bigtube
-```
-
-Renaming touches the desktop file, the metainfo `<id>`/`<launchable>`, the
-`StartupWMClass`, and the manifest filename (it must match the ID). Decide and
-apply this rename **before** opening the Flathub PR. (Local/AUR builds can keep
-`org.big.bigtube`, but the Flathub artifact must use the controlled ID.)
+The ID is wired through the desktop file, the metainfo `<id>`/`<launchable>`,
+the `StartupWMClass`, the application's `APP_ID` constant, and the manifest
+filename (which must match the ID).
 
 ---
 
@@ -42,8 +37,8 @@ flatpak install flathub org.gnome.Platform//47 org.gnome.Sdk//47 \
 
 # Build offline exactly like Flathub's buildbot (no network for cargo)
 flatpak-builder --user --install --force-clean --sandbox \
-    build-dir flatpak/flathub/org.big.bigtube.yaml
-flatpak run org.big.bigtube
+    build-dir flatpak/flathub/io.github.eltonfabricio10.bigtube.yaml
+flatpak run io.github.eltonfabricio10.bigtube
 ```
 
 The `--sandbox` flag forbids build-time network, proving the vendored sources

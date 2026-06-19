@@ -1,7 +1,7 @@
 from enum import Enum
 
 # Application constants
-APP_ID = "org.big.bigtube"
+APP_ID = "io.github.eltonfabricio10.bigtube"
 APP_NAME = "bigtube"
 
 # Stack child name constants

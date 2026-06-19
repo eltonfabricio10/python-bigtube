@@ -32,5 +32,5 @@ jobs:
         uses: flathub-infra/flatpak-github-actions/flatpak-builder@master
         with:
           bundle: bigtube.flatpak
-          manifest-path: flatpak/org.big.bigtube.yaml
+          manifest-path: flatpak/io.github.eltonfabricio10.bigtube.yaml
           cache-key: flatpak-builder-${{ github.sha }}

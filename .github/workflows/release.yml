@@ -114,8 +114,8 @@ jobs:
           stage="$GITHUB_WORKSPACE/stage"
           install -Dm755 rust/target/release/bigtube-gui "$stage/usr/bin/bigtube-gui"
           install -Dm755 rust/target/release/bigtube     "$stage/usr/bin/bigtube"
-          install -Dm644 rust/packaging/org.big.bigtube.desktop \
-            "$stage/usr/share/applications/org.big.bigtube.desktop"
+          install -Dm644 rust/packaging/io.github.eltonfabricio10.bigtube.desktop \
+            "$stage/usr/share/applications/io.github.eltonfabricio10.bigtube.desktop"
           install -Dm644 src/bigtube/data/bigtube.png \
             "$stage/usr/share/icons/hicolor/512x512/apps/bigtube.png"
           install -Dm644 src/bigtube/data/bigtube.svg \

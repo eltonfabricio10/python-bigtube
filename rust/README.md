@@ -38,6 +38,6 @@ Runtime deps: `gtk4`, `libadwaita`, `gstreamer` + `gst-plugins-{base,good}` +
 ## CI / packaging
 
 - `.github/workflows/rust-ci.yml` — fmt + clippy (`-D warnings`) + core tests + release build.
-- `packaging/PKGBUILD` + `packaging/org.big.bigtube.desktop` — Arch package (installs both
+- `packaging/PKGBUILD` + `packaging/io.github.eltonfabricio10.bigtube.desktop` — Arch package (installs both
   binaries, the icon, the desktop entry, and compiles `po/*.po` → `.mo`).
 - `crates/bigtube-cli/build.rs` derives the version from `git describe`.

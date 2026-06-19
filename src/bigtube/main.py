@@ -188,7 +188,7 @@ class BigTubeApplication(Adw.Application):
 
     def __init__(self, **kwargs):
         super().__init__(
-            application_id="org.big.bigtube",
+            application_id="io.github.eltonfabricio10.bigtube",
             flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE,
             **kwargs,
         )
@@ -320,7 +320,7 @@ def run():
 
     # GUI launch — do_command_line will re-parse argv and extract args.inputs.
     app = BigTubeApplication()
-    GLib.set_prgname("org.big.bigtube")
+    GLib.set_prgname("io.github.eltonfabricio10.bigtube")
     sys.exit(app.run(sys.argv))
 
 
