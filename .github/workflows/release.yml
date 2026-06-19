@@ -120,6 +120,12 @@ jobs:
             "$stage/usr/share/icons/hicolor/512x512/apps/bigtube.png"
           install -Dm644 src/bigtube/data/bigtube.svg \
             "$stage/usr/share/icons/hicolor/scalable/apps/bigtube.svg"
+          # Also install the icon under the app ID so the window icon (which KDE
+          # and others resolve by app_id) shows up, not just the launcher icon.
+          install -Dm644 src/bigtube/data/bigtube.png \
+            "$stage/usr/share/icons/hicolor/512x512/apps/io.github.eltonfabricio10.bigtube.png"
+          install -Dm644 src/bigtube/data/bigtube.svg \
+            "$stage/usr/share/icons/hicolor/scalable/apps/io.github.eltonfabricio10.bigtube.svg"
           for po in po/*.po; do
             [ -e "$po" ] || continue
             lang="$(basename "$po" .po)"
