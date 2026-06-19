@@ -1729,3 +1729,7 @@ msgid ""
 " ❤️"
 msgstr ""
 "Si BigTube te resulta útil, considera apoyar su desarrollo. ¡Gracias! ❤️"
+
+#. bigtube-gui
+msgid "Pix Copy & Paste"
+msgstr "Pix Copiar y pegar"

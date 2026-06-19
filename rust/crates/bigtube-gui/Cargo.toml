@@ -19,6 +19,8 @@ tracing = { workspace = true }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 async-channel = "2"
 ureq = "2"
+# QR matrix only (no image/svg renderers); we draw it with cairo.
+qrcode = { version = "0.14", default-features = false }
 gdk-pixbuf = "0.20"
 gstreamer = "0.23"
 gettext-rs = { version = "0.7", features = ["gettext-system"] }

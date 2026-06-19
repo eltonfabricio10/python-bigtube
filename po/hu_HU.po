@@ -1723,3 +1723,7 @@ msgid ""
 msgstr ""
 "Ha a BigTube hasznos számodra, fontold meg a fejlesztés támogatását. "
 "Köszönjük! ❤️"
+
+#. bigtube-gui
+msgid "Pix Copy & Paste"
+msgstr "Pix másolás és beillesztés"

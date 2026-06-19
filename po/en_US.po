@@ -1717,3 +1717,7 @@ msgid ""
 msgstr ""
 "If BigTube is useful to you, consider supporting its development. Thank you!"
 " ❤️"
+
+#. bigtube-gui
+msgid "Pix Copy & Paste"
+msgstr "Pix Copy & Paste"
