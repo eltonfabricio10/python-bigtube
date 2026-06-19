@@ -430,6 +430,15 @@ impl AppState {
         self.toasts.add_toast(adw::Toast::new(msg));
     }
 
+    /// Like [`toast`], but returns the handle so a long-running operation can
+    /// dismiss it the moment it finishes (instead of letting it linger past the
+    /// result appearing).
+    fn toast_handle(&self, msg: &str) -> adw::Toast {
+        let toast = adw::Toast::new(msg);
+        self.toasts.add_toast(toast.clone());
+        toast
+    }
+
     /// Tell the user YouTube blocked the request and how to fix it (enable
     /// browser cookies in Settings). A full dialog the first time per session,
     /// then a lighter toast on subsequent hits.
@@ -3384,7 +3393,9 @@ fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
     let thumb = item.thumbnail();
     let uploader = item.uploader();
     let audio_only = !item.is_video();
-    state.toast(&tr("Processing..."));
+    // Keep the toast handle so it's dismissed exactly when the result appears,
+    // rather than lingering on its own (longer) timeout past the dialog opening.
+    let processing = state.toast_handle(&tr("Processing..."));
     state.busy_begin();
 
     let (tx, rx) = async_channel::bounded::<
@@ -3409,18 +3420,22 @@ fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
         let info = match received {
             Ok(Ok(info)) => info,
             Ok(Err(StatusCode::BotBlocked)) => {
+                processing.dismiss();
                 state.busy_end();
                 state.notify_bot_block();
                 return;
             }
             _ => {
+                processing.dismiss();
                 state.busy_end();
                 state.toast(&tr("No formats found"));
                 return;
             }
         };
         run_download_flow(&state, info, url, title, thumb, uploader, audio_only);
-        // Dialog is built and presented — safe to stop the spinner now.
+        // Dialog is built and presented — dismiss the toast and stop the spinner
+        // together, so neither lingers past the options appearing.
+        processing.dismiss();
         state.busy_end();
     });
 }
