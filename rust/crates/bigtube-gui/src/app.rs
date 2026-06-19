@@ -639,20 +639,20 @@ pub fn build_window(app: &adw::Application) {
         scrim.add_css_class("busy-dim");
         scrim.set_visible(false);
 
-        let card = gtk::Box::new(gtk::Orientation::Vertical, 22);
+        let card = gtk::Box::new(gtk::Orientation::Vertical, 18);
         card.set_halign(gtk::Align::Center);
         card.set_valign(gtk::Align::Center);
         // In a vertical box a single child packs to the TOP; vexpand gives the
         // card the full height so valign=Center actually centers it vertically.
         card.set_vexpand(true);
         card.add_css_class("busy-card");
-        state.busy_spinner.set_size_request(72, 72);
-        state.busy_spinner.set_margin_top(44);
-        state.busy_spinner.set_margin_start(84);
-        state.busy_spinner.set_margin_end(84);
+        state.busy_spinner.set_size_request(54, 54);
+        state.busy_spinner.set_margin_top(34);
+        state.busy_spinner.set_margin_start(64);
+        state.busy_spinner.set_margin_end(64);
         let label = gtk::Label::new(Some(&tr("Processing...")));
-        label.add_css_class("title-1");
-        label.set_margin_bottom(44);
+        label.add_css_class("title-2");
+        label.set_margin_bottom(34);
         card.append(&state.busy_spinner);
         card.append(&label);
         scrim.append(&card);
