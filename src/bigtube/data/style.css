@@ -1023,3 +1023,14 @@ button:focus:not(:focus-visible) {
     background-color: alpha(var(--accent-bg-color), 0.18);
     box-shadow: inset 3px 0 0 0 var(--accent-bg-color);
 }
+
+/* -----------------------------------------------------------------------------
+   Busy overlay — a dimmed scrim covering the window while a background fetch
+   runs, with the spinner+message card floating centered on top.
+   ----------------------------------------------------------------------------- */
+.busy-dim {
+    background-color: alpha(black, 0.45);
+}
+.busy-card {
+    padding: 8px 4px;
+}

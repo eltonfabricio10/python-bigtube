@@ -625,18 +625,25 @@ pub fn build_window(app: &adw::Application) {
     let switcher_bar = adw::ViewSwitcherBar::builder().stack(&stack).build();
     toolbar.add_bottom_bar(&switcher_bar);
 
-    // Centered "busy" card: a large spinner + message floating in the middle of
-    // the window during a background fetch (replaces the old header spinner and
-    // "Processing…" toast). Built once, shown/hidden by busy_begin/busy_end.
+    // Busy overlay: a dimmed scrim covering the whole window during a background
+    // fetch, with a spinner + message card floating centered on top (replaces
+    // the old header spinner and "Processing…" toast). Shown/hidden by
+    // busy_begin/busy_end. The scrim is modal — it intercepts clicks while the
+    // fetch runs (which always ends, via success or error).
     {
-        let card = &state.busy_overlay;
+        let scrim = &state.busy_overlay;
+        scrim.set_halign(gtk::Align::Fill);
+        scrim.set_valign(gtk::Align::Fill);
+        scrim.set_hexpand(true);
+        scrim.set_vexpand(true);
+        scrim.add_css_class("busy-dim");
+        scrim.set_visible(false);
+
+        let card = gtk::Box::new(gtk::Orientation::Vertical, 14);
         card.set_halign(gtk::Align::Center);
         card.set_valign(gtk::Align::Center);
         card.add_css_class("card");
-        card.set_visible(false);
-        // Don't swallow clicks on the rest of the UI when hidden; when shown it
-        // simply floats on top (the spinner conveys the app is working).
-        card.set_can_target(false);
+        card.add_css_class("busy-card");
         state.busy_spinner.set_size_request(40, 40);
         state.busy_spinner.set_margin_top(28);
         state.busy_spinner.set_margin_start(48);
@@ -646,6 +653,7 @@ pub fn build_window(app: &adw::Application) {
         label.set_margin_bottom(28);
         card.append(&state.busy_spinner);
         card.append(&label);
+        scrim.append(&card);
     }
     let overlay = gtk::Overlay::new();
     overlay.set_child(Some(&toolbar));
