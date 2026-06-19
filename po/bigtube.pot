@@ -1675,3 +1675,23 @@ msgstr ""
 #: bigtube-gui
 msgid "yt-dlp update available"
 msgstr ""
+
+#: bigtube-gui
+msgid "Donations"
+msgstr ""
+
+#: bigtube-gui
+msgid "Copy"
+msgstr ""
+
+#: bigtube-gui
+msgid "Copied!"
+msgstr ""
+
+#: bigtube-gui
+msgid "Open"
+msgstr ""
+
+#: bigtube-gui
+msgid "If BigTube is useful to you, consider supporting its development. Thank you! ❤️"
+msgstr ""

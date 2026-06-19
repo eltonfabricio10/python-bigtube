@@ -611,6 +611,7 @@ pub fn build_window(app: &adw::Application) {
     // Primary (hamburger) menu: About / Quit.
     let menu = gio::Menu::new();
     menu.append(Some(&tr("About")), Some("app.about"));
+    menu.append(Some(&tr("Donations")), Some("app.donate"));
     menu.append(Some(&tr("Quit")), Some("app.quit"));
     let menu_btn = gtk::MenuButton::new();
     menu_btn.set_icon_name("open-menu-symbolic");
@@ -875,6 +876,109 @@ fn setup_app_actions(app: &adw::Application) {
         });
     }
     app.add_action(&about);
+
+    let donate = gio::SimpleAction::new("donate", None);
+    {
+        let app = app.clone();
+        donate.connect_activate(move |_, _| {
+            if let Some(win) = app.active_window() {
+                show_donations_dialog(&win);
+            }
+        });
+    }
+    app.add_action(&donate);
+}
+
+/// PIX key (random) for Brazilian donations.
+const PIX_KEY: &str = "a30c24f3-490f-424b-93d3-f1181380bc30";
+/// Online donation links. Leave a URL empty to hide that row until it's set.
+const DONATE_LINKS: &[(&str, &str)] = &[("GitHub Sponsors", ""), ("Ko-fi", ""), ("PayPal", "")];
+
+/// "Support BigTube" dialog: a copyable PIX key plus buttons to the online
+/// donation platforms (only those with a URL configured are shown).
+fn show_donations_dialog(parent: &impl IsA<gtk::Window>) {
+    let win = adw::Window::builder()
+        .transient_for(parent)
+        .modal(true)
+        .default_width(440)
+        .title(tr("Donations"))
+        .build();
+    apply_theme_classes(&win);
+
+    let toolbar = adw::ToolbarView::new();
+    toolbar.add_top_bar(&adw::HeaderBar::new());
+
+    let page = gtk::Box::new(gtk::Orientation::Vertical, 18);
+    page.set_margin_top(18);
+    page.set_margin_bottom(18);
+    page.set_margin_start(18);
+    page.set_margin_end(18);
+
+    let intro = gtk::Label::new(Some(&tr(
+        "If BigTube is useful to you, consider supporting its development. Thank you! ❤️",
+    )));
+    intro.set_wrap(true);
+    intro.set_xalign(0.0);
+    page.append(&intro);
+
+    let group = adw::PreferencesGroup::new();
+
+    // PIX — copyable key (works in any bank app via Pix → key).
+    let pix = adw::ActionRow::builder()
+        .title("PIX")
+        .subtitle(PIX_KEY)
+        .build();
+    pix.set_subtitle_selectable(true);
+    let copy = gtk::Button::with_label(&tr("Copy"));
+    copy.add_css_class("flat");
+    copy.set_valign(gtk::Align::Center);
+    {
+        let win = win.clone();
+        copy.connect_clicked(move |b| {
+            win.clipboard().set_text(PIX_KEY);
+            b.set_label(&tr("Copied!"));
+            b.set_sensitive(false);
+            let b = b.clone();
+            glib::timeout_add_seconds_local(2, move || {
+                b.set_label(&tr("Copy"));
+                b.set_sensitive(true);
+                glib::ControlFlow::Break
+            });
+        });
+    }
+    pix.add_suffix(&copy);
+    pix.set_activatable_widget(Some(&copy));
+    group.add(&pix);
+
+    // Online platforms (rendered only when a URL is configured).
+    for (label, url) in DONATE_LINKS {
+        if url.is_empty() {
+            continue;
+        }
+        let row = adw::ActionRow::builder()
+            .title(*label)
+            .subtitle(*url)
+            .build();
+        let open = gtk::Button::with_label(&tr("Open"));
+        open.add_css_class("flat");
+        open.add_css_class("suggested-action");
+        open.set_valign(gtk::Align::Center);
+        {
+            let url = url.to_string();
+            let win = win.clone();
+            open.connect_clicked(move |_| {
+                gtk::UriLauncher::new(&url).launch(Some(&win), gtk::gio::Cancellable::NONE, |_| {});
+            });
+        }
+        row.add_suffix(&open);
+        row.set_activatable_widget(Some(&open));
+        group.add(&row);
+    }
+
+    page.append(&group);
+    toolbar.set_content(Some(&page));
+    win.set_content(Some(&toolbar));
+    win.present();
 }
 
 fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {

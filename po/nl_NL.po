@@ -1707,3 +1707,27 @@ msgstr "Componenten succesvol geïnstalleerd! ✅"
 #. bigtube-gui
 msgid "yt-dlp update available"
 msgstr "yt-dlp-update beschikbaar"
+
+#. bigtube-gui
+msgid "Donations"
+msgstr "Donaties"
+
+#. bigtube-gui
+msgid "Copy"
+msgstr "Kopiëren"
+
+#. bigtube-gui
+msgid "Copied!"
+msgstr "Gekopieerd!"
+
+#. bigtube-gui
+msgid "Open"
+msgstr "Openen"
+
+#. bigtube-gui
+msgid ""
+"If BigTube is useful to you, consider supporting its development. Thank you!"
+" ❤️"
+msgstr ""
+"Als BigTube nuttig voor je is, overweeg dan de ontwikkeling te steunen. "
+"Bedankt! ❤️"

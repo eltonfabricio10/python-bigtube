@@ -1704,3 +1704,26 @@ msgstr "Komponenten erfolgreich installiert! ✅"
 #. bigtube-gui
 msgid "yt-dlp update available"
 msgstr "yt-dlp-Update verfügbar"
+
+#. bigtube-gui
+msgid "Donations"
+msgstr "Spenden"
+
+#. bigtube-gui
+msgid "Copy"
+msgstr "Kopieren"
+
+#. bigtube-gui
+msgid "Copied!"
+msgstr "Kopiert!"
+
+#. bigtube-gui
+msgid "Open"
+msgstr "Öffnen"
+
+#. bigtube-gui
+msgid ""
+"If BigTube is useful to you, consider supporting its development. Thank you!"
+" ❤️"
+msgstr ""
+"Wenn BigTube dir nützlich ist, unterstütze gern seine Entwicklung. Danke! ❤️"

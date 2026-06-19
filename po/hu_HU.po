@@ -1699,3 +1699,27 @@ msgstr "Az összetevők sikeresen telepítve! ✅"
 #. bigtube-gui
 msgid "yt-dlp update available"
 msgstr "Elérhető yt-dlp frissítés"
+
+#. bigtube-gui
+msgid "Donations"
+msgstr "Adományok"
+
+#. bigtube-gui
+msgid "Copy"
+msgstr "Másolás"
+
+#. bigtube-gui
+msgid "Copied!"
+msgstr "Másolva!"
+
+#. bigtube-gui
+msgid "Open"
+msgstr "Megnyitás"
+
+#. bigtube-gui
+msgid ""
+"If BigTube is useful to you, consider supporting its development. Thank you!"
+" ❤️"
+msgstr ""
+"Ha a BigTube hasznos számodra, fontold meg a fejlesztés támogatását. "
+"Köszönjük! ❤️"
