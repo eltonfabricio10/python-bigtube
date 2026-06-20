@@ -195,6 +195,7 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 |---------|---------|-------------|
 | **Interface theme** | Follow system | Defines whether the interface uses the system theme, forces a light theme, or forces a dark theme. |
 | **Color scheme** | Default Blue | Changes the visual palette/accent of the interface. Options: Default Blue, Modern Violet, Emerald Green, Sunburst Orange, Vibrant Rose, Nordic Cyan, Nordic Snow, Gruvbox Retro, Catppuccin Mocha, Dracula Dark, Tokyo Night, Rosé Pine, Solarized Dark, Monokai Pro, Cyberpunk Neon, and BigTube Brand. |
+| **Rendering engine** | Automatic | Chooses the GTK (GSK) renderer used to draw the interface. **Automatic** lets GTK pick the best GPU renderer (Vulkan/GL). Switch to **Software (Cairo)** if you see graphical glitches such as flicker or stripes while scrolling on some Mesa/driver combos, or pick **GPU (OpenGL)** / **GPU (Vulkan)** explicitly. Takes effect after restarting the app. An explicit `GSK_RENDERER` environment variable always wins. |
 | **Current version / update components** | Automatic | Shows the local `yt-dlp` version and lets you update the components downloaded by the app, such as `yt-dlp` and `deno`, in `~/.local/share/bigtube/bin/`. |
 
 ### Search
@@ -255,6 +256,7 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | `download_path` | `~/Downloads/BigTube/` | Download folder |
 | `theme_mode` | `system` | Interface theme |
 | `theme_color` | `default` | Color scheme |
+| `gsk_renderer` | `default` | Rendering engine (`default`/`gl`/`vulkan`/`cairo`) |
 | `default_quality` | `ask` | Preferred quality |
 | `max_concurrent_downloads` | `3` | Simultaneous downloads |
 | `add_metadata` | `false` | Metadata on downloads |

@@ -195,6 +195,7 @@ Las preferencias se guardan en `~/.config/bigtube/config.json`. Cuando el archiv
 |---------|---------|-------------|
 | **Tema de la interfaz** | Seguir al sistema | Define si la interfaz usa el tema del sistema, fuerza un tema claro o fuerza un tema oscuro. |
 | **Esquema de color** | Azul predeterminado | Cambia la paleta/color de acento de la interfaz. Opciones: Azul predeterminado, Violeta moderno, Verde esmeralda, Naranja Sunburst, Rosa vibrante, Cian nórdico, Nieve nórdica, Gruvbox Retro, Catppuccin Mocha, Dracula Dark, Tokyo Night, Rosé Pine, Solarized Dark, Monokai Pro, Cyberpunk Neon y Marca BigTube. |
+| **Motor de renderizado** | Automático | Elige el renderizador de GTK (GSK) usado para dibujar la interfaz. **Automático** deja que GTK elija el mejor renderizador de GPU (Vulkan/GL). Cambia a **Software (Cairo)** si aparecen fallos gráficos como parpadeo o franjas al desplazarte en ciertas combinaciones de Mesa/controlador, o elige **GPU (OpenGL)** / **GPU (Vulkan)** explícitamente. Surte efecto al reiniciar la aplicación. Una variable de entorno `GSK_RENDERER` siempre tiene prioridad. |
 | **Versión actual / actualizar componentes** | Automático | Muestra la versión local de `yt-dlp` y permite actualizar los componentes descargados por la aplicación, como `yt-dlp` y `deno`, en `~/.local/share/bigtube/bin/`. |
 
 ### Búsqueda
@@ -255,6 +256,7 @@ Las preferencias se guardan en `~/.config/bigtube/config.json`. Cuando el archiv
 | `download_path` | `~/Downloads/BigTube/` | Carpeta de descargas |
 | `theme_mode` | `system` | Tema de la interfaz |
 | `theme_color` | `default` | Esquema de color |
+| `gsk_renderer` | `default` | Motor de renderizado (`default`/`gl`/`vulkan`/`cairo`) |
 | `default_quality` | `ask` | Calidad preferida |
 | `max_concurrent_downloads` | `3` | Descargas simultáneas |
 | `add_metadata` | `false` | Metadatos en las descargas |
