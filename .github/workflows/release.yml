@@ -112,27 +112,7 @@ jobs:
           (cd rust && cargo build --release --locked)
 
           stage="$GITHUB_WORKSPACE/stage"
-          install -Dm755 rust/target/release/bigtube-gui "$stage/usr/bin/bigtube-gui"
-          install -Dm755 rust/target/release/bigtube     "$stage/usr/bin/bigtube"
-          install -Dm644 rust/packaging/io.github.eltonfabricio10.bigtube.desktop \
-            "$stage/usr/share/applications/io.github.eltonfabricio10.bigtube.desktop"
-          install -Dm644 src/bigtube/data/bigtube.png \
-            "$stage/usr/share/icons/hicolor/512x512/apps/bigtube.png"
-          install -Dm644 src/bigtube/data/bigtube.svg \
-            "$stage/usr/share/icons/hicolor/scalable/apps/bigtube.svg"
-          # Also install the icon under the app ID so the window icon (which KDE
-          # and others resolve by app_id) shows up, not just the launcher icon.
-          install -Dm644 src/bigtube/data/bigtube.png \
-            "$stage/usr/share/icons/hicolor/512x512/apps/io.github.eltonfabricio10.bigtube.png"
-          install -Dm644 src/bigtube/data/bigtube.svg \
-            "$stage/usr/share/icons/hicolor/scalable/apps/io.github.eltonfabricio10.bigtube.svg"
-          for po in po/*.po; do
-            [ -e "$po" ] || continue
-            lang="$(basename "$po" .po)"
-            install -d "$stage/usr/share/locale/$lang/LC_MESSAGES"
-            msgfmt "$po" -o "$stage/usr/share/locale/$lang/LC_MESSAGES/bigtube.mo"
-          done
-          install -Dm644 LICENSE "$stage/usr/share/licenses/bigtube/LICENSE"
+          bash rust/packaging/stage-tree.sh "$stage"
 
           tar -C "$stage" -czf "bigtube-${PKGVER}-x86_64.tar.gz" usr
           sha256sum "bigtube-${PKGVER}-x86_64.tar.gz"
@@ -151,6 +131,128 @@ jobs:
             gh release create "$TAG" "$GITHUB_WORKSPACE"/bigtube-*-x86_64.tar.gz \
               --title "$TAG" --generate-notes --repo "$GH_REPO"
           fi
+
+  build-deb:
+    name: Build .deb (Debian/Ubuntu)
+    needs: [prepare-release, build-and-release]
+    if: ${{ needs.prepare-release.outputs.should_release == 'true' }}
+    runs-on: ubuntu-latest
+    container:
+      # Build on Ubuntu 24.04 LTS (GTK 4.14, libadwaita 1.5, glibc 2.39) so the
+      # .deb links against the same library/glibc versions found on Ubuntu 24.04+
+      # and Debian 13. The code needs GTK >= 4.12 / libadwaita >= 1.5, so older
+      # bases (Debian 12, Ubuntu 22.04) can't build or run it anyway.
+      image: ubuntu:24.04
+    env:
+      DEBIAN_FRONTEND: noninteractive
+      PKGVER: ${{ needs.prepare-release.outputs.pkgver }}
+    steps:
+      - name: Install build tooling
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates curl git build-essential pkg-config gettext \
+            libgtk-4-dev libadwaita-1-dev libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev ruby ruby-dev
+          gem install --no-document fpm
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+            | sh -s -- -y --default-toolchain stable --profile minimal
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.prepare-release.outputs.tag }}
+
+      - name: Compile and build the .deb
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          (cd rust && cargo build --release --locked)
+
+          stage="$GITHUB_WORKSPACE/stage"
+          bash rust/packaging/stage-tree.sh "$stage"
+
+          fpm -s dir -t deb \
+            -n bigtube -v "$PKGVER" --iteration 1 -a amd64 \
+            --description "Universal Multimedia Downloader (GTK4/libadwaita + GStreamer)" \
+            --url "https://github.com/eltonfabricio10/bigtube" \
+            --license MIT --category net \
+            --maintainer "eltonff <eltonfabricio10@gmail.com>" \
+            --vendor "eltonff" \
+            --provides bigtube --conflicts bigtube --replaces bigtube \
+            --depends libgtk-4-1 --depends libadwaita-1-0 \
+            --depends libgstreamer1.0-0 --depends gstreamer1.0-plugins-base \
+            --depends gstreamer1.0-plugins-good --depends yt-dlp \
+            --deb-recommends gstreamer1.0-plugins-bad \
+            --deb-recommends gstreamer1.0-libav --deb-recommends ffmpeg \
+            -C "$stage" usr
+          ls -l bigtube_*.deb
+
+      - name: Attach the .deb to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare-release.outputs.tag }}
+          files: bigtube_*.deb
+          fail_on_unmatched_files: true
+
+  build-rpm:
+    name: Build .rpm (Fedora)
+    needs: [prepare-release, build-and-release]
+    if: ${{ needs.prepare-release.outputs.should_release == 'true' }}
+    runs-on: ubuntu-latest
+    container:
+      # Build on Fedora 40 (GTK 4.14, libadwaita 1.5) so the .rpm links against
+      # the right library/glibc versions for Fedora 40+.
+      image: fedora:40
+    env:
+      PKGVER: ${{ needs.prepare-release.outputs.pkgver }}
+    steps:
+      - name: Install build tooling
+        run: |
+          dnf -y install \
+            ca-certificates curl git gcc pkgconf-pkg-config gettext make \
+            gtk4-devel libadwaita-devel gstreamer1-devel \
+            gstreamer1-plugins-base-devel ruby ruby-devel rpm-build \
+            redhat-rpm-config
+          gem install --no-document fpm
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+            | sh -s -- -y --default-toolchain stable --profile minimal
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.prepare-release.outputs.tag }}
+
+      - name: Compile and build the .rpm
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          (cd rust && cargo build --release --locked)
+
+          stage="$GITHUB_WORKSPACE/stage"
+          bash rust/packaging/stage-tree.sh "$stage"
+
+          # ffmpeg and the gtk4 sink live in RPM Fusion (not Fedora's default
+          # repos), so they're documented rather than hard-required to keep the
+          # package installable everywhere.
+          fpm -s dir -t rpm \
+            -n bigtube -v "$PKGVER" --iteration 1 -a x86_64 \
+            --description "Universal Multimedia Downloader (GTK4/libadwaita + GStreamer)" \
+            --url "https://github.com/eltonfabricio10/bigtube" \
+            --license MIT --category Applications/Internet \
+            --maintainer "eltonff <eltonfabricio10@gmail.com>" \
+            --vendor "eltonff" \
+            --provides bigtube --conflicts bigtube \
+            --depends gtk4 --depends libadwaita --depends gstreamer1 \
+            --depends gstreamer1-plugins-base --depends gstreamer1-plugins-good \
+            --depends yt-dlp \
+            -C "$stage" usr
+          ls -l bigtube-*.rpm
+
+      - name: Attach the .rpm to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare-release.outputs.tag }}
+          files: bigtube-*.rpm
+          fail_on_unmatched_files: true
 
   deploy-aur:
     name: Deploy to Arch User Repository

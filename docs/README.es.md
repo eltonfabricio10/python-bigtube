@@ -108,6 +108,20 @@ paru -S bigtube-bin
 ```
 > El binario provee y reemplaza al antiguo paquete `bigtube` (`provides=bigtube`, `conflicts=bigtube`).
 
+### Debian / Ubuntu (.deb)
+Descarga el `.deb` de la [última versión](https://github.com/eltonfabricio10/bigtube/releases/latest) e instálalo (resuelve las dependencias automáticamente):
+```bash
+sudo apt install ./bigtube_*_amd64.deb
+```
+> Compilado en Ubuntu 24.04, por lo que requiere **Ubuntu 24.04+** o **Debian 13+** (GTK ≥ 4.12, libadwaita ≥ 1.5).
+
+### Fedora (.rpm)
+Descarga el `.rpm` de la [última versión](https://github.com/eltonfabricio10/bigtube/releases/latest) e instálalo:
+```bash
+sudo dnf install ./bigtube-*.x86_64.rpm
+```
+> Compilado en Fedora 40 (requiere **Fedora 40+**). `ffmpeg` (extracción de audio/conversión) está en [RPM Fusion](https://rpmfusion.org/) — actívalo y ejecuta `sudo dnf install ffmpeg` para esas funciones.
+
 ### Compilar desde el código fuente (Cargo)
 Requiere el conjunto de herramientas de Rust (`rustup`) y las dependencias del sistema que se indican a continuación.
 ```bash
