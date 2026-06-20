@@ -1785,3 +1785,6 @@ msgstr "Repornire necesară"
 
 msgid "The rendering engine only changes after a restart. Restart BigTube now?"
 msgstr "Motorul de randare se schimbă doar după repornire. Reporniți BigTube acum?"
+
+msgid "Playback unavailable — install the GStreamer gtk4 plugin"
+msgstr "Redare indisponibilă — instalați modulul gtk4 pentru GStreamer"

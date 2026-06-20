@@ -726,11 +726,15 @@ pub fn build_window(app: &adw::Application) {
     state.window.replace(Some(window.clone()));
 
     // Player + bottom transport bar. Flat bottom area so the player's rounded
-    // card visibly floats instead of sitting in a styled toolbar strip.
+    // card visibly floats instead of sitting in a styled toolbar strip. The
+    // player is optional: if its GStreamer video stack is missing we skip the
+    // transport bar and leave `state.player` None (playback attempts no-op with
+    // a toast), so the app still runs for downloads/conversion.
     toolbar.set_bottom_bar_style(adw::ToolbarStyle::Flat);
-    let (player, player_bar) = crate::player::build(&window);
-    toolbar.add_bottom_bar(&player_bar);
-    state.player.replace(Some(player));
+    if let Some((player, player_bar)) = crate::player::build(&window) {
+        toolbar.add_bottom_bar(&player_bar);
+        state.player.replace(Some(player));
+    }
 
     // Main-thread UI update loop.
     let state_for_loop = state.clone();
@@ -3803,6 +3807,9 @@ fn ask_remove_link_from_history(state: &Rc<AppState>, query: &str, body: String)
 /// isn't in the store (e.g. invoked from the playlist dialog).
 fn play_from_store(state: &Rc<AppState>, store: &gio::ListStore, clicked: &VideoObject) {
     let Some(player) = state.player.borrow().clone() else {
+        state.toast(&tr(
+            "Playback unavailable — install the GStreamer gtk4 plugin",
+        ));
         return;
     };
     let mut items = Vec::new();
@@ -4784,6 +4791,9 @@ fn card_of(child: &gtk::Widget) -> Option<gtk::Box> {
 /// them. Highlights follow via the shared NowPlaying handle.
 fn play_download_at(state: &Rc<AppState>, clicked: &gtk::Box) {
     let Some(player) = state.player.borrow().clone() else {
+        state.toast(&tr(
+            "Playback unavailable — install the GStreamer gtk4 plugin",
+        ));
         return;
     };
     let rows = state.download_rows.borrow();
@@ -4827,6 +4837,9 @@ fn play_download_at(state: &Rc<AppState>, clicked: &gtk::Box) {
 /// the clicked output isn't in history (e.g. converter history disabled).
 fn play_converter_at(state: &Rc<AppState>, clicked: &str) {
     let Some(player) = state.player.borrow().clone() else {
+        state.toast(&tr(
+            "Playback unavailable — install the GStreamer gtk4 plugin",
+        ));
         return;
     };
     if clicked.is_empty() {

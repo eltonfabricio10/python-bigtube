@@ -77,14 +77,28 @@ pub struct Player {
     _bus_watch: RefCell<Option<gst::bus::BusWatchGuard>>,
 }
 
-/// Build the player and its bottom bar widget.
-pub fn build(parent: &adw::ApplicationWindow) -> (Rc<Player>, gtk::Widget) {
-    let playbin = gst::ElementFactory::make("playbin")
-        .build()
-        .expect("playbin element");
-    let sink = gst::ElementFactory::make("gtk4paintablesink")
-        .build()
-        .expect("gtk4paintablesink element");
+/// Build the player and its bottom bar widget, or `None` when the required
+/// GStreamer elements are missing. A missing video stack must NOT take down the
+/// whole app (downloads/conversion still work) — every caller already treats the
+/// player as optional, so we just disable playback and skip the transport bar.
+pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget)> {
+    let playbin = match gst::ElementFactory::make("playbin").build() {
+        Ok(p) => p,
+        Err(e) => {
+            tracing::warn!("playback disabled — 'playbin' unavailable: {e}");
+            return None;
+        }
+    };
+    let sink = match gst::ElementFactory::make("gtk4paintablesink").build() {
+        Ok(s) => s,
+        Err(e) => {
+            tracing::warn!(
+                "playback disabled — 'gtk4paintablesink' unavailable \
+                 (install the GStreamer gtk4 plugin): {e}"
+            );
+            return None;
+        }
+    };
     let paintable: gtk::gdk::Paintable = sink.property("paintable");
     playbin.set_property("video-sink", &sink);
 
@@ -436,7 +450,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> (Rc<Player>, gtk::Widget) {
     // Start idle: nothing playing, all controls disabled.
     player.set_controls_enabled(false);
 
-    (player, bar.upcast())
+    Some((player, bar.upcast()))
 }
 
 impl Player {

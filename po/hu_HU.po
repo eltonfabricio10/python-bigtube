@@ -1780,3 +1780,6 @@ msgstr "Újraindítás szükséges"
 
 msgid "The rendering engine only changes after a restart. Restart BigTube now?"
 msgstr "A megjelenítő motor csak újraindítás után változik. Újraindítja most a BigTube-ot?"
+
+msgid "Playback unavailable — install the GStreamer gtk4 plugin"
+msgstr "A lejátszás nem érhető el — telepítse a GStreamer gtk4 bővítményt"

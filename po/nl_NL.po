@@ -1789,3 +1789,6 @@ msgstr "Herstart vereist"
 
 msgid "The rendering engine only changes after a restart. Restart BigTube now?"
 msgstr "De renderengine verandert pas na een herstart. BigTube nu herstarten?"
+
+msgid "Playback unavailable — install the GStreamer gtk4 plugin"
+msgstr "Afspelen niet beschikbaar — installeer de GStreamer-gtk4-plug-in"

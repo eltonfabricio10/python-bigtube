@@ -181,7 +181,8 @@ jobs:
             --provides bigtube --conflicts bigtube --replaces bigtube \
             --depends libgtk-4-1 --depends libadwaita-1-0 \
             --depends libgstreamer1.0-0 --depends gstreamer1.0-plugins-base \
-            --depends gstreamer1.0-plugins-good --depends yt-dlp \
+            --depends gstreamer1.0-plugins-good --depends gstreamer1.0-gtk4 \
+            --depends yt-dlp \
             --deb-recommends gstreamer1.0-plugins-bad \
             --deb-recommends gstreamer1.0-libav --deb-recommends ffmpeg \
             -C "$stage" usr
@@ -243,7 +244,7 @@ jobs:
             --provides bigtube --conflicts bigtube \
             --depends gtk4 --depends libadwaita --depends gstreamer1 \
             --depends gstreamer1-plugins-base --depends gstreamer1-plugins-good \
-            --depends yt-dlp \
+            --depends gstreamer1-plugin-gtk4 --depends yt-dlp \
             -C "$stage" usr
           ls -l bigtube-*.rpm
 

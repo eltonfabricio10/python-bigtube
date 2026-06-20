@@ -1774,3 +1774,6 @@ msgstr "Vyžadován restart"
 
 msgid "The rendering engine only changes after a restart. Restart BigTube now?"
 msgstr "Vykreslovací jádro se změní až po restartu. Restartovat BigTube nyní?"
+
+msgid "Playback unavailable — install the GStreamer gtk4 plugin"
+msgstr "Přehrávání není dostupné — nainstalujte zásuvný modul gtk4 pro GStreamer"

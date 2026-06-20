@@ -1778,3 +1778,6 @@ msgstr "Wymagane ponowne uruchomienie"
 
 msgid "The rendering engine only changes after a restart. Restart BigTube now?"
 msgstr "Silnik renderowania zmieni się dopiero po ponownym uruchomieniu. Uruchomić ponownie BigTube teraz?"
+
+msgid "Playback unavailable — install the GStreamer gtk4 plugin"
+msgstr "Odtwarzanie niedostępne — zainstaluj wtyczkę gtk4 GStreamer"
