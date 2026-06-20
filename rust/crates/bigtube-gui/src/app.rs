@@ -1763,7 +1763,6 @@ fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
         Cfg {
             theme_mode: cfg.get_string("theme_mode"),
             theme_color: cfg.get_string("theme_color"),
-            gsk_renderer: cfg.get_string("gsk_renderer"),
             default_quality: cfg.get_string("default_quality"),
             preview_quality: cfg.get_string("preview_quality"),
             download_path: cfg.get_string("download_path"),
@@ -1812,7 +1811,6 @@ fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
 struct Cfg {
     theme_mode: String,
     theme_color: String,
-    gsk_renderer: String,
     default_quality: String,
     preview_quality: String,
     download_path: String,
@@ -1906,60 +1904,6 @@ fn build_appearance_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGrou
         });
     }
     group.add(&color_row);
-
-    // Rendering engine (GSK). Applied at startup, so changing it asks for a
-    // restart. "Automatic" lets GTK pick (GPU); "Software (Cairo)" is the safe
-    // default that avoids GL/Vulkan scroll glitches on some drivers.
-    let renderer_values = ["default", "gl", "vulkan", "cairo"];
-    let renderer_row = combo_row(
-        &tr("Rendering Engine"),
-        &[
-            tr("Automatic"),
-            tr("GPU (OpenGL)"),
-            tr("GPU (Vulkan)"),
-            tr("Software (Cairo)"),
-        ],
-    );
-    renderer_row.set_subtitle(&tr("Used to draw the interface — restart to apply"));
-    renderer_row.set_selected(
-        renderer_values
-            .iter()
-            .position(|v| *v == c.gsk_renderer)
-            .unwrap_or(0) as u32,
-    );
-    {
-        let state = state.clone();
-        renderer_row.connect_selected_notify(move |row| {
-            let val = renderer_values
-                .get(row.selected() as usize)
-                .copied()
-                .unwrap_or("cairo");
-            set_cfg("gsk_renderer", serde_json::json!(val));
-            if let Some(window) = state.window.borrow().clone() {
-                let dialog = adw::MessageDialog::new(
-                    Some(&window),
-                    Some(&tr("Restart Required")),
-                    Some(&tr(
-                        "The rendering engine only changes after a restart. Restart BigTube now?",
-                    )),
-                );
-                dialog.add_response("no", &tr("Not Now"));
-                dialog.add_response("yes", &tr("Restart Now"));
-                dialog.set_response_appearance("yes", adw::ResponseAppearance::Suggested);
-                dialog.set_default_response(Some("yes"));
-                dialog.set_close_response("no");
-                apply_theme_classes(&dialog);
-                dialog.connect_response(None, |dlg, resp| {
-                    dlg.close();
-                    if resp == "yes" {
-                        restart_app();
-                    }
-                });
-                dialog.present();
-            }
-        });
-    }
-    group.add(&renderer_row);
 
     // Current version + yt-dlp update.
     let version_row = adw::ActionRow::builder()

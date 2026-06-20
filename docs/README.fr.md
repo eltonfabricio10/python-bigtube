@@ -195,7 +195,6 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 |---------|---------|-------------|
 | **Thème de l'interface** | Suivre le système | Définit si l'interface utilise le thème du système, force un thème clair ou force un thème sombre. |
 | **Schéma de couleurs** | Bleu par défaut | Modifie la palette/couleur d'accentuation de l'interface. Options : Bleu par défaut, Violet moderne, Vert émeraude, Orange éclatant, Rose vibrant, Cyan nordique, Neige nordique, Gruvbox rétro, Catppuccin Mocha, Dracula sombre, Tokyo Night, Rosé Pine, Solarized sombre, Monokai Pro, Cyberpunk néon et Marque BigTube. |
-| **Moteur de rendu** | Automatique | Choisit le moteur de rendu GTK (GSK) utilisé pour dessiner l'interface. **Automatique** laisse GTK choisir le meilleur moteur GPU (Vulkan/GL). Passez à **Software (Cairo)** si des défauts graphiques apparaissent (scintillement ou rayures lors du défilement) sur certaines combinaisons Mesa/pilote, ou choisissez **GPU (OpenGL)** / **GPU (Vulkan)** explicitement. Prend effet au redémarrage de l'application. Une variable d'environnement `GSK_RENDERER` est toujours prioritaire. |
 | **Version actuelle / mise à jour des composants** | Automatique | Affiche la version locale de `yt-dlp` et permet de mettre à jour les composants téléchargés par l'application, tels que `yt-dlp` et `deno`, dans `~/.local/share/bigtube/bin/`. |
 
 ### Recherche
@@ -256,7 +255,6 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | `download_path` | `~/Downloads/BigTube/` | Dossier de téléchargement |
 | `theme_mode` | `system` | Thème de l'interface |
 | `theme_color` | `default` | Schéma de couleurs |
-| `gsk_renderer` | `default` | Moteur de rendu (`default`/`gl`/`vulkan`/`cairo`) |
 | `default_quality` | `ask` | Qualité préférée |
 | `max_concurrent_downloads` | `3` | Téléchargements simultanés |
 | `add_metadata` | `false` | Métadonnées sur les téléchargements |

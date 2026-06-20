@@ -25,22 +25,16 @@ fn main() {
         )
         .init();
 
-    // Pick the GSK rendering engine from settings. The default ("default") lets
-    // GTK choose the best GPU renderer (Vulkan/GL); "cairo" (software) is the
-    // fallback for the rare GPU-renderer glitch, and conversely a cairo glitch
-    // is fixed by switching back to a GPU engine — so the choice is exposed in
-    // Settings (Appearance → Rendering Engine). An explicit GSK_RENDERER in the
-    // environment always wins.
-    if std::env::var_os("GSK_RENDERER").is_none() {
-        let choice = bigtube_core::config::global()
-            .read()
-            .map(|c| c.get_string("gsk_renderer"))
-            .unwrap_or_else(|_| "default".to_string());
-        match choice.as_str() {
-            "" | "default" | "auto" => {} // let GTK pick (GPU when available)
-            other => std::env::set_var("GSK_RENDERER", other),
-        }
-    }
+    // Force GSK to fully redraw every frame. GTK's partial-damage optimization
+    // under-damages while scrolling the results list on some GTK4/Mesa/KWin
+    // stacks, leaving stale "ghost" text/thumbnails behind until a hover
+    // repaints the row. Full redraws sidestep that at a negligible cost for an
+    // app this light. Append so an explicit GSK_DEBUG from the environment wins.
+    let gsk_debug = match std::env::var("GSK_DEBUG") {
+        Ok(v) if !v.is_empty() => format!("{v},full-redraw"),
+        _ => "full-redraw".to_string(),
+    };
+    std::env::set_var("GSK_DEBUG", gsk_debug);
 
     gstreamer::init().expect("GStreamer init failed");
     i18n::init();
