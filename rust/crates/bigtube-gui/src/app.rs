@@ -1925,7 +1925,7 @@ fn build_appearance_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGrou
         renderer_values
             .iter()
             .position(|v| *v == c.gsk_renderer)
-            .unwrap_or(3) as u32,
+            .unwrap_or(0) as u32,
     );
     {
         let state = state.clone();

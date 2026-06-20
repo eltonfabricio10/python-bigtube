@@ -25,17 +25,17 @@ fn main() {
         )
         .init();
 
-    // Pick the GSK rendering engine from settings (default "cairo", software).
-    // The cairo renderer dodges GL/Vulkan scroll flicker seen on some Mesa
-    // drivers, but its SHM buffers can themselves glitch under some newer
-    // Mesa/compositor combos — so the engine is user-selectable in Settings
-    // (Appearance → Rendering Engine). An explicit GSK_RENDERER in the
-    // environment always wins; "default" leaves the choice to GTK.
+    // Pick the GSK rendering engine from settings. The default ("default") lets
+    // GTK choose the best GPU renderer (Vulkan/GL); "cairo" (software) is the
+    // fallback for the rare GPU-renderer glitch, and conversely a cairo glitch
+    // is fixed by switching back to a GPU engine — so the choice is exposed in
+    // Settings (Appearance → Rendering Engine). An explicit GSK_RENDERER in the
+    // environment always wins.
     if std::env::var_os("GSK_RENDERER").is_none() {
         let choice = bigtube_core::config::global()
             .read()
             .map(|c| c.get_string("gsk_renderer"))
-            .unwrap_or_else(|_| "cairo".to_string());
+            .unwrap_or_else(|_| "default".to_string());
         match choice.as_str() {
             "" | "default" | "auto" => {} // let GTK pick (GPU when available)
             other => std::env::set_var("GSK_RENDERER", other),
