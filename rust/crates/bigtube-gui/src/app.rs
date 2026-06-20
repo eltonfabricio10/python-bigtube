@@ -1939,12 +1939,22 @@ fn build_appearance_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGrou
                 let dialog = adw::MessageDialog::new(
                     Some(&window),
                     Some(&tr("Restart Required")),
-                    Some(&tr("Restart BigTube to apply the rendering engine")),
+                    Some(&tr(
+                        "The rendering engine only changes after a restart. Restart BigTube now?",
+                    )),
                 );
-                dialog.add_response("ok", &tr("OK"));
-                dialog.set_default_response(Some("ok"));
-                dialog.set_close_response("ok");
+                dialog.add_response("no", &tr("Not Now"));
+                dialog.add_response("yes", &tr("Restart Now"));
+                dialog.set_response_appearance("yes", adw::ResponseAppearance::Suggested);
+                dialog.set_default_response(Some("yes"));
+                dialog.set_close_response("no");
                 apply_theme_classes(&dialog);
+                dialog.connect_response(None, |dlg, resp| {
+                    dlg.close();
+                    if resp == "yes" {
+                        restart_app();
+                    }
+                });
                 dialog.present();
             }
         });

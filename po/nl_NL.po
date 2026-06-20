@@ -1786,3 +1786,6 @@ msgstr "Herstart BigTube om de renderengine toe te passen"
 
 msgid "Restart Required"
 msgstr "Herstart vereist"
+
+msgid "The rendering engine only changes after a restart. Restart BigTube now?"
+msgstr "De renderengine verandert pas na een herstart. BigTube nu herstarten?"

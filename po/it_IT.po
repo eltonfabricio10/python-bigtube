@@ -1779,3 +1779,6 @@ msgstr "Riavvia BigTube per applicare il motore di rendering"
 
 msgid "Restart Required"
 msgstr "Riavvio necessario"
+
+msgid "The rendering engine only changes after a restart. Restart BigTube now?"
+msgstr "Il motore di rendering cambia solo dopo un riavvio. Riavviare BigTube ora?"

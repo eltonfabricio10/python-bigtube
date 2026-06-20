@@ -1782,3 +1782,6 @@ msgstr "Repornește BigTube pentru a aplica motorul de randare"
 
 msgid "Restart Required"
 msgstr "Repornire necesară"
+
+msgid "The rendering engine only changes after a restart. Restart BigTube now?"
+msgstr "Motorul de randare se schimbă doar după repornire. Reporniți BigTube acum?"

@@ -1771,3 +1771,6 @@ msgstr "Restartujte BigTube pro použití vykreslovacího jádra"
 
 msgid "Restart Required"
 msgstr "Vyžadován restart"
+
+msgid "The rendering engine only changes after a restart. Restart BigTube now?"
+msgstr "Vykreslovací jádro se změní až po restartu. Restartovat BigTube nyní?"

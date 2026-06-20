@@ -1769,3 +1769,6 @@ msgstr "Restart BigTube to apply the rendering engine"
 
 msgid "Restart Required"
 msgstr "Restart Required"
+
+msgid "The rendering engine only changes after a restart. Restart BigTube now?"
+msgstr "The rendering engine only changes after a restart. Restart BigTube now?"
