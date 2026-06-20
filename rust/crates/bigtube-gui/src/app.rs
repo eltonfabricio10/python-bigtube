@@ -869,6 +869,8 @@ pub fn build_window(app: &adw::Application) {
     // Restore persisted download / converter history into their lists.
     load_download_history(&state);
     load_converter_history(&state);
+    // Re-add converter items that were queued but never converted.
+    load_pending_conv(&state);
     // Recreate persisted scheduled downloads (re-arming their timers, or running
     // immediately any whose time passed while the app was closed).
     restore_scheduled_downloads(&state);
@@ -3243,6 +3245,18 @@ impl ConvUi {
 }
 
 fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
+    add_converter_row(state, path, None);
+}
+
+/// Build a converter row. `restore` carries the saved (format, metadata,
+/// subtitles) when re-creating a *pending* row on startup; `None` for a fresh
+/// add (which also pulls the user over to the Converter tab).
+fn add_converter_row(
+    state: &Rc<AppState>,
+    path: std::path::PathBuf,
+    restore: Option<(String, bool, bool)>,
+) {
+    let source = path.to_string_lossy().to_string();
     let name = path
         .file_name()
         .map(|n| n.to_string_lossy().to_string())
@@ -3269,6 +3283,11 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     name_lbl.set_ellipsize(gtk::pango::EllipsizeMode::End);
     name_lbl.add_css_class("heading");
     let format = gtk::DropDown::from_strings(formats);
+    if let Some((fmt, _, _)) = &restore {
+        if let Some(i) = formats.iter().position(|f| *f == fmt.as_str()) {
+            format.set_selected(i as u32);
+        }
+    }
     let convert = gtk::Button::from_icon_name("system-run-symbolic");
     convert.add_css_class("flat");
     convert.set_tooltip_text(Some(&tr("Convert")));
@@ -3300,9 +3319,9 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     // subtitle toggle only applies to video inputs.
     let opts = gtk::Box::new(gtk::Orientation::Horizontal, 12);
     let meta_chk = gtk::CheckButton::with_label(&tr("Add Metadata"));
-    meta_chk.set_active(true);
+    meta_chk.set_active(restore.as_ref().map(|r| r.1).unwrap_or(true));
     let subs_chk = gtk::CheckButton::with_label(&tr("Add Subtitles"));
-    subs_chk.set_active(true);
+    subs_chk.set_active(restore.as_ref().map(|r| r.2).unwrap_or(true));
     subs_chk.set_visible(is_video);
     opts.append(&meta_chk);
     opts.append(&subs_chk);
@@ -3332,7 +3351,10 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
     container.append(&pad);
     state.converter_box.append(&container);
     state.update_converter_empty();
-    state.stack.set_visible_child_name("converter");
+    // Don't yank the user to the Converter tab when restoring rows at startup.
+    if restore.is_none() {
+        state.stack.set_visible_child_name("converter");
+    }
 
     let ui = ConvUi {
         progress,
@@ -3346,6 +3368,41 @@ fn add_converter_file(state: &Rc<AppState>, path: std::path::PathBuf) {
         subs_chk: subs_chk.clone(),
         out_path: Rc::new(RefCell::new(String::new())),
     };
+
+    // Persist this as a pending item so it survives a restart even if it's never
+    // converted, and keep the stored format/options in sync as the user tweaks
+    // them. The entry is dropped on removal (confirm_delete_converter) or once
+    // the conversion succeeds (run_conversion).
+    let fmt_at = |i: u32| formats.get(i as usize).copied().unwrap_or("mp4");
+    save_pending_conv(
+        &source,
+        fmt_at(format.selected()),
+        meta_chk.is_active(),
+        subs_chk.is_active(),
+    );
+    {
+        let (src, meta, subs) = (source.clone(), meta_chk.clone(), subs_chk.clone());
+        format.connect_selected_notify(move |dd| {
+            save_pending_conv(
+                &src,
+                fmt_at(dd.selected()),
+                meta.is_active(),
+                subs.is_active(),
+            );
+        });
+    }
+    {
+        let (src, dd, subs) = (source.clone(), format.clone(), subs_chk.clone());
+        meta_chk.connect_toggled(move |m| {
+            save_pending_conv(&src, fmt_at(dd.selected()), m.is_active(), subs.is_active());
+        });
+    }
+    {
+        let (src, dd, meta) = (source.clone(), format.clone(), meta_chk.clone());
+        subs_chk.connect_toggled(move |s| {
+            save_pending_conv(&src, fmt_at(dd.selected()), meta.is_active(), s.is_active());
+        });
+    }
 
     // Remove this row from the list.
     {
@@ -3462,6 +3519,9 @@ fn run_conversion(
                     ui.progress.set_fraction(1.0);
                     ui.set_progress_class("success");
                     ui.status.set_text(&tr("Success!"));
+                    // Converted: it graduates from the pending queue (it'll be
+                    // recorded in converter history below if enabled).
+                    remove_pending_conv(&source);
                     ui.cancel.set_visible(false);
                     ui.convert.set_visible(true);
                     ui.set_inputs_sensitive(true);
@@ -5160,6 +5220,83 @@ fn converter_history_path() -> std::path::PathBuf {
     bigtube_core::paths::config_dir().join("converter_history.json")
 }
 
+/// Path to the persisted *pending* converter queue — files added to the
+/// Converter but not yet converted. Kept apart from converter_history.json
+/// (completed runs) so queued items survive a restart even if never converted.
+fn converter_pending_path() -> std::path::PathBuf {
+    bigtube_core::paths::config_dir().join("converter_pending.json")
+}
+
+/// Insert or update a pending converter entry, keyed by source path.
+fn save_pending_conv(source: &str, format: &str, metadata: bool, subtitles: bool) {
+    let mut items: Vec<serde_json::Value> =
+        bigtube_core::json_store::load_json(converter_pending_path(), Vec::new());
+    items.retain(|it| it.get("source").and_then(|v| v.as_str()) != Some(source));
+    items.push(serde_json::json!({
+        "source": source,
+        "format": format,
+        "metadata": metadata,
+        "subtitles": subtitles,
+    }));
+    bigtube_core::json_store::save_json(converter_pending_path(), &items, Some(2));
+}
+
+/// Drop a pending converter entry by source (no-op if absent).
+fn remove_pending_conv(source: &str) {
+    let mut items: Vec<serde_json::Value> =
+        bigtube_core::json_store::load_json(converter_pending_path(), Vec::new());
+    let before = items.len();
+    items.retain(|it| it.get("source").and_then(|v| v.as_str()) != Some(source));
+    if items.len() != before {
+        bigtube_core::json_store::save_json(converter_pending_path(), &items, Some(2));
+    }
+}
+
+/// Restore pending converter rows (added but not converted) on startup, pruning
+/// entries whose source file no longer exists.
+fn load_pending_conv(state: &Rc<AppState>) {
+    let items: Vec<serde_json::Value> =
+        bigtube_core::json_store::load_json(converter_pending_path(), Vec::new());
+    let mut kept = 0usize;
+    for it in &items {
+        let source = it.get("source").and_then(|v| v.as_str()).unwrap_or("");
+        if source.is_empty() || !std::path::Path::new(source).exists() {
+            continue; // source gone — drop the dead entry
+        }
+        let format = it
+            .get("format")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
+        let metadata = it.get("metadata").and_then(|v| v.as_bool()).unwrap_or(true);
+        let subtitles = it
+            .get("subtitles")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(true);
+        add_converter_row(
+            state,
+            std::path::PathBuf::from(source),
+            Some((format, metadata, subtitles)),
+        );
+        kept += 1;
+    }
+    // If we skipped any dead entries, rewrite the file without them (each
+    // restored row already re-saved itself via add_converter_row).
+    if kept != items.len() {
+        let alive: Vec<serde_json::Value> = items
+            .into_iter()
+            .filter(|it| {
+                it.get("source")
+                    .and_then(|v| v.as_str())
+                    .map(|s| !s.is_empty() && std::path::Path::new(s).exists())
+                    .unwrap_or(false)
+            })
+            .collect();
+        bigtube_core::json_store::save_json(converter_pending_path(), &alive, Some(2));
+    }
+    state.update_converter_empty();
+}
+
 /// Restore past conversions into the Converter list as completed rows.
 fn load_converter_history(state: &Rc<AppState>) {
     // Pure read: do NOT construct a ConverterHistoryManager here — its debouncer
@@ -5358,6 +5495,8 @@ fn confirm_delete_converter(
             }
             bigtube_core::converter_history::ConverterHistoryManager::new(converter_history_path())
                 .remove_entry(&source, format.as_deref());
+            // Drop it from the pending queue too (no-op for finished rows).
+            remove_pending_conv(&source);
             remove_list_card(&state.converter_box, &container);
             state.update_converter_empty();
         }
