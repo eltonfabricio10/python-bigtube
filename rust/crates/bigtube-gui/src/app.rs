@@ -190,6 +190,7 @@ impl DownloadRow {
                 for c in ["success", "warning", "error"] {
                     progress_c.remove_css_class(c);
                 }
+                cancel_c.set_visible(true);
                 cancel_c.set_sensitive(true);
                 if let Some(cb) = pf.borrow().as_ref().cloned() {
                     std::thread::spawn(move || {
@@ -255,6 +256,24 @@ impl DownloadRow {
             self.detail.set_text(d);
             self.detail.set_visible(true);
         }
+        // The Cancel button only makes sense while a transfer is actually
+        // running — hide it in the idle "Queued" state. (A pending *scheduled*
+        // row keeps its own Cancel: it never reaches update() until it starts.)
+        let in_progress = matches!(
+            status,
+            StatusCode::Starting
+                | StatusCode::Downloading
+                | StatusCode::Processing
+                | StatusCode::Merging
+                | StatusCode::Extracting
+                | StatusCode::Resuming
+        );
+        if in_progress {
+            self.cancel.set_visible(true);
+            self.cancel.set_sensitive(true);
+        } else if status == StatusCode::Queued {
+            self.cancel.set_visible(false);
+        }
         if status == StatusCode::Completed {
             self.mark_completed();
         } else if status.is_error() {
@@ -290,8 +309,9 @@ impl DownloadRow {
         self.pause.set_sensitive(true);
         self.pause.set_icon_name("view-refresh-symbolic");
         self.pause.set_tooltip_text(Some(&tr("Retry")));
-        self.cancel.set_visible(true);
-        self.cancel.set_sensitive(true);
+        // Idle initial state — nothing to cancel; the X reappears once Retry
+        // restarts the transfer (update() shows it on the next progress tick).
+        self.cancel.set_visible(false);
     }
 
     /// Apply exactly one of the success/warning/error progress styles.
