@@ -1020,8 +1020,8 @@ button:focus:not(:focus-visible) {
     border-radius: 8px;
 }
 .playing {
-    background-color: alpha(var(--accent-bg-color), 0.18);
-    box-shadow: inset 3px 0 0 0 var(--accent-bg-color);
+    background-color: alpha(var(--bigtube-accent), 0.18);
+    box-shadow: inset 3px 0 0 0 var(--bigtube-accent);
 }
 
 /* -----------------------------------------------------------------------------
