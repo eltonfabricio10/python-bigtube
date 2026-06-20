@@ -1735,3 +1735,15 @@ msgstr "Z tohoto odkazu se nepodařilo získat video ani zvuk."
 
 msgid "Keep"
 msgstr "Ponechat"
+
+msgid "Remove When Complete"
+msgstr "Odebrat po dokončení"
+
+msgid "Automatically remove a download from the list once it finishes"
+msgstr "Po dokončení automaticky odebere stahování ze seznamu"
+
+msgid "Remove When Cancelled"
+msgstr "Odebrat při zrušení"
+
+msgid "Automatically remove a download from the list when it is cancelled"
+msgstr "Při zrušení automaticky odebere stahování ze seznamu"

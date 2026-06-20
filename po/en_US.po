@@ -1733,3 +1733,15 @@ msgstr "Couldn't get video or audio from this link."
 
 msgid "Keep"
 msgstr "Keep"
+
+msgid "Remove When Complete"
+msgstr "Remove When Complete"
+
+msgid "Automatically remove a download from the list once it finishes"
+msgstr "Automatically remove a download from the list once it finishes"
+
+msgid "Remove When Cancelled"
+msgstr "Remove When Cancelled"
+
+msgid "Automatically remove a download from the list when it is cancelled"
+msgstr "Automatically remove a download from the list when it is cancelled"

@@ -708,10 +708,28 @@ pub fn build_window(app: &adw::Application) {
                         row.update(percent.as_deref(), status, detail.as_deref());
                         (row.file_path.borrow().clone(), row.is_paused.get())
                     });
-                    // On completion, probe the real file (codecs + on-disk size)
-                    // off-thread and show it as the row's status.
+                    // On completion: either auto-remove the finished row (opt-in,
+                    // "remove when complete") or probe the real file (codecs +
+                    // on-disk size) off-thread and show it as the row's status.
                     if status == StatusCode::Completed {
-                        if let Some(path) = info
+                        let remove = config::global()
+                            .read()
+                            .map(|c| c.get_bool("remove_on_complete"))
+                            .unwrap_or(false);
+                        if remove {
+                            if let Some((path, _)) = &info {
+                                if !path.is_empty() {
+                                    bigtube_core::history::HistoryManager::new(history_path())
+                                        .remove_entry(path);
+                                }
+                            }
+                            if let Some(row) =
+                                state_for_loop.download_rows.borrow_mut().remove(&key)
+                            {
+                                remove_list_card(&state_for_loop.downloads_box, &row.container);
+                            }
+                            state_for_loop.update_downloads_empty();
+                        } else if let Some(path) = info
                             .as_ref()
                             .map(|(p, _)| p.clone())
                             .filter(|p| !p.is_empty())
@@ -728,20 +746,31 @@ pub fn build_window(app: &adw::Application) {
                         }
                     }
                     // A REAL cancel (not a pause): the core already deleted the
-                    // partial files — here drop the row and its history entry.
+                    // partial files. Drop the row + history entry only when
+                    // "remove when cancelled" is on; otherwise keep the cancelled
+                    // row visible in the list.
                     if status == StatusCode::Cancelled {
-                        if let Some((path, paused)) = &info {
-                            if !paused {
-                                if !path.is_empty() {
-                                    bigtube_core::history::HistoryManager::new(history_path())
-                                        .remove_entry(path);
+                        let remove = config::global()
+                            .read()
+                            .map(|c| c.get_bool("remove_on_cancel"))
+                            .unwrap_or(false);
+                        if remove {
+                            if let Some((path, paused)) = &info {
+                                if !paused {
+                                    if !path.is_empty() {
+                                        bigtube_core::history::HistoryManager::new(history_path())
+                                            .remove_entry(path);
+                                    }
+                                    if let Some(row) =
+                                        state_for_loop.download_rows.borrow_mut().remove(&key)
+                                    {
+                                        remove_list_card(
+                                            &state_for_loop.downloads_box,
+                                            &row.container,
+                                        );
+                                    }
+                                    state_for_loop.update_downloads_empty();
                                 }
-                                if let Some(row) =
-                                    state_for_loop.download_rows.borrow_mut().remove(&key)
-                                {
-                                    remove_list_card(&state_for_loop.downloads_box, &row.container);
-                                }
-                                state_for_loop.update_downloads_empty();
                             }
                         }
                     }
@@ -1728,6 +1757,8 @@ fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
             subtitle_auto: cfg.get_bool("subtitle_auto"),
             system_notifications: cfg.get_bool("system_notifications"),
             monitor_clipboard: cfg.get_bool("monitor_clipboard"),
+            remove_on_complete: cfg.get_bool("remove_on_complete"),
+            remove_on_cancel: cfg.get_bool("remove_on_cancel"),
             post_process_cmd: cfg.get_string("post_process_cmd"),
             cookies_file: cfg.get_string("cookies_file"),
             cookies_browser: cfg.get_string("cookies_browser"),
@@ -1774,6 +1805,8 @@ struct Cfg {
     subtitle_auto: bool,
     system_notifications: bool,
     monitor_clipboard: bool,
+    remove_on_complete: bool,
+    remove_on_cancel: bool,
     post_process_cmd: String,
     cookies_file: String,
     cookies_browser: String,
@@ -1962,6 +1995,18 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         &tr("Detect copied links and offer to download them"),
         c.monitor_clipboard,
         |v| set_cfg("monitor_clipboard", serde_json::json!(v)),
+    ));
+    group.add(&switch_row(
+        &tr("Remove When Complete"),
+        &tr("Automatically remove a download from the list once it finishes"),
+        c.remove_on_complete,
+        |v| set_cfg("remove_on_complete", serde_json::json!(v)),
+    ));
+    group.add(&switch_row(
+        &tr("Remove When Cancelled"),
+        &tr("Automatically remove a download from the list when it is cancelled"),
+        c.remove_on_cancel,
+        |v| set_cfg("remove_on_cancel", serde_json::json!(v)),
     ));
 
     group

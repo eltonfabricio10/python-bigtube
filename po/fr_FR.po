@@ -1755,3 +1755,16 @@ msgstr "Impossible de récupérer la vidéo ou l’audio de ce lien."
 
 msgid "Keep"
 msgstr "Conserver"
+
+msgid "Remove When Complete"
+msgstr "Supprimer une fois terminé"
+
+msgid "Automatically remove a download from the list once it finishes"
+msgstr "Retire automatiquement un téléchargement de la liste une fois terminé"
+
+msgid "Remove When Cancelled"
+msgstr "Supprimer à l’annulation"
+
+msgid "Automatically remove a download from the list when it is cancelled"
+msgstr ""
+"Retire automatiquement un téléchargement de la liste lorsqu’il est annulé"

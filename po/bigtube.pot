@@ -1714,3 +1714,15 @@ msgstr ""
 
 msgid "Keep"
 msgstr ""
+
+msgid "Remove When Complete"
+msgstr ""
+
+msgid "Automatically remove a download from the list once it finishes"
+msgstr ""
+
+msgid "Remove When Cancelled"
+msgstr ""
+
+msgid "Automatically remove a download from the list when it is cancelled"
+msgstr ""

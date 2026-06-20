@@ -1741,3 +1741,15 @@ msgstr "Não foi possível obter vídeo ou áudio desta ligação."
 
 msgid "Keep"
 msgstr "Manter"
+
+msgid "Remove When Complete"
+msgstr "Remover ao Concluir"
+
+msgid "Automatically remove a download from the list once it finishes"
+msgstr "Remove automaticamente uma transferência da lista assim que termina"
+
+msgid "Remove When Cancelled"
+msgstr "Remover ao Cancelar"
+
+msgid "Automatically remove a download from the list when it is cancelled"
+msgstr "Remove automaticamente uma transferência da lista quando é cancelada"

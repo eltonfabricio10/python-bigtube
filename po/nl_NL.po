@@ -1748,3 +1748,17 @@ msgstr "Kon geen video of audio van deze link ophalen."
 
 msgid "Keep"
 msgstr "Behouden"
+
+msgid "Remove When Complete"
+msgstr "Verwijderen bij voltooien"
+
+msgid "Automatically remove a download from the list once it finishes"
+msgstr "Verwijdert een download automatisch uit de lijst zodra deze klaar is"
+
+msgid "Remove When Cancelled"
+msgstr "Verwijderen bij annuleren"
+
+msgid "Automatically remove a download from the list when it is cancelled"
+msgstr ""
+"Verwijdert een download automatisch uit de lijst wanneer deze wordt "
+"geannuleerd"

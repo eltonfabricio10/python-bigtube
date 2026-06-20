@@ -1739,3 +1739,15 @@ msgstr "Nie udało się pobrać wideo ani dźwięku z tego linku."
 
 msgid "Keep"
 msgstr "Zachowaj"
+
+msgid "Remove When Complete"
+msgstr "Usuń po zakończeniu"
+
+msgid "Automatically remove a download from the list once it finishes"
+msgstr "Automatycznie usuwa pobieranie z listy po jego zakończeniu"
+
+msgid "Remove When Cancelled"
+msgstr "Usuń po anulowaniu"
+
+msgid "Automatically remove a download from the list when it is cancelled"
+msgstr "Automatycznie usuwa pobieranie z listy po jego anulowaniu"

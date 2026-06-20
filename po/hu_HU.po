@@ -1741,3 +1741,15 @@ msgstr "Nem sikerült videót vagy hangot lekérni erről a hivatkozásról."
 
 msgid "Keep"
 msgstr "Megtartás"
+
+msgid "Remove When Complete"
+msgstr "Eltávolítás befejezéskor"
+
+msgid "Automatically remove a download from the list once it finishes"
+msgstr "Automatikusan eltávolítja a letöltést a listából, amint befejeződik"
+
+msgid "Remove When Cancelled"
+msgstr "Eltávolítás megszakításkor"
+
+msgid "Automatically remove a download from the list when it is cancelled"
+msgstr "Automatikusan eltávolítja a letöltést a listából, ha megszakítják"
