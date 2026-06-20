@@ -269,10 +269,29 @@ impl DownloadRow {
             self.cancel.set_visible(true);
             self.cancel.set_sensitive(true);
         } else if status == StatusCode::Cancelled {
-            self.set_progress_class("warning");
-            self.pause.set_sensitive(false);
-            self.cancel.set_sensitive(false);
+            // A real cancel (not a pause): don't leave a dead "Cancelled" row —
+            // reset it to the initial, restartable look.
+            self.reset_to_initial();
         }
+    }
+
+    /// Return a cancelled row to its initial "Queued" appearance: empty bar, no
+    /// status colour, and the pause button turned into a Retry that re-runs the
+    /// download from scratch (the core clears its cancelled flag on resume).
+    fn reset_to_initial(&self) {
+        self.is_error.set(true); // routes the pause button to the retry path
+        self.is_paused.set(false);
+        self.progress.set_fraction(0.0);
+        self.set_progress_class("");
+        self.detail.set_visible(false);
+        self.actions.set_visible(false);
+        self.status.set_text(&tr("Queued"));
+        self.pause.set_visible(true);
+        self.pause.set_sensitive(true);
+        self.pause.set_icon_name("view-refresh-symbolic");
+        self.pause.set_tooltip_text(Some(&tr("Retry")));
+        self.cancel.set_visible(true);
+        self.cancel.set_sensitive(true);
     }
 
     /// Apply exactly one of the success/warning/error progress styles.
@@ -747,8 +766,8 @@ pub fn build_window(app: &adw::Application) {
                     }
                     // A REAL cancel (not a pause): the core already deleted the
                     // partial files. Drop the row + history entry only when
-                    // "remove when cancelled" is on; otherwise keep the cancelled
-                    // row visible in the list.
+                    // "remove when cancelled" is on; otherwise the row was just
+                    // reset to its initial, restartable state by `update`.
                     if status == StatusCode::Cancelled {
                         let remove = config::global()
                             .read()
