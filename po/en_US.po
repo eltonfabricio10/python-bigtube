@@ -1766,3 +1766,6 @@ msgstr "Used to draw the interface — restart to apply"
 
 msgid "Restart BigTube to apply the rendering engine"
 msgstr "Restart BigTube to apply the rendering engine"
+
+msgid "Restart Required"
+msgstr "Restart Required"

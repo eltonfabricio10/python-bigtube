@@ -1771,3 +1771,6 @@ msgstr "Slúži na vykreslenie rozhrania — prejaví sa po reštarte"
 
 msgid "Restart BigTube to apply the rendering engine"
 msgstr "Reštartujte BigTube na použitie vykresľovacieho jadra"
+
+msgid "Restart Required"
+msgstr "Vyžaduje sa reštart"

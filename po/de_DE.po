@@ -1777,3 +1777,6 @@ msgstr "Zeichnet die Oberfläche — zum Anwenden neu starten"
 
 msgid "Restart BigTube to apply the rendering engine"
 msgstr "BigTube neu starten, um die Rendering-Engine anzuwenden"
+
+msgid "Restart Required"
+msgstr "Neustart erforderlich"

@@ -1780,3 +1780,6 @@ msgstr "Se usa para dibujar la interfaz — reiniciá para aplicar"
 
 msgid "Restart BigTube to apply the rendering engine"
 msgstr "Reiniciá BigTube para aplicar el motor de renderizado"
+
+msgid "Restart Required"
+msgstr "Reinicio requerido"

@@ -1783,3 +1783,6 @@ msgstr "Gebruikt om de interface te tekenen — herstart om toe te passen"
 
 msgid "Restart BigTube to apply the rendering engine"
 msgstr "Herstart BigTube om de renderengine toe te passen"
+
+msgid "Restart Required"
+msgstr "Herstart vereist"

@@ -1747,3 +1747,6 @@ msgstr ""
 
 msgid "Restart BigTube to apply the rendering engine"
 msgstr ""
+
+msgid "Restart Required"
+msgstr ""

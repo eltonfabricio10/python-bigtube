@@ -1772,3 +1772,6 @@ msgstr "Służy do rysowania interfejsu — uruchom ponownie, aby zastosować"
 
 msgid "Restart BigTube to apply the rendering engine"
 msgstr "Uruchom ponownie BigTube, aby zastosować silnik renderowania"
+
+msgid "Restart Required"
+msgstr "Wymagane ponowne uruchomienie"

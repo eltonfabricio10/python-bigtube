@@ -1774,3 +1774,6 @@ msgstr "Usado para desenhar a interface — reinicie para aplicar"
 
 msgid "Restart BigTube to apply the rendering engine"
 msgstr "Reinicie o BigTube para aplicar o motor de renderização"
+
+msgid "Restart Required"
+msgstr "Reinício necessário"

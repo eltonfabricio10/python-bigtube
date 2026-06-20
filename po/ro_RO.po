@@ -1779,3 +1779,6 @@ msgstr "Folosit pentru a desena interfața — repornește pentru a aplica"
 
 msgid "Restart BigTube to apply the rendering engine"
 msgstr "Repornește BigTube pentru a aplica motorul de randare"
+
+msgid "Restart Required"
+msgstr "Repornire necesară"

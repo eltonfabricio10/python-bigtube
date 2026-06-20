@@ -1774,3 +1774,6 @@ msgstr "A felület rajzolásához — újraindítás után lép életbe"
 
 msgid "Restart BigTube to apply the rendering engine"
 msgstr "Indítsa újra a BigTube-ot a megjelenítő motor alkalmazásához"
+
+msgid "Restart Required"
+msgstr "Újraindítás szükséges"

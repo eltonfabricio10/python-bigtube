@@ -1768,3 +1768,6 @@ msgstr "Slouží k vykreslení rozhraní — projeví se po restartu"
 
 msgid "Restart BigTube to apply the rendering engine"
 msgstr "Restartujte BigTube pro použití vykreslovacího jádra"
+
+msgid "Restart Required"
+msgstr "Vyžadován restart"

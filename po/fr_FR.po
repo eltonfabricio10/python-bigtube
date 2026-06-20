@@ -1789,3 +1789,6 @@ msgstr "Sert à dessiner l’interface — redémarrez pour appliquer"
 
 msgid "Restart BigTube to apply the rendering engine"
 msgstr "Redémarrez BigTube pour appliquer le moteur de rendu"
+
+msgid "Restart Required"
+msgstr "Redémarrage requis"

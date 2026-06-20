@@ -1935,7 +1935,18 @@ fn build_appearance_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGrou
                 .copied()
                 .unwrap_or("cairo");
             set_cfg("gsk_renderer", serde_json::json!(val));
-            state.toast(&tr("Restart BigTube to apply the rendering engine"));
+            if let Some(window) = state.window.borrow().clone() {
+                let dialog = adw::MessageDialog::new(
+                    Some(&window),
+                    Some(&tr("Restart Required")),
+                    Some(&tr("Restart BigTube to apply the rendering engine")),
+                );
+                dialog.add_response("ok", &tr("OK"));
+                dialog.set_default_response(Some("ok"));
+                dialog.set_close_response("ok");
+                apply_theme_classes(&dialog);
+                dialog.present();
+            }
         });
     }
     group.add(&renderer_row);
