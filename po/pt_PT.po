@@ -1753,3 +1753,24 @@ msgstr "Remover ao Cancelar"
 
 msgid "Automatically remove a download from the list when it is cancelled"
 msgstr "Remove automaticamente uma transferência da lista quando é cancelada"
+
+msgid "Rendering Engine"
+msgstr "Motor de Renderização"
+
+msgid "Automatic"
+msgstr "Automático"
+
+msgid "GPU (OpenGL)"
+msgstr "GPU (OpenGL)"
+
+msgid "GPU (Vulkan)"
+msgstr "GPU (Vulkan)"
+
+msgid "Software (Cairo)"
+msgstr "Software (Cairo)"
+
+msgid "Used to draw the interface — restart to apply"
+msgstr "Usado para desenhar a interface — reinicie para aplicar"
+
+msgid "Restart BigTube to apply the rendering engine"
+msgstr "Reinicie o BigTube para aplicar o motor de renderização"

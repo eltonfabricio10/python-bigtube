@@ -1755,3 +1755,24 @@ msgstr "Rimuovi all’annullamento"
 msgid "Automatically remove a download from the list when it is cancelled"
 msgstr ""
 "Rimuove automaticamente un download dalla lista quando viene annullato"
+
+msgid "Rendering Engine"
+msgstr "Motore di rendering"
+
+msgid "Automatic"
+msgstr "Automatico"
+
+msgid "GPU (OpenGL)"
+msgstr "GPU (OpenGL)"
+
+msgid "GPU (Vulkan)"
+msgstr "GPU (Vulkan)"
+
+msgid "Software (Cairo)"
+msgstr "Software (Cairo)"
+
+msgid "Used to draw the interface — restart to apply"
+msgstr "Usato per disegnare l’interfaccia — riavvia per applicare"
+
+msgid "Restart BigTube to apply the rendering engine"
+msgstr "Riavvia BigTube per applicare il motore di rendering"

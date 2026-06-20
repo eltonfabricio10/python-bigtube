@@ -25,13 +25,21 @@ fn main() {
         )
         .init();
 
-    // Default to the software (cairo) GSK renderer. The GL/Vulkan renderers leave
-    // flickering artifacts during scroll on some Mesa drivers; UI compositing on
-    // the CPU is negligible for a downloader, and GStreamer still hardware-decodes
-    // video (only the final blit is CPU). Power users can override by exporting
-    // their own GSK_RENDERER before launch.
+    // Pick the GSK rendering engine from settings (default "cairo", software).
+    // The cairo renderer dodges GL/Vulkan scroll flicker seen on some Mesa
+    // drivers, but its SHM buffers can themselves glitch under some newer
+    // Mesa/compositor combos — so the engine is user-selectable in Settings
+    // (Appearance → Rendering Engine). An explicit GSK_RENDERER in the
+    // environment always wins; "default" leaves the choice to GTK.
     if std::env::var_os("GSK_RENDERER").is_none() {
-        std::env::set_var("GSK_RENDERER", "cairo");
+        let choice = bigtube_core::config::global()
+            .read()
+            .map(|c| c.get_string("gsk_renderer"))
+            .unwrap_or_else(|_| "cairo".to_string());
+        match choice.as_str() {
+            "" | "default" | "auto" => {} // let GTK pick (GPU when available)
+            other => std::env::set_var("GSK_RENDERER", other),
+        }
     }
 
     gstreamer::init().expect("GStreamer init failed");

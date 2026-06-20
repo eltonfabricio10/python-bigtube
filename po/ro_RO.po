@@ -1758,3 +1758,24 @@ msgstr "Elimină la anulare"
 
 msgid "Automatically remove a download from the list when it is cancelled"
 msgstr "Elimină automat o descărcare din listă când este anulată"
+
+msgid "Rendering Engine"
+msgstr "Motor de randare"
+
+msgid "Automatic"
+msgstr "Automat"
+
+msgid "GPU (OpenGL)"
+msgstr "GPU (OpenGL)"
+
+msgid "GPU (Vulkan)"
+msgstr "GPU (Vulkan)"
+
+msgid "Software (Cairo)"
+msgstr "Software (Cairo)"
+
+msgid "Used to draw the interface — restart to apply"
+msgstr "Folosit pentru a desena interfața — repornește pentru a aplica"
+
+msgid "Restart BigTube to apply the rendering engine"
+msgstr "Repornește BigTube pentru a aplica motorul de randare"

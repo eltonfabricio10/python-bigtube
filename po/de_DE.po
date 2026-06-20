@@ -1756,3 +1756,24 @@ msgstr "Bei Abbruch entfernen"
 
 msgid "Automatically remove a download from the list when it is cancelled"
 msgstr "Entfernt einen Download aus der Liste, wenn er abgebrochen wird"
+
+msgid "Rendering Engine"
+msgstr "Rendering-Engine"
+
+msgid "Automatic"
+msgstr "Automatisch"
+
+msgid "GPU (OpenGL)"
+msgstr "GPU (OpenGL)"
+
+msgid "GPU (Vulkan)"
+msgstr "GPU (Vulkan)"
+
+msgid "Software (Cairo)"
+msgstr "Software (Cairo)"
+
+msgid "Used to draw the interface — restart to apply"
+msgstr "Zeichnet die Oberfläche — zum Anwenden neu starten"
+
+msgid "Restart BigTube to apply the rendering engine"
+msgstr "BigTube neu starten, um die Rendering-Engine anzuwenden"

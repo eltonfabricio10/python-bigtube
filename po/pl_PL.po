@@ -1751,3 +1751,24 @@ msgstr "Usuń po anulowaniu"
 
 msgid "Automatically remove a download from the list when it is cancelled"
 msgstr "Automatycznie usuwa pobieranie z listy po jego anulowaniu"
+
+msgid "Rendering Engine"
+msgstr "Silnik renderowania"
+
+msgid "Automatic"
+msgstr "Automatyczny"
+
+msgid "GPU (OpenGL)"
+msgstr "GPU (OpenGL)"
+
+msgid "GPU (Vulkan)"
+msgstr "GPU (Vulkan)"
+
+msgid "Software (Cairo)"
+msgstr "Software (Cairo)"
+
+msgid "Used to draw the interface — restart to apply"
+msgstr "Służy do rysowania interfejsu — uruchom ponownie, aby zastosować"
+
+msgid "Restart BigTube to apply the rendering engine"
+msgstr "Uruchom ponownie BigTube, aby zastosować silnik renderowania"

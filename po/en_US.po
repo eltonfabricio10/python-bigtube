@@ -1745,3 +1745,24 @@ msgstr "Remove When Cancelled"
 
 msgid "Automatically remove a download from the list when it is cancelled"
 msgstr "Automatically remove a download from the list when it is cancelled"
+
+msgid "Rendering Engine"
+msgstr "Rendering Engine"
+
+msgid "Automatic"
+msgstr "Automatic"
+
+msgid "GPU (OpenGL)"
+msgstr "GPU (OpenGL)"
+
+msgid "GPU (Vulkan)"
+msgstr "GPU (Vulkan)"
+
+msgid "Software (Cairo)"
+msgstr "Software (Cairo)"
+
+msgid "Used to draw the interface — restart to apply"
+msgstr "Used to draw the interface — restart to apply"
+
+msgid "Restart BigTube to apply the rendering engine"
+msgstr "Restart BigTube to apply the rendering engine"

@@ -1762,3 +1762,24 @@ msgid "Automatically remove a download from the list when it is cancelled"
 msgstr ""
 "Verwijdert een download automatisch uit de lijst wanneer deze wordt "
 "geannuleerd"
+
+msgid "Rendering Engine"
+msgstr "Renderengine"
+
+msgid "Automatic"
+msgstr "Automatisch"
+
+msgid "GPU (OpenGL)"
+msgstr "GPU (OpenGL)"
+
+msgid "GPU (Vulkan)"
+msgstr "GPU (Vulkan)"
+
+msgid "Software (Cairo)"
+msgstr "Software (Cairo)"
+
+msgid "Used to draw the interface — restart to apply"
+msgstr "Gebruikt om de interface te tekenen — herstart om toe te passen"
+
+msgid "Restart BigTube to apply the rendering engine"
+msgstr "Herstart BigTube om de renderengine toe te passen"

@@ -1750,3 +1750,24 @@ msgstr "Odstrániť pri zrušení"
 
 msgid "Automatically remove a download from the list when it is cancelled"
 msgstr "Pri zrušení automaticky odstráni sťahovanie zo zoznamu"
+
+msgid "Rendering Engine"
+msgstr "Vykresľovacie jadro"
+
+msgid "Automatic"
+msgstr "Automaticky"
+
+msgid "GPU (OpenGL)"
+msgstr "GPU (OpenGL)"
+
+msgid "GPU (Vulkan)"
+msgstr "GPU (Vulkan)"
+
+msgid "Software (Cairo)"
+msgstr "Software (Cairo)"
+
+msgid "Used to draw the interface — restart to apply"
+msgstr "Slúži na vykreslenie rozhrania — prejaví sa po reštarte"
+
+msgid "Restart BigTube to apply the rendering engine"
+msgstr "Reštartujte BigTube na použitie vykresľovacieho jadra"

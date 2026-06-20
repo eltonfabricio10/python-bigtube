@@ -1726,3 +1726,24 @@ msgstr ""
 
 msgid "Automatically remove a download from the list when it is cancelled"
 msgstr ""
+
+msgid "Rendering Engine"
+msgstr ""
+
+msgid "Automatic"
+msgstr ""
+
+msgid "GPU (OpenGL)"
+msgstr ""
+
+msgid "GPU (Vulkan)"
+msgstr ""
+
+msgid "Software (Cairo)"
+msgstr ""
+
+msgid "Used to draw the interface — restart to apply"
+msgstr ""
+
+msgid "Restart BigTube to apply the rendering engine"
+msgstr ""

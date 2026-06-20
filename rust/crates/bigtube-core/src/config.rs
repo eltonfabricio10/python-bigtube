@@ -340,6 +340,9 @@ fn build_defaults() -> Map<String, Value> {
     m.insert("download_path".into(), json!(bigtube.to_string_lossy()));
     m.insert("theme_mode".into(), json!("system"));
     m.insert("theme_color".into(), json!("default"));
+    // GSK rendering engine: "cairo" (software, the safe default), "gl"/"vulkan"
+    // (GPU), or "default" (let GTK choose). Read once at startup.
+    m.insert("gsk_renderer".into(), json!("cairo"));
     m.insert("default_quality".into(), json!("ask"));
     m.insert("max_concurrent_downloads".into(), json!(3));
     m.insert("add_metadata".into(), json!(false));

@@ -1753,3 +1753,24 @@ msgstr "Eltávolítás megszakításkor"
 
 msgid "Automatically remove a download from the list when it is cancelled"
 msgstr "Automatikusan eltávolítja a letöltést a listából, ha megszakítják"
+
+msgid "Rendering Engine"
+msgstr "Megjelenítő motor"
+
+msgid "Automatic"
+msgstr "Automatikus"
+
+msgid "GPU (OpenGL)"
+msgstr "GPU (OpenGL)"
+
+msgid "GPU (Vulkan)"
+msgstr "GPU (Vulkan)"
+
+msgid "Software (Cairo)"
+msgstr "Software (Cairo)"
+
+msgid "Used to draw the interface — restart to apply"
+msgstr "A felület rajzolásához — újraindítás után lép életbe"
+
+msgid "Restart BigTube to apply the rendering engine"
+msgstr "Indítsa újra a BigTube-ot a megjelenítő motor alkalmazásához"
