@@ -990,7 +990,7 @@ msgstr "Comandă de post-procesare"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:390
 msgid "Command to run after download. Use {} for filename."
-msgstr ""
+msgstr "Comandă de rulat după descărcare. Folosiți {} pentru numele fișierului."
 "Comandă de rulat după descărcare. Utilizați {} pentru numele fișierului."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
@@ -1363,7 +1363,7 @@ msgstr "Programează selectate"
 
 #: bigtube-gui
 msgid "Paste a video or playlist URL to schedule."
-msgstr ""
+msgstr "Lipiți un URL de video sau playlist pentru a-l programa."
 "Inserați adresa URL a unui videoclip sau a unei liste de redare pentru a o "
 "programa."
 
@@ -1485,7 +1485,7 @@ msgstr "Câte descărcări rulează în același timp"
 
 #: bigtube-gui
 msgid "Parallel fragments per download (faster, uses more bandwidth)"
-msgstr ""
+msgstr "Fragmente paralele per descărcare (mai rapid, folosește mai multă lățime de bandă)"
 "Fragmente paralele per descărcare (mai rapid, folosește mai multă lățime de "
 "bandă)"
 
@@ -1559,7 +1559,7 @@ msgstr "Calitatea folosită de playerul din aplicație"
 
 #: bigtube-gui
 msgid "Use this browser's cookies for restricted videos"
-msgstr ""
+msgstr "Folosiți cookie-urile acestui browser pentru videoclipuri restricționate"
 "Folosește cookie-urile acestui browser pentru videoclipuri restricționate"
 
 #: bigtube-gui
@@ -1737,7 +1737,7 @@ msgid "No video or audio"
 msgstr "Niciun videoclip sau audio"
 
 msgid "This link has no video or audio. Remove it from the search history?"
-msgstr ""
+msgstr "Acest link nu are video sau audio. Îl eliminați din istoricul căutărilor?"
 "Acest link nu conține videoclip sau audio. Îl eliminați din istoricul "
 "căutărilor?"
 

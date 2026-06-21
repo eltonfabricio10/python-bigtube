@@ -489,7 +489,7 @@ msgstr "Arquivo Não Encontrado, Remover do Histórico?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
-msgstr ""
+msgstr "O seguinte arquivo está no histórico mas não foi encontrado no disco:\n"
 "O seguinte arquivo existe no histórico, mas não foi encontrado no disco:\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
@@ -803,7 +803,7 @@ msgstr ""
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
-msgstr ""
+msgstr "Todos os dados do aplicativo foram apagados. O app vai reiniciar agora."
 "Todos os dados do aplicativo foram limpos. O aplicativo será reiniciado "
 "agora."
 

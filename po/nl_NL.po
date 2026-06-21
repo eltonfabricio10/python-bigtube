@@ -494,7 +494,7 @@ msgstr "Bestand niet gevonden, verwijderen uit geschiedenis?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
-msgstr ""
+msgstr "Het volgende bestand staat in de geschiedenis maar is niet op de schijf gevonden:\n"
 "Het volgende bestand bestaat in de geschiedenis, maar is niet op schijf "
 "gevonden:\n"
 
@@ -992,7 +992,7 @@ msgstr "Nabewerkingscommando"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:390
 msgid "Command to run after download. Use {} for filename."
-msgstr ""
+msgstr "Uit te voeren opdracht na het downloaden. Gebruik {} voor de bestandsnaam."
 "Commando om uit te voeren na het downloaden. Gebruik {} voor de "
 "bestandsnaam."
 
@@ -1262,7 +1262,7 @@ msgstr "Download verwijderen?"
 
 #: bigtube-gui
 msgid "Remove only the history entry, or delete the file too?"
-msgstr ""
+msgstr "Alleen het geschiedenisitem verwijderen, of ook het bestand?"
 "Alleen de geschiedenisvermelding verwijderen, of ook het bestand "
 "verwijderen?"
 
@@ -1280,7 +1280,7 @@ msgstr "Alle downloads wissen?"
 
 #: bigtube-gui
 msgid "Remove only the history entries, or delete the files too?"
-msgstr ""
+msgstr "Alleen de geschiedenisitems verwijderen, of ook de bestanden?"
 "Alleen de geschiedenisvermeldingen verwijderen, of ook de bestanden "
 "verwijderen?"
 
@@ -1490,7 +1490,7 @@ msgstr "Hoeveel downloads er tegelijkertijd worden uitgevoerd"
 
 #: bigtube-gui
 msgid "Parallel fragments per download (faster, uses more bandwidth)"
-msgstr ""
+msgstr "Parallelle fragmenten per download (sneller, gebruikt meer bandbreedte)"
 "Parallelle fragmenten per download (sneller, gebruikt meer bandbreedte)"
 
 #: bigtube-gui
@@ -1740,7 +1740,7 @@ msgid "No video or audio"
 msgstr "Geen video of audio"
 
 msgid "This link has no video or audio. Remove it from the search history?"
-msgstr ""
+msgstr "Deze link bevat geen video of audio. Verwijderen uit de zoekgeschiedenis?"
 "Deze link bevat geen video of audio. Verwijderen uit de zoekgeschiedenis?"
 
 msgid "Couldn't get video or audio from this link."
@@ -1759,7 +1759,7 @@ msgid "Remove When Cancelled"
 msgstr "Verwijderen bij annuleren"
 
 msgid "Automatically remove a download from the list when it is cancelled"
-msgstr ""
+msgstr "Een download automatisch uit de lijst verwijderen wanneer deze wordt geannuleerd"
 "Verwijdert een download automatisch uit de lijst wanneer deze wordt "
 "geannuleerd"
 

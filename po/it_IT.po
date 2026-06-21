@@ -494,7 +494,7 @@ msgstr "File non trovato, rimuovere dalla cronologia?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
-msgstr ""
+msgstr "Il seguente file è nella cronologia ma non è stato trovato sul disco:\n"
 "Il seguente file esiste nella cronologia ma non è stato trovato sul disco:\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
@@ -808,7 +808,7 @@ msgstr ""
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
-msgstr ""
+msgstr "Tutti i dati dell’applicazione sono stati cancellati. L’app verrà riavviata."
 "Tutti i dati dell'applicazione sono stati cancellati. L'app verrà ora "
 "riavviata."
 
@@ -1513,7 +1513,7 @@ msgstr "Conserva un registro dei download completati"
 
 #: bigtube-gui
 msgid "Wipe history and finished items when the app closes"
-msgstr ""
+msgstr "Cancella la cronologia e gli elementi completati alla chiusura dell’app"
 "Cancella la cronologia e gli elementi completati alla chiusura dell'app"
 
 #: bigtube-gui
@@ -1733,7 +1733,7 @@ msgid "No video or audio"
 msgstr "Nessun video o audio"
 
 msgid "This link has no video or audio. Remove it from the search history?"
-msgstr ""
+msgstr "Questo link non contiene video né audio. Rimuoverlo dalla cronologia di ricerca?"
 "Questo link non contiene video o audio. Rimuoverlo dalla cronologia di "
 "ricerca?"
 
@@ -1753,7 +1753,7 @@ msgid "Remove When Cancelled"
 msgstr "Rimuovi all’annullamento"
 
 msgid "Automatically remove a download from the list when it is cancelled"
-msgstr ""
+msgstr "Rimuovi automaticamente un download dalla lista quando viene annullato"
 "Rimuove automaticamente un download dalla lista quando viene annullato"
 
 msgid "Rendering Engine"

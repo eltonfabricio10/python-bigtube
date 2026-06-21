@@ -494,7 +494,7 @@ msgstr "Nie znaleziono pliku. Usunąć z historii?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
-msgstr ""
+msgstr "Następujący plik jest w historii, ale nie znaleziono go na dysku:\n"
 "Następujący plik istnieje w historii, ale nie został znaleziony na dysku:\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
@@ -805,7 +805,7 @@ msgstr ""
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
-msgstr ""
+msgstr "Wszystkie dane aplikacji zostały wyczyszczone. Aplikacja zostanie teraz uruchomiona ponownie."
 "Wszystkie dane aplikacji zostały usunięte. Aplikacja zostanie teraz "
 "uruchomiona ponownie."
 
@@ -819,7 +819,7 @@ msgstr "Komponenty zostały pomyślnie zaktualizowane! ✅"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:334
 msgid "Deno updated, but yt-dlp failed."
-msgstr ""
+msgstr "Zaktualizowano Deno, ale yt-dlp nie powiodło się."
 "Deno zostało zaktualizowane, ale aktualizacja yt-dlp nie powiodła się."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:337
@@ -1731,7 +1731,7 @@ msgid "No video or audio"
 msgstr "Brak wideo lub dźwięku"
 
 msgid "This link has no video or audio. Remove it from the search history?"
-msgstr ""
+msgstr "Ten link nie zawiera wideo ani dźwięku. Usunąć go z historii wyszukiwania?"
 "Ten link nie zawiera wideo ani dźwięku. Usunąć go z historii wyszukiwania?"
 
 msgid "Couldn't get video or audio from this link."
