@@ -878,6 +878,9 @@ pub fn build_window(app: &adw::Application) {
     // Recreate persisted scheduled downloads (re-arming their timers, or running
     // immediately any whose time passed while the app was closed).
     restore_scheduled_downloads(&state);
+    // Trim the on-disk thumbnail cache off the main thread so it can't grow
+    // without bound over many browsing sessions.
+    std::thread::spawn(crate::row::prune_thumbnail_cache);
 
     // Always run the monitor; it honours the live `monitor_clipboard` setting.
     start_clipboard_monitor(&state);

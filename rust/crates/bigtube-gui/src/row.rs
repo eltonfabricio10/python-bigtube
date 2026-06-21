@@ -13,9 +13,36 @@ use gtk::subclass::prelude::*;
 use crate::i18n::tr;
 use crate::objects::{NowPlaying, VideoObject};
 
+/// Cap the in-memory texture cache so long browsing sessions don't grow it
+/// without bound (each decoded thumbnail holds GPU memory). Thumbnails are
+/// cheap to re-decode from the on-disk cache, so a simple FIFO eviction is fine.
+const THUMB_CACHE_CAP: usize = 256;
+
+#[derive(Default)]
+struct ThumbCache {
+    map: HashMap<String, gtk::gdk::Texture>,
+    order: std::collections::VecDeque<String>,
+}
+
+impl ThumbCache {
+    fn get(&self, url: &str) -> Option<gtk::gdk::Texture> {
+        self.map.get(url).cloned()
+    }
+    fn insert(&mut self, url: String, tex: gtk::gdk::Texture) {
+        if self.map.insert(url.clone(), tex).is_none() {
+            self.order.push_back(url);
+            while self.order.len() > THUMB_CACHE_CAP {
+                if let Some(old) = self.order.pop_front() {
+                    self.map.remove(&old);
+                }
+            }
+        }
+    }
+}
+
 thread_local! {
     /// Main-thread texture cache so scrolling/rebinding doesn't re-download.
-    static THUMB_CACHE: RefCell<HashMap<String, gtk::gdk::Texture>> = RefCell::new(HashMap::new());
+    static THUMB_CACHE: RefCell<ThumbCache> = RefCell::new(ThumbCache::default());
 }
 
 /// Shared callback type for the row's action buttons.
@@ -325,7 +352,7 @@ impl SearchResultRow {
         let gen = imp.thumb_gen.get();
         let thumb = imp.thumb.get().unwrap().clone();
 
-        if let Some(tex) = THUMB_CACHE.with(|c| c.borrow().get(url).cloned()) {
+        if let Some(tex) = THUMB_CACHE.with(|c| c.borrow().get(url)) {
             thumb.set_paintable(Some(&tex));
             return;
         }
@@ -366,6 +393,34 @@ fn cache_file(url: &str) -> std::path::PathBuf {
         .join("bigtube")
         .join("thumbnails")
         .join(format!("{:016x}.img", h.finish()))
+}
+
+/// Keep the on-disk thumbnail cache from growing forever: drop the oldest files
+/// (by mtime) once it exceeds the cap. Cheap to lose — they re-download on
+/// demand. Meant to be called once on startup from a background thread.
+pub(crate) fn prune_thumbnail_cache() {
+    const MAX_FILES: usize = 600;
+    let dir = bigtube_core::paths::user_cache_dir()
+        .join("bigtube")
+        .join("thumbnails");
+    let Ok(entries) = std::fs::read_dir(&dir) else {
+        return;
+    };
+    let mut files: Vec<(std::time::SystemTime, std::path::PathBuf)> = entries
+        .flatten()
+        .filter_map(|e| {
+            let p = e.path();
+            let mtime = e.metadata().and_then(|m| m.modified()).ok()?;
+            p.is_file().then_some((mtime, p))
+        })
+        .collect();
+    if files.len() <= MAX_FILES {
+        return;
+    }
+    files.sort_by_key(|(mtime, _)| *mtime); // oldest first
+    for (_, path) in files.iter().take(files.len() - MAX_FILES) {
+        let _ = std::fs::remove_file(path);
+    }
 }
 
 /// Fetch thumbnail bytes: disk cache first, then network (and persist to disk).
