@@ -162,14 +162,22 @@ impl ConfigManager {
         self.get(key).as_bool().unwrap_or(false)
     }
 
-    /// Updates a setting and saves if it changed (`set`).
-    pub fn set(&mut self, key: &str, value: Value) {
+    /// Updates a setting in memory only, returning whether the value changed.
+    /// Lets callers batch/debounce the (synchronous) disk write via `save()`.
+    pub fn set_mem(&mut self, key: &str, value: Value) -> bool {
         let key = alias(key).to_string();
         if self.data.get(&key) == Some(&value) {
-            return;
+            return false;
         }
         self.data.insert(key, value);
-        self.save();
+        true
+    }
+
+    /// Updates a setting and saves if it changed (`set`).
+    pub fn set(&mut self, key: &str, value: Value) {
+        if self.set_mem(key, value) {
+            self.save();
+        }
     }
 
     /// Applies multiple changes with a single save (`set_batch`).

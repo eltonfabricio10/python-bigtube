@@ -725,6 +725,13 @@ pub fn build_window(app: &adw::Application) {
     apply_theme(&window);
     state.window.replace(Some(window.clone()));
 
+    // Flush any debounced config write before the window closes, so a setting
+    // changed right before quitting isn't lost.
+    window.connect_close_request(|_| {
+        config_saver().flush();
+        glib::Propagation::Proceed
+    });
+
     // Player + bottom transport bar. Flat bottom area so the player's rounded
     // card visibly floats instead of sitting in a styled toolbar strip. The
     // player is optional: if its GStreamer video stack is missing we skip the
@@ -1779,8 +1786,29 @@ fn is_real_browser_binary(path: &str) -> bool {
     }
 }
 
+/// Debounced config writer: a slider drag fires dozens of value-changed events,
+/// and a synchronous save per tick means dozens of atomic disk writes. Coalesce
+/// them into one write ~0.8s after the last change. Flushed on close/restart.
+fn config_saver() -> &'static bigtube_core::debounce::Debouncer {
+    static SAVER: std::sync::OnceLock<bigtube_core::debounce::Debouncer> =
+        std::sync::OnceLock::new();
+    SAVER.get_or_init(|| {
+        bigtube_core::debounce::Debouncer::new(std::time::Duration::from_millis(800), || {
+            if let Ok(c) = config::global().read() {
+                c.save();
+            }
+        })
+    })
+}
+
 fn set_cfg(key: &str, value: serde_json::Value) {
-    config::global().write().unwrap().set(key, value);
+    let changed = config::global()
+        .write()
+        .map(|mut c| c.set_mem(key, value))
+        .unwrap_or(false);
+    if changed {
+        config_saver().touch();
+    }
 }
 
 fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
@@ -2893,6 +2921,8 @@ fn reset_all_data(state: &Rc<AppState>) {
 /// over instead of just forwarding `activate` to the dying one.
 fn restart_app() {
     use std::os::unix::process::CommandExt;
+    // Persist any debounced config write before replacing the process image.
+    config_saver().flush();
     let Ok(exe) = std::env::current_exe() else {
         std::process::exit(0);
     };
