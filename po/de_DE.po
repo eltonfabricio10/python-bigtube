@@ -1786,3 +1786,9 @@ msgstr "Die Rendering-Engine ändert sich erst nach einem Neustart. BigTube jetz
 
 msgid "Playback unavailable — install the GStreamer gtk4 plugin"
 msgstr "Wiedergabe nicht verfügbar — installieren Sie das GStreamer-gtk4-Plugin"
+
+msgid "Conversion failed"
+msgstr "Konvertierung fehlgeschlagen"
+
+msgid "Couldn't load this playlist"
+msgstr "Diese Wiedergabeliste konnte nicht geladen werden"

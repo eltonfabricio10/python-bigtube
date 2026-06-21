@@ -269,7 +269,11 @@ pub fn show(
                 }
             }
             Ok(Err(e)) => {
-                status.set_title(&e);
+                // Friendly title; show the raw error as the (smaller) description
+                // and log it, instead of using a cryptic error as the heading.
+                tracing::error!("playlist load failed: {e}");
+                status.set_title(&tr("Couldn't load this playlist"));
+                status.set_description(Some(&e));
                 stack.set_visible_child_name("empty");
             }
             Err(_) => {}

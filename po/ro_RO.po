@@ -1788,3 +1788,9 @@ msgstr "Motorul de randare se schimbă doar după repornire. Reporniți BigTube 
 
 msgid "Playback unavailable — install the GStreamer gtk4 plugin"
 msgstr "Redare indisponibilă — instalați modulul gtk4 pentru GStreamer"
+
+msgid "Conversion failed"
+msgstr "Conversia a eșuat"
+
+msgid "Couldn't load this playlist"
+msgstr "Nu s-a putut încărca această listă"

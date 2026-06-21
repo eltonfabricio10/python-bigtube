@@ -3572,7 +3572,11 @@ fn run_conversion(
                         ui.convert.set_visible(true);
                         ui.set_inputs_sensitive(true);
                         ui.set_progress_class("error");
-                        ui.status.set_text(&format!("{}: {e}", tr("Error:")));
+                        // Friendly status; keep the raw engine error in the log
+                        // and the row's tooltip instead of dumping it on screen.
+                        tracing::error!("conversion failed: {e}");
+                        ui.status.set_text(&tr("Conversion failed"));
+                        ui.status.set_tooltip_text(Some(&e));
                     }
                 }
             }

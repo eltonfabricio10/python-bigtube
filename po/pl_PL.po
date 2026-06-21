@@ -1781,3 +1781,9 @@ msgstr "Silnik renderowania zmieni się dopiero po ponownym uruchomieniu. Urucho
 
 msgid "Playback unavailable — install the GStreamer gtk4 plugin"
 msgstr "Odtwarzanie niedostępne — zainstaluj wtyczkę gtk4 GStreamer"
+
+msgid "Conversion failed"
+msgstr "Konwersja nie powiodła się"
+
+msgid "Couldn't load this playlist"
+msgstr "Nie można wczytać tej playlisty"

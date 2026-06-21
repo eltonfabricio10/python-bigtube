@@ -1775,3 +1775,9 @@ msgstr "The rendering engine only changes after a restart. Restart BigTube now?"
 
 msgid "Playback unavailable — install the GStreamer gtk4 plugin"
 msgstr "Playback unavailable — install the GStreamer gtk4 plugin"
+
+msgid "Conversion failed"
+msgstr "Conversion failed"
+
+msgid "Couldn't load this playlist"
+msgstr "Couldn't load this playlist"

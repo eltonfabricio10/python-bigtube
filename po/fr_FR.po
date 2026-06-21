@@ -1798,3 +1798,9 @@ msgstr "Le moteur de rendu ne change qu'après un redémarrage. Redémarrer BigT
 
 msgid "Playback unavailable — install the GStreamer gtk4 plugin"
 msgstr "Lecture indisponible — installez le greffon gtk4 de GStreamer"
+
+msgid "Conversion failed"
+msgstr "Échec de la conversion"
+
+msgid "Couldn't load this playlist"
+msgstr "Impossible de charger cette playlist"

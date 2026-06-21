@@ -1792,3 +1792,9 @@ msgstr "De renderengine verandert pas na een herstart. BigTube nu herstarten?"
 
 msgid "Playback unavailable — install the GStreamer gtk4 plugin"
 msgstr "Afspelen niet beschikbaar — installeer de GStreamer-gtk4-plug-in"
+
+msgid "Conversion failed"
+msgstr "Conversie mislukt"
+
+msgid "Couldn't load this playlist"
+msgstr "Kan deze afspeellijst niet laden"

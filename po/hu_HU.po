@@ -1783,3 +1783,9 @@ msgstr "A megjelenítő motor csak újraindítás után változik. Újraindítja
 
 msgid "Playback unavailable — install the GStreamer gtk4 plugin"
 msgstr "A lejátszás nem érhető el — telepítse a GStreamer gtk4 bővítményt"
+
+msgid "Conversion failed"
+msgstr "A konvertálás sikertelen"
+
+msgid "Couldn't load this playlist"
+msgstr "Nem sikerült betölteni ezt a lejátszási listát"

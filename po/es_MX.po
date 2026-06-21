@@ -1788,3 +1788,9 @@ msgstr "El motor de renderizado solo cambia tras reiniciar. ¿Reiniciar BigTube 
 
 msgid "Playback unavailable — install the GStreamer gtk4 plugin"
 msgstr "Reproducción no disponible — instala el complemento gtk4 de GStreamer"
+
+msgid "Conversion failed"
+msgstr "Error en la conversión"
+
+msgid "Couldn't load this playlist"
+msgstr "No se pudo cargar esta lista de reproducción"

@@ -1777,3 +1777,9 @@ msgstr "Vykreslovací jádro se změní až po restartu. Restartovat BigTube nyn
 
 msgid "Playback unavailable — install the GStreamer gtk4 plugin"
 msgstr "Přehrávání není dostupné — nainstalujte zásuvný modul gtk4 pro GStreamer"
+
+msgid "Conversion failed"
+msgstr "Převod selhal"
+
+msgid "Couldn't load this playlist"
+msgstr "Tento seznam skladeb se nepodařilo načíst"
