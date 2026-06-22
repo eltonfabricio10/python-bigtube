@@ -15,7 +15,7 @@ pub fn init() {
 
     let system = Path::new("/usr/share/locale");
     let dev = std::env::current_dir()
-        .map(|d| d.join("src/bigtube/data/locales"))
+        .map(|d| d.join("target/locale"))
         .unwrap_or_else(|_| system.to_path_buf());
 
     // Priority: a per-user override (~/.local/share/locale) — but ONLY when it

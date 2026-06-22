@@ -16,7 +16,7 @@ use adw::prelude::*;
 
 use bigtube_core::enums::APP_ID;
 
-const STYLE_CSS: &str = include_str!("../../../../src/bigtube/data/style.css");
+const STYLE_CSS: &str = include_str!("../assets/style.css");
 
 fn main() {
     tracing_subscriber::fmt()

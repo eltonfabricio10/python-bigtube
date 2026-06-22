@@ -1,161 +1,102 @@
 # Guia para Desenvolvedores
 
-Este documento descreve a estrutura do projeto, como rodar testes e lint, e convenções para contribuir ao BigTube.
+Este documento descreve a estrutura do projeto, como compilar, rodar testes e lint, e convenções para contribuir ao BigTube.
+
+> O BigTube foi portado de Python para **Rust**. Todo o código ativo vive em `rust/`.
+> O histórico do port está documentado em [PORTING_RUST.md](PORTING_RUST.md).
 
 ## Pré-requisitos
 
-- **Python 3.10+**
-- **Poetry** ([instalação](https://python-poetry.org/docs/#installation))
-- Para rodar a aplicação com interface: GTK4, Libadwaita, GStreamer (dependências do sistema)
+- **Rust** estável (via [rustup](https://rustup.rs/))
+- Bibliotecas de sistema: **GTK4 ≥ 4.12**, **libadwaita ≥ 1.5**, **GStreamer** (base/good/bad + `gst-plugin-gtk4`)
+- **gettext** (`msgfmt`) para compilar as traduções
+- Em tempo de execução: **yt-dlp**; opcionalmente **ffmpeg** para conversão
 
 ## Configuração do ambiente
 
 ```bash
 git clone https://github.com/eltonfabricio10/bigtube.git
-cd bigtube
-poetry install
+cd bigtube/rust
+cargo build
 ```
-
-Para incluir dependências de desenvolvimento (pytest, ruff, etc.):
-
-```bash
-poetry install --with dev
-```
-
-## Versão automática (a cada commit)
-
-A versão em `pyproject.toml` e `PKGBUILD` segue o Git:
-
-- Tag atual: `v2.0.7` → versão **2.0.7**
-- Cada commit depois da tag incrementa o patch: **2.0.8**, **2.0.9**, …
-
-**Local (recomendado):**
-
-```bash
-pip install pre-commit   # ou: poetry run pip install pre-commit
-pre-commit install
-```
-
-Antes de cada `git commit`, o hook `sync_version_from_git.py` atualiza:
-
-- `pyproject.toml` (versão do pacote Python / UI “Sobre”)
-- `PKGBUILD` (Arch)
-- `po/*.po` e `po/bigtube.pot` (`Project-Id-Version`)
-- `.github/workflows/release.yml` (default do release manual)
-- User-Agent em `network_checker.py` e `image_loader.py`
-
-**Manual:**
-
-```bash
-python scripts/sync_version_from_git.py
-```
-
-No GitHub, o workflow **Sync version** faz o mesmo após push na `main` (commit `chore: sync version … [skip ci]`).
-
-**Release oficial:** continue usando tags `vX.Y.Z` (ex.: `git tag v2.0.7 && git push origin v2.0.7`).
 
 ## Executando a aplicação
 
 ```bash
-poetry run bigtube
+cd rust
+cargo run -p bigtube-gui      # interface gráfica
+cargo run -p bigtube-cli -- --help   # linha de comando
 ```
 
-Opções úteis:
+Variáveis de ambiente úteis (veja a seção "Variáveis de ambiente" no [README.md](README.md)):
 
-- `--debug` — ativa logs detalhados
-- `--version` — exibe a versão do yt-dlp
+- `RUST_LOG=debug` — logs detalhados (via `tracing`)
+- `BIGTUBE_NO_FULL_REDRAW=1` — desativa o full-redraw do GSK (workaround de glitch de scroll)
+- `GSK_RENDERER` — força um renderizador GSK específico
 
 ## Arquitetura do código
 
-O código principal está em `src/bigtube/`:
+O workspace Cargo tem três crates em `rust/crates/`:
 
-| Diretório     | Responsabilidade |
-|---------------|------------------|
-| `core/`       | Lógica de negócio: download (yt-dlp), conversão (ffmpeg), config, histórico, logger, rede, clipboard, i18n |
-| `controllers/`| Orquestração entre UI e core: busca, downloads, conversor, configurações, player |
-| `ui/`         | Widgets e janelas GTK4/Libadwaita: janela principal, linhas de download/busca/conversor, player, diálogos |
-| `data/`       | Recursos: templates `.ui`, CSS, arquivo `.desktop` |
+| Crate          | Responsabilidade |
+|----------------|------------------|
+| `bigtube-core` | Lógica de negócio testável e headless: download (yt-dlp), conversão (ffmpeg), config, histórico, agendamento, rede, validators |
+| `bigtube-cli`  | Front-end de linha de comando sobre o core |
+| `bigtube-gui`  | Interface GTK4/libadwaita sobre o core (janela, páginas de busca/downloads/conversor, player, diálogos) |
 
-### Fluxos principais
+Os assets do GUI (`style.css`) ficam em `rust/crates/bigtube-gui/assets/` e são embutidos no binário via `include_str!`. Os ícones do app ficam em `assets/` (raiz do repo).
 
-- **Download**: usuário busca ou cola URL → `SearchController` / main window → `VideoDownloader.fetch_video_info` → diálogo de formato → `DownloadManager.schedule_download` → `VideoDownloader` em thread → atualização de UI via `GLib.idle_add`.
-- **Conversão**: lista de arquivos no `ConverterController` → `MediaConverter` (ffmpeg) em thread → callbacks de progresso e conclusão via `GLib.idle_add`.
-- **Player**: `PlayerController` + `VideoWindow` com widget MPV/GStreamer; “play next/prev” integrado ao histórico de downloads.
-
-Tarefas pesadas rodam em `threading.Thread`; atualizações de interface devem ser feitas no main loop do GTK via `GLib.idle_add()`. O módulo **`ui/async_utils.py`** oferece `run_in_background(fn, on_success=..., on_error=...)` para centralizar esse padrão (exemplo de uso em `SearchController`).
+Tarefas pesadas rodam em threads de background; atualizações de UI voltam ao main loop do GTK via `glib::idle_add`/canais. Erros de UI são tratados de forma amigável (toasts/status) e logados com `tracing`.
 
 ## Testes
 
-A suíte usa **pytest**. Os testes mockam GTK e dependências externas para rodar sem display.
+A suíte de testes cobre o **core** (sem display):
 
 ```bash
-poetry run python -m pytest
+cd rust
+cargo test -p bigtube-core
 ```
-
-Opções úteis:
-
-```bash
-poetry run python -m pytest tests/ -v              # verboso
-poetry run python -m pytest tests/ -k "download"  # só testes com "download" no nome
-poetry run python -m pytest tests/ --tb=long      # traceback completo
-```
-
-Testes cobrem sobretudo o **core** (downloader, conversor, config, histórico, validators, scheduler, clipboard). A UI e os controllers têm pouca cobertura automatizada.
 
 ## Lint e formatação
 
-O projeto usa **Ruff** para lint e formatação.
+A CI exige `rustfmt` e `clippy` limpos:
 
-- **Verificar problemas (lint):**
-  ```bash
-  poetry run ruff check .
-  ```
+```bash
+cd rust
+cargo fmt --all --check
+cargo clippy --workspace --all-targets -- -D warnings
+```
 
-- **Verificar formatação (sem alterar arquivos):**
-  ```bash
-  poetry run ruff format --check .
-  ```
+Rode `cargo fmt --all` antes de commitar.
 
-- **Corrigir automaticamente** (quando possível) e **formatar:**
-  ```bash
-  poetry run ruff check . --fix
-  poetry run ruff format .
-  ```
+## Versão automática
 
-Recomenda-se rodar `ruff check` e `ruff format` antes de abrir um pull request.
+A versão deriva do Git. O script [`scripts/sync_version_from_git.py`](scripts/sync_version_from_git.py) calcula a versão (`git describe`), e [`scripts/sync_rust_version.py`](scripts/sync_rust_version.py) — usado pelo workflow de release — sincroniza `rust/Cargo.toml`, `rust/Cargo.lock` e `rust/packaging/PKGBUILD`. O binário também expõe a versão derivada do Git em tempo de build via `bigtube-cli/build.rs`.
 
-## Convenções de código
-
-- **Estilo**: Ruff (pycodestyle, isort, pyupgrade). Linha máxima 100 caracteres; aspas duplas para strings.
-- **Imports**: ordem isort (stdlib → third-party → local). Ruff aplica isso.
-- **Strings de interface**: usar o sistema de i18n em `core/locales.py` (`ResourceManager`, `StringKey`) em vez de strings fixas na UI.
-- **Threads + UI**: não atualizar widgets GTK a partir de threads; usar `GLib.idle_add(callback, ...)` para voltar ao main loop.
+**Release oficial:** o workflow **Build and Release** dispara quando o **Rust CI** da `main` passa — ele cria a tag `vX.Y.Z`, compila os binários e publica a GitHub Release (tarball Arch + `.deb` + `.rpm`) e atualiza o pacote `bigtube-bin` no AUR.
 
 ## Traduções
 
-Arquivos de tradução ficam em `po/`. Para compilar após alterar `.po`:
+Os catálogos ficam em `po/` (`.po` + `bigtube.pot`). Para testar uma tradução localmente, compile o `.mo` para o diretório de override por usuário:
 
 ```bash
-# Exemplo: compilar para pt_BR
-mkdir -p src/bigtube/data/locales/pt_BR/LC_MESSAGES
-msgfmt po/pt_BR.po -o src/bigtube/data/locales/pt_BR/LC_MESSAGES/bigtube.mo
+mkdir -p ~/.local/share/locale/pt_BR/LC_MESSAGES
+msgfmt po/pt_BR.po -o ~/.local/share/locale/pt_BR/LC_MESSAGES/bigtube.mo
 ```
 
-O script `scripts/auto_translate.py` pode auxiliar na geração/atualização de traduções (polib + deep-translator).
-O workflow de release roda esse script automaticamente antes de sincronizar a versão, commitar alterações em `po/` e criar a tag.
-Em execução manual do release, o input `auto_translate` permite desativar essa etapa se o serviço externo de tradução estiver indisponível.
-Falhas temporárias do serviço externo deixam strings sem tradução para a próxima execução, mas não bloqueiam o release; catálogos inválidos ainda falham em `msgfmt --check`.
+O script `scripts/auto_translate.py` (polib + deep-translator) pode auxiliar na geração/atualização das traduções. O empacotamento (`rust/packaging/stage-tree.sh`) compila todos os `.po` para `/usr/share/locale` automaticamente.
 
 ## CI
 
-O workflow **CI** (`.github/workflows/ci.yml`) roda em cada push/PR para os branches `main` e `master`:
+O workflow **Rust CI** (`.github/workflows/rust-ci.yml`) roda em cada push/PR para `main`/`master`:
 
-1. Instala dependências com Poetry (incluindo dev).
-2. Executa `ruff check` e `ruff format --check`.
-3. Executa `python -m pytest`.
+1. `cargo fmt --all --check`
+2. `cargo clippy --workspace --all-targets -- -D warnings`
+3. `cargo test -p bigtube-core`
+4. `cargo build --release`
 
-Garanta que esses comandos passem localmente antes de enviar o PR.
+Garanta que esses passos passem localmente antes de enviar o PR.
 
 ## Dúvidas
 
-Para funcionalidades de usuário e instalação, veja o [README.md](README.md). Para discussão de desenvolvimento e contribuição, abra uma issue no repositório.
+Para uso e instalação, veja o [README.md](README.md). Para discussão de desenvolvimento, abra uma issue no repositório.

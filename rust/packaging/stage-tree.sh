@@ -13,15 +13,15 @@ install -Dm755 rust/target/release/bigtube     "$stage/usr/bin/bigtube"
 install -Dm644 rust/packaging/io.github.eltonfabricio10.bigtube.desktop \
   "$stage/usr/share/applications/io.github.eltonfabricio10.bigtube.desktop"
 
-install -Dm644 src/bigtube/data/bigtube.png \
+install -Dm644 assets/bigtube.png \
   "$stage/usr/share/icons/hicolor/512x512/apps/bigtube.png"
-install -Dm644 src/bigtube/data/bigtube.svg \
+install -Dm644 assets/bigtube.svg \
   "$stage/usr/share/icons/hicolor/scalable/apps/bigtube.svg"
 # Also install the icon under the app ID so the window icon (which KDE and others
 # resolve by app_id) shows up, not just the launcher icon.
-install -Dm644 src/bigtube/data/bigtube.png \
+install -Dm644 assets/bigtube.png \
   "$stage/usr/share/icons/hicolor/512x512/apps/io.github.eltonfabricio10.bigtube.png"
-install -Dm644 src/bigtube/data/bigtube.svg \
+install -Dm644 assets/bigtube.svg \
   "$stage/usr/share/icons/hicolor/scalable/apps/io.github.eltonfabricio10.bigtube.svg"
 
 for po in po/*.po; do

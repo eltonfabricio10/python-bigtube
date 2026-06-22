@@ -141,8 +141,8 @@ Para instalar no sistema a partir do build local:
 ```bash
 sudo install -Dm755 target/release/bigtube-gui /usr/bin/bigtube-gui
 sudo install -Dm755 target/release/bigtube     /usr/bin/bigtube
-sudo install -Dm644 ../src/bigtube/data/bigtube.svg /usr/share/icons/hicolor/scalable/apps/bigtube.svg
-sudo install -Dm644 ../src/bigtube/data/bigtube.png /usr/share/icons/hicolor/512x512/apps/bigtube.png
+sudo install -Dm644 ../assets/bigtube.svg /usr/share/icons/hicolor/scalable/apps/bigtube.svg
+sudo install -Dm644 ../assets/bigtube.png /usr/share/icons/hicolor/512x512/apps/bigtube.png
 sudo install -Dm644 packaging/io.github.eltonfabricio10.bigtube.desktop /usr/share/applications/io.github.eltonfabricio10.bigtube.desktop
 ```
 
