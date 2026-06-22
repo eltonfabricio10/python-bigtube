@@ -84,19 +84,23 @@ impl DownloadRow {
         let pause = gtk::Button::from_icon_name("media-playback-pause-symbolic");
         pause.add_css_class("flat");
         pause.set_tooltip_text(Some(&tr("Pause")));
+        a11y_label(&pause, &tr("Pause"));
         let cancel = gtk::Button::from_icon_name("process-stop-symbolic");
         cancel.add_css_class("flat");
         cancel.add_css_class("destructive-action");
         cancel.set_tooltip_text(Some(&tr("Cancel")));
+        a11y_label(&cancel, &tr("Cancel"));
         // Edit pencil: shown only while this row is a pending scheduled download.
         let edit = gtk::Button::from_icon_name("document-edit-symbolic");
         edit.add_css_class("flat");
         edit.set_tooltip_text(Some(&tr("Edit")));
+        a11y_label(&edit, &tr("Edit"));
         edit.set_visible(false);
         // Per-row delete (asks history-only vs file too); wired in wire_row_footer.
         let btn_delete = gtk::Button::from_icon_name("user-trash-symbolic");
         btn_delete.add_css_class("flat");
         btn_delete.set_tooltip_text(Some(&tr("Remove from list")));
+        a11y_label(&btn_delete, &tr("Remove from list"));
         header.append(&title_lbl);
         header.append(&status);
         header.append(&edit);
@@ -135,12 +139,15 @@ impl DownloadRow {
         let btn_folder = gtk::Button::from_icon_name("folder-open-symbolic");
         btn_folder.add_css_class("flat");
         btn_folder.set_tooltip_text(Some(&tr("Open Folder")));
+        a11y_label(&btn_folder, &tr("Open Folder"));
         let btn_play = gtk::Button::from_icon_name("media-playback-start-symbolic");
         btn_play.add_css_class("flat");
         btn_play.set_tooltip_text(Some(&tr("Play Video")));
+        a11y_label(&btn_play, &tr("Play Video"));
         let btn_convert = gtk::Button::from_icon_name("emblem-synchronizing-symbolic");
         btn_convert.add_css_class("flat");
         btn_convert.set_tooltip_text(Some(&tr("Add to Converter")));
+        a11y_label(&btn_convert, &tr("Add to Converter"));
         actions.append(&btn_folder);
         actions.append(&btn_play);
         actions.append(&btn_convert);
@@ -446,6 +453,8 @@ struct AppState {
     toasts: adw::ToastOverlay,
     search_store: gio::ListStore,
     search_stack: gtk::Stack,
+    // The search box, so the Ctrl+L shortcut can jump focus to it.
+    search_entry: RefCell<Option<gtk::SearchEntry>>,
     select_mode: Cell<bool>,
     select_revealer: gtk::Revealer,
     select_btn: gtk::Button,
@@ -593,6 +602,7 @@ pub fn build_window(app: &adw::Application) {
         toasts: toasts.clone(),
         search_store: search_store.clone(),
         search_stack: gtk::Stack::new(),
+        search_entry: RefCell::new(None),
         select_mode: Cell::new(false),
         select_revealer: gtk::Revealer::new(),
         select_btn: gtk::Button::new(),
@@ -731,6 +741,40 @@ pub fn build_window(app: &adw::Application) {
         config_saver().flush();
         glib::Propagation::Proceed
     });
+
+    // Window-level keyboard shortcuts: Ctrl+L focuses search; Ctrl+1..4 switch
+    // tabs. (Dialogs keep handling Esc natively.)
+    {
+        let controller = gtk::ShortcutController::new();
+        controller.set_scope(gtk::ShortcutScope::Global);
+        fn add(c: &gtk::ShortcutController, accel: &str, cb: impl Fn() + 'static) {
+            if let Some(trigger) = gtk::ShortcutTrigger::parse_string(accel) {
+                let action = gtk::CallbackAction::new(move |_, _| {
+                    cb();
+                    glib::Propagation::Stop
+                });
+                c.add_shortcut(gtk::Shortcut::new(Some(trigger), Some(action)));
+            }
+        }
+        let tab = |name: &'static str| {
+            let state = state.clone();
+            move || state.stack.set_visible_child_name(name)
+        };
+        add(&controller, "<Control>1", tab("search"));
+        add(&controller, "<Control>2", tab("downloads"));
+        add(&controller, "<Control>3", tab("converter"));
+        add(&controller, "<Control>4", tab("settings"));
+        {
+            let state = state.clone();
+            add(&controller, "<Control>l", move || {
+                state.stack.set_visible_child_name("search");
+                if let Some(e) = state.search_entry.borrow().as_ref() {
+                    e.grab_focus();
+                }
+            });
+        }
+        window.add_controller(controller);
+    }
 
     // Player + bottom transport bar. Flat bottom area so the player's rounded
     // card visibly floats instead of sitting in a styled toolbar strip. The
@@ -1212,12 +1256,14 @@ fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     let entry = gtk::SearchEntry::new();
     entry.set_hexpand(true);
     entry.set_placeholder_text(Some(&tr("Paste URL or type keywords...")));
+    state.search_entry.replace(Some(entry.clone()));
     let button = gtk::Button::with_label(&tr("Search"));
     button.add_css_class("suggested-action");
     let btn_select = gtk::ToggleButton::new();
     btn_select.set_icon_name("selection-mode-symbolic");
     btn_select.add_css_class("flat");
     btn_select.set_tooltip_text(Some(&tr("Toggle Selection Mode")));
+    a11y_label(&btn_select, &tr("Toggle Selection Mode"));
     bar.append(&source);
     bar.append(&entry);
     bar.append(&button);
@@ -1799,6 +1845,13 @@ fn config_saver() -> &'static bigtube_core::debounce::Debouncer {
             }
         })
     })
+}
+
+/// Give an icon-only widget an accessible *name*. A tooltip alone is exposed as
+/// a description, so screen readers otherwise announce just "button". Pair this
+/// with `set_tooltip_text` on every icon-only control.
+pub(crate) fn a11y_label(w: &impl IsA<gtk::Accessible>, label: &str) {
+    w.update_property(&[gtk::accessible::Property::Label(label)]);
 }
 
 fn set_cfg(key: &str, value: serde_json::Value) {
@@ -3328,22 +3381,27 @@ fn add_converter_row(
     let convert = gtk::Button::from_icon_name("system-run-symbolic");
     convert.add_css_class("flat");
     convert.set_tooltip_text(Some(&tr("Convert")));
+    a11y_label(&convert, &tr("Convert"));
     let cancel = gtk::Button::from_icon_name("process-stop-symbolic");
     cancel.add_css_class("flat");
     cancel.add_css_class("destructive-action");
     cancel.set_tooltip_text(Some(&tr("Cancel")));
+    a11y_label(&cancel, &tr("Cancel"));
     cancel.set_visible(false);
     let folder = gtk::Button::from_icon_name("folder-open-symbolic");
     folder.add_css_class("flat");
     folder.set_tooltip_text(Some(&tr("Open Folder")));
+    a11y_label(&folder, &tr("Open Folder"));
     folder.set_visible(false);
     let play = gtk::Button::from_icon_name("media-playback-start-symbolic");
     play.add_css_class("flat");
     play.set_tooltip_text(Some(&tr("Play Video")));
+    a11y_label(&play, &tr("Play Video"));
     play.set_visible(false);
     let remove = gtk::Button::from_icon_name("user-trash-symbolic");
     remove.add_css_class("flat");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
+    a11y_label(&remove, &tr("Remove from list"));
     // Top row: name + format input + convert/cancel (next to the dropdown) +
     // delete. Only play/folder live in the bottom row next to the status.
     header.append(&name_lbl);

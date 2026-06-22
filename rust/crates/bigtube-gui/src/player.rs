@@ -209,19 +209,23 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     btn_prev.add_css_class("flat");
     btn_prev.set_focus_on_click(false);
     btn_prev.set_tooltip_text(Some(&tr("Previous")));
+    crate::app::a11y_label(&btn_prev, &tr("Previous"));
     btn_prev.set_sensitive(false);
     let btn_play = gtk::Button::from_icon_name("media-playback-start-symbolic");
     btn_play.add_css_class("circular");
     btn_play.set_focus_on_click(false);
     btn_play.set_tooltip_text(Some(&tr("Play/Pause")));
+    crate::app::a11y_label(&btn_play, &tr("Play/Pause"));
     let btn_stop = gtk::Button::from_icon_name("media-playback-stop-symbolic");
     btn_stop.add_css_class("flat");
     btn_stop.set_focus_on_click(false);
     btn_stop.set_tooltip_text(Some(&tr("Stop")));
+    crate::app::a11y_label(&btn_stop, &tr("Stop"));
     let btn_next = gtk::Button::from_icon_name("media-skip-forward-symbolic");
     btn_next.add_css_class("flat");
     btn_next.set_focus_on_click(false);
     btn_next.set_tooltip_text(Some(&tr("Next")));
+    crate::app::a11y_label(&btn_next, &tr("Next"));
     btn_next.set_sensitive(false);
     // Buffering spinner shown in place of the play button while loading.
     let spinner = gtk::Spinner::new();

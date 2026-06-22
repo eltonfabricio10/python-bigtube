@@ -125,22 +125,26 @@ mod imp {
             btn_play.set_focus_on_click(false);
             btn_play.set_valign(gtk::Align::Center);
             btn_play.set_tooltip_text(Some(&tr("Play Video")));
+            crate::app::a11y_label(&btn_play, &tr("Play Video"));
             let btn_download = gtk::Button::from_icon_name("folder-download-symbolic");
             btn_download.add_css_class("flat");
             btn_download.set_focus_on_click(false);
             btn_download.set_valign(gtk::Align::Center);
             btn_download.set_tooltip_text(Some(&tr("Download")));
+            crate::app::a11y_label(&btn_download, &tr("Download"));
             let btn_open = gtk::Button::from_icon_name("folder-open-symbolic");
             btn_open.add_css_class("flat");
             btn_open.set_focus_on_click(false);
             btn_open.set_valign(gtk::Align::Center);
             btn_open.set_tooltip_text(Some(&tr("Open playlist")));
+            crate::app::a11y_label(&btn_open, &tr("Open playlist"));
             btn_open.set_visible(false);
             let btn_copy = gtk::Button::from_icon_name("edit-copy-symbolic");
             btn_copy.add_css_class("flat");
             btn_copy.set_focus_on_click(false);
             btn_copy.set_valign(gtk::Align::Center);
             btn_copy.set_tooltip_text(Some(&tr("Copy Link")));
+            crate::app::a11y_label(&btn_copy, &tr("Copy Link"));
 
             obj.append(&checkbox);
             obj.append(&thumb);
