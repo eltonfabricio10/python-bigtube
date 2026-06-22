@@ -1791,3 +1791,12 @@ msgstr "Conversione non riuscita"
 
 msgid "Couldn't load this playlist"
 msgstr "Impossibile caricare questa playlist"
+
+msgid "Maximum History Entries"
+msgstr "Numero massimo di voci della cronologia"
+
+msgid "How many finished downloads to keep in the list"
+msgstr "Quanti download completati mantenere nella lista"
+
+msgid "How many finished conversions to keep in the list"
+msgstr "Quante conversioni completate mantenere nella lista"

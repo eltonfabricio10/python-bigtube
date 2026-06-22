@@ -350,6 +350,9 @@ fn build_defaults() -> Map<String, Value> {
     m.insert("theme_color".into(), json!("default"));
     m.insert("default_quality".into(), json!("ask"));
     m.insert("max_concurrent_downloads".into(), json!(3));
+    // How many finished entries to keep in each history list.
+    m.insert("max_download_history".into(), json!(100));
+    m.insert("max_converter_history".into(), json!(50));
     m.insert("add_metadata".into(), json!(false));
     m.insert("embed_subtitles".into(), json!(false));
     // Subtitles: mode "off"|"embed"|"file"|"both", comma-separated languages,

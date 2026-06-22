@@ -1794,3 +1794,12 @@ msgstr "Conversia a eșuat"
 
 msgid "Couldn't load this playlist"
 msgstr "Nu s-a putut încărca această listă"
+
+msgid "Maximum History Entries"
+msgstr "Număr maxim de intrări în istoric"
+
+msgid "How many finished downloads to keep in the list"
+msgstr "Câte descărcări finalizate să rămână în listă"
+
+msgid "How many finished conversions to keep in the list"
+msgstr "Câte conversii finalizate să rămână în listă"

@@ -1783,3 +1783,12 @@ msgstr "Převod selhal"
 
 msgid "Couldn't load this playlist"
 msgstr "Tento seznam skladeb se nepodařilo načíst"
+
+msgid "Maximum History Entries"
+msgstr "Maximální počet záznamů historie"
+
+msgid "How many finished downloads to keep in the list"
+msgstr "Kolik dokončených stahování ponechat v seznamu"
+
+msgid "How many finished conversions to keep in the list"
+msgstr "Kolik dokončených převodů ponechat v seznamu"

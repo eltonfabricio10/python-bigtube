@@ -1798,3 +1798,12 @@ msgstr "Conversie mislukt"
 
 msgid "Couldn't load this playlist"
 msgstr "Kan deze afspeellijst niet laden"
+
+msgid "Maximum History Entries"
+msgstr "Maximum aantal geschiedenisitems"
+
+msgid "How many finished downloads to keep in the list"
+msgstr "Hoeveel voltooide downloads in de lijst bewaren"
+
+msgid "How many finished conversions to keep in the list"
+msgstr "Hoeveel voltooide conversies in de lijst bewaren"

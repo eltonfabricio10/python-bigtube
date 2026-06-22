@@ -1762,3 +1762,12 @@ msgstr ""
 
 msgid "Couldn't load this playlist"
 msgstr ""
+
+msgid "Maximum History Entries"
+msgstr ""
+
+msgid "How many finished downloads to keep in the list"
+msgstr ""
+
+msgid "How many finished conversions to keep in the list"
+msgstr ""

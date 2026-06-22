@@ -1781,3 +1781,12 @@ msgstr "Conversion failed"
 
 msgid "Couldn't load this playlist"
 msgstr "Couldn't load this playlist"
+
+msgid "Maximum History Entries"
+msgstr "Maximum History Entries"
+
+msgid "How many finished downloads to keep in the list"
+msgstr "How many finished downloads to keep in the list"
+
+msgid "How many finished conversions to keep in the list"
+msgstr "How many finished conversions to keep in the list"

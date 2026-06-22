@@ -18,10 +18,17 @@ pub struct ConverterHistoryManager {
     path: PathBuf,
     cache: Arc<Mutex<Option<Vec<Value>>>>,
     debouncer: Debouncer,
+    max_size: usize,
 }
 
 impl ConverterHistoryManager {
     pub fn new(path: PathBuf) -> Self {
+        Self::with_max(path, MAX_HISTORY_SIZE)
+    }
+
+    /// Like `new`, but with an explicit history cap (clamped to at least 1).
+    pub fn with_max(path: PathBuf, max_size: usize) -> Self {
+        let max_size = max_size.max(1);
         let cache: Arc<Mutex<Option<Vec<Value>>>> = Arc::new(Mutex::new(None));
         let debouncer = {
             let cache = cache.clone();
@@ -37,6 +44,7 @@ impl ConverterHistoryManager {
             path,
             cache,
             debouncer,
+            max_size,
         }
     }
 
@@ -78,7 +86,7 @@ impl ConverterHistoryManager {
             "timestamp": now_epoch(),
         });
         history.insert(0, new_item.clone());
-        history.truncate(MAX_HISTORY_SIZE);
+        history.truncate(self.max_size);
         self.save(history);
         new_item
     }

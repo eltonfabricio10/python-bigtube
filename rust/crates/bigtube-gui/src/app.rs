@@ -1854,6 +1854,24 @@ pub(crate) fn a11y_label(w: &impl IsA<gtk::Accessible>, label: &str) {
     w.update_property(&[gtk::accessible::Property::Label(label)]);
 }
 
+/// Configured cap for the downloads history list (>= 1).
+fn max_download_history() -> usize {
+    config::global()
+        .read()
+        .map(|c| c.get_i64("max_download_history"))
+        .unwrap_or(100)
+        .max(1) as usize
+}
+
+/// Configured cap for the converter history list (>= 1).
+fn max_converter_history() -> usize {
+    config::global()
+        .read()
+        .map(|c| c.get_i64("max_converter_history"))
+        .unwrap_or(50)
+        .max(1) as usize
+}
+
 fn set_cfg(key: &str, value: serde_json::Value) {
     let changed = config::global()
         .write()
@@ -1878,6 +1896,8 @@ fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
             download_path: cfg.get_string("download_path"),
             max_concurrent: cfg.get_i64("max_concurrent_downloads"),
             concurrent_fragments: cfg.get_i64("concurrent_fragments"),
+            max_download_history: cfg.get_i64("max_download_history"),
+            max_converter_history: cfg.get_i64("max_converter_history"),
             check_updates_on_startup: cfg.get_bool("check_updates_on_startup"),
             rate_limit: cfg.get_i64("rate_limit"),
             add_metadata: cfg.get_bool("add_metadata"),
@@ -1926,6 +1946,8 @@ struct Cfg {
     download_path: String,
     max_concurrent: i64,
     concurrent_fragments: i64,
+    max_download_history: i64,
+    max_converter_history: i64,
     check_updates_on_startup: bool,
     rate_limit: i64,
     add_metadata: bool,
@@ -2106,6 +2128,15 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         100.0,
         c.rate_limit as f64,
         |v| set_cfg("rate_limit", serde_json::json!(v as i64)),
+    ));
+    group.add(&spin_row_step(
+        &tr("Maximum History Entries"),
+        &tr("How many finished downloads to keep in the list"),
+        10.0,
+        1000.0,
+        10.0,
+        c.max_download_history as f64,
+        |v| set_cfg("max_download_history", serde_json::json!(v as i64)),
     ));
     group.add(&switch_row(
         &tr("Add Metadata to Files"),
@@ -2512,6 +2543,15 @@ fn build_converter_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         &tr("Keep a record of converted files"),
         c.save_converter_history,
         |v| set_cfg("save_converter_history", serde_json::json!(v)),
+    ));
+    group.add(&spin_row_step(
+        &tr("Maximum History Entries"),
+        &tr("How many finished conversions to keep in the list"),
+        10.0,
+        500.0,
+        10.0,
+        c.max_converter_history as f64,
+        |v| set_cfg("max_converter_history", serde_json::json!(v as i64)),
     ));
     {
         let state = state.clone();
@@ -3646,8 +3686,9 @@ fn run_conversion(
                         .unwrap()
                         .get_bool("save_converter_history")
                     {
-                        bigtube_core::converter_history::ConverterHistoryManager::new(
+                        bigtube_core::converter_history::ConverterHistoryManager::with_max(
                             bigtube_core::paths::config_dir().join("converter_history.json"),
+                            max_converter_history(),
                         )
                         .add_entry(&source, &out, &fmt_hist);
                     }
@@ -4589,11 +4630,8 @@ fn enqueue_common(
             "scheduled_time": schedule_ts,
         });
         let format_data = serde_json::json!({ "id": format_id, "ext": ext });
-        bigtube_core::history::HistoryManager::new(history_path()).add_entry(
-            &video_info,
-            &format_data,
-            &file_path,
-        );
+        bigtube_core::history::HistoryManager::with_max(history_path(), max_download_history())
+            .add_entry(&video_info, &format_data, &file_path);
     }
 
     let tx = state.ui_tx.clone();
@@ -5028,10 +5066,19 @@ fn confirm_clear_all_downloads(state: &Rc<AppState>) {
     dialog.connect_response(None, move |dlg, resp| {
         if resp == "history" || resp == "file" {
             let delete_files = resp == "file";
+            let sched_store = bigtube_core::scheduled_downloads::ScheduledDownloadStore::new(
+                scheduled_downloads_path(),
+            );
             let mut rows = state.download_rows.borrow_mut();
             for (_, row) in rows.drain() {
                 if let Some(d) = row.downloader.borrow().as_ref() {
                     d.cancel();
+                }
+                // Pending scheduled rows: kill the timer and drop the store entry
+                // so they don't fire or reappear on restart.
+                if let Some(sid) = row.sched_id.borrow().clone() {
+                    download_manager::global().cancel_task(&sid);
+                    sched_store.remove(&sid);
                 }
                 if delete_files {
                     delete_output_file(&row.file_path.borrow());
@@ -5230,7 +5277,7 @@ fn load_download_history(state: &Rc<AppState>) {
             })
             .collect();
 
-    for it in &items {
+    for it in items.iter().take(max_download_history()) {
         let title = it
             .get("title")
             .and_then(|v| v.as_str())
@@ -5412,7 +5459,7 @@ fn load_converter_history(state: &Rc<AppState>) {
     // the file with an empty list on a transient read race.
     let items: Vec<serde_json::Value> =
         bigtube_core::json_store::load_json(converter_history_path(), Vec::new());
-    for it in &items {
+    for it in items.iter().take(max_converter_history()) {
         let source = it.get("source").and_then(|v| v.as_str()).unwrap_or("");
         let output = it.get("output").and_then(|v| v.as_str()).unwrap_or("");
         let format = it.get("format").and_then(|v| v.as_str()).unwrap_or("");
@@ -5555,6 +5602,8 @@ fn confirm_clear_all_converter(state: &Rc<AppState>) {
                 }
             }
             mgr.clear_all();
+            // Also drop queued-but-unconverted items so they don't reappear.
+            let _ = std::fs::remove_file(converter_pending_path());
             while let Some(c) = state.converter_box.first_child() {
                 state.converter_box.remove(&c);
             }

@@ -1792,3 +1792,12 @@ msgstr "Konvertierung fehlgeschlagen"
 
 msgid "Couldn't load this playlist"
 msgstr "Diese Wiedergabeliste konnte nicht geladen werden"
+
+msgid "Maximum History Entries"
+msgstr "Maximale Verlaufseinträge"
+
+msgid "How many finished downloads to keep in the list"
+msgstr "Wie viele abgeschlossene Downloads in der Liste behalten"
+
+msgid "How many finished conversions to keep in the list"
+msgstr "Wie viele abgeschlossene Konvertierungen in der Liste behalten"
