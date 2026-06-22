@@ -271,6 +271,8 @@ Las preferencias se guardan en `~/.config/bigtube/config.json`. Cuando el archiv
 | `theme_color` | `default` | Esquema de color |
 | `default_quality` | `ask` | Calidad preferida |
 | `max_concurrent_downloads` | `3` | Descargas simultáneas |
+| `max_download_history` | `100` | Máx. de elementos en la lista de descargas |
+| `max_converter_history` | `50` | Máx. de elementos en la lista del conversor |
 | `add_metadata` | `false` | Metadatos en las descargas |
 | `embed_subtitles` | `false` | Subtítulos en las descargas |
 | `save_history` | `true` | Historial de descargas |
@@ -293,6 +295,12 @@ Las preferencias se guardan en `~/.config/bigtube/config.json`. Cuando el archiv
 | `proxy` | `""` | Proxy |
 
 > Compatibilidad: las configuraciones más antiguas con la clave `download_subtitles` se migran automáticamente a `embed_subtitles`.
+
+### Variables de entorno
+| Variable | Efecto |
+|----------|--------|
+| `BIGTUBE_NO_FULL_REDRAW=1` | Omite el workaround de redibujado completo de GSK. BigTube fuerza redibujados completos para evitar "fantasmas" al desplazar (texto/miniaturas que quedan pegados) en ciertas combinaciones GTK4/Mesa/KWin. Úsalo si tu sistema no está afectado, para ahorrar CPU/batería. |
+| `GSK_RENDERER` | Variable estándar de GTK para elegir el renderizador (`gl`, `vulkan`, `cairo`, …); se respeta tal cual. |
 
 ---
 

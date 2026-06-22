@@ -271,6 +271,8 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | `theme_color` | `default` | Color scheme |
 | `default_quality` | `ask` | Preferred quality |
 | `max_concurrent_downloads` | `3` | Simultaneous downloads |
+| `max_download_history` | `100` | Max entries kept in the downloads list |
+| `max_converter_history` | `50` | Max entries kept in the converter list |
 | `add_metadata` | `false` | Metadata on downloads |
 | `embed_subtitles` | `false` | Subtitles on downloads |
 | `save_history` | `true` | Download history |
@@ -293,6 +295,12 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | `proxy` | `""` | Proxy |
 
 > Compatibility: older configurations with the `download_subtitles` key are automatically migrated to `embed_subtitles`.
+
+### Environment variables
+| Variable | Effect |
+|----------|--------|
+| `BIGTUBE_NO_FULL_REDRAW=1` | Skips the forced GSK full-redraw workaround. BigTube forces full redraws to avoid scroll "ghosting" (stale text/thumbnails) seen on some GTK4/Mesa/KWin stacks. Set this if your system is unaffected, to save CPU/battery. |
+| `GSK_RENDERER` | Standard GTK variable to pick the renderer (`gl`, `vulkan`, `cairo`, …); honored as-is. |
 
 ---
 

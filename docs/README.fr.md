@@ -271,6 +271,8 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | `theme_color` | `default` | Schéma de couleurs |
 | `default_quality` | `ask` | Qualité préférée |
 | `max_concurrent_downloads` | `3` | Téléchargements simultanés |
+| `max_download_history` | `100` | Max d’éléments dans la liste des téléchargements |
+| `max_converter_history` | `50` | Max d’éléments dans la liste du convertisseur |
 | `add_metadata` | `false` | Métadonnées sur les téléchargements |
 | `embed_subtitles` | `false` | Sous-titres sur les téléchargements |
 | `save_history` | `true` | Historique des téléchargements |
@@ -293,6 +295,12 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | `proxy` | `""` | Proxy |
 
 > Compatibilité : les anciennes configurations comportant la clé `download_subtitles` sont automatiquement migrées vers `embed_subtitles`.
+
+### Variables d’environnement
+| Variable | Effet |
+|----------|-------|
+| `BIGTUBE_NO_FULL_REDRAW=1` | Désactive le contournement de redessin complet GSK. BigTube force des redessins complets pour éviter les « fantômes » au défilement (texte/vignettes figés) sur certaines combinaisons GTK4/Mesa/KWin. À utiliser si votre système n’est pas concerné, pour économiser CPU/batterie. |
+| `GSK_RENDERER` | Variable GTK standard pour choisir le moteur de rendu (`gl`, `vulkan`, `cairo`, …) ; respectée telle quelle. |
 
 ---
 
