@@ -71,7 +71,7 @@ Rode `cargo fmt --all` antes de commitar.
 
 ## Versão automática
 
-A versão deriva do Git. O script [`scripts/sync_version_from_git.py`](scripts/sync_version_from_git.py) calcula a versão (`git describe`), e [`scripts/sync_rust_version.py`](scripts/sync_rust_version.py) — usado pelo workflow de release — sincroniza `rust/Cargo.toml`, `rust/Cargo.lock` e `rust/packaging/PKGBUILD`. O binário também expõe a versão derivada do Git em tempo de build via `bigtube-cli/build.rs`.
+A versão deriva do Git. O script [`scripts/sync_rust_version.py`](scripts/sync_rust_version.py) — usado pelo workflow de release — calcula a versão (`git describe`, bump de patch por commit após a última tag) e sincroniza `rust/Cargo.toml`, `rust/Cargo.lock` e `rust/packaging/PKGBUILD`. O binário também expõe a versão derivada do Git em tempo de build via `bigtube-cli/build.rs`.
 
 **Release oficial:** o workflow **Build and Release** dispara quando o **Rust CI** da `main` passa — ele cria a tag `vX.Y.Z`, compila os binários e publica a GitHub Release (tarball Arch + `.deb` + `.rpm`) e atualiza o pacote `bigtube-bin` no AUR.
 

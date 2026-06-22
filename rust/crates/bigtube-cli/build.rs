@@ -1,5 +1,5 @@
 //! Expose a git-derived version string at build time (mirrors
-//! `scripts/sync_version_from_git.py`), falling back to the Cargo version.
+//! `scripts/sync_rust_version.py`), falling back to the Cargo version.
 
 use std::process::Command;
 
