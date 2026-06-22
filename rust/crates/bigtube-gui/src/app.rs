@@ -3,7 +3,7 @@
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use adw::prelude::*;
@@ -21,6 +21,12 @@ use crate::objects::VideoObject;
 use crate::row::{RowAction, SearchResultRow};
 
 mod donations;
+mod widgets;
+
+use widgets::{
+    add_page, button_row, combo_row, fmt_eta, human_size, loading_page, next_key, page_header,
+    parse_percent, spin_row, spin_row_step, status_page, switch_row,
+};
 
 /// Translate, then escape Pango markup. Widgets like `AdwPreferencesGroup` and
 /// `AdwActionRow` render their title with markup enabled, so a raw `&` (valid in
@@ -383,15 +389,6 @@ struct RescheduleInfo {
 }
 
 /// Human file size from raw bytes, e.g. "57.9 MiB" / "1.23 GiB".
-fn human_size(bytes: u64) -> String {
-    let b = bytes as f64;
-    if b >= 1024.0 * 1024.0 * 1024.0 {
-        format!("{:.2} GiB", b / 1024.0 / 1024.0 / 1024.0)
-    } else {
-        format!("{:.1} MiB", b / 1024.0 / 1024.0)
-    }
-}
-
 /// "H.264 · AAC · 57.9 MiB" from a probed file (omitting unknown parts).
 /// "Video MP4" / "Audio MP3": the media kind (by presence of a video stream)
 /// plus the upper-cased file extension, derived from `path`.
@@ -2405,121 +2402,6 @@ fn build_search_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
 /// A page banner (large title strip) shown at the top of each page.
 /// A page title strip (full-width highlighted bar, matching the header bar
 /// colour) with optional icon action buttons at the end.
-fn page_header(title: &str, buttons: &[gtk::Button]) -> gtk::Widget {
-    let cb = gtk::CenterBox::new();
-    cb.add_css_class("page-title-bar");
-    let lbl = gtk::Label::new(Some(title));
-    lbl.add_css_class("title-1");
-    cb.set_center_widget(Some(&lbl));
-    if !buttons.is_empty() {
-        let bx = gtk::Box::new(gtk::Orientation::Horizontal, 6);
-        bx.set_halign(gtk::Align::End);
-        for b in buttons {
-            bx.append(b);
-        }
-        cb.set_end_widget(Some(&bx));
-    }
-    cb.upcast()
-}
-
-/// A centered spinner + label, used as a "loading" stack page.
-fn loading_page(label: &str) -> gtk::Box {
-    let b = gtk::Box::new(gtk::Orientation::Vertical, 12);
-    b.set_valign(gtk::Align::Center);
-    b.set_halign(gtk::Align::Center);
-    b.set_vexpand(true);
-    let spinner = gtk::Spinner::new();
-    spinner.set_size_request(48, 48);
-    spinner.start();
-    b.append(&spinner);
-    let lbl = gtk::Label::new(Some(label));
-    lbl.add_css_class("dim-label");
-    b.append(&lbl);
-    b
-}
-
-/// A centered empty-state placeholder.
-fn status_page(icon: &str, title: &str, desc: &str) -> adw::StatusPage {
-    adw::StatusPage::builder()
-        .icon_name(icon)
-        .title(title)
-        .description(desc)
-        .vexpand(true)
-        .build()
-}
-
-fn combo_row(title: &str, options: &[impl AsRef<str>]) -> adw::ComboRow {
-    let strs: Vec<&str> = options.iter().map(|s| s.as_ref()).collect();
-    let model = gtk::StringList::new(&strs);
-    adw::ComboRow::builder().title(title).model(&model).build()
-}
-
-fn switch_row(
-    title: &str,
-    subtitle: &str,
-    active: bool,
-    on_change: impl Fn(bool) + 'static,
-) -> adw::SwitchRow {
-    let row = adw::SwitchRow::builder()
-        .title(title)
-        .subtitle(subtitle)
-        .active(active)
-        .build();
-    row.connect_active_notify(move |r| on_change(r.is_active()));
-    row
-}
-
-fn spin_row(
-    title: &str,
-    subtitle: &str,
-    min: f64,
-    max: f64,
-    value: f64,
-    on_change: impl Fn(f64) + 'static,
-) -> adw::SpinRow {
-    spin_row_step(title, subtitle, min, max, 1.0, value, on_change)
-}
-
-fn spin_row_step(
-    title: &str,
-    subtitle: &str,
-    min: f64,
-    max: f64,
-    step: f64,
-    value: f64,
-    on_change: impl Fn(f64) + 'static,
-) -> adw::SpinRow {
-    let row = adw::SpinRow::with_range(min, max, step);
-    row.set_title(title);
-    row.set_subtitle(subtitle);
-    row.set_value(value);
-    row.connect_value_notify(move |r| on_change(r.value()));
-    row
-}
-
-/// An action row whose suffix is a single icon button.
-fn button_row(
-    title: &str,
-    subtitle: &str,
-    icon: &str,
-    destructive: bool,
-    on_click: impl Fn() + 'static,
-) -> adw::ActionRow {
-    let row = adw::ActionRow::builder()
-        .title(title)
-        .subtitle(subtitle)
-        .build();
-    let btn = gtk::Button::from_icon_name(icon);
-    btn.add_css_class("flat");
-    if destructive {
-        btn.add_css_class("destructive-action");
-    }
-    btn.set_valign(gtk::Align::Center);
-    btn.connect_clicked(move |_| on_click());
-    row.add_suffix(&btn);
-    row
-}
-
 fn pick_download_folder(state: &Rc<AppState>, folder_row: &adw::ActionRow) {
     let Some(window) = state.window.borrow().clone() else {
         return;
@@ -5461,37 +5343,8 @@ fn history_status_label(status: &str) -> String {
     status_label(code)
 }
 
-fn next_key() -> String {
-    static COUNTER: AtomicU64 = AtomicU64::new(0);
-    format!("dl-{}", COUNTER.fetch_add(1, Ordering::Relaxed))
-}
-
-fn parse_percent(s: &str) -> Option<f64> {
-    s.trim()
-        .trim_end_matches('%')
-        .parse::<f64>()
-        .ok()
-        .map(|v| (v / 100.0).clamp(0.0, 1.0))
-}
-
-fn add_page(stack: &adw::ViewStack, child: &gtk::Widget, name: &str, title: &str, icon: &str) {
-    let page = stack.add_titled(child, Some(name), title);
-    page.set_icon_name(Some(icon));
-}
-
 /// Translated label for a status code. The msgids match `locales.py`'s
 /// `StringKey` values so the existing `.mo` catalogs resolve them.
-/// Format a seconds count as `M:SS` (or `H:MM:SS` past an hour).
-fn fmt_eta(secs: f64) -> String {
-    let s = secs.max(0.0) as u64;
-    let (h, m, sec) = (s / 3600, (s % 3600) / 60, s % 60);
-    if h > 0 {
-        format!("{h}:{m:02}:{sec:02}")
-    } else {
-        format!("{m}:{sec:02}")
-    }
-}
-
 fn status_label(s: StatusCode) -> String {
     use StatusCode::*;
     let msgid = match s {
