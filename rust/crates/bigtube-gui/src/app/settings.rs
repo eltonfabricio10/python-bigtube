@@ -379,6 +379,12 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         c.rate_limit as f64,
         |v| set_cfg("rate_limit", serde_json::json!(v as i64)),
     ));
+    group.add(&switch_row(
+        &tr("Save Download History"),
+        &tr("Keep a record of completed downloads"),
+        c.save_history,
+        |v| set_cfg("save_history", serde_json::json!(v)),
+    ));
     group.add(&spin_row_step(
         &tr("Maximum History Entries"),
         &tr("How many finished downloads to keep in the list"),
@@ -712,12 +718,6 @@ fn build_storage_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
         .title(tr("Storage"))
         .build();
 
-    group.add(&switch_row(
-        &tr("Save Download History"),
-        &tr("Keep a record of completed downloads"),
-        c.save_history,
-        |v| set_cfg("save_history", serde_json::json!(v)),
-    ));
     group.add(&switch_row(
         &tr("Clear All Data on Exit"),
         &tr("Wipe history and finished items when the app closes"),
