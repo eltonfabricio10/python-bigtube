@@ -30,11 +30,16 @@ fn main() {
     // stacks, leaving stale "ghost" text/thumbnails behind until a hover
     // repaints the row. Full redraws sidestep that at a negligible cost for an
     // app this light. Append so an explicit GSK_DEBUG from the environment wins.
-    let gsk_debug = match std::env::var("GSK_DEBUG") {
-        Ok(v) if !v.is_empty() => format!("{v},full-redraw"),
-        _ => "full-redraw".to_string(),
-    };
-    std::env::set_var("GSK_DEBUG", gsk_debug);
+    //
+    // Set BIGTUBE_NO_FULL_REDRAW=1 to skip the workaround (to check whether the
+    // underlying driver/GTK bug still reproduces on the current stack).
+    if std::env::var_os("BIGTUBE_NO_FULL_REDRAW").is_none() {
+        let gsk_debug = match std::env::var("GSK_DEBUG") {
+            Ok(v) if !v.is_empty() => format!("{v},full-redraw"),
+            _ => "full-redraw".to_string(),
+        };
+        std::env::set_var("GSK_DEBUG", gsk_debug);
+    }
 
     gstreamer::init().expect("GStreamer init failed");
     i18n::init();
