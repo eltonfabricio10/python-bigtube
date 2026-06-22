@@ -809,8 +809,6 @@ msgstr ""
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
 msgstr "Tutti i dati dell’applicazione sono stati cancellati. L’app verrà riavviata."
-"Tutti i dati dell'applicazione sono stati cancellati. L'app verrà ora "
-"riavviata."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:332
 msgid "Failed to select folder"
