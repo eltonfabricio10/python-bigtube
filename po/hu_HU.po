@@ -1792,3 +1792,6 @@ msgstr "Hány befejezett letöltés maradjon a listában"
 
 msgid "How many finished conversions to keep in the list"
 msgstr "Hány befejezett konvertálás maradjon a listában"
+
+msgid "Download complete"
+msgstr "Letöltés befejeződött"

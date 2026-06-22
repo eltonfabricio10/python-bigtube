@@ -1792,3 +1792,6 @@ msgstr "Koľko dokončených sťahovaní ponechať v zozname"
 
 msgid "How many finished conversions to keep in the list"
 msgstr "Koľko dokončených prevodov ponechať v zozname"
+
+msgid "Download complete"
+msgstr "Sťahovanie dokončené"

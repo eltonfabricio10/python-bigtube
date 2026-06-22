@@ -1795,3 +1795,6 @@ msgstr "Hoeveel voltooide downloads in de lijst bewaren"
 
 msgid "How many finished conversions to keep in the list"
 msgstr "Hoeveel voltooide conversies in de lijst bewaren"
+
+msgid "Download complete"
+msgstr "Download voltooid"

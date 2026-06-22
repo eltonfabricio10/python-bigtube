@@ -1790,3 +1790,6 @@ msgstr "Kolik dokončených stahování ponechat v seznamu"
 
 msgid "How many finished conversions to keep in the list"
 msgstr "Kolik dokončených převodů ponechat v seznamu"
+
+msgid "Download complete"
+msgstr "Stahování dokončeno"

@@ -1771,3 +1771,6 @@ msgstr ""
 
 msgid "How many finished conversions to keep in the list"
 msgstr ""
+
+msgid "Download complete"
+msgstr ""

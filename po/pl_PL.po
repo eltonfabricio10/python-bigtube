@@ -1791,3 +1791,6 @@ msgstr "Ile ukończonych pobrań zachować na liście"
 
 msgid "How many finished conversions to keep in the list"
 msgstr "Ile ukończonych konwersji zachować na liście"
+
+msgid "Download complete"
+msgstr "Pobieranie zakończone"

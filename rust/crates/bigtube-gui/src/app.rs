@@ -741,6 +741,15 @@ pub fn build_window(app: &adw::Application) {
     // changed right before quitting isn't lost.
     window.connect_close_request(|_| {
         config_saver().flush();
+        // "Clear All Data on Exit": wipe the history/finished-item stores (never
+        // the config itself) so the next launch starts empty.
+        if config::global()
+            .read()
+            .map(|c| c.get_bool("auto_clear_finished"))
+            .unwrap_or(false)
+        {
+            wipe_finished_data();
+        }
         glib::Propagation::Proceed
     });
 
@@ -808,6 +817,22 @@ pub fn build_window(app: &adw::Application) {
                     // "remove when complete") or probe the real file (codecs +
                     // on-disk size) off-thread and show it as the row's status.
                     if status == StatusCode::Completed {
+                        // Opt-in desktop notification (the file name as the body).
+                        if config::global()
+                            .read()
+                            .map(|c| c.get_bool("system_notifications"))
+                            .unwrap_or(false)
+                        {
+                            if let Some(gapp) = gio::Application::default() {
+                                let note = gio::Notification::new(&tr("Download complete"));
+                                if let Some((path, _)) = &info {
+                                    if let Some(name) = std::path::Path::new(path).file_name() {
+                                        note.set_body(Some(&name.to_string_lossy()));
+                                    }
+                                }
+                                gapp.send_notification(None, &note);
+                            }
+                        }
                         let remove = config::global()
                             .read()
                             .map(|c| c.get_bool("remove_on_complete"))
@@ -1096,6 +1121,24 @@ fn set_cfg(key: &str, value: serde_json::Value) {
         .unwrap_or(false);
     if changed {
         config_saver().touch();
+    }
+}
+
+/// Delete the on-disk history / finished-item stores (NOT the config), used by
+/// the "Clear All Data on Exit" setting. Mirrors `reset_all`'s data targets.
+fn wipe_finished_data() {
+    let dir = bigtube_core::paths::config_dir();
+    for name in [
+        "history.json",
+        "search_history.json",
+        "converter_history.json",
+        "scheduled_downloads.json",
+        "converter_pending.json",
+    ] {
+        let f = dir.join(name);
+        if f.exists() {
+            let _ = std::fs::remove_file(&f);
+        }
     }
 }
 

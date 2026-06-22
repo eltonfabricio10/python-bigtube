@@ -1795,3 +1795,6 @@ msgstr "Câte descărcări finalizate să rămână în listă"
 
 msgid "How many finished conversions to keep in the list"
 msgstr "Câte conversii finalizate să rămână în listă"
+
+msgid "Download complete"
+msgstr "Descărcare finalizată"
