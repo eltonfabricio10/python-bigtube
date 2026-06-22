@@ -490,8 +490,6 @@ msgstr "Archivo no encontrado, ¿eliminar del historial?"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
 msgstr "El siguiente archivo está en el historial pero no se encontró en el disco:\n"
-"El siguiente archivo existe en el historial, pero no se encontró en el "
-"disco:\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
 msgid "Item removed from history."
@@ -988,8 +986,6 @@ msgstr "Comando de posprocesamiento"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:390
 msgid "Command to run after download. Use {} for filename."
 msgstr "Comando a ejecutar tras la descarga. Usa {} para el nombre del archivo."
-"Comando para ejecutar después de la descarga. Utilice {} para el nombre del "
-"archivo."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
 msgid "Cookies File"
@@ -1274,7 +1270,6 @@ msgstr "¿Borrar todas las descargas?"
 #: bigtube-gui
 msgid "Remove only the history entries, or delete the files too?"
 msgstr "¿Quitar solo las entradas del historial o también eliminar los archivos?"
-"¿Eliminar solo las entradas del historial o borrar también los archivos?"
 
 #: bigtube-gui
 msgid "Delete files too"
@@ -1483,7 +1478,6 @@ msgstr "Cuántas descargas se ejecutan al mismo tiempo"
 #: bigtube-gui
 msgid "Parallel fragments per download (faster, uses more bandwidth)"
 msgstr "Fragmentos paralelos por descarga (más rápido, usa más ancho de banda)"
-"Fragmentos paralelos por descarga (más rápido, usa más ancho de banda)"
 
 #: bigtube-gui
 msgid "Cap the download rate (0 = unlimited)"
@@ -1512,7 +1506,6 @@ msgstr "Mantener un registro de las descargas completadas"
 #: bigtube-gui
 msgid "Wipe history and finished items when the app closes"
 msgstr "Borrar el historial y los elementos finalizados al cerrar la app"
-"Borrar el historial y los elementos finalizados al cerrar la aplicación"
 
 #: bigtube-gui
 msgid "Write the converted file next to the original"
@@ -1733,7 +1726,6 @@ msgstr "Sin vídeo ni audio"
 
 msgid "This link has no video or audio. Remove it from the search history?"
 msgstr "Este enlace no tiene vídeo ni audio. ¿Quitarlo del historial de búsqueda?"
-"Este enlace no tiene vídeo ni audio. ¿Quitarlo del historial de búsqueda?"
 
 msgid "Couldn't get video or audio from this link."
 msgstr "No se pudo obtener vídeo ni audio de este enlace."

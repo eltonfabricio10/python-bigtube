@@ -490,7 +490,6 @@ msgstr "Ficheiro Não Encontrado, Remover do Histórico?"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
 msgstr "O seguinte ficheiro está no histórico mas não foi encontrado no disco:\n"
-"O seguinte ficheiro existe no histórico, mas não foi encontrado no disco:\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
 msgid "Item removed from history."
@@ -987,7 +986,6 @@ msgstr "Comando de Pós-Processamento"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:390
 msgid "Command to run after download. Use {} for filename."
 msgstr "Comando a executar após a transferência. Use {} para o nome do ficheiro."
-"Comando a executar após a transferência. Use {} para o nome do ficheiro."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
 msgid "Cookies File"
@@ -1109,7 +1107,6 @@ msgstr "Mostrar alertas ao nível do sistema para eventos de transferência"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:422
 msgid "Automatically detect video links in your clipboard"
 msgstr "Detetar automaticamente ligações de vídeo na área de transferência"
-"Detetar automaticamente ligações de vídeo na sua área de transferência"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:423
 msgid "Keep a log of your past downloads locally"
@@ -1273,7 +1270,6 @@ msgstr "Limpar todas as transferências?"
 #: bigtube-gui
 msgid "Remove only the history entries, or delete the files too?"
 msgstr "Remover apenas as entradas do histórico ou eliminar também os ficheiros?"
-"Remover apenas as entradas do histórico ou eliminar também os ficheiros?"
 
 #: bigtube-gui
 msgid "Delete files too"
@@ -1482,8 +1478,6 @@ msgstr "Quantas transferências são executadas ao mesmo tempo"
 #: bigtube-gui
 msgid "Parallel fragments per download (faster, uses more bandwidth)"
 msgstr "Fragmentos paralelos por transferência (mais rápido, usa mais largura de banda)"
-"Fragmentos paralelos por transferência (mais rápido, usa mais largura de "
-"banda)"
 
 #: bigtube-gui
 msgid "Cap the download rate (0 = unlimited)"
@@ -1733,7 +1727,6 @@ msgstr "Sem vídeo ou áudio"
 
 msgid "This link has no video or audio. Remove it from the search history?"
 msgstr "Esta ligação não tem vídeo nem áudio. Remover do histórico de pesquisa?"
-"Esta ligação não tem vídeo ou áudio. Remover do histórico de pesquisa?"
 
 msgid "Couldn't get video or audio from this link."
 msgstr "Não foi possível obter vídeo ou áudio desta ligação."

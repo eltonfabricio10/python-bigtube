@@ -1482,7 +1482,6 @@ msgstr "Koľko sťahovaní beží súčasne"
 #: bigtube-gui
 msgid "Parallel fragments per download (faster, uses more bandwidth)"
 msgstr "Paralelné fragmenty na stiahnutie (rýchlejšie, využíva viac prenosového pásma)"
-"Paralelné fragmenty na stiahnutie (rýchlejšie, využíva viac šírky pásma)"
 
 #: bigtube-gui
 msgid "Cap the download rate (0 = unlimited)"
@@ -1730,8 +1729,6 @@ msgstr "Žiadne video ani zvuk"
 
 msgid "This link has no video or audio. Remove it from the search history?"
 msgstr "Tento odkaz nemá video ani zvuk. Odstrániť ho z histórie hľadania?"
-"Tento odkaz neobsahuje žiadne video ani zvuk. Odstrániť ho z histórie "
-"hľadania?"
 
 msgid "Couldn't get video or audio from this link."
 msgstr "Z tohto odkazu sa nepodarilo získať video ani zvuk."

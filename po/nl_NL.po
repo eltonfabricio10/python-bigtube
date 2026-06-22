@@ -495,8 +495,6 @@ msgstr "Bestand niet gevonden, verwijderen uit geschiedenis?"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
 msgstr "Het volgende bestand staat in de geschiedenis maar is niet op de schijf gevonden:\n"
-"Het volgende bestand bestaat in de geschiedenis, maar is niet op schijf "
-"gevonden:\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
 msgid "Item removed from history."
@@ -993,8 +991,6 @@ msgstr "Nabewerkingscommando"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:390
 msgid "Command to run after download. Use {} for filename."
 msgstr "Uit te voeren opdracht na het downloaden. Gebruik {} voor de bestandsnaam."
-"Commando om uit te voeren na het downloaden. Gebruik {} voor de "
-"bestandsnaam."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
 msgid "Cookies File"
@@ -1263,8 +1259,6 @@ msgstr "Download verwijderen?"
 #: bigtube-gui
 msgid "Remove only the history entry, or delete the file too?"
 msgstr "Alleen het geschiedenisitem verwijderen, of ook het bestand?"
-"Alleen de geschiedenisvermelding verwijderen, of ook het bestand "
-"verwijderen?"
 
 #: bigtube-gui
 msgid "Remove from history"
@@ -1281,8 +1275,6 @@ msgstr "Alle downloads wissen?"
 #: bigtube-gui
 msgid "Remove only the history entries, or delete the files too?"
 msgstr "Alleen de geschiedenisitems verwijderen, of ook de bestanden?"
-"Alleen de geschiedenisvermeldingen verwijderen, of ook de bestanden "
-"verwijderen?"
 
 #: bigtube-gui
 msgid "Delete files too"
@@ -1491,7 +1483,6 @@ msgstr "Hoeveel downloads er tegelijkertijd worden uitgevoerd"
 #: bigtube-gui
 msgid "Parallel fragments per download (faster, uses more bandwidth)"
 msgstr "Parallelle fragmenten per download (sneller, gebruikt meer bandbreedte)"
-"Parallelle fragmenten per download (sneller, gebruikt meer bandbreedte)"
 
 #: bigtube-gui
 msgid "Cap the download rate (0 = unlimited)"
@@ -1741,7 +1732,6 @@ msgstr "Geen video of audio"
 
 msgid "This link has no video or audio. Remove it from the search history?"
 msgstr "Deze link bevat geen video of audio. Verwijderen uit de zoekgeschiedenis?"
-"Deze link bevat geen video of audio. Verwijderen uit de zoekgeschiedenis?"
 
 msgid "Couldn't get video or audio from this link."
 msgstr "Kon geen video of audio van deze link ophalen."
@@ -1760,8 +1750,6 @@ msgstr "Verwijderen bij annuleren"
 
 msgid "Automatically remove a download from the list when it is cancelled"
 msgstr "Een download automatisch uit de lijst verwijderen wanneer deze wordt geannuleerd"
-"Verwijdert een download automatisch uit de lijst wanneer deze wordt "
-"geannuleerd"
 
 msgid "Rendering Engine"
 msgstr "Renderengine"

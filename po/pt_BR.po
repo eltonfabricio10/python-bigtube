@@ -490,7 +490,6 @@ msgstr "Arquivo Não Encontrado, Remover do Histórico?"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
 msgstr "O seguinte arquivo está no histórico mas não foi encontrado no disco:\n"
-"O seguinte arquivo existe no histórico, mas não foi encontrado no disco:\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
 msgid "Item removed from history."

@@ -495,8 +495,6 @@ msgstr "Fichier introuvable, supprimer de l'historique ?"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
 msgid "The following file exists in history but was not found on disk:\n"
 msgstr "Le fichier suivant est dans l’historique mais est introuvable sur le disque :\n"
-"Le fichier suivant existe dans l'historique mais n'a pas été trouvé sur le "
-"disque :\n"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
 msgid "Item removed from history."
@@ -993,8 +991,6 @@ msgstr "Commande de post-traitement"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:390
 msgid "Command to run after download. Use {} for filename."
 msgstr "Commande à exécuter après le téléchargement. Utilisez {} pour le nom du fichier."
-"Commande à exécuter après le téléchargement. Utilisez {} pour le nom de "
-"fichier."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
 msgid "Cookies File"
@@ -1084,7 +1080,6 @@ msgstr "Basculer entre le thème clair, sombre ou système"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:414
 msgid "Select a custom accent color for the interface"
 msgstr "Choisir une couleur d’accentuation personnalisée pour l’interface"
-"Sélectionnez une couleur d'accentuation personnalisée pour l'interface"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:415
 msgid "Check for updates to yt-dlp and components"
@@ -1264,8 +1259,6 @@ msgstr "Supprimer le téléchargement ?"
 #: bigtube-gui
 msgid "Remove only the history entry, or delete the file too?"
 msgstr "Retirer uniquement l’entrée de l’historique, ou supprimer aussi le fichier ?"
-"Supprimer uniquement l'entrée de l'historique, ou supprimer aussi le fichier"
-" ?"
 
 #: bigtube-gui
 msgid "Remove from history"
@@ -1282,8 +1275,6 @@ msgstr "Effacer tous les téléchargements ?"
 #: bigtube-gui
 msgid "Remove only the history entries, or delete the files too?"
 msgstr "Retirer uniquement les entrées de l’historique, ou supprimer aussi les fichiers ?"
-"Supprimer uniquement les entrées de l'historique, ou supprimer aussi les "
-"fichiers ?"
 
 #: bigtube-gui
 msgid "Delete files too"
@@ -1492,8 +1483,6 @@ msgstr "Combien de téléchargements s'exécutent en même temps"
 #: bigtube-gui
 msgid "Parallel fragments per download (faster, uses more bandwidth)"
 msgstr "Fragments parallèles par téléchargement (plus rapide, plus de bande passante)"
-"Fragments parallèles par téléchargement (plus rapide, utilise plus de bande "
-"passante)"
 
 #: bigtube-gui
 msgid "Cap the download rate (0 = unlimited)"
@@ -1522,8 +1511,6 @@ msgstr "Conserver un enregistrement des téléchargements terminés"
 #: bigtube-gui
 msgid "Wipe history and finished items when the app closes"
 msgstr "Effacer l’historique et les éléments terminés à la fermeture de l’application"
-"Effacer l'historique et les éléments terminés à la fermeture de "
-"l'application"
 
 #: bigtube-gui
 msgid "Write the converted file next to the original"
@@ -1632,7 +1619,6 @@ msgstr "Meilleure qualité disponible"
 #: bigtube-gui
 msgid "A file with this name is already in the download folder."
 msgstr "Un fichier portant ce nom existe déjà dans le dossier de téléchargement."
-"Un fichier portant ce nom se trouve déjà dans le dossier de téléchargement."
 
 #: bigtube-gui
 msgid "Added to downloads"
@@ -1745,8 +1731,6 @@ msgstr "Aucune vidéo ni audio"
 
 msgid "This link has no video or audio. Remove it from the search history?"
 msgstr "Ce lien ne contient ni vidéo ni audio. Le retirer de l’historique de recherche ?"
-"Ce lien ne contient aucune vidéo ni audio. Le retirer de l’historique de "
-"recherche ?"
 
 msgid "Couldn't get video or audio from this link."
 msgstr "Impossible de récupérer la vidéo ou l’audio de ce lien."
@@ -1765,7 +1749,6 @@ msgstr "Supprimer à l’annulation"
 
 msgid "Automatically remove a download from the list when it is cancelled"
 msgstr "Retirer automatiquement un téléchargement de la liste lorsqu’il est annulé"
-"Retire automatiquement un téléchargement de la liste lorsqu’il est annulé"
 
 msgid "Rendering Engine"
 msgstr "Moteur de rendu"
