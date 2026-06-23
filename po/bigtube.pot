@@ -1774,3 +1774,6 @@ msgstr ""
 
 msgid "Download complete"
 msgstr ""
+
+msgid "Slow connection, please wait…"
+msgstr ""

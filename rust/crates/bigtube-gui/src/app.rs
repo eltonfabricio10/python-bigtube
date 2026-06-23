@@ -813,6 +813,7 @@ pub fn build_window(app: &adw::Application) {
     toolbar.set_bottom_bar_style(adw::ToolbarStyle::Flat);
     if let Some((player, player_bar)) = crate::player::build(&window) {
         toolbar.add_bottom_bar(&player_bar);
+        player.set_toast_overlay(state.toasts.clone());
         state.player.replace(Some(player));
     }
 
@@ -925,6 +926,19 @@ pub fn build_window(app: &adw::Application) {
                         row.edit.set_visible(false);
                         row.sched_id.replace(None);
                     }
+                    // Dispatched (a slot is free, so it's not just queued): warn if
+                    // it's slow to begin transferring bytes — a slow connection.
+                    let state = state_for_loop.clone();
+                    glib::timeout_add_local_once(std::time::Duration::from_secs(2), move || {
+                        if let Some(row) = state.download_rows.borrow().get(&key) {
+                            if row.progress.fraction() <= 0.0
+                                && !row.is_paused.get()
+                                && !row.is_error.get()
+                            {
+                                state.toast(&tr("Slow connection, please wait…"));
+                            }
+                        }
+                    });
                 }
                 UiMsg::MediaInfo { key, text } => {
                     if let Some(row) = state_for_loop.download_rows.borrow().get(&key) {

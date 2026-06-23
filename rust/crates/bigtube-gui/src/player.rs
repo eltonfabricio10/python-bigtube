@@ -75,6 +75,9 @@ pub struct Player {
     // it must outlive `build()` or EOS/buffering messages stop being delivered
     // (which silently breaks auto-advance to the next track).
     _bus_watch: RefCell<Option<gst::bus::BusWatchGuard>>,
+    // Toast overlay for user-facing notices (e.g. the slow-connection warning).
+    // Set by `build_window` after construction.
+    toasts: RefCell<Option<adw::ToastOverlay>>,
 }
 
 /// Build the player and its bottom bar widget, or `None` when the required
@@ -312,6 +315,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         error_streak: Cell::new(0),
         now_playing: NowPlaying::new(),
         _bus_watch: RefCell::new(None),
+        toasts: RefCell::new(None),
     });
 
     // Play / pause.
@@ -542,6 +546,17 @@ impl Player {
         // Bump the generation; drop any in-flight resolution.
         let gen = self.token.fetch_add(1, Ordering::SeqCst) + 1;
 
+        // If the stream is slow to start (resolution + buffering), warn the user
+        // it may be a slow connection — unless a newer play superseded this one.
+        {
+            let this = self.clone();
+            glib::timeout_add_local_once(Duration::from_secs(2), move || {
+                if this.token.load(Ordering::SeqCst) == gen && !this.has_started() {
+                    this.toast(&tr("Slow connection, please wait…"));
+                }
+            });
+        }
+
         // Stop the previous stream NOW so it doesn't keep playing (audio/video)
         // while we resolve/buffer the new one — the switch must be clean.
         let _ = self.playbin.set_state(gst::State::Null);
@@ -590,6 +605,28 @@ impl Player {
             };
             this.artist_lbl.set_text(&shown_artist);
         });
+    }
+
+    /// Wire the toast overlay used for user-facing notices.
+    pub fn set_toast_overlay(&self, overlay: adw::ToastOverlay) {
+        self.toasts.replace(Some(overlay));
+    }
+
+    fn toast(&self, msg: &str) {
+        if let Some(o) = self.toasts.borrow().as_ref() {
+            o.add_toast(adw::Toast::new(msg));
+        }
+    }
+
+    /// True once the current stream is actually playing (position advanced or
+    /// video frames are on screen).
+    fn has_started(&self) -> bool {
+        self.showing_frames.get()
+            || self
+                .playbin
+                .query_position::<gst::ClockTime>()
+                .map(|t| t.nseconds() > 0)
+                .unwrap_or(false)
     }
 
     /// Toggle the buffering spinner (replaces the play button while loading).

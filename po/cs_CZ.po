@@ -1793,3 +1793,6 @@ msgstr "Kolik dokončených převodů ponechat v seznamu"
 
 msgid "Download complete"
 msgstr "Stahování dokončeno"
+
+msgid "Slow connection, please wait…"
+msgstr "Pomalé připojení, čekejte…"

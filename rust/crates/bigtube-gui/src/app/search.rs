@@ -4,7 +4,7 @@
 //! search-history path helper live in the parent module and are reached via
 //! `super::`.
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use adw::prelude::*;
@@ -509,6 +509,19 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
     // Show the spinner page while the search runs.
     state.search_stack.set_visible_child_name("loading");
 
+    // If results are slow to arrive, warn it may be a slow connection. The flag
+    // is cleared as soon as the worker replies, so a fast search never toasts.
+    let pending = Rc::new(Cell::new(true));
+    {
+        let state = state.clone();
+        let pending = pending.clone();
+        glib::timeout_add_local_once(std::time::Duration::from_secs(2), move || {
+            if pending.get() {
+                state.toast(&tr("Slow connection, please wait…"));
+            }
+        });
+    }
+
     // A direct link (incl. a playlist URL) is expanded into its videos by the
     // core, so suppress any playlist wrapper rows — a pasted playlist lists its
     // videos inline, never a "playlist menu" row. Mirror the core's own
@@ -531,7 +544,9 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
 
     let state = state.clone();
     glib::spawn_future_local(async move {
-        if let Ok(result) = rx.recv().await {
+        let received = rx.recv().await;
+        pending.set(false); // worker replied — cancel the slow-connection warning
+        if let Ok(result) = received {
             match result {
                 Ok(list) => {
                     let mode = state.select_mode.get();
