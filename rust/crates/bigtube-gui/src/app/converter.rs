@@ -153,6 +153,8 @@ struct ConvUi {
     meta_chk: gtk::CheckButton,
     subs_chk: gtk::CheckButton,
     out_path: Rc<RefCell<String>>,
+    // The row's card, so "remove when finished/cancelled" can drop it.
+    container: gtk::Box,
 }
 
 impl ConvUi {
@@ -367,6 +369,7 @@ fn add_converter_row(
         meta_chk: meta_chk.clone(),
         subs_chk: subs_chk.clone(),
         out_path: Rc::new(RefCell::new(String::new())),
+        container: container.clone(),
     };
 
     // Persist this as a pending item so it survives a restart even if it's never
@@ -516,12 +519,23 @@ fn run_conversion(
                         .set_text(&format!("{}: {}", tr("Converting"), parts.join(" · ")));
                 }
                 ConvMsg::Done(Ok(out)) => {
-                    ui.progress.set_fraction(1.0);
-                    ui.set_progress_class("success");
-                    ui.status.set_text(&tr("Success!"));
                     // Converted: it graduates from the pending queue (it'll be
                     // recorded in converter history below if enabled).
                     remove_pending_conv(&source);
+                    // "Remove when finished": drop the row and skip history, so
+                    // it leaves no trace (and won't reappear on the next launch).
+                    let remove = config::global()
+                        .read()
+                        .map(|c| c.get_bool("remove_on_complete"))
+                        .unwrap_or(false);
+                    if remove {
+                        remove_list_card(&state.converter_box, &ui.container);
+                        state.update_converter_empty();
+                        continue;
+                    }
+                    ui.progress.set_fraction(1.0);
+                    ui.set_progress_class("success");
+                    ui.status.set_text(&tr("Success!"));
                     ui.cancel.set_visible(false);
                     ui.convert.set_visible(true);
                     ui.set_inputs_sensitive(true);
@@ -561,9 +575,19 @@ fn run_conversion(
                 ConvMsg::Done(Err(e)) => {
                     if cancel_flag.load(Ordering::SeqCst) {
                         // Cancelled by the user: the core removed the partial
-                        // output; keep the row and reset it so another format can
-                        // be picked and converted again.
-                        ui.reset_ready();
+                        // output. "Remove when cancelled" drops the row (and its
+                        // pending entry); otherwise keep it, reset for a retry.
+                        let remove = config::global()
+                            .read()
+                            .map(|c| c.get_bool("remove_on_cancel"))
+                            .unwrap_or(false);
+                        if remove {
+                            remove_pending_conv(&source);
+                            remove_list_card(&state.converter_box, &ui.container);
+                            state.update_converter_empty();
+                        } else {
+                            ui.reset_ready();
+                        }
                     } else {
                         ui.cancel.set_visible(false);
                         ui.convert.set_visible(true);
