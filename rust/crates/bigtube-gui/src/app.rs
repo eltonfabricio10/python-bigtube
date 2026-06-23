@@ -92,23 +92,23 @@ impl DownloadRow {
         let status = gtk::Label::new(Some(&tr("Queued")));
         status.add_css_class("dim-label");
         status.add_css_class("caption");
-        let pause = gtk::Button::from_icon_name("media-playback-pause-symbolic");
+        let pause = gtk::Button::from_icon_name("bigtube-media-playback-pause-symbolic");
         pause.add_css_class("flat");
         pause.set_tooltip_text(Some(&tr("Pause")));
         a11y_label(&pause, &tr("Pause"));
-        let cancel = gtk::Button::from_icon_name("process-stop-symbolic");
+        let cancel = gtk::Button::from_icon_name("bigtube-process-stop-symbolic");
         cancel.add_css_class("flat");
         cancel.add_css_class("destructive-action");
         cancel.set_tooltip_text(Some(&tr("Cancel")));
         a11y_label(&cancel, &tr("Cancel"));
         // Edit pencil: shown only while this row is a pending scheduled download.
-        let edit = gtk::Button::from_icon_name("document-edit-symbolic");
+        let edit = gtk::Button::from_icon_name("bigtube-document-edit-symbolic");
         edit.add_css_class("flat");
         edit.set_tooltip_text(Some(&tr("Edit")));
         a11y_label(&edit, &tr("Edit"));
         edit.set_visible(false);
         // Per-row delete (asks history-only vs file too); wired in wire_row_footer.
-        let btn_delete = gtk::Button::from_icon_name("user-trash-symbolic");
+        let btn_delete = gtk::Button::from_icon_name("bigtube-user-trash-symbolic");
         btn_delete.add_css_class("flat");
         btn_delete.set_tooltip_text(Some(&tr("Remove from list")));
         a11y_label(&btn_delete, &tr("Remove from list"));
@@ -147,15 +147,15 @@ impl DownloadRow {
         actions.set_halign(gtk::Align::End);
         // Revealed on completion (open folder / play / convert).
         actions.set_visible(false);
-        let btn_folder = gtk::Button::from_icon_name("folder-open-symbolic");
+        let btn_folder = gtk::Button::from_icon_name("bigtube-folder-open-symbolic");
         btn_folder.add_css_class("flat");
         btn_folder.set_tooltip_text(Some(&tr("Open Folder")));
         a11y_label(&btn_folder, &tr("Open Folder"));
-        let btn_play = gtk::Button::from_icon_name("media-playback-start-symbolic");
+        let btn_play = gtk::Button::from_icon_name("bigtube-media-playback-start-symbolic");
         btn_play.add_css_class("flat");
         btn_play.set_tooltip_text(Some(&tr("Play Video")));
         a11y_label(&btn_play, &tr("Play Video"));
-        let btn_convert = gtk::Button::from_icon_name("emblem-synchronizing-symbolic");
+        let btn_convert = gtk::Button::from_icon_name("bigtube-emblem-synchronizing-symbolic");
         btn_convert.add_css_class("flat");
         btn_convert.set_tooltip_text(Some(&tr("Add to Converter")));
         a11y_label(&btn_convert, &tr("Add to Converter"));
@@ -202,7 +202,7 @@ impl DownloadRow {
                 // re-run from scratch.
                 err.set(false);
                 paused.set(false);
-                pause_btn.set_icon_name("media-playback-pause-symbolic");
+                pause_btn.set_icon_name("bigtube-media-playback-pause-symbolic");
                 pause_btn.set_tooltip_text(Some(&tr("Pause")));
                 status_c.set_text(&tr("Queued"));
                 for c in ["success", "warning", "error"] {
@@ -219,7 +219,7 @@ impl DownloadRow {
             }
             if paused.get() {
                 paused.set(false);
-                pause_btn.set_icon_name("media-playback-pause-symbolic");
+                pause_btn.set_icon_name("bigtube-media-playback-pause-symbolic");
                 if let Some(cb) = pf.borrow().as_ref().cloned() {
                     std::thread::spawn(move || {
                         d.resume(&cb);
@@ -227,7 +227,7 @@ impl DownloadRow {
                 }
             } else {
                 paused.set(true);
-                pause_btn.set_icon_name("media-playback-start-symbolic");
+                pause_btn.set_icon_name("bigtube-media-playback-start-symbolic");
                 d.pause();
             }
         });
@@ -301,7 +301,7 @@ impl DownloadRow {
             self.is_error.set(true);
             self.pause.set_visible(true);
             self.pause.set_sensitive(true);
-            self.pause.set_icon_name("view-refresh-symbolic");
+            self.pause.set_icon_name("bigtube-view-refresh-symbolic");
             self.pause.set_tooltip_text(Some(&tr("Retry")));
             self.cancel.set_visible(true);
             self.cancel.set_sensitive(true);
@@ -325,7 +325,7 @@ impl DownloadRow {
         self.status.set_text(&tr("Queued"));
         self.pause.set_visible(true);
         self.pause.set_sensitive(true);
-        self.pause.set_icon_name("view-refresh-symbolic");
+        self.pause.set_icon_name("bigtube-view-refresh-symbolic");
         self.pause.set_tooltip_text(Some(&tr("Retry")));
         // Idle initial state — nothing to cancel; the X reappears once Retry
         // restarts the transfer (update() shows it on the next progress tick).
@@ -654,28 +654,28 @@ pub fn build_window(app: &adw::Application) {
         &search_page,
         "search",
         &tr("Search"),
-        "system-search-symbolic",
+        "bigtube-system-search-symbolic",
     );
     add_page(
         &stack,
         &downloads_page,
         "downloads",
         &tr("Downloads"),
-        "folder-download-symbolic",
+        "bigtube-folder-download-symbolic",
     );
     add_page(
         &stack,
         &converter_page,
         "converter",
         &tr("Converter"),
-        "media-playback-start-symbolic",
+        "bigtube-media-playback-start-symbolic",
     );
     add_page(
         &stack,
         &settings_page,
         "settings",
         &tr("Settings"),
-        "emblem-system-symbolic",
+        "bigtube-emblem-system-symbolic",
     );
 
     let switcher = adw::ViewSwitcher::builder()
@@ -691,7 +691,7 @@ pub fn build_window(app: &adw::Application) {
     menu.append(Some(&tr("Donations")), Some("app.donate"));
     menu.append(Some(&tr("Quit")), Some("app.quit"));
     let menu_btn = gtk::MenuButton::new();
-    menu_btn.set_icon_name("open-menu-symbolic");
+    menu_btn.set_icon_name("bigtube-open-menu-symbolic");
     menu_btn.set_menu_model(Some(&menu));
     header.pack_end(&menu_btn);
     setup_app_actions(app);

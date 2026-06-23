@@ -147,7 +147,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     const THUMB_W: i32 = 96;
     const THUMB_H: i32 = 54;
 
-    let thumb = gtk::Image::from_icon_name("image-x-generic-symbolic");
+    let thumb = gtk::Image::from_icon_name("bigtube-image-x-generic-symbolic");
     thumb.set_pixel_size(40);
     thumb.set_size_request(THUMB_W, THUMB_H);
 
@@ -205,23 +205,23 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     title_box.append(&artist_lbl);
 
     // Transport buttons.
-    let btn_prev = gtk::Button::from_icon_name("media-skip-backward-symbolic");
+    let btn_prev = gtk::Button::from_icon_name("bigtube-media-skip-backward-symbolic");
     btn_prev.add_css_class("flat");
     btn_prev.set_focus_on_click(false);
     btn_prev.set_tooltip_text(Some(&tr("Previous")));
     crate::app::a11y_label(&btn_prev, &tr("Previous"));
     btn_prev.set_sensitive(false);
-    let btn_play = gtk::Button::from_icon_name("media-playback-start-symbolic");
+    let btn_play = gtk::Button::from_icon_name("bigtube-media-playback-start-symbolic");
     btn_play.add_css_class("circular");
     btn_play.set_focus_on_click(false);
     btn_play.set_tooltip_text(Some(&tr("Play/Pause")));
     crate::app::a11y_label(&btn_play, &tr("Play/Pause"));
-    let btn_stop = gtk::Button::from_icon_name("media-playback-stop-symbolic");
+    let btn_stop = gtk::Button::from_icon_name("bigtube-media-playback-stop-symbolic");
     btn_stop.add_css_class("flat");
     btn_stop.set_focus_on_click(false);
     btn_stop.set_tooltip_text(Some(&tr("Stop")));
     crate::app::a11y_label(&btn_stop, &tr("Stop"));
-    let btn_next = gtk::Button::from_icon_name("media-skip-forward-symbolic");
+    let btn_next = gtk::Button::from_icon_name("bigtube-media-skip-forward-symbolic");
     btn_next.add_css_class("flat");
     btn_next.set_focus_on_click(false);
     btn_next.set_tooltip_text(Some(&tr("Next")));
@@ -269,10 +269,10 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         1.0,
         0.02,
         &[
-            "audio-volume-muted-symbolic",
-            "audio-volume-high-symbolic",
-            "audio-volume-low-symbolic",
-            "audio-volume-medium-symbolic",
+            "bigtube-audio-volume-muted-symbolic",
+            "bigtube-audio-volume-high-symbolic",
+            "bigtube-audio-volume-low-symbolic",
+            "bigtube-audio-volume-medium-symbolic",
         ],
     );
     volume.set_value(1.0);
@@ -609,7 +609,8 @@ impl Player {
         let _ = self.playbin.set_state(gst::State::Null);
         self.playbin.set_property("uri", uri);
         let _ = self.playbin.set_state(gst::State::Playing);
-        self.btn_play.set_icon_name("media-playback-pause-symbolic");
+        self.btn_play
+            .set_icon_name("bigtube-media-playback-pause-symbolic");
     }
 
     fn prev(self: &Rc<Self>) {
@@ -719,7 +720,7 @@ impl Player {
     fn load_thumbnail(self: &Rc<Self>, url: &str) {
         let thumb = self.thumb.clone();
         if url.is_empty() {
-            thumb.set_icon_name(Some("audio-x-generic-symbolic"));
+            thumb.set_icon_name(Some("bigtube-audio-x-generic-symbolic"));
             return;
         }
         let gen = self.thumb_token.fetch_add(1, Ordering::SeqCst) + 1;
@@ -747,11 +748,13 @@ impl Player {
         if state == gst::State::Playing {
             self.paused_by_user.set(true);
             let _ = self.playbin.set_state(gst::State::Paused);
-            self.btn_play.set_icon_name("media-playback-start-symbolic");
+            self.btn_play
+                .set_icon_name("bigtube-media-playback-start-symbolic");
         } else {
             self.paused_by_user.set(false);
             let _ = self.playbin.set_state(gst::State::Playing);
-            self.btn_play.set_icon_name("media-playback-pause-symbolic");
+            self.btn_play
+                .set_icon_name("bigtube-media-playback-pause-symbolic");
         }
     }
 
@@ -766,13 +769,15 @@ impl Player {
         self.showing_frames.set(false);
         self.set_loading(false);
         let _ = self.playbin.set_state(gst::State::Null);
-        self.btn_play.set_icon_name("media-playback-start-symbolic");
+        self.btn_play
+            .set_icon_name("bigtube-media-playback-start-symbolic");
         self.scale.set_value(0.0);
         self.time_cur.set_text("--:--");
         self.time_tot.set_text("--:--");
         self.title_lbl.set_text(&tr("Unknown Title"));
         self.artist_lbl.set_text(&tr("Unknown Artist"));
-        self.thumb.set_icon_name(Some("image-x-generic-symbolic"));
+        self.thumb
+            .set_icon_name(Some("bigtube-image-x-generic-symbolic"));
         self.set_video_enabled(false);
         // Idle: disable every control until something plays again.
         self.set_controls_enabled(false);

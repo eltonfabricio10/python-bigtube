@@ -43,7 +43,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     let button = gtk::Button::with_label(&tr("Search"));
     button.add_css_class("suggested-action");
     let btn_select = state.btn_select.clone();
-    btn_select.set_icon_name("selection-mode-symbolic");
+    btn_select.set_icon_name("bigtube-selection-mode-symbolic");
     btn_select.add_css_class("flat");
     btn_select.set_tooltip_text(Some(&tr("Toggle Selection Mode")));
     // No results yet → nothing to select.
@@ -144,7 +144,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
 
     // Empty-state / results stack.
     let empty = status_page(
-        "system-search-symbolic",
+        "bigtube-system-search-symbolic",
         &tr("No Results"),
         &tr("Search for videos or paste a URL"),
     );
@@ -394,7 +394,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 pick.set_can_focus(false);
                 pick.set_focus_on_click(false);
                 let inner = gtk::Box::new(gtk::Orientation::Horizontal, 6);
-                let icon = gtk::Image::from_icon_name("document-open-recent-symbolic");
+                let icon = gtk::Image::from_icon_name("bigtube-document-open-recent-symbolic");
                 icon.add_css_class("dim-label");
                 icon.set_pixel_size(14);
                 let lbl = gtk::Label::new(Some(&m));
@@ -404,7 +404,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 inner.append(&icon);
                 inner.append(&lbl);
                 pick.set_child(Some(&inner));
-                let del = gtk::Button::from_icon_name("window-close-symbolic");
+                let del = gtk::Button::from_icon_name("bigtube-window-close-symbolic");
                 del.add_css_class("flat");
                 del.set_valign(gtk::Align::Center);
                 del.set_can_focus(false);

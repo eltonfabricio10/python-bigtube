@@ -62,20 +62,20 @@ pub fn show(
 
     let toolbar = adw::ToolbarView::new();
     let header = adw::HeaderBar::new();
-    let play_all = gtk::Button::from_icon_name("media-playback-start-symbolic");
+    let play_all = gtk::Button::from_icon_name("bigtube-media-playback-start-symbolic");
     play_all.set_focus_on_click(false);
     play_all.set_tooltip_text(Some(&tr("Play all")));
     crate::app::a11y_label(&play_all, &tr("Play all"));
-    let dl_all = gtk::Button::from_icon_name("folder-download-symbolic");
+    let dl_all = gtk::Button::from_icon_name("bigtube-folder-download-symbolic");
     dl_all.set_focus_on_click(false);
     dl_all.set_tooltip_text(Some(&tr("Download all")));
     crate::app::a11y_label(&dl_all, &tr("Download all"));
-    let sched_all = gtk::Button::from_icon_name("alarm-symbolic");
+    let sched_all = gtk::Button::from_icon_name("bigtube-alarm-symbolic");
     sched_all.set_focus_on_click(false);
     sched_all.set_tooltip_text(Some(&tr("Schedule all")));
     crate::app::a11y_label(&sched_all, &tr("Schedule all"));
     let select_btn = gtk::ToggleButton::new();
-    select_btn.set_icon_name("selection-mode-symbolic");
+    select_btn.set_icon_name("bigtube-selection-mode-symbolic");
     select_btn.set_focus_on_click(false);
     select_btn.set_tooltip_text(Some(&tr("Select videos")));
     crate::app::a11y_label(&select_btn, &tr("Select videos"));
@@ -158,7 +158,7 @@ pub fn show(
 
     // Empty / error.
     let status = adw::StatusPage::builder()
-        .icon_name("dialog-information-symbolic")
+        .icon_name("bigtube-dialog-information-symbolic")
         .build();
     stack.add_named(&status, Some("empty"));
 

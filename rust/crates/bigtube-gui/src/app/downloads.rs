@@ -34,7 +34,7 @@ pub(crate) fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
     // Header with an icon "clear history" button (disabled while the list is
     // empty; toggled by update_downloads_empty).
     let clear = state.downloads_clear.clone();
-    clear.set_icon_name("edit-clear-history-symbolic");
+    clear.set_icon_name("bigtube-edit-clear-history-symbolic");
     clear.add_css_class("flat");
     clear.set_tooltip_text(Some(&tr("Clear History")));
     clear.set_sensitive(false);
@@ -50,7 +50,7 @@ pub(crate) fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
     scrolled.set_child(Some(&state.downloads_box));
 
     let empty = status_page(
-        "folder-download-symbolic",
+        "bigtube-folder-download-symbolic",
         &tr("No Downloads"),
         &tr("Your downloads will appear here"),
     );
@@ -1390,7 +1390,7 @@ pub(crate) fn load_download_history(state: &Rc<AppState>) {
             row.set_progress_class("error");
             row.pause.set_visible(true);
             row.pause.set_sensitive(true);
-            row.pause.set_icon_name("view-refresh-symbolic");
+            row.pause.set_icon_name("bigtube-view-refresh-symbolic");
             row.pause.set_tooltip_text(Some(&tr("Retry")));
 
             let state2 = state.clone();

@@ -58,7 +58,7 @@ pub(crate) fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
     let page = gtk::Box::new(gtk::Orientation::Vertical, 0);
 
     // Header with "add files" + "clear all" buttons.
-    let add = gtk::Button::from_icon_name("list-add-symbolic");
+    let add = gtk::Button::from_icon_name("bigtube-list-add-symbolic");
     add.add_css_class("flat");
     add.set_tooltip_text(Some(&tr("Add Files")));
     {
@@ -67,7 +67,7 @@ pub(crate) fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
     }
     // Disabled while the list is empty; toggled by update_converter_empty.
     let clear = state.converter_clear.clone();
-    clear.set_icon_name("edit-clear-history-symbolic");
+    clear.set_icon_name("bigtube-edit-clear-history-symbolic");
     clear.add_css_class("flat");
     clear.set_tooltip_text(Some(&tr("Clear History")));
     clear.set_sensitive(false);
@@ -84,7 +84,7 @@ pub(crate) fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
 
     // Empty-state acts as the drop zone hint.
     let empty = status_page(
-        "view-refresh-symbolic",
+        "bigtube-view-refresh-symbolic",
         &tr("Media Converter"),
         &tr("Drag and drop files here to convert"),
     );
@@ -288,27 +288,27 @@ fn add_converter_row(
             format.set_selected(i as u32);
         }
     }
-    let convert = gtk::Button::from_icon_name("system-run-symbolic");
+    let convert = gtk::Button::from_icon_name("bigtube-system-run-symbolic");
     convert.add_css_class("flat");
     convert.set_tooltip_text(Some(&tr("Convert")));
     a11y_label(&convert, &tr("Convert"));
-    let cancel = gtk::Button::from_icon_name("process-stop-symbolic");
+    let cancel = gtk::Button::from_icon_name("bigtube-process-stop-symbolic");
     cancel.add_css_class("flat");
     cancel.add_css_class("destructive-action");
     cancel.set_tooltip_text(Some(&tr("Cancel")));
     a11y_label(&cancel, &tr("Cancel"));
     cancel.set_visible(false);
-    let folder = gtk::Button::from_icon_name("folder-open-symbolic");
+    let folder = gtk::Button::from_icon_name("bigtube-folder-open-symbolic");
     folder.add_css_class("flat");
     folder.set_tooltip_text(Some(&tr("Open Folder")));
     a11y_label(&folder, &tr("Open Folder"));
     folder.set_visible(false);
-    let play = gtk::Button::from_icon_name("media-playback-start-symbolic");
+    let play = gtk::Button::from_icon_name("bigtube-media-playback-start-symbolic");
     play.add_css_class("flat");
     play.set_tooltip_text(Some(&tr("Play Video")));
     a11y_label(&play, &tr("Play Video"));
     play.set_visible(false);
-    let remove = gtk::Button::from_icon_name("user-trash-symbolic");
+    let remove = gtk::Button::from_icon_name("bigtube-user-trash-symbolic");
     remove.add_css_class("flat");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
     a11y_label(&remove, &tr("Remove from list"));
@@ -789,13 +789,13 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
     let fmt_lbl = gtk::Label::new(Some(&format.to_uppercase()));
     fmt_lbl.add_css_class("dim-label");
     fmt_lbl.add_css_class("caption");
-    let folder = gtk::Button::from_icon_name("folder-open-symbolic");
+    let folder = gtk::Button::from_icon_name("bigtube-folder-open-symbolic");
     folder.add_css_class("flat");
     folder.set_tooltip_text(Some(&tr("Open Folder")));
-    let play = gtk::Button::from_icon_name("media-playback-start-symbolic");
+    let play = gtk::Button::from_icon_name("bigtube-media-playback-start-symbolic");
     play.add_css_class("flat");
     play.set_tooltip_text(Some(&tr("Play Video")));
-    let remove = gtk::Button::from_icon_name("user-trash-symbolic");
+    let remove = gtk::Button::from_icon_name("bigtube-user-trash-symbolic");
     remove.add_css_class("flat");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
     header.append(&name_lbl);

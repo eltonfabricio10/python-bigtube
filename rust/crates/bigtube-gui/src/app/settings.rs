@@ -296,7 +296,7 @@ fn build_appearance_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGrou
         .title(tr("Current Version"))
         .subtitle("yt-dlp v?")
         .build();
-    let update_btn = gtk::Button::from_icon_name("software-update-symbolic");
+    let update_btn = gtk::Button::from_icon_name("bigtube-software-update-symbolic");
     update_btn.add_css_class("flat");
     update_btn.set_valign(gtk::Align::Center);
     version_row.add_suffix(&update_btn);
@@ -331,7 +331,7 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         .title(tr("Download Folder"))
         .subtitle(&c.download_path)
         .build();
-    let folder_btn = gtk::Button::from_icon_name("folder-open-symbolic");
+    let folder_btn = gtk::Button::from_icon_name("bigtube-folder-open-symbolic");
     folder_btn.add_css_class("flat");
     folder_btn.set_valign(gtk::Align::Center);
     {
@@ -520,7 +520,7 @@ fn build_network_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
         .title(tr("Cookies File"))
         .subtitle(&c.cookies_file)
         .build();
-    let cookies_btn = gtk::Button::from_icon_name("document-open-symbolic");
+    let cookies_btn = gtk::Button::from_icon_name("bigtube-document-open-symbolic");
     cookies_btn.add_css_class("flat");
     cookies_btn.set_valign(gtk::Align::Center);
     {
@@ -735,7 +735,7 @@ fn build_storage_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
         group.add(&button_row(
             &tr("Export History"),
             &tr("Save your download history to a file"),
-            "document-export-symbolic",
+            "bigtube-document-export-symbolic",
             false,
             move || export_history(&state),
         ));
@@ -746,7 +746,7 @@ fn build_storage_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
         group.add(&button_row(
             &tr("Import History"),
             &tr("Restore history from a backup file"),
-            "document-import-symbolic",
+            "bigtube-document-import-symbolic",
             false,
             move || import_history(&state),
         ));
@@ -757,7 +757,7 @@ fn build_storage_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
         group.add(&button_row(
             &tr("Clear All App Data (Reset)"),
             &tr("Permanently delete all settings and history"),
-            "user-trash-symbolic",
+            "bigtube-user-trash-symbolic",
             true,
             move || reset_all_data(&state),
         ));
@@ -775,7 +775,7 @@ fn build_converter_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         .title(tr("Default Output Folder"))
         .subtitle(&c.converter_path)
         .build();
-    let folder_btn = gtk::Button::from_icon_name("folder-open-symbolic");
+    let folder_btn = gtk::Button::from_icon_name("bigtube-folder-open-symbolic");
     folder_btn.add_css_class("flat");
     folder_btn.set_valign(gtk::Align::Center);
     {
@@ -824,7 +824,7 @@ fn build_converter_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         group.add(&button_row(
             &tr("Clear Conversion History"),
             &tr("Delete all previous conversion entries"),
-            "user-trash-symbolic",
+            "bigtube-user-trash-symbolic",
             false,
             move || clear_converter_history(&state),
         ));
@@ -871,7 +871,7 @@ fn build_search_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
         group.add(&button_row(
             &tr("Clear Search History"),
             &tr("Delete all previous search entries"),
-            "user-trash-symbolic",
+            "bigtube-user-trash-symbolic",
             false,
             move || clear_search_history(&state),
         ));

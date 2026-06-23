@@ -100,7 +100,7 @@ mod imp {
             checkbox.set_valign(gtk::Align::Center);
             checkbox.set_visible(false);
 
-            let thumb = gtk::Image::from_icon_name("video-x-generic-symbolic");
+            let thumb = gtk::Image::from_icon_name("bigtube-video-x-generic-symbolic");
             thumb.set_pixel_size(48);
             thumb.set_size_request(80, 45);
 
@@ -120,26 +120,26 @@ mod imp {
             vbox.append(&title);
             vbox.append(&channel);
 
-            let btn_play = gtk::Button::from_icon_name("media-playback-start-symbolic");
+            let btn_play = gtk::Button::from_icon_name("bigtube-media-playback-start-symbolic");
             btn_play.add_css_class("flat");
             btn_play.set_focus_on_click(false);
             btn_play.set_valign(gtk::Align::Center);
             btn_play.set_tooltip_text(Some(&tr("Play Video")));
             crate::app::a11y_label(&btn_play, &tr("Play Video"));
-            let btn_download = gtk::Button::from_icon_name("folder-download-symbolic");
+            let btn_download = gtk::Button::from_icon_name("bigtube-folder-download-symbolic");
             btn_download.add_css_class("flat");
             btn_download.set_focus_on_click(false);
             btn_download.set_valign(gtk::Align::Center);
             btn_download.set_tooltip_text(Some(&tr("Download")));
             crate::app::a11y_label(&btn_download, &tr("Download"));
-            let btn_open = gtk::Button::from_icon_name("folder-open-symbolic");
+            let btn_open = gtk::Button::from_icon_name("bigtube-folder-open-symbolic");
             btn_open.add_css_class("flat");
             btn_open.set_focus_on_click(false);
             btn_open.set_valign(gtk::Align::Center);
             btn_open.set_tooltip_text(Some(&tr("Open playlist")));
             crate::app::a11y_label(&btn_open, &tr("Open playlist"));
             btn_open.set_visible(false);
-            let btn_copy = gtk::Button::from_icon_name("edit-copy-symbolic");
+            let btn_copy = gtk::Button::from_icon_name("bigtube-edit-copy-symbolic");
             btn_copy.add_css_class("flat");
             btn_copy.set_focus_on_click(false);
             btn_copy.set_valign(gtk::Align::Center);
@@ -340,9 +340,9 @@ impl SearchResultRow {
 
         let thumb = imp.thumb.get().unwrap();
         if is_playlist {
-            thumb.set_icon_name(Some("view-list-symbolic"));
+            thumb.set_icon_name(Some("bigtube-view-list-symbolic"));
         } else {
-            thumb.set_icon_name(Some("video-x-generic-symbolic"));
+            thumb.set_icon_name(Some("bigtube-video-x-generic-symbolic"));
             let url = item.thumbnail();
             if !url.is_empty() {
                 self.load_thumbnail(&url);

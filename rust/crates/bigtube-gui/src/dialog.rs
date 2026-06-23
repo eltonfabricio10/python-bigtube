@@ -247,7 +247,7 @@ fn format_row(
     };
 
     // Schedule for later.
-    let schedule = gtk::Button::from_icon_name("alarm-symbolic");
+    let schedule = gtk::Button::from_icon_name("bigtube-alarm-symbolic");
     schedule.add_css_class("flat");
     schedule.set_valign(gtk::Align::Center);
     schedule.set_tooltip_text(Some(&tr("Schedule Download")));
