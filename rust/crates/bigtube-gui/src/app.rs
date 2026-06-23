@@ -668,7 +668,7 @@ pub fn build_window(app: &adw::Application) {
         &converter_page,
         "converter",
         &tr("Converter"),
-        "bigtube-media-playback-start-symbolic",
+        "bigtube-view-refresh-symbolic",
     );
     add_page(
         &stack,
