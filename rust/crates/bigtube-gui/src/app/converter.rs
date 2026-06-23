@@ -65,9 +65,12 @@ pub(crate) fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
         let state = state.clone();
         add.connect_clicked(move |_| pick_files(&state));
     }
-    let clear = gtk::Button::from_icon_name("edit-clear-history-symbolic");
+    // Disabled while the list is empty; toggled by update_converter_empty.
+    let clear = state.converter_clear.clone();
+    clear.set_icon_name("edit-clear-history-symbolic");
     clear.add_css_class("flat");
     clear.set_tooltip_text(Some(&tr("Clear History")));
+    clear.set_sensitive(false);
     {
         let state = state.clone();
         clear.connect_clicked(move |_| confirm_clear_all_converter(&state));

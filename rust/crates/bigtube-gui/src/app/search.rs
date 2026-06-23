@@ -42,10 +42,12 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     state.search_entry.replace(Some(entry.clone()));
     let button = gtk::Button::with_label(&tr("Search"));
     button.add_css_class("suggested-action");
-    let btn_select = gtk::ToggleButton::new();
+    let btn_select = state.btn_select.clone();
     btn_select.set_icon_name("selection-mode-symbolic");
     btn_select.add_css_class("flat");
     btn_select.set_tooltip_text(Some(&tr("Toggle Selection Mode")));
+    // No results yet → nothing to select.
+    btn_select.set_sensitive(false);
     a11y_label(&btn_select, &tr("Toggle Selection Mode"));
     bar.append(&source);
     bar.append(&entry);

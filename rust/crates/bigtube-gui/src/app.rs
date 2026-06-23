@@ -459,13 +459,20 @@ struct AppState {
     search_entry: RefCell<Option<gtk::SearchEntry>>,
     select_mode: Cell<bool>,
     select_revealer: gtk::Revealer,
+    // Header toggle that enters selection mode (disabled when there are no
+    // search results to select).
+    btn_select: gtk::ToggleButton,
     select_btn: gtk::Button,
     sched_selected_btn: gtk::Button,
     downloads_box: gtk::ListBox,
     downloads_stack: gtk::Stack,
+    // "Clear history" header button (disabled when the list is empty).
+    downloads_clear: gtk::Button,
     download_rows: RefCell<HashMap<String, DownloadRow>>,
     converter_box: gtk::ListBox,
     converter_stack: gtk::Stack,
+    // "Clear history" header button (disabled when the list is empty).
+    converter_clear: gtk::Button,
     // Conversions run one at a time (mirrors `converter_controller.py`): a click
     // enqueues, and each finish pumps the next. Without this they'd all run in
     // parallel threads and thrash the CPU.
@@ -568,18 +575,26 @@ impl AppState {
         let has = self.downloads_box.first_child().is_some();
         self.downloads_stack
             .set_visible_child_name(if has { "list" } else { "empty" });
+        // Nothing to clear when the list is empty.
+        self.downloads_clear.set_sensitive(has);
     }
 
     fn update_converter_empty(&self) {
         let has = self.converter_box.first_child().is_some();
         self.converter_stack
             .set_visible_child_name(if has { "list" } else { "empty" });
+        self.converter_clear.set_sensitive(has);
     }
 
     fn update_search_empty(&self) {
         let has = self.search_store.n_items() > 0;
         self.search_stack
             .set_visible_child_name(if has { "list" } else { "empty" });
+        // No results → can't enter selection mode; leave/cancel it if active.
+        if !has {
+            self.btn_select.set_active(false);
+        }
+        self.btn_select.set_sensitive(has);
     }
 }
 
@@ -607,13 +622,16 @@ pub fn build_window(app: &adw::Application) {
         search_entry: RefCell::new(None),
         select_mode: Cell::new(false),
         select_revealer: gtk::Revealer::new(),
+        btn_select: gtk::ToggleButton::new(),
         select_btn: gtk::Button::new(),
         sched_selected_btn: gtk::Button::new(),
         downloads_box: downloads_box.clone(),
         downloads_stack: gtk::Stack::new(),
+        downloads_clear: gtk::Button::new(),
         download_rows: RefCell::new(HashMap::new()),
         converter_box: converter_box.clone(),
         converter_stack: gtk::Stack::new(),
+        converter_clear: gtk::Button::new(),
         conv_active: Cell::new(false),
         conv_queue: RefCell::new(std::collections::VecDeque::new()),
         player: RefCell::new(None),

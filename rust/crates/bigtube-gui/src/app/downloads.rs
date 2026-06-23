@@ -31,10 +31,13 @@ use crate::objects::VideoObject;
 pub(crate) fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
     let page = gtk::Box::new(gtk::Orientation::Vertical, 0);
 
-    // Header with an icon "clear history" button.
-    let clear = gtk::Button::from_icon_name("edit-clear-history-symbolic");
+    // Header with an icon "clear history" button (disabled while the list is
+    // empty; toggled by update_downloads_empty).
+    let clear = state.downloads_clear.clone();
+    clear.set_icon_name("edit-clear-history-symbolic");
     clear.add_css_class("flat");
     clear.set_tooltip_text(Some(&tr("Clear History")));
+    clear.set_sensitive(false);
     {
         let state = state.clone();
         clear.connect_clicked(move |_| confirm_clear_all_downloads(&state));
