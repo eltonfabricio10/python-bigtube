@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/io/github/eltonfabricio10/bigtube/icons">
+    <file>scalable/actions/alarm-symbolic.svg</file>
+    <file>scalable/actions/audio-x-generic-symbolic.svg</file>
+    <file>scalable/actions/dialog-information-symbolic.svg</file>
+    <file>scalable/actions/document-edit-symbolic.svg</file>
+    <file>scalable/actions/document-open-recent-symbolic.svg</file>
+    <file>scalable/actions/document-open-symbolic.svg</file>
+    <file>scalable/actions/edit-clear-history-symbolic.svg</file>
+    <file>scalable/actions/edit-copy-symbolic.svg</file>
+    <file>scalable/actions/emblem-synchronizing-symbolic.svg</file>
+    <file>scalable/actions/folder-download-symbolic.svg</file>
+    <file>scalable/actions/folder-open-symbolic.svg</file>
+    <file>scalable/actions/image-x-generic-symbolic.svg</file>
+    <file>scalable/actions/list-add-symbolic.svg</file>
+    <file>scalable/actions/media-playback-pause-symbolic.svg</file>
+    <file>scalable/actions/media-playback-start-symbolic.svg</file>
+    <file>scalable/actions/media-playback-stop-symbolic.svg</file>
+    <file>scalable/actions/media-skip-backward-symbolic.svg</file>
+    <file>scalable/actions/media-skip-forward-symbolic.svg</file>
+    <file>scalable/actions/open-menu-symbolic.svg</file>
+    <file>scalable/actions/process-stop-symbolic.svg</file>
+    <file>scalable/actions/selection-mode-symbolic.svg</file>
+    <file>scalable/actions/software-update-symbolic.svg</file>
+    <file>scalable/actions/system-run-symbolic.svg</file>
+    <file>scalable/actions/user-trash-symbolic.svg</file>
+    <file>scalable/actions/video-x-generic-symbolic.svg</file>
+    <file>scalable/actions/view-list-symbolic.svg</file>
+    <file>scalable/actions/view-refresh-symbolic.svg</file>
+    <file>scalable/actions/window-close-symbolic.svg</file>
+  </gresource>
+</gresources>

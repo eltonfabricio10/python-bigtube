@@ -44,6 +44,11 @@ fn main() {
     gstreamer::init().expect("GStreamer init failed");
     i18n::init();
 
+    // Register the bundled symbolic icons so the app never shows broken/missing
+    // glyphs when the system icon theme lacks them. The matching resource path is
+    // added to the icon theme in `connect_startup` (once a display exists).
+    register_bundled_icons();
+
     // Drop libadwaita's one cosmetic warning about the desktop's legacy
     // `gtk-application-prefer-dark-theme` setting (we theme via AdwStyleManager).
     // Everything else from the Adwaita domain is passed through unchanged.
@@ -69,6 +74,10 @@ fn main() {
         if let Some(settings) = gtk::Settings::default() {
             settings.set_gtk_application_prefer_dark_theme(false);
         }
+        if let Some(display) = gtk::gdk::Display::default() {
+            gtk::IconTheme::for_display(&display)
+                .add_resource_path("/io/github/eltonfabricio10/bigtube/icons");
+        }
         load_css();
     });
     // Single instance: GApplication is already unique via APP_ID (a second launch
@@ -80,6 +89,19 @@ fn main() {
         None => app::build_window(app),
     });
     app.run();
+}
+
+/// Register the icon GResource compiled by `build.rs` so the bundled symbolic
+/// icons are available to the icon theme.
+fn register_bundled_icons() {
+    let bytes = gtk::glib::Bytes::from_static(include_bytes!(concat!(
+        env!("OUT_DIR"),
+        "/bigtube.gresource"
+    )));
+    match gtk::gio::Resource::from_data(&bytes) {
+        Ok(res) => gtk::gio::resources_register(&res),
+        Err(e) => tracing::warn!("failed to register bundled icons: {e}"),
+    }
 }
 
 fn load_css() {
