@@ -529,7 +529,7 @@ fn run_conversion(
                     // it leaves no trace (and won't reappear on the next launch).
                     let remove = config::global()
                         .read()
-                        .map(|c| c.get_bool("remove_on_complete"))
+                        .map(|c| c.get_bool("converter_remove_on_complete"))
                         .unwrap_or(false);
                     if remove {
                         remove_list_card(&state.converter_box, &ui.container);
@@ -582,7 +582,7 @@ fn run_conversion(
                         // pending entry); otherwise keep it, reset for a retry.
                         let remove = config::global()
                             .read()
-                            .map(|c| c.get_bool("remove_on_cancel"))
+                            .map(|c| c.get_bool("converter_remove_on_cancel"))
                             .unwrap_or(false);
                         if remove {
                             remove_pending_conv(&source);

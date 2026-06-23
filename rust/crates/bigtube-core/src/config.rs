@@ -372,6 +372,8 @@ fn build_defaults() -> Map<String, Value> {
     m.insert("monitor_clipboard".into(), json!(false));
     m.insert("remove_on_complete".into(), json!(false));
     m.insert("remove_on_cancel".into(), json!(false));
+    m.insert("converter_remove_on_complete".into(), json!(false));
+    m.insert("converter_remove_on_cancel".into(), json!(false));
     m.insert("concurrent_fragments".into(), json!(16));
     m.insert("rate_limit".into(), json!(0));
     m.insert("check_updates_on_startup".into(), json!(true));

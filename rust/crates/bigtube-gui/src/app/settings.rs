@@ -158,6 +158,8 @@ pub(crate) fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
             monitor_clipboard: cfg.get_bool("monitor_clipboard"),
             remove_on_complete: cfg.get_bool("remove_on_complete"),
             remove_on_cancel: cfg.get_bool("remove_on_cancel"),
+            converter_remove_on_complete: cfg.get_bool("converter_remove_on_complete"),
+            converter_remove_on_cancel: cfg.get_bool("converter_remove_on_cancel"),
             post_process_cmd: cfg.get_string("post_process_cmd"),
             cookies_file: cfg.get_string("cookies_file"),
             cookies_browser: cfg.get_string("cookies_browser"),
@@ -208,6 +210,8 @@ struct Cfg {
     monitor_clipboard: bool,
     remove_on_complete: bool,
     remove_on_cancel: bool,
+    converter_remove_on_complete: bool,
+    converter_remove_on_cancel: bool,
     post_process_cmd: String,
     cookies_file: String,
     cookies_browser: String,
@@ -793,6 +797,18 @@ fn build_converter_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         &tr("Keep a record of converted files"),
         c.save_converter_history,
         |v| set_cfg("save_converter_history", serde_json::json!(v)),
+    ));
+    group.add(&switch_row(
+        &tr("Remove When Complete"),
+        &tr("Automatically remove an item from the list once it finishes"),
+        c.converter_remove_on_complete,
+        |v| set_cfg("converter_remove_on_complete", serde_json::json!(v)),
+    ));
+    group.add(&switch_row(
+        &tr("Remove When Cancelled"),
+        &tr("Automatically remove an item from the list when it is cancelled"),
+        c.converter_remove_on_cancel,
+        |v| set_cfg("converter_remove_on_cancel", serde_json::json!(v)),
     ));
     group.add(&spin_row_step(
         &tr("Maximum History Entries"),
