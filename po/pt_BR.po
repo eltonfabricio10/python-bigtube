@@ -1793,6 +1793,3 @@ msgstr "Quantas conversões concluídas manter na lista"
 
 msgid "Download complete"
 msgstr "Download concluído"
-
-msgid "Slow connection, please wait…"
-msgstr "Conexão lenta, aguarde…"

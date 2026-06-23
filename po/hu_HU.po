@@ -1795,6 +1795,3 @@ msgstr "Hány befejezett konvertálás maradjon a listában"
 
 msgid "Download complete"
 msgstr "Letöltés befejeződött"
-
-msgid "Slow connection, please wait…"
-msgstr "Lassú kapcsolat, kérjük, várjon…"

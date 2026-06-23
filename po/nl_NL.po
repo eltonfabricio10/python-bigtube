@@ -1798,6 +1798,3 @@ msgstr "Hoeveel voltooide conversies in de lijst bewaren"
 
 msgid "Download complete"
 msgstr "Download voltooid"
-
-msgid "Slow connection, please wait…"
-msgstr "Trage verbinding, even geduld…"

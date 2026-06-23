@@ -1798,6 +1798,3 @@ msgstr "Câte conversii finalizate să rămână în listă"
 
 msgid "Download complete"
 msgstr "Descărcare finalizată"
-
-msgid "Slow connection, please wait…"
-msgstr "Conexiune lentă, vă rugăm să așteptați…"

@@ -4,7 +4,7 @@
 //! history. The `DownloadRow` widget, `AppState`, the `UiMsg` channel and the
 //! shared list/file/play helpers live in the parent module (reached via `super::`).
 
-use std::cell::{Cell, RefCell};
+use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -148,18 +148,6 @@ pub(crate) fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
     // shown by busy_begin and hidden by busy_end right as the result appears.
     state.busy_begin();
 
-    // Warn if fetching the formats is slow (cleared as soon as they arrive).
-    let pending = Rc::new(Cell::new(true));
-    {
-        let state = state.clone();
-        let pending = pending.clone();
-        glib::timeout_add_local_once(std::time::Duration::from_secs(2), move || {
-            if pending.get() {
-                state.toast(&tr("Slow connection, please wait…"));
-            }
-        });
-    }
-
     let (tx, rx) = async_channel::bounded::<
         std::result::Result<bigtube_core::downloader::ParsedInfo, StatusCode>,
     >(1);
@@ -175,8 +163,6 @@ pub(crate) fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
     let state = state.clone();
     glib::spawn_future_local(async move {
         let received = rx.recv().await;
-        // Formats arrived (or errored) — cancel the slow-connection warning.
-        pending.set(false);
         // Keep the busy spinner running until the format dialog is actually on
         // screen — on slow machines, parsing + building the dialog takes a beat,
         // and ending "busy" early left a dead gap with no feedback. End it on
