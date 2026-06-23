@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Icon from Tabler Icons (outline), MIT License. https://github.com/tabler/tabler-icons
+     Strokes flattened to fills with picosvg for GTK symbolic recoloring. -->
+<svg height="16px" width="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#2e3436">
+        <path d="M7,9 L18.586,9 L16.293,6.707 Q16,6.414 16,6 Q16,5.586 16.293,5.293 Q16.586,5 17,5 Q17.414,5 17.707,5.293 L21.707,9.293 Q22,9.586 22,10 Q22,10.414 21.707,10.707 Q21.414,11 21,11 L7,11 Q6.586,11 6.293,10.707 Q6,10.414 6,10 Q6,9.586 6.293,9.293 Q6.586,9 7,9 Z"/>
+        <path d="M17,15 L5.414,15 L7.707,17.293 Q8,17.586 8,18 Q8,18.414 7.707,18.707 Q7.414,19 7,19 Q6.586,19 6.293,18.707 L2.293,14.707 Q2,14.414 2,14 Q2,13.586 2.293,13.293 Q2.586,13 3,13 L17,13 Q17.414,13 17.707,13.293 Q18,13.586 18,14 Q18,14.414 17.707,14.707 Q17.414,15 17,15 Z"/>
+    </g>
+</svg>
