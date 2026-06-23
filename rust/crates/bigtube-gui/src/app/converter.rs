@@ -288,7 +288,7 @@ fn add_converter_row(
             format.set_selected(i as u32);
         }
     }
-    let convert = gtk::Button::from_icon_name("bigtube-system-run-symbolic");
+    let convert = gtk::Button::from_icon_name("bigtube-view-refresh-symbolic");
     convert.add_css_class("flat");
     convert.set_tooltip_text(Some(&tr("Convert")));
     a11y_label(&convert, &tr("Convert"));
