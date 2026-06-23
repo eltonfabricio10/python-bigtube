@@ -1740,14 +1740,14 @@ msgstr "Mantieni"
 msgid "Remove When Complete"
 msgstr "Rimuovi al completamento"
 
-msgid "Automatically remove a download from the list once it finishes"
-msgstr "Rimuove automaticamente un download dalla lista al termine"
+msgid "Automatically remove an item from the list once it finishes"
+msgstr "Rimuove automaticamente un elemento dalla lista al termine"
 
 msgid "Remove When Cancelled"
 msgstr "Rimuovi all’annullamento"
 
-msgid "Automatically remove a download from the list when it is cancelled"
-msgstr "Rimuovi automaticamente un download dalla lista quando viene annullato"
+msgid "Automatically remove an item from the list when it is cancelled"
+msgstr "Rimuove automaticamente un elemento dalla lista quando viene annullato"
 
 msgid "Rendering Engine"
 msgstr "Motore di rendering"

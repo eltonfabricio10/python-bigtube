@@ -1742,14 +1742,14 @@ msgstr "Behouden"
 msgid "Remove When Complete"
 msgstr "Verwijderen bij voltooien"
 
-msgid "Automatically remove a download from the list once it finishes"
-msgstr "Verwijdert een download automatisch uit de lijst zodra deze klaar is"
+msgid "Automatically remove an item from the list once it finishes"
+msgstr "Verwijdert een item automatisch uit de lijst zodra het klaar is"
 
 msgid "Remove When Cancelled"
 msgstr "Verwijderen bij annuleren"
 
-msgid "Automatically remove a download from the list when it is cancelled"
-msgstr "Een download automatisch uit de lijst verwijderen wanneer deze wordt geannuleerd"
+msgid "Automatically remove an item from the list when it is cancelled"
+msgstr "Een item automatisch uit de lijst verwijderen wanneer het wordt geannuleerd"
 
 msgid "Rendering Engine"
 msgstr "Renderengine"

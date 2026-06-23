@@ -1718,13 +1718,13 @@ msgstr ""
 msgid "Remove When Complete"
 msgstr ""
 
-msgid "Automatically remove a download from the list once it finishes"
+msgid "Automatically remove an item from the list once it finishes"
 msgstr ""
 
 msgid "Remove When Cancelled"
 msgstr ""
 
-msgid "Automatically remove a download from the list when it is cancelled"
+msgid "Automatically remove an item from the list when it is cancelled"
 msgstr ""
 
 msgid "Rendering Engine"

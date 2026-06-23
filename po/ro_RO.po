@@ -1742,14 +1742,14 @@ msgstr "Păstrează"
 msgid "Remove When Complete"
 msgstr "Elimină la finalizare"
 
-msgid "Automatically remove a download from the list once it finishes"
-msgstr "Elimină automat o descărcare din listă după finalizare"
+msgid "Automatically remove an item from the list once it finishes"
+msgstr "Elimină automat un element din listă după finalizare"
 
 msgid "Remove When Cancelled"
 msgstr "Elimină la anulare"
 
-msgid "Automatically remove a download from the list when it is cancelled"
-msgstr "Elimină automat o descărcare din listă când este anulată"
+msgid "Automatically remove an item from the list when it is cancelled"
+msgstr "Elimină automat un element din listă când este anulat"
 
 msgid "Rendering Engine"
 msgstr "Motor de randare"

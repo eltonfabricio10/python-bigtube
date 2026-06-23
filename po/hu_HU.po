@@ -1739,14 +1739,14 @@ msgstr "Megtartás"
 msgid "Remove When Complete"
 msgstr "Eltávolítás befejezéskor"
 
-msgid "Automatically remove a download from the list once it finishes"
-msgstr "Automatikusan eltávolítja a letöltést a listából, amint befejeződik"
+msgid "Automatically remove an item from the list once it finishes"
+msgstr "Automatikusan eltávolítja az elemet a listából, amint befejeződik"
 
 msgid "Remove When Cancelled"
 msgstr "Eltávolítás megszakításkor"
 
-msgid "Automatically remove a download from the list when it is cancelled"
-msgstr "Automatikusan eltávolítja a letöltést a listából, ha megszakítják"
+msgid "Automatically remove an item from the list when it is cancelled"
+msgstr "Automatikusan eltávolítja az elemet a listából, ha megszakítják"
 
 msgid "Rendering Engine"
 msgstr "Megjelenítő motor"

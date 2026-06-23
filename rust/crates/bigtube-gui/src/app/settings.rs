@@ -414,13 +414,13 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
     ));
     group.add(&switch_row(
         &tr("Remove When Complete"),
-        &tr("Automatically remove a download from the list once it finishes"),
+        &tr("Automatically remove an item from the list once it finishes"),
         c.remove_on_complete,
         |v| set_cfg("remove_on_complete", serde_json::json!(v)),
     ));
     group.add(&switch_row(
         &tr("Remove When Cancelled"),
-        &tr("Automatically remove a download from the list when it is cancelled"),
+        &tr("Automatically remove an item from the list when it is cancelled"),
         c.remove_on_cancel,
         |v| set_cfg("remove_on_cancel", serde_json::json!(v)),
     ));

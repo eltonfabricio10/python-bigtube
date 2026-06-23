@@ -1737,14 +1737,14 @@ msgstr "Keep"
 msgid "Remove When Complete"
 msgstr "Remove When Complete"
 
-msgid "Automatically remove a download from the list once it finishes"
-msgstr "Automatically remove a download from the list once it finishes"
+msgid "Automatically remove an item from the list once it finishes"
+msgstr "Automatically remove an item from the list once it finishes"
 
 msgid "Remove When Cancelled"
 msgstr "Remove When Cancelled"
 
-msgid "Automatically remove a download from the list when it is cancelled"
-msgstr "Automatically remove a download from the list when it is cancelled"
+msgid "Automatically remove an item from the list when it is cancelled"
+msgstr "Automatically remove an item from the list when it is cancelled"
 
 msgid "Rendering Engine"
 msgstr "Rendering Engine"

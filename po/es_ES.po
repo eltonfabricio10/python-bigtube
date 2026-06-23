@@ -1736,14 +1736,14 @@ msgstr "Conservar"
 msgid "Remove When Complete"
 msgstr "Quitar al Completar"
 
-msgid "Automatically remove a download from the list once it finishes"
-msgstr "Quita automáticamente una descarga de la lista cuando finaliza"
+msgid "Automatically remove an item from the list once it finishes"
+msgstr "Quita automáticamente un elemento de la lista cuando finaliza"
 
 msgid "Remove When Cancelled"
 msgstr "Quitar al Cancelar"
 
-msgid "Automatically remove a download from the list when it is cancelled"
-msgstr "Quita automáticamente una descarga de la lista cuando se cancela"
+msgid "Automatically remove an item from the list when it is cancelled"
+msgstr "Quita automáticamente un elemento de la lista cuando se cancela"
 
 msgid "Rendering Engine"
 msgstr "Motor de renderizado"

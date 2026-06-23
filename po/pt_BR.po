@@ -1737,14 +1737,14 @@ msgstr "Manter"
 msgid "Remove When Complete"
 msgstr "Remover ao Concluir"
 
-msgid "Automatically remove a download from the list once it finishes"
-msgstr "Remove automaticamente um download da lista assim que ele termina"
+msgid "Automatically remove an item from the list once it finishes"
+msgstr "Remove automaticamente um item da lista assim que ele termina"
 
 msgid "Remove When Cancelled"
 msgstr "Remover ao Cancelar"
 
-msgid "Automatically remove a download from the list when it is cancelled"
-msgstr "Remove automaticamente um download da lista quando ele é cancelado"
+msgid "Automatically remove an item from the list when it is cancelled"
+msgstr "Remove automaticamente um item da lista quando ele é cancelado"
 
 msgid "Rendering Engine"
 msgstr "Motor de Renderização"
