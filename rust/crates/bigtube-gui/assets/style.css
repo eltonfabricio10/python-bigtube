@@ -1053,3 +1053,9 @@ button:focus:not(:focus-visible) {
 .busy-card label {
     color: var(--window-fg-color, @window_fg_color);
 }
+/* Render the symbolic icons on action/header/tab buttons a touch larger than
+   the GTK default (16px). Status-page and drop-zone icons keep their own sizes
+   set above, so this only nudges the small button glyphs. */
+button image {
+    -gtk-icon-size: 20px;
+}
