@@ -18,7 +18,7 @@ use super::{
 use crate::i18n::tr;
 
 /// In-app preview/player quality options (config values double as labels).
-const PREVIEW_QUALITIES: &[&str] = &["360p", "480p", "720p"];
+const PREVIEW_QUALITIES: &[&str] = &["144p", "240p", "360p", "480p", "720p"];
 
 /// Human-readable accent-colour name (matches `locales.py` so the catalogs resolve).
 fn color_label(value: &str) -> &'static str {

@@ -44,6 +44,14 @@ pub fn extract_stream_url(url: &str) -> String {
             "web_safari,web",
             "best[vcodec!=none][acodec!=none][height<=480]/best[vcodec!=none][acodec!=none]/best",
         ),
+        "240p" => (
+            "web_safari,web",
+            "best[vcodec!=none][acodec!=none][height<=240]/best[vcodec!=none][acodec!=none]/best",
+        ),
+        "144p" => (
+            "web_safari,web",
+            "best[vcodec!=none][acodec!=none][height<=144]/best[vcodec!=none][acodec!=none]/best",
+        ),
         // "360p" and anything unrecognized → reliable progressive 360p.
         _ => (
             "android,web",
