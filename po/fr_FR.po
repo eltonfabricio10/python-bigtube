@@ -1797,3 +1797,6 @@ msgstr "Combien de conversions terminées conserver dans la liste"
 
 msgid "Download complete"
 msgstr "Téléchargement terminé"
+
+msgid "Filter…"
+msgstr "Filtrer…"

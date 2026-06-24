@@ -15,8 +15,8 @@ use bigtube_core::search::SearchEngine;
 
 use super::widgets::{loading_page, page_header, status_page};
 use super::{
-    a11y_label, apply_theme_classes, download_all, on_download_clicked, schedule_all,
-    search_history_path, AppState,
+    a11y_label, apply_theme_classes, download_all, make_filter_entry, on_download_clicked,
+    schedule_all, search_history_path, AppState,
 };
 use crate::i18n::tr;
 use crate::objects::VideoObject;
@@ -131,16 +131,41 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         }
     });
 
+    // A local title filter narrows the fetched results as you type. The filter
+    // wraps the store; selection wraps the filter so the ListView shows only the
+    // matching rows (the underlying store — and select-all/append — is untouched).
+    let needle = Rc::new(RefCell::new(String::new()));
+    let f_needle = needle.clone();
+    let filter = gtk::CustomFilter::new(move |obj| {
+        let n = f_needle.borrow();
+        n.is_empty()
+            || obj
+                .downcast_ref::<VideoObject>()
+                .map(|v| v.title().to_lowercase().contains(n.as_str()))
+                .unwrap_or(true)
+    });
+    let filter_model =
+        gtk::FilterListModel::new(Some(state.search_store.clone()), Some(filter.clone()));
     // NoSelection: rows act via their own buttons / selection-mode checkboxes, so
     // the ListView must not auto-select (and highlight) row 0 — that competes with
     // the now-playing highlight.
-    let selection = gtk::NoSelection::new(Some(state.search_store.clone()));
+    let selection = gtk::NoSelection::new(Some(filter_model));
     let list = gtk::ListView::new(Some(selection), Some(factory));
     list.set_vexpand(true);
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_child(Some(&list));
     scrolled.set_vexpand(true);
+
+    // Filter field above the results.
+    let filter_entry = make_filter_entry();
+    filter_entry.connect_search_changed(move |e| {
+        needle.replace(e.text().to_lowercase());
+        filter.changed(gtk::FilterChange::Different);
+    });
+    let list_pane = gtk::Box::new(gtk::Orientation::Vertical, 0);
+    list_pane.append(&filter_entry);
+    list_pane.append(&scrolled);
 
     // Empty-state / results stack.
     let empty = status_page(
@@ -153,7 +178,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     state
         .search_stack
         .add_named(&loading_page(&tr("Searching")), Some("loading"));
-    state.search_stack.add_named(&scrolled, Some("list"));
+    state.search_stack.add_named(&list_pane, Some("list"));
     state.search_stack.set_visible_child_name("empty");
 
     // Batch selection bar (revealed in selection mode).

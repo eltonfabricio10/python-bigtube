@@ -1795,3 +1795,6 @@ msgstr "Hány befejezett konvertálás maradjon a listában"
 
 msgid "Download complete"
 msgstr "Letöltés befejeződött"
+
+msgid "Filter…"
+msgstr "Szűrés…"

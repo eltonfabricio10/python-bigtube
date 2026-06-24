@@ -82,6 +82,13 @@ pub(crate) fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
     scrolled.set_vexpand(true);
     scrolled.set_child(Some(&state.converter_box));
 
+    // Filter field above the list, narrowing rows by their file name.
+    let filter_entry = super::make_filter_entry();
+    super::wire_listbox_filter(&filter_entry, &state.converter_box);
+    let list_pane = gtk::Box::new(gtk::Orientation::Vertical, 0);
+    list_pane.append(&filter_entry);
+    list_pane.append(&scrolled);
+
     // Empty-state acts as the drop zone hint.
     let empty = status_page(
         "bigtube-view-refresh-symbolic",
@@ -90,7 +97,7 @@ pub(crate) fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
     );
     state.converter_stack.set_vexpand(true);
     state.converter_stack.add_named(&empty, Some("empty"));
-    state.converter_stack.add_named(&scrolled, Some("list"));
+    state.converter_stack.add_named(&list_pane, Some("list"));
     state.converter_stack.set_visible_child_name("empty");
 
     page.append(&header);
@@ -263,6 +270,8 @@ fn add_converter_row(
         .unwrap_or_else(|| "file".to_string());
 
     let container = gtk::Box::new(gtk::Orientation::Vertical, 4);
+    // Tag the card so the converter filter can match it by file name/path.
+    super::set_row_filter_key(&container, &format!("{name} {source}"));
     container.add_css_class("card");
     container.set_margin_top(6);
     container.set_margin_bottom(6);
@@ -769,6 +778,8 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
         .unwrap_or_else(|| output.to_string());
 
     let container = gtk::Box::new(gtk::Orientation::Vertical, 4);
+    // Tag the card so the converter filter can match it by name/source/output.
+    super::set_row_filter_key(&container, &format!("{name} {source} {output}"));
     container.add_css_class("card");
     container.set_margin_top(6);
     container.set_margin_bottom(6);

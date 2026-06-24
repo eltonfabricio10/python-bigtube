@@ -5,7 +5,7 @@
 //! Playing any item seeds the player queue with the whole playlist, so playback
 //! continues cyclically through the list.
 
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use adw::prelude::*;
@@ -146,15 +146,36 @@ pub fn show(
             row.set_item(&video);
         }
     });
+    // A local title filter narrows the playlist as you type (wraps the store;
+    // selection wraps the filter so only matching rows show).
+    let needle = Rc::new(RefCell::new(String::new()));
+    let f_needle = needle.clone();
+    let filter = gtk::CustomFilter::new(move |obj| {
+        let n = f_needle.borrow();
+        n.is_empty()
+            || obj
+                .downcast_ref::<VideoObject>()
+                .map(|v| v.title().to_lowercase().contains(n.as_str()))
+                .unwrap_or(true)
+    });
+    let filter_model = gtk::FilterListModel::new(Some(store.clone()), Some(filter.clone()));
     // NoSelection: avoid the ListView auto-highlighting row 0, which would
     // compete with the now-playing highlight (rows act via their own buttons).
-    let selection = gtk::NoSelection::new(Some(store.clone()));
+    let selection = gtk::NoSelection::new(Some(filter_model));
     let list = gtk::ListView::new(Some(selection), Some(factory));
     list.set_vexpand(true);
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_child(Some(&list));
-    stack.add_named(&scrolled, Some("results"));
+    let filter_entry = crate::app::make_filter_entry();
+    filter_entry.connect_search_changed(move |e| {
+        needle.replace(e.text().to_lowercase());
+        filter.changed(gtk::FilterChange::Different);
+    });
+    let results_pane = gtk::Box::new(gtk::Orientation::Vertical, 0);
+    results_pane.append(&filter_entry);
+    results_pane.append(&scrolled);
+    stack.add_named(&results_pane, Some("results"));
 
     // Empty / error.
     let status = adw::StatusPage::builder()

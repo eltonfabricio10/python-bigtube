@@ -1793,3 +1793,6 @@ msgstr "How many finished conversions to keep in the list"
 
 msgid "Download complete"
 msgstr "Download complete"
+
+msgid "Filter…"
+msgstr "Filter…"

@@ -1795,3 +1795,6 @@ msgstr "Koľko dokončených prevodov ponechať v zozname"
 
 msgid "Download complete"
 msgstr "Sťahovanie dokončené"
+
+msgid "Filter…"
+msgstr "Filtrovať…"

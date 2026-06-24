@@ -71,6 +71,8 @@ struct DownloadRow {
 impl DownloadRow {
     fn new(title: &str, file_path: &str, artist: &str) -> Self {
         let container = gtk::Box::new(gtk::Orientation::Vertical, 4);
+        // Tag the card so the downloads filter can match it by title/artist/path.
+        set_row_filter_key(&container, &format!("{title} {artist} {file_path}"));
         container.add_css_class("card");
         container.set_margin_top(6);
         container.set_margin_bottom(6);
@@ -1112,6 +1114,63 @@ fn config_saver() -> &'static bigtube_core::debounce::Debouncer {
 /// with `set_tooltip_text` on every icon-only control.
 pub(crate) fn a11y_label(w: &impl IsA<gtk::Accessible>, label: &str) {
     w.update_property(&[gtk::accessible::Property::Label(label)]);
+}
+
+/// qdata key holding a row's lowercased searchable text for the list filter.
+const FILTER_KEY: &str = "bigtube-filter-key";
+
+/// A `SearchEntry` styled as a list filter, with the standard placeholder and
+/// page margins. Used at the top of every scrollable list (search, downloads,
+/// converter, playlist) so each can be narrowed by typing.
+pub(crate) fn make_filter_entry() -> gtk::SearchEntry {
+    let entry = gtk::SearchEntry::new();
+    entry.set_hexpand(true);
+    entry.set_placeholder_text(Some(&tr("Filter…")));
+    entry.set_margin_top(6);
+    entry.set_margin_bottom(6);
+    entry.set_margin_start(12);
+    entry.set_margin_end(12);
+    a11y_label(&entry, &tr("Filter…"));
+    entry
+}
+
+/// Tag a `ListBox` child with the text the filter entry matches against. Stored
+/// lowercased so the filter can do a case-insensitive substring test cheaply.
+pub(crate) fn set_row_filter_key(w: &impl IsA<gtk::Widget>, text: &str) {
+    unsafe {
+        w.upcast_ref::<gtk::Widget>()
+            .set_data::<String>(FILTER_KEY, text.to_lowercase());
+    }
+}
+
+/// Read the filter key tagged onto a `ListBox` row's child (empty if none).
+fn row_filter_key(row: &gtk::ListBoxRow) -> String {
+    let Some(child) = row.child() else {
+        return String::new();
+    };
+    unsafe {
+        child
+            .data::<String>(FILTER_KEY)
+            .map(|p| p.as_ref().clone())
+            .unwrap_or_default()
+    }
+}
+
+/// Wire a filter entry to a `ListBox`: typing narrows the visible rows to those
+/// whose tagged key contains the (lowercased) needle. Rows without a key always
+/// show (e.g. nothing to hide before any text is entered).
+pub(crate) fn wire_listbox_filter(entry: &gtk::SearchEntry, listbox: &gtk::ListBox) {
+    let needle = Rc::new(RefCell::new(String::new()));
+    let f_needle = needle.clone();
+    listbox.set_filter_func(move |row| {
+        let n = f_needle.borrow();
+        n.is_empty() || row_filter_key(row).contains(n.as_str())
+    });
+    let listbox = listbox.clone();
+    entry.connect_search_changed(move |e| {
+        needle.replace(e.text().to_lowercase());
+        listbox.invalidate_filter();
+    });
 }
 
 /// Configured cap for the downloads history list (>= 1).

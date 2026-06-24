@@ -49,6 +49,13 @@ pub(crate) fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
     scrolled.set_vexpand(true);
     scrolled.set_child(Some(&state.downloads_box));
 
+    // Filter field above the list, narrowing rows by their title.
+    let filter_entry = super::make_filter_entry();
+    super::wire_listbox_filter(&filter_entry, &state.downloads_box);
+    let list_pane = gtk::Box::new(gtk::Orientation::Vertical, 0);
+    list_pane.append(&filter_entry);
+    list_pane.append(&scrolled);
+
     let empty = status_page(
         "bigtube-download-symbolic",
         &tr("No Downloads"),
@@ -56,7 +63,7 @@ pub(crate) fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
     );
     state.downloads_stack.set_vexpand(true);
     state.downloads_stack.add_named(&empty, Some("empty"));
-    state.downloads_stack.add_named(&scrolled, Some("list"));
+    state.downloads_stack.add_named(&list_pane, Some("list"));
     state.downloads_stack.set_visible_child_name("empty");
 
     page.append(&header);

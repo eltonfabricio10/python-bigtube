@@ -1798,3 +1798,6 @@ msgstr "Câte conversii finalizate să rămână în listă"
 
 msgid "Download complete"
 msgstr "Descărcare finalizată"
+
+msgid "Filter…"
+msgstr "Filtrează…"
