@@ -20,6 +20,7 @@ use gst::prelude::*;
 use gstreamer as gst;
 use gtk::glib;
 
+use bigtube_core::config;
 use bigtube_core::player::extract_stream_url;
 
 use crate::i18n::tr;
@@ -534,6 +535,18 @@ impl Player {
             item.title.clone()
         };
         self.title_lbl.set_text(&shown_title);
+        // Reflect the playing item in the detachable video window's title:
+        // "<video name> - <quality>" (the configured in-app preview quality).
+        let quality = config::global()
+            .read()
+            .unwrap()
+            .get_string("preview_quality");
+        let win_title = if quality.is_empty() {
+            shown_title.clone()
+        } else {
+            format!("{shown_title} - {quality}")
+        };
+        self.video_window.set_title(Some(&win_title));
         self.load_thumbnail(&item.thumbnail);
 
         // Audio-only items (e.g. YouTube Music) can't open the video window.
@@ -775,6 +788,7 @@ impl Player {
         self.time_cur.set_text("--:--");
         self.time_tot.set_text("--:--");
         self.title_lbl.set_text(&tr("Unknown Title"));
+        self.video_window.set_title(Some(&tr("BigTube Player")));
         self.artist_lbl.set_text(&tr("Unknown Artist"));
         self.thumb
             .set_icon_name(Some("bigtube-image-x-generic-symbolic"));
