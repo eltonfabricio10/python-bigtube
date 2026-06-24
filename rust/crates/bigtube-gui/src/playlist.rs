@@ -167,6 +167,21 @@ pub fn show(
     win.set_content(Some(&toolbar));
     win.present();
 
+    // Escape closes the playlist window (matches the player video window).
+    {
+        let w = win.clone();
+        let key = gtk::EventControllerKey::new();
+        key.connect_key_pressed(move |_, keyval, _, _| {
+            if keyval == gtk::gdk::Key::Escape {
+                w.close();
+                glib::Propagation::Stop
+            } else {
+                glib::Propagation::Proceed
+            }
+        });
+        win.add_controller(key);
+    }
+
     // Play All seeds the queue from the start.
     {
         let store = store.clone();
