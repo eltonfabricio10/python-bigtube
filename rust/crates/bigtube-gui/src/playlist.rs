@@ -6,12 +6,14 @@
 //! continues cyclically through the list.
 
 use std::cell::{Cell, RefCell};
+use std::collections::HashMap;
+use std::path::PathBuf;
 use std::rc::Rc;
 
 use adw::prelude::*;
 use gtk::{gio, glib};
 
-use bigtube_core::search::SearchEngine;
+use bigtube_core::search::{SearchEngine, SearchResult};
 
 use crate::i18n::tr;
 use crate::objects::VideoObject;
@@ -282,9 +284,18 @@ pub fn show(
         });
     }
 
+    // Show any cached contents instantly so reopening a playlist is immediate;
+    // the live fetch below still runs and refreshes the list when it returns.
+    if let Some(cached) = cache_get(&url) {
+        populate(&store, &cached);
+        if store.n_items() > 0 {
+            stack.set_visible_child_name("results");
+        }
+    }
+
     // Fetch the playlist contents off the main thread.
-    let (tx, rx) =
-        async_channel::bounded::<Result<Vec<bigtube_core::search::SearchResult>, String>>(1);
+    let url_cache = url.clone();
+    let (tx, rx) = async_channel::bounded::<Result<Vec<SearchResult>, String>>(1);
     std::thread::spawn(move || {
         let result = SearchEngine::new()
             .map_err(|e| e.to_string())
@@ -295,20 +306,24 @@ pub fn show(
     glib::spawn_future_local(async move {
         match rx.recv().await {
             Ok(Ok(list)) => {
-                for r in &list {
-                    if r.is_playlist {
-                        continue; // keep the list flat
-                    }
-                    store.append(&VideoObject::from_result(r));
-                }
+                // Replace whatever is shown (cache or empty) with the fresh data,
+                // then update the cache for next time.
+                populate(&store, &list);
                 if store.n_items() == 0 {
                     status.set_title(&tr("No results found!"));
                     stack.set_visible_child_name("empty");
                 } else {
                     stack.set_visible_child_name("results");
                 }
+                cache_put(&url_cache, &list);
             }
             Ok(Err(e)) => {
+                // If cached contents are already on screen, keep them rather than
+                // wiping a usable list because the refresh failed.
+                if store.n_items() > 0 {
+                    tracing::warn!("playlist refresh failed, keeping cached list: {e}");
+                    return;
+                }
                 // Friendly title; show the raw error as the (smaller) description
                 // and log it, instead of using a cryptic error as the heading.
                 tracing::error!("playlist load failed: {e}");
@@ -319,4 +334,41 @@ pub fn show(
             Err(_) => {}
         }
     });
+}
+
+/// Fill `store` with the videos in `list` (replacing its contents and keeping
+/// the list flat — nested playlist entries are skipped).
+fn populate(store: &gio::ListStore, list: &[SearchResult]) {
+    store.remove_all();
+    for r in list {
+        if r.is_playlist {
+            continue;
+        }
+        store.append(&VideoObject::from_result(r));
+    }
+}
+
+/// On-disk cache of expanded playlists: `{ url: [SearchResult, …] }`. Lets a
+/// reopened playlist render instantly while the live fetch refreshes it.
+fn cache_path() -> PathBuf {
+    bigtube_core::paths::config_dir().join("playlist_cache.json")
+}
+
+fn load_cache() -> HashMap<String, Vec<SearchResult>> {
+    std::fs::read_to_string(cache_path())
+        .ok()
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+fn cache_get(url: &str) -> Option<Vec<SearchResult>> {
+    load_cache().remove(url).filter(|v| !v.is_empty())
+}
+
+fn cache_put(url: &str, list: &[SearchResult]) {
+    let mut map = load_cache();
+    map.insert(url.to_string(), list.to_vec());
+    if let Ok(json) = serde_json::to_string(&map) {
+        let _ = std::fs::write(cache_path(), json);
+    }
 }

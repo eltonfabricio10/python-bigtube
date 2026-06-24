@@ -1211,6 +1211,7 @@ fn wipe_finished_data() {
         "converter_history.json",
         "scheduled_downloads.json",
         "converter_pending.json",
+        "playlist_cache.json",
     ] {
         let f = dir.join(name);
         if f.exists() {
