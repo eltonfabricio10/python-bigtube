@@ -66,7 +66,7 @@ pub fn show(
     play_all.set_focus_on_click(false);
     play_all.set_tooltip_text(Some(&tr("Play all")));
     crate::app::a11y_label(&play_all, &tr("Play all"));
-    let dl_all = gtk::Button::from_icon_name("bigtube-folder-download-symbolic");
+    let dl_all = gtk::Button::from_icon_name("bigtube-download-symbolic");
     dl_all.set_focus_on_click(false);
     dl_all.set_tooltip_text(Some(&tr("Download all")));
     crate::app::a11y_label(&dl_all, &tr("Download all"));

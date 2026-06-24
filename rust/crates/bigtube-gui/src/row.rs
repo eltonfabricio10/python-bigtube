@@ -126,7 +126,7 @@ mod imp {
             btn_play.set_valign(gtk::Align::Center);
             btn_play.set_tooltip_text(Some(&tr("Play Video")));
             crate::app::a11y_label(&btn_play, &tr("Play Video"));
-            let btn_download = gtk::Button::from_icon_name("bigtube-folder-download-symbolic");
+            let btn_download = gtk::Button::from_icon_name("bigtube-download-symbolic");
             btn_download.add_css_class("flat");
             btn_download.set_focus_on_click(false);
             btn_download.set_valign(gtk::Align::Center);

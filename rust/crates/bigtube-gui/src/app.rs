@@ -661,7 +661,7 @@ pub fn build_window(app: &adw::Application) {
         &downloads_page,
         "downloads",
         &tr("Downloads"),
-        "bigtube-folder-download-symbolic",
+        "bigtube-download-symbolic",
     );
     add_page(
         &stack,

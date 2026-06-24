@@ -50,7 +50,7 @@ pub(crate) fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
     scrolled.set_child(Some(&state.downloads_box));
 
     let empty = status_page(
-        "bigtube-folder-download-symbolic",
+        "bigtube-download-symbolic",
         &tr("No Downloads"),
         &tr("Your downloads will appear here"),
     );
