@@ -10,9 +10,7 @@
 
 > **Le téléchargeur multimédia ultime pour Linux**
 
-**BigTube** est une application de bureau moderne, rapide et élégante, développée en **Rust** avec **GTK4**, **Libadwaita** et **GStreamer**. Conçu pour celles et ceux qui n'acceptent rien de moins que la perfection lorsqu'ils téléchargent du contenu depuis Internet, BigTube transforme la complexité de `yt-dlp` en un outil intuitif et puissant — désormais sous forme de binaire natif, sans dépendance à un environnement d'exécution Python.
-
-> ℹ️ Depuis la version **2.0**, BigTube a été réécrit en Rust. Le paquet AUR recommandé est désormais **`bigtube-bin`** (binaire précompilé). L'ancien paquet `bigtube` (Python) a été abandonné.
+**BigTube** est une application de bureau moderne, rapide et élégante, développée en **Rust** avec **GTK4**, **Libadwaita** et **GStreamer**. Conçu pour celles et ceux qui n'acceptent rien de moins que la perfection lorsqu'ils téléchargent du contenu depuis Internet, BigTube transforme la complexité de `yt-dlp` en un outil intuitif et puissant — un binaire natif et rapide.
 
 ---
 
@@ -106,7 +104,6 @@ yay -S bigtube-bin
 # ou
 paru -S bigtube-bin
 ```
-> Le binaire fournit et remplace l'ancien paquet `bigtube` (`provides=bigtube`, `conflicts=bigtube`).
 
 ### Debian / Ubuntu (.deb)
 Téléchargez le `.deb` depuis la [dernière version](https://github.com/eltonfabricio10/bigtube/releases/latest) et installez-le (les dépendances sont résolues automatiquement) :
@@ -150,7 +147,7 @@ sudo install -Dm644 packaging/io.github.eltonfabricio10.bigtube.desktop /usr/sha
 
 ## ⌨️ Ligne de commande
 
-Le portage Rust expose **deux binaires** :
+BigTube fournit **deux binaires** :
 
 | Binaire | Rôle |
 |--------|------|

@@ -10,9 +10,7 @@
 
 > **O Downloader Multimídia Definitivo para Linux**
 
-**BigTube** é uma aplicação desktop moderna, veloz e elegante, construída em **Rust** com **GTK4**, **Libadwaita** e **GStreamer**. Projetado para quem não aceita menos que a perfeição ao baixar conteúdos da internet, o BigTube transforma a complexidade do `yt-dlp` em uma ferramenta intuitiva e poderosa — agora como um binário nativo, sem dependências de runtime Python.
-
-> ℹ️ A partir da versão **2.0**, o BigTube foi reescrito em Rust. O pacote AUR recomendado passou a ser **`bigtube-bin`** (binário pré-compilado). O antigo pacote `bigtube` (Python) foi descontinuado.
+**BigTube** é uma aplicação desktop moderna, veloz e elegante, construída em **Rust** com **GTK4**, **Libadwaita** e **GStreamer**. Projetado para quem não aceita menos que a perfeição ao baixar conteúdos da internet, o BigTube transforma a complexidade do `yt-dlp` em uma ferramenta intuitiva e poderosa — um binário nativo e veloz.
 
 ---
 
@@ -106,7 +104,6 @@ yay -S bigtube-bin
 # ou
 paru -S bigtube-bin
 ```
-> O binário fornece e substitui o antigo pacote `bigtube` (`provides=bigtube`, `conflicts=bigtube`).
 
 ### Debian / Ubuntu (.deb)
 Baixe o `.deb` da [última release](https://github.com/eltonfabricio10/bigtube/releases/latest) e instale (resolve as dependências automaticamente):
@@ -150,7 +147,7 @@ sudo install -Dm644 packaging/io.github.eltonfabricio10.bigtube.desktop /usr/sha
 
 ## ⌨️ Linha de Comando
 
-O port Rust expõe **dois binários**:
+O BigTube oferece **dois binários**:
 
 | Binário | Função |
 |---------|--------|
