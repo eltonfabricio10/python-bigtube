@@ -16,16 +16,19 @@
 
 ## 📸 Captures d'écran
 
+#### 🔍 Gestionnaire de recherche
 <p align="center">
   <img src="screenshots/01-main.png" alt="BigTube — Gestionnaire de recherche" width="80%">
 </p>
 
+#### 🎚️ Sélecteur de format &nbsp;·&nbsp; ⚙️ Paramètres
 <p align="center">
   <img src="screenshots/04-formats.png" alt="Sélecteur de qualité vidéo et audio côte à côte" width="48%">
   &nbsp;
   <img src="screenshots/02-settings.png" alt="Paramètres" width="48%">
 </p>
 
+#### 🔄 Convertisseur multimédia &nbsp;·&nbsp; 💖 Dons
 <p align="center">
   <img src="screenshots/03-converter.png" alt="Convertisseur multimédia intégré" width="48%">
   &nbsp;
@@ -47,35 +50,38 @@
 | Fonctionnalité | Description |
 |---------|-------------|
 | **Qualité vidéo** | 4K (2160p), 2K (1440p), 1080p, 720p, 480p, 360p, 240p, 144p |
-| **Formats audio** | MP3, M4A avec extraction haute qualité |
+| **Formats audio** | MP3, M4A, Opus, FLAC, WAV, AAC avec extraction haute qualité |
 | **Métadonnées** | Intégration automatique des tags, de l'album et de l'artiste |
-| **Sous-titres** | Téléchargement et intégration des sous-titres (automatiques + manuels) |
+| **Sous-titres** | Intégration et/ou enregistrement comme fichiers sidecar, manuels + auto-générés, sélection par langue |
+| **Planification** | Mettez des téléchargements en file pour plus tard, ponctuels ou selon un horaire récurrent |
+| **Concurrence** | Plusieurs téléchargements simultanés avec fragments parallèles configurables |
 | **Reprise** | Reprise des téléchargements interrompus |
 
 ### 🔄 Convertisseur multimédia
-- Conversion vidéo vers vidéo (MKV, MP4, WebM)
-- Extraction et conversion audio
-- Fusion des sous-titres
+- Conversion vidéo vers vidéo (MP4, MKV, WebM)
+- Extraction et conversion audio (MP3, M4A, Opus, FLAC, WAV, AAC)
+- Fusion des sous-titres (intégration et/ou sidecar)
 - File d'attente de conversion par lot
 - Progression en temps réel avec estimation du temps restant (ETA)
 
 ### 📺 Lecteur intégré
 - Moteur de lecture **GStreamer** (natif, intégré à GTK4)
-- Aperçu vidéo avant le téléchargement
-- Navigation dans la playlist (Précédent / Lecture-Pause / **Arrêt** / Suivant)
+- Aperçu vidéo avant le téléchargement, avec qualité d'aperçu configurable (144p–720p)
+- Navigation dans la playlist (Précédent / Lecture-Pause / **Arrêt** / Suivant), barre de progression (seek) et volume
 - Fenêtre vidéo détachable
 
 ### 🎨 Personnalisation de l'apparence
 | Mode | Description |
 |------|-------------|
 | **Thème** | Clair / Sombre / Suivre le système |
-| **Couleurs** | Plus de 10 schémas de couleurs (Par défaut, Violet, Émeraude, Nordique, Gruvbox, Catppuccin, Dracula, Tokyo Night, Rosé Pine, Solarized, Monokai, Cyberpunk, Marque BigTube) |
+| **Couleurs** | 16 schémas de couleurs (Default Blue, Modern Violet, Emerald Green, Sunburst Orange, Vibrant Rose, Nordic Cyan, Nordic Snow, Gruvbox Retro, Catppuccin Mocha, Dracula Dark, Tokyo Night, Rosé Pine, Solarized Dark, Monokai Pro, Cyberpunk Neon, BigTube Brand) |
 | **Style** | Interface moderne avec effet glassmorphism |
 
 ### 📊 Gestion
 - Historique des téléchargements
 - Historique des conversions
 - Historique des recherches
+- Téléchargements planifiés
 - Option pour effacer automatiquement les données à la fermeture
 
 ---
@@ -191,9 +197,13 @@ bigtube -d <url> --format "bestvideo+bestaudio"  # custom format
 | `~/.config/bigtube/` | Paramètres et historiques |
 | `~/.config/bigtube/config.json` | Paramètres de l'application |
 | `~/.config/bigtube/history.json` | Historique des téléchargements |
-| `~/.local/share/bigtube/bin/` | Binaires (yt-dlp) |
+| `~/.config/bigtube/search_history.json` | Historique des recherches |
+| `~/.config/bigtube/converter_history.json` | Historique des conversions |
+| `~/.config/bigtube/scheduled_downloads.json` | Téléchargements planifiés |
+| `~/.local/share/bigtube/bin/` | Binaires inclus (`yt-dlp`, `deno`) |
 | `~/.cache/bigtube/thumbnails/` | Cache des miniatures |
 | `~/Downloads/BigTube/` | Dossier de téléchargement par défaut |
+| `~/Downloads/BigTube/Converted/` | Dossier de sortie du convertisseur par défaut |
 
 ---
 
@@ -205,8 +215,9 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | Paramètre | Par défaut | Explication |
 |---------|---------|-------------|
 | **Thème de l'interface** | Suivre le système | Définit si l'interface utilise le thème du système, force un thème clair ou force un thème sombre. |
-| **Schéma de couleurs** | Bleu par défaut | Modifie la palette/couleur d'accentuation de l'interface. Options : Bleu par défaut, Violet moderne, Vert émeraude, Orange éclatant, Rose vibrant, Cyan nordique, Neige nordique, Gruvbox rétro, Catppuccin Mocha, Dracula sombre, Tokyo Night, Rosé Pine, Solarized sombre, Monokai Pro, Cyberpunk néon et Marque BigTube. |
+| **Schéma de couleurs** | Default Blue | Modifie la palette/couleur d'accentuation de l'interface. Options : Default Blue, Modern Violet, Emerald Green, Sunburst Orange, Vibrant Rose, Nordic Cyan, Nordic Snow, Gruvbox Retro, Catppuccin Mocha, Dracula Dark, Tokyo Night, Rosé Pine, Solarized Dark, Monokai Pro, Cyberpunk Neon et BigTube Brand. |
 | **Version actuelle / mise à jour des composants** | Automatique | Affiche la version locale de `yt-dlp` et permet de mettre à jour les composants téléchargés par l'application, tels que `yt-dlp` et `deno`, dans `~/.local/share/bigtube/bin/`. |
+| **Vérifier les mises à jour au démarrage** | Activé | Vérifie s'il existe des composants `yt-dlp`/`deno` plus récents au lancement de l'application. |
 
 ### Recherche
 | Paramètre | Par défaut | Explication |
@@ -224,17 +235,14 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | **Dossier de téléchargement** | `~/Downloads/BigTube/` | Définit l'emplacement où les fichiers téléchargés sont enregistrés. L'application crée le dossier si nécessaire. |
 | **Surveillance du presse-papiers** | Désactivé | Détecte automatiquement les liens vidéo copiés dans le presse-papiers lorsque l'application est ouverte. |
 | **Notifications système** | Activé | Contrôle les notifications système pour les événements de téléchargement et les erreurs. |
-| **Qualité préférée** | Demander à chaque fois | Définit le format par défaut pour les nouveaux téléchargements. Peut demander à chaque téléchargement, télécharger la meilleure vidéo, ou choisir 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p, ou télécharger uniquement l'audio au format MP3/M4A. |
+| **Qualité préférée** | Demander à chaque fois | Définit le format par défaut pour les nouveaux téléchargements. Peut demander à chaque téléchargement, télécharger la meilleure vidéo, choisir 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p, ou télécharger uniquement l'audio au format MP3, M4A, Opus, FLAC, WAV ou AAC. |
 | **Ajouter des métadonnées** | Désactivé | Tente d'intégrer l'artiste, l'album, la pochette et d'autres métadonnées dans les fichiers téléchargés. Nécessite `ffmpeg` ; s'il n'est pas installé, l'application ignore cette étape. |
-| **Intégrer les sous-titres** | Désactivé | Tente de télécharger les sous-titres manuels et automatiques et de les intégrer dans le fichier final. Recherche actuellement les langues `en.*`, `pt.*` et `es.*`. Nécessite `ffmpeg`. |
 | **Fragments simultanés** | 16 | Définit combien de fragments parallèles `yt-dlp` utilise par téléchargement. Accepte des valeurs de 1 à 16. Des valeurs plus élevées peuvent accélérer les téléchargements segmentés mais augmentent aussi l'utilisation du réseau. |
-| **Limite de vitesse** | 0 Ko/s | Limite la vitesse de téléchargement en Ko/s. `0` signifie aucune limite. |
-| **Commande de post-traitement** | Vide | Exécute une commande après le téléchargement à l'aide de `yt-dlp --exec`. Utilisez `{}` dans la commande pour représenter le fichier téléchargé. |
-| **Fichier de cookies** | Vide | Utilise un fichier `cookies.txt` au format Netscape avec `yt-dlp --cookies`, utile pour le contenu nécessitant une session authentifiée. |
-| **Cookies du navigateur** | Aucun | Importe les cookies directement depuis un navigateur détecté, tel que Firefox, Chrome, Chromium, Brave, Microsoft Edge, Vivaldi ou Opera, à l'aide de `yt-dlp --cookies-from-browser`. |
-| **User-Agent** | Valeur BigTube par défaut | Remplace le User-Agent envoyé à `yt-dlp`. S'il est laissé vide, l'application utilise un User-Agent sûr basé sur Chrome. |
-| **Proxy** | Vide | Achemine les recherches, les métadonnées, le lecteur et les téléchargements via le proxy indiqué. Accepte les URL `http`, `https`, `socks4`, `socks4a`, `socks5` et `socks5h`, par exemple `socks5://127.0.0.1:1080`. |
+| **Limite de vitesse** | 0 Ko/s | Limite la vitesse de téléchargement en Ko/s. `0` signifie aucune limite. Accepte des valeurs de 0 à 100000. |
+| **Supprimer une fois terminé** | Désactivé | Supprime automatiquement de la liste les téléchargements terminés. |
+| **Supprimer si annulé** | Désactivé | Supprime automatiquement de la liste les téléchargements annulés. |
 | **Enregistrer l'historique des téléchargements** | Activé | Conserve un enregistrement local des téléchargements dans `history.json`, utilisé par la vue historique/liste. |
+| **Nombre maximal d'entrées d'historique** | 100 | Combien d'entrées de téléchargement conserver dans la liste. Accepte des valeurs de 10 à 1000. |
 
 #### Options de qualité
 | Option | Explication |
@@ -244,6 +252,28 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | **4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p** | Privilégie la vidéo MP4/AVC à la résolution choisie avec l'audio M4A ; si ce format exact n'existe pas, `yt-dlp` utilise la meilleure alternative compatible définie dans le préréglage. |
 | **Audio (MP3)** | Extrait uniquement l'audio, le convertit en MP3 haute qualité et tente d'intégrer la miniature. |
 | **Audio (M4A)** | Télécharge uniquement l'audio, en privilégiant le codec/conteneur M4A. |
+| **Audio (Opus / FLAC / WAV / AAC)** | Extrait uniquement l'audio et le convertit au format choisi à la plus haute qualité. |
+
+### Sous-titres
+| Paramètre | Par défaut | Explication |
+|---------|---------|-------------|
+| **Sous-titres** | Désactivé | Gestion des sous-titres pour les téléchargements : `Off`, `Embed` dans le fichier, enregistrer comme `File` séparé (sidecar), ou `Both`. L'intégration nécessite `ffmpeg`. |
+| **Langues** | `en,pt,es` | Liste de codes de langue de sous-titres à récupérer, séparés par des virgules (par ex. `en,pt,es`). |
+| **Inclure les auto-générés** | Activé | Récupère aussi les sous-titres générés automatiquement (par machine), pas seulement les manuels. |
+
+### Lecture
+| Paramètre | Par défaut | Explication |
+|---------|---------|-------------|
+| **Qualité d'aperçu** | 360p | Qualité utilisée par le lecteur intégré lors de l'aperçu avant le téléchargement : `144p`, `240p`, `360p` (progressif), `480p` ou `720p` (streaming HLS). |
+
+### Réseau et avancé
+| Paramètre | Par défaut | Explication |
+|---------|---------|-------------|
+| **Fichier de cookies** | Vide | Utilise un fichier `cookies.txt` au format Netscape avec `yt-dlp --cookies`, utile pour le contenu nécessitant une session authentifiée. |
+| **Cookies du navigateur** | Aucun | Importe les cookies directement depuis un navigateur détecté, tel que Firefox, Chrome, Chromium, Brave, Microsoft Edge, Vivaldi ou Opera, à l'aide de `yt-dlp --cookies-from-browser`. |
+| **User-Agent** | Valeur BigTube par défaut | Remplace le User-Agent envoyé à `yt-dlp`. S'il est laissé vide, l'application utilise un User-Agent sûr basé sur Chrome. Inclut des préréglages pour les navigateurs détectés. |
+| **Proxy** | Vide | Achemine les recherches, les métadonnées, le lecteur et les téléchargements via le proxy indiqué. Accepte les URL `http`, `https`, `socks4`, `socks4a`, `socks5` et `socks5h`, par exemple `socks5://127.0.0.1:1080`. |
+| **Commande de post-traitement** | Vide | Exécute une commande après le téléchargement à l'aide de `yt-dlp --exec`. Utilisez `{}` dans la commande pour représenter le fichier téléchargé. |
 
 ### Convertisseur multimédia
 | Paramètre | Par défaut | Explication |
@@ -251,6 +281,9 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | **Enregistrer dans le dossier source** | Désactivé | Lorsqu'il est activé, le fichier converti est enregistré à côté du fichier d'origine. |
 | **Dossier de sortie par défaut** | `~/Downloads/BigTube/Converted/` | Définit le dossier utilisé par le convertisseur lorsque « enregistrer dans le dossier source » est désactivé. |
 | **Enregistrer l'historique des conversions** | Activé | Conserve un enregistrement local des conversions dans `converter_history.json`. |
+| **Supprimer une fois terminé** | Désactivé | Supprime automatiquement de la liste les conversions terminées. |
+| **Supprimer si annulé** | Désactivé | Supprime automatiquement de la liste les conversions annulées. |
+| **Nombre maximal d'entrées d'historique** | 50 | Combien d'entrées de conversion conserver dans la liste. Accepte des valeurs de 10 à 500. |
 
 ### Stockage et confidentialité
 | Paramètre | Par défaut | Explication |
@@ -271,7 +304,10 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | `max_download_history` | `100` | Max d’éléments dans la liste des téléchargements |
 | `max_converter_history` | `50` | Max d’éléments dans la liste du convertisseur |
 | `add_metadata` | `false` | Métadonnées sur les téléchargements |
-| `embed_subtitles` | `false` | Sous-titres sur les téléchargements |
+| `embed_subtitles` | `false` | Indicateur de sous-titres hérité (migré vers `subtitle_mode`) |
+| `subtitle_mode` | `off` | Gestion des sous-titres : `off`, `embed`, `file`, `both` |
+| `subtitle_langs` | `en,pt,es` | Langues de sous-titres à récupérer |
+| `subtitle_auto` | `true` | Inclure les sous-titres auto-générés |
 | `save_history` | `true` | Historique des téléchargements |
 | `save_search_history` | `true` | Historique des recherches |
 | `enable_suggestions` | `true` | Suggestions de recherche |
@@ -290,6 +326,12 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | `cookies_browser` | `""` | Cookies du navigateur |
 | `user_agent` | `""` | User-Agent personnalisé |
 | `proxy` | `""` | Proxy |
+| `preview_quality` | `360p` | Qualité d'aperçu du lecteur intégré |
+| `remove_on_complete` | `false` | Supprimer de la liste les téléchargements terminés |
+| `remove_on_cancel` | `false` | Supprimer de la liste les téléchargements annulés |
+| `converter_remove_on_complete` | `false` | Supprimer de la liste les conversions terminées |
+| `converter_remove_on_cancel` | `false` | Supprimer de la liste les conversions annulées |
+| `check_updates_on_startup` | `true` | Vérifier les mises à jour `yt-dlp`/`deno` au démarrage |
 
 > Compatibilité : les anciennes configurations comportant la clé `download_subtitles` sont automatiquement migrées vers `embed_subtitles`.
 

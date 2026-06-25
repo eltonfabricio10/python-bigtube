@@ -16,16 +16,19 @@
 
 ## 📸 Screenshots
 
+#### 🔍 Search Manager
 <p align="center">
   <img src="docs/screenshots/01-main.png" alt="BigTube — Search Manager" width="80%">
 </p>
 
+#### 🎚️ Format Picker &nbsp;·&nbsp; ⚙️ Settings
 <p align="center">
   <img src="docs/screenshots/04-formats.png" alt="Side-by-side video and audio quality picker" width="48%">
   &nbsp;
   <img src="docs/screenshots/02-settings.png" alt="Settings" width="48%">
 </p>
 
+#### 🔄 Media Converter &nbsp;·&nbsp; 💖 Donations
 <p align="center">
   <img src="docs/screenshots/03-converter.png" alt="Built-in media converter" width="48%">
   &nbsp;
@@ -47,35 +50,38 @@
 | Feature | Description |
 |---------|-------------|
 | **Video Quality** | 4K (2160p), 2K (1440p), 1080p, 720p, 480p, 360p, 240p, 144p |
-| **Audio Formats** | MP3, M4A with high-quality extraction |
+| **Audio Formats** | MP3, M4A, Opus, FLAC, WAV, AAC with high-quality extraction |
 | **Metadata** | Automatic embedding of tags, album, and artist |
-| **Subtitles** | Download and embed subtitles (automatic + manual) |
+| **Subtitles** | Embed and/or save as sidecar files, manual + auto-generated, per-language selection |
+| **Scheduling** | Queue downloads to run later, one-off or on a recurring schedule |
+| **Concurrency** | Multiple simultaneous downloads with configurable parallel fragments |
 | **Resume** | Continue interrupted downloads |
 
 ### 🔄 Media Converter
-- Video-to-video conversion (MKV, MP4, WebM)
-- Audio extraction and conversion
-- Subtitle merging
+- Video-to-video conversion (MP4, MKV, WebM)
+- Audio extraction and conversion (MP3, M4A, Opus, FLAC, WAV, AAC)
+- Subtitle merging (embed and/or sidecar)
 - Batch conversion queue
 - Real-time progress with ETA
 
 ### 📺 Built-in Player
 - **GStreamer** playback engine (native, integrated with GTK4)
-- Video preview before downloading
-- Playlist navigation (Prev / Play-Pause / **Stop** / Next)
+- Video preview before downloading, with configurable preview quality (144p–720p)
+- Playlist navigation (Prev / Play-Pause / **Stop** / Next), seek bar and volume
 - Detachable video window
 
 ### 🎨 Appearance Customization
 | Mode | Description |
 |------|-------------|
 | **Theme** | Light / Dark / Follow System |
-| **Colors** | 10+ color schemes (Default, Violet, Emerald, Nordic, Gruvbox, Catppuccin, Dracula, Tokyo Night, Rosé Pine, Solarized, Monokai, Cyberpunk, BigTube Brand) |
+| **Colors** | 16 color schemes (Default Blue, Modern Violet, Emerald Green, Sunburst Orange, Vibrant Rose, Nordic Cyan, Nordic Snow, Gruvbox Retro, Catppuccin Mocha, Dracula Dark, Tokyo Night, Rosé Pine, Solarized Dark, Monokai Pro, Cyberpunk Neon, BigTube Brand) |
 | **Style** | Modern glassmorphism interface |
 
 ### 📊 Management
 - Download history
 - Conversion history
 - Search history
+- Scheduled downloads
 - Option to automatically clear data on exit
 
 ---
@@ -191,9 +197,13 @@ bigtube -d <url> --format "bestvideo+bestaudio"  # custom format
 | `~/.config/bigtube/` | Settings and histories |
 | `~/.config/bigtube/config.json` | Application settings |
 | `~/.config/bigtube/history.json` | Download history |
-| `~/.local/share/bigtube/bin/` | Binaries (yt-dlp) |
+| `~/.config/bigtube/search_history.json` | Search history |
+| `~/.config/bigtube/converter_history.json` | Conversion history |
+| `~/.config/bigtube/scheduled_downloads.json` | Scheduled downloads |
+| `~/.local/share/bigtube/bin/` | Bundled binaries (`yt-dlp`, `deno`) |
 | `~/.cache/bigtube/thumbnails/` | Thumbnail cache |
 | `~/Downloads/BigTube/` | Default downloads folder |
+| `~/Downloads/BigTube/Converted/` | Default converter output folder |
 
 ---
 
@@ -207,6 +217,7 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | **Interface theme** | Follow system | Defines whether the interface uses the system theme, forces a light theme, or forces a dark theme. |
 | **Color scheme** | Default Blue | Changes the visual palette/accent of the interface. Options: Default Blue, Modern Violet, Emerald Green, Sunburst Orange, Vibrant Rose, Nordic Cyan, Nordic Snow, Gruvbox Retro, Catppuccin Mocha, Dracula Dark, Tokyo Night, Rosé Pine, Solarized Dark, Monokai Pro, Cyberpunk Neon, and BigTube Brand. |
 | **Current version / update components** | Automatic | Shows the local `yt-dlp` version and lets you update the components downloaded by the app, such as `yt-dlp` and `deno`, in `~/.local/share/bigtube/bin/`. |
+| **Check for updates on startup** | Enabled | Checks for newer `yt-dlp`/`deno` components when the app starts. |
 
 ### Search
 | Setting | Default | Explanation |
@@ -224,17 +235,14 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | **Download folder** | `~/Downloads/BigTube/` | Defines where downloaded files are saved. The app creates the folder when needed. |
 | **Clipboard monitor** | Disabled | Automatically detects video links copied to the clipboard while the app is open. |
 | **System notifications** | Enabled | Controls system notifications for download events and errors. |
-| **Preferred quality** | Ask every time | Defines the default format for new downloads. It can ask on each download, download the best video, or choose 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p, or download audio only as MP3/M4A. |
+| **Preferred quality** | Ask every time | Defines the default format for new downloads. It can ask on each download, download the best video, choose 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p, or download audio only as MP3, M4A, Opus, FLAC, WAV, or AAC. |
 | **Add metadata** | Disabled | Tries to embed artist, album, cover, and other metadata into downloaded files. Requires `ffmpeg`; if it isn't installed, the app skips this step. |
-| **Embed subtitles** | Disabled | Tries to download manual and automatic subtitles and embed them into the final file. Currently looks for `en.*`, `pt.*`, and `es.*` languages. Requires `ffmpeg`. |
 | **Concurrent fragments** | 16 | Defines how many parallel fragments `yt-dlp` uses per download. Accepts values from 1 to 16. Higher values can speed up segmented downloads but also increase network usage. |
-| **Speed limit** | 0 KB/s | Limits download speed in KB/s. `0` means no limit. |
-| **Post-processing command** | Empty | Runs a command after the download using `yt-dlp --exec`. Use `{}` in the command to represent the downloaded file. |
-| **Cookies file** | Empty | Uses a Netscape-format `cookies.txt` file with `yt-dlp --cookies`, useful for content that requires an authenticated session. |
-| **Browser cookies** | None | Imports cookies directly from a detected browser, such as Firefox, Chrome, Chromium, Brave, Microsoft Edge, Vivaldi, or Opera, using `yt-dlp --cookies-from-browser`. |
-| **User-Agent** | BigTube default | Overrides the User-Agent sent to `yt-dlp`. If left empty, the app uses a safe Chrome-based User-Agent. |
-| **Proxy** | Empty | Routes searches, metadata, player, and downloads through the given proxy. Accepts `http`, `https`, `socks4`, `socks4a`, `socks5`, and `socks5h` URLs, e.g. `socks5://127.0.0.1:1080`. |
+| **Speed limit** | 0 KB/s | Limits download speed in KB/s. `0` means no limit. Accepts values from 0 to 100000. |
+| **Remove when complete** | Disabled | Automatically removes finished downloads from the list. |
+| **Remove when cancelled** | Disabled | Automatically removes cancelled downloads from the list. |
 | **Save download history** | Enabled | Keeps a local record of downloads in `history.json`, used by the history/list view. |
+| **Maximum history entries** | 100 | How many download entries to keep in the list. Accepts values from 10 to 1000. |
 
 #### Quality options
 | Option | Explanation |
@@ -244,6 +252,28 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | **4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p** | Prioritizes MP4/AVC video at the chosen resolution with M4A audio; if that exact format doesn't exist, `yt-dlp` uses the best compatible alternative defined in the preset. |
 | **Audio (MP3)** | Extracts audio only, converts to high-quality MP3, and tries to embed the thumbnail. |
 | **Audio (M4A)** | Downloads audio only, prioritizing the M4A codec/container. |
+| **Audio (Opus / FLAC / WAV / AAC)** | Extracts audio only and converts it to the chosen format at the highest quality. |
+
+### Subtitles
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Subtitles** | Off | Subtitle handling for downloads: `Off`, `Embed` into the file, save as a separate `File` (sidecar), or `Both`. Embedding requires `ffmpeg`. |
+| **Languages** | `en,pt,es` | Comma-separated list of subtitle language codes to fetch (e.g. `en,pt,es`). |
+| **Include auto-generated** | Enabled | Also fetches machine-generated (automatic) captions, not just manual ones. |
+
+### Playback
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Preview quality** | 360p | Quality used by the in-app player when previewing before download: `144p`, `240p`, `360p` (progressive), `480p`, or `720p` (HLS streaming). |
+
+### Network and advanced
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Cookies file** | Empty | Uses a Netscape-format `cookies.txt` file with `yt-dlp --cookies`, useful for content that requires an authenticated session. |
+| **Browser cookies** | None | Imports cookies directly from a detected browser, such as Firefox, Chrome, Chromium, Brave, Microsoft Edge, Vivaldi, or Opera, using `yt-dlp --cookies-from-browser`. |
+| **User-Agent** | BigTube default | Overrides the User-Agent sent to `yt-dlp`. If left empty, the app uses a safe Chrome-based User-Agent. Includes presets for detected browsers. |
+| **Proxy** | Empty | Routes searches, metadata, player, and downloads through the given proxy. Accepts `http`, `https`, `socks4`, `socks4a`, `socks5`, and `socks5h` URLs, e.g. `socks5://127.0.0.1:1080`. |
+| **Post-processing command** | Empty | Runs a command after the download using `yt-dlp --exec`. Use `{}` in the command to represent the downloaded file. |
 
 ### Media converter
 | Setting | Default | Explanation |
@@ -251,6 +281,9 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | **Save to source folder** | Disabled | When enabled, the converted file is saved next to the original file. |
 | **Default output folder** | `~/Downloads/BigTube/Converted/` | Defines the folder used by the converter when "save to source folder" is disabled. |
 | **Save conversion history** | Enabled | Keeps a local record of conversions in `converter_history.json`. |
+| **Remove when complete** | Disabled | Automatically removes finished conversions from the list. |
+| **Remove when cancelled** | Disabled | Automatically removes cancelled conversions from the list. |
+| **Maximum history entries** | 50 | How many conversion entries to keep in the list. Accepts values from 10 to 500. |
 
 ### Storage and privacy
 | Setting | Default | Explanation |
@@ -271,7 +304,10 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | `max_download_history` | `100` | Max entries kept in the downloads list |
 | `max_converter_history` | `50` | Max entries kept in the converter list |
 | `add_metadata` | `false` | Metadata on downloads |
-| `embed_subtitles` | `false` | Subtitles on downloads |
+| `embed_subtitles` | `false` | Legacy subtitle flag (migrated to `subtitle_mode`) |
+| `subtitle_mode` | `off` | Subtitle handling: `off`, `embed`, `file`, `both` |
+| `subtitle_langs` | `en,pt,es` | Subtitle languages to fetch |
+| `subtitle_auto` | `true` | Include auto-generated captions |
 | `save_history` | `true` | Download history |
 | `save_search_history` | `true` | Search history |
 | `enable_suggestions` | `true` | Search suggestions |
@@ -290,6 +326,12 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | `cookies_browser` | `""` | Browser cookies |
 | `user_agent` | `""` | Custom User-Agent |
 | `proxy` | `""` | Proxy |
+| `preview_quality` | `360p` | In-app player preview quality |
+| `remove_on_complete` | `false` | Remove finished downloads from the list |
+| `remove_on_cancel` | `false` | Remove cancelled downloads from the list |
+| `converter_remove_on_complete` | `false` | Remove finished conversions from the list |
+| `converter_remove_on_cancel` | `false` | Remove cancelled conversions from the list |
+| `check_updates_on_startup` | `true` | Check for `yt-dlp`/`deno` updates on startup |
 
 > Compatibility: older configurations with the `download_subtitles` key are automatically migrated to `embed_subtitles`.
 
