@@ -75,14 +75,10 @@ pub(crate) fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
         let state = state.clone();
         clear.connect_clicked(move |_| confirm_clear_all_converter(&state));
     }
-    // Compact filter in the header (right) narrows the rows by file name.
-    let filter_entry = super::make_filter_entry();
+    // Collapsible filter in the header (far right) narrows the rows by file name.
+    let (filter_ctrl, filter_entry) = super::make_filter_control();
     super::wire_listbox_filter(&filter_entry, &state.converter_box);
-    let header = page_header_trailing(
-        &tr("Converter Manager"),
-        &[add, clear],
-        Some(filter_entry.upcast_ref()),
-    );
+    let header = page_header_trailing(&tr("Converter Manager"), &[add, clear], Some(&filter_ctrl));
 
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);

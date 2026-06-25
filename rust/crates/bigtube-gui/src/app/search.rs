@@ -15,7 +15,7 @@ use bigtube_core::search::SearchEngine;
 
 use super::widgets::{loading_page, page_header_trailing, status_page};
 use super::{
-    a11y_label, apply_theme_classes, download_all, make_filter_entry, on_download_clicked,
+    a11y_label, apply_theme_classes, download_all, make_filter_control, on_download_clicked,
     schedule_all, search_history_path, AppState,
 };
 use crate::i18n::tr;
@@ -157,8 +157,8 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     scrolled.set_child(Some(&list));
     scrolled.set_vexpand(true);
 
-    // Compact filter field (pinned to the header below); narrows the results.
-    let filter_entry = make_filter_entry();
+    // Collapsible filter control (pinned to the header below); narrows results.
+    let (filter_ctrl, filter_entry) = make_filter_control();
     filter_entry.connect_search_changed(move |e| {
         needle.replace(e.text().to_lowercase());
         filter.changed(gtk::FilterChange::Different);
@@ -200,7 +200,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     page.append(&page_header_trailing(
         &tr("Search Manager"),
         &[],
-        Some(filter_entry.upcast_ref()),
+        Some(&filter_ctrl),
     ));
     page.append(&bar);
     page.append(&state.select_revealer);

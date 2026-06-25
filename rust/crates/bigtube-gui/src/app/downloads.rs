@@ -42,14 +42,10 @@ pub(crate) fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
         let state = state.clone();
         clear.connect_clicked(move |_| confirm_clear_all_downloads(&state));
     }
-    // Compact filter in the header (right) narrows the rows by title.
-    let filter_entry = super::make_filter_entry();
+    // Collapsible filter in the header (far right) narrows the rows by title.
+    let (filter_ctrl, filter_entry) = super::make_filter_control();
     super::wire_listbox_filter(&filter_entry, &state.downloads_box);
-    let header = page_header_trailing(
-        &tr("Downloads Manager"),
-        &[clear],
-        Some(filter_entry.upcast_ref()),
-    );
+    let header = page_header_trailing(&tr("Downloads Manager"), &[clear], Some(&filter_ctrl));
 
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);

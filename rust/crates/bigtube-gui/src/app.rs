@@ -1141,17 +1141,63 @@ pub(crate) fn a11y_label(w: &impl IsA<gtk::Accessible>, label: &str) {
 /// qdata key holding a row's lowercased searchable text for the list filter.
 const FILTER_KEY: &str = "bigtube-filter-key";
 
-/// A compact `SearchEntry` used as a list filter, pinned to the right of each
-/// page header (search, downloads, converter, playlist) so a list can be
-/// narrowed by typing without taking a full row of vertical space.
-pub(crate) fn make_filter_entry() -> gtk::SearchEntry {
+/// A collapsible list filter for a page header: a funnel icon button that, when
+/// clicked, swaps to a small text entry (focused) to type into. It collapses
+/// back to the icon on Escape, or when the entry is emptied and loses focus.
+/// Returns the control widget (place it in the header) and the inner entry (wire
+/// its `connect_search_changed` to drive the actual filtering).
+pub(crate) fn make_filter_control() -> (gtk::Widget, gtk::SearchEntry) {
     let entry = gtk::SearchEntry::new();
     entry.set_placeholder_text(Some(&tr("Filter…")));
     entry.set_max_width_chars(14);
     entry.set_width_chars(10);
     entry.set_valign(gtk::Align::Center);
     a11y_label(&entry, &tr("Filter…"));
-    entry
+
+    let button = gtk::Button::from_icon_name("bigtube-filter-symbolic");
+    button.add_css_class("flat");
+    button.set_tooltip_text(Some(&tr("Filter")));
+    a11y_label(&button, &tr("Filter"));
+
+    let stack = gtk::Stack::new();
+    stack.set_transition_type(gtk::StackTransitionType::Crossfade);
+    stack.set_valign(gtk::Align::Center);
+    stack.add_named(&button, Some("icon"));
+    stack.add_named(&entry, Some("entry"));
+    stack.set_visible_child_name("icon");
+
+    // Click the funnel → reveal the entry and focus it.
+    {
+        let stack = stack.clone();
+        let entry = entry.clone();
+        button.connect_clicked(move |_| {
+            stack.set_visible_child_name("entry");
+            entry.grab_focus();
+        });
+    }
+    // Escape clears the filter and collapses back to the icon.
+    {
+        let stack = stack.clone();
+        entry.connect_stop_search(move |e| {
+            e.set_text("");
+            stack.set_visible_child_name("icon");
+        });
+    }
+    // Losing focus while empty collapses back to the icon; a non-empty filter
+    // stays open so the active filter remains visible.
+    {
+        let stack = stack.clone();
+        let entry_w = entry.clone();
+        let focus = gtk::EventControllerFocus::new();
+        focus.connect_leave(move |_| {
+            if entry_w.text().is_empty() {
+                stack.set_visible_child_name("icon");
+            }
+        });
+        entry.add_controller(focus);
+    }
+
+    (stack.upcast(), entry)
 }
 
 /// Tag a `ListBox` child with the text the filter entry matches against. Stored

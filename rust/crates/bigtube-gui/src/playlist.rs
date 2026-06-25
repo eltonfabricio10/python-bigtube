@@ -84,7 +84,8 @@ pub fn show(
     header.pack_start(&play_all);
     header.pack_start(&dl_all);
     header.pack_start(&sched_all);
-    header.pack_end(&select_btn);
+    // select_btn + the filter control are packed at the end later, so the filter
+    // can sit at the far-right corner (after the select button).
     toolbar.add_top_bar(&header);
 
     let stack = gtk::Stack::new();
@@ -169,13 +170,14 @@ pub fn show(
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_child(Some(&list));
-    // Compact filter pinned to the header (right), narrowing the list by title.
-    let filter_entry = crate::app::make_filter_entry();
+    // Collapsible filter pinned to the far-right of the header (after select).
+    let (filter_ctrl, filter_entry) = crate::app::make_filter_control();
     filter_entry.connect_search_changed(move |e| {
         needle.replace(e.text().to_lowercase());
         filter.changed(gtk::FilterChange::Different);
     });
-    header.pack_end(&filter_entry);
+    header.pack_end(&filter_ctrl);
+    header.pack_end(&select_btn);
     stack.add_named(&scrolled, Some("results"));
 
     // Empty / error.

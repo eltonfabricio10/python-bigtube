@@ -16,27 +16,27 @@ pub(crate) fn human_size(bytes: u64) -> String {
 }
 
 /// A centered page title with an optional right-aligned button group.
-/// A page title bar: centered title plus a right-aligned group holding an
-/// optional `leading` widget (e.g. a small filter entry) followed by the action
-/// `buttons` — so the buttons sit at the far-right corner, after the filter.
+/// A page title bar: centered title, optional action `buttons` on the right,
+/// and an optional `trailing` widget (e.g. the collapsible filter control)
+/// pinned to the far-right corner after the buttons.
 pub(crate) fn page_header_trailing(
     title: &str,
     buttons: &[gtk::Button],
-    leading: Option<&gtk::Widget>,
+    trailing: Option<&gtk::Widget>,
 ) -> gtk::Widget {
     let cb = gtk::CenterBox::new();
     cb.add_css_class("page-title-bar");
     let lbl = gtk::Label::new(Some(title));
     lbl.add_css_class("title-1");
     cb.set_center_widget(Some(&lbl));
-    if !buttons.is_empty() || leading.is_some() {
+    if !buttons.is_empty() || trailing.is_some() {
         let bx = gtk::Box::new(gtk::Orientation::Horizontal, 6);
         bx.set_halign(gtk::Align::End);
-        if let Some(w) = leading {
-            bx.append(w);
-        }
         for b in buttons {
             bx.append(b);
+        }
+        if let Some(w) = trailing {
+            bx.append(w);
         }
         cb.set_end_widget(Some(&bx));
     }
