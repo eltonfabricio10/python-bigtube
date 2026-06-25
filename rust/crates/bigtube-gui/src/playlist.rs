@@ -360,6 +360,12 @@ fn cache_path() -> PathBuf {
     bigtube_core::paths::config_dir().join("playlist_cache.json")
 }
 
+/// Hard cap on how many expanded playlists we keep on disk so the cache can't
+/// grow without bound (each entry can hold hundreds of items). The cache is a
+/// pure optimization — a miss just re-fetches — so over-cap entries are simply
+/// evicted on write.
+const CACHE_MAX_ENTRIES: usize = 30;
+
 fn load_cache() -> HashMap<String, Vec<SearchResult>> {
     std::fs::read_to_string(cache_path())
         .ok()
@@ -374,6 +380,18 @@ fn cache_get(url: &str) -> Option<Vec<SearchResult>> {
 fn cache_put(url: &str, list: &[SearchResult]) {
     let mut map = load_cache();
     map.insert(url.to_string(), list.to_vec());
+    // Keep the just-written entry; drop others until within the cap.
+    if map.len() > CACHE_MAX_ENTRIES {
+        let victims: Vec<String> = map
+            .keys()
+            .filter(|k| k.as_str() != url)
+            .take(map.len() - CACHE_MAX_ENTRIES)
+            .cloned()
+            .collect();
+        for k in victims {
+            map.remove(&k);
+        }
+    }
     if let Ok(json) = serde_json::to_string(&map) {
         let _ = std::fs::write(cache_path(), json);
     }
