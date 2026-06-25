@@ -1010,6 +1010,15 @@ button:focus:not(:focus-visible) {
 .suggestions-popover > contents {
     padding: 2px;
 }
+/* The vertical scrollbar's slider has a minimum length (~44px) that becomes the
+   ScrolledWindow's minimum height — taller than a single suggestion row. So one
+   match left empty space below it, while 2+ rows exceeded the floor and hugged
+   the edge. Zeroing the slider's min-height drops that floor so the popover
+   hugs the list exactly for any count (scrolling past max-content-height still
+   works — the slider just shrinks to fit). */
+.suggestions-popover scrollbar slider {
+    min-height: 0;
+}
 
 /* -----------------------------------------------------------------------------
    Now-playing highlight — the search/playlist row whose item the player is
