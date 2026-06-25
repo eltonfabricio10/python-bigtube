@@ -76,7 +76,10 @@ pub(crate) fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
         clear.connect_clicked(move |_| confirm_clear_all_converter(&state));
     }
     // Collapsible filter in the header (far right) narrows the rows by file name.
+    // Disabled until the list has rows (toggled by update_converter_empty).
     let (filter_ctrl, filter_entry) = super::make_filter_control();
+    filter_ctrl.set_sensitive(false);
+    state.converter_filter.replace(Some(filter_ctrl.clone()));
     super::wire_listbox_filter(&filter_entry, &state.converter_box);
     let header = page_header_trailing(&tr("Converter Manager"), &[add, clear], Some(&filter_ctrl));
 

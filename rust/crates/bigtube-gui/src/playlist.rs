@@ -171,7 +171,9 @@ pub fn show(
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_child(Some(&list));
     // Collapsible filter pinned to the far-right of the header (after select).
+    // Disabled until the playlist has loaded some videos to filter.
     let (filter_ctrl, filter_entry) = crate::app::make_filter_control();
+    filter_ctrl.set_sensitive(false);
     filter_entry.connect_search_changed(move |e| {
         needle.replace(e.text().to_lowercase());
         filter.changed(gtk::FilterChange::Different);
@@ -291,11 +293,13 @@ pub fn show(
         populate(&store, &cached);
         if store.n_items() > 0 {
             stack.set_visible_child_name("results");
+            filter_ctrl.set_sensitive(true);
         }
     }
 
     // Fetch the playlist contents off the main thread.
     let url_cache = url.clone();
+    let filter_ctrl = filter_ctrl.clone();
     let (tx, rx) = async_channel::bounded::<Result<Vec<SearchResult>, String>>(1);
     std::thread::spawn(move || {
         let result = SearchEngine::new()
@@ -316,6 +320,7 @@ pub fn show(
                 } else {
                     stack.set_visible_child_name("results");
                 }
+                filter_ctrl.set_sensitive(store.n_items() > 0);
                 cache_put(&url_cache, &list);
             }
             Ok(Err(e)) => {

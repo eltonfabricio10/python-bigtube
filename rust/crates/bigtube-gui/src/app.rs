@@ -459,6 +459,11 @@ struct AppState {
     search_stack: gtk::Stack,
     // The search box, so the Ctrl+L shortcut can jump focus to it.
     search_entry: RefCell<Option<gtk::SearchEntry>>,
+    // The collapsible header filter control (disabled when there's nothing to
+    // filter), one per list page.
+    search_filter: RefCell<Option<gtk::Widget>>,
+    downloads_filter: RefCell<Option<gtk::Widget>>,
+    converter_filter: RefCell<Option<gtk::Widget>>,
     select_mode: Cell<bool>,
     select_revealer: gtk::Revealer,
     // Header toggle that enters selection mode (disabled when there are no
@@ -579,6 +584,7 @@ impl AppState {
             .set_visible_child_name(if has { "list" } else { "empty" });
         // Nothing to clear when the list is empty.
         self.downloads_clear.set_sensitive(has);
+        set_filter_enabled(&self.downloads_filter, has);
     }
 
     fn update_converter_empty(&self) {
@@ -586,6 +592,7 @@ impl AppState {
         self.converter_stack
             .set_visible_child_name(if has { "list" } else { "empty" });
         self.converter_clear.set_sensitive(has);
+        set_filter_enabled(&self.converter_filter, has);
     }
 
     fn update_search_empty(&self) {
@@ -597,6 +604,15 @@ impl AppState {
             self.btn_select.set_active(false);
         }
         self.btn_select.set_sensitive(has);
+        set_filter_enabled(&self.search_filter, has);
+    }
+}
+
+/// Enable/disable a page's filter control (greys out the funnel when the list is
+/// empty). A no-op until the page has stored its control.
+fn set_filter_enabled(slot: &RefCell<Option<gtk::Widget>>, enabled: bool) {
+    if let Some(w) = slot.borrow().as_ref() {
+        w.set_sensitive(enabled);
     }
 }
 
@@ -622,6 +638,9 @@ pub fn build_window(app: &adw::Application) {
         search_store: search_store.clone(),
         search_stack: gtk::Stack::new(),
         search_entry: RefCell::new(None),
+        search_filter: RefCell::new(None),
+        downloads_filter: RefCell::new(None),
+        converter_filter: RefCell::new(None),
         select_mode: Cell::new(false),
         select_revealer: gtk::Revealer::new(),
         btn_select: gtk::ToggleButton::new(),
