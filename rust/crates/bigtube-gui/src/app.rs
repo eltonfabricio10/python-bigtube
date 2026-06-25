@@ -1162,6 +1162,11 @@ pub(crate) fn make_filter_control() -> (gtk::Widget, gtk::SearchEntry) {
     let stack = gtk::Stack::new();
     stack.set_transition_type(gtk::StackTransitionType::Crossfade);
     stack.set_valign(gtk::Align::Center);
+    stack.set_halign(gtk::Align::End);
+    // Size to the visible child, not the widest one — otherwise the collapsed
+    // icon would float at the left of the entry's reserved width (far from the
+    // corner) instead of hugging the right edge.
+    stack.set_hhomogeneous(false);
     stack.add_named(&button, Some("icon"));
     stack.add_named(&entry, Some("entry"));
     stack.set_visible_child_name("icon");
