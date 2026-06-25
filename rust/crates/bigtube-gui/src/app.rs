@@ -1119,17 +1119,15 @@ pub(crate) fn a11y_label(w: &impl IsA<gtk::Accessible>, label: &str) {
 /// qdata key holding a row's lowercased searchable text for the list filter.
 const FILTER_KEY: &str = "bigtube-filter-key";
 
-/// A `SearchEntry` styled as a list filter, with the standard placeholder and
-/// page margins. Used at the top of every scrollable list (search, downloads,
-/// converter, playlist) so each can be narrowed by typing.
+/// A compact `SearchEntry` used as a list filter, pinned to the right of each
+/// page header (search, downloads, converter, playlist) so a list can be
+/// narrowed by typing without taking a full row of vertical space.
 pub(crate) fn make_filter_entry() -> gtk::SearchEntry {
     let entry = gtk::SearchEntry::new();
-    entry.set_hexpand(true);
     entry.set_placeholder_text(Some(&tr("Filter…")));
-    entry.set_margin_top(6);
-    entry.set_margin_bottom(6);
-    entry.set_margin_start(12);
-    entry.set_margin_end(12);
+    entry.set_max_width_chars(14);
+    entry.set_width_chars(10);
+    entry.set_valign(gtk::Align::Center);
     a11y_label(&entry, &tr("Filter…"));
     entry
 }

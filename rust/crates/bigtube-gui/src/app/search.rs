@@ -13,7 +13,7 @@ use gtk::{gio, glib};
 use bigtube_core::config;
 use bigtube_core::search::SearchEngine;
 
-use super::widgets::{loading_page, page_header, status_page};
+use super::widgets::{loading_page, page_header_trailing, status_page};
 use super::{
     a11y_label, apply_theme_classes, download_all, make_filter_entry, on_download_clicked,
     schedule_all, search_history_path, AppState,
@@ -157,15 +157,12 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     scrolled.set_child(Some(&list));
     scrolled.set_vexpand(true);
 
-    // Filter field above the results.
+    // Compact filter field (pinned to the header below); narrows the results.
     let filter_entry = make_filter_entry();
     filter_entry.connect_search_changed(move |e| {
         needle.replace(e.text().to_lowercase());
         filter.changed(gtk::FilterChange::Different);
     });
-    let list_pane = gtk::Box::new(gtk::Orientation::Vertical, 0);
-    list_pane.append(&filter_entry);
-    list_pane.append(&scrolled);
 
     // Empty-state / results stack.
     let empty = status_page(
@@ -178,7 +175,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     state
         .search_stack
         .add_named(&loading_page(&tr("Searching")), Some("loading"));
-    state.search_stack.add_named(&list_pane, Some("list"));
+    state.search_stack.add_named(&scrolled, Some("list"));
     state.search_stack.set_visible_child_name("empty");
 
     // Batch selection bar (revealed in selection mode).
@@ -200,7 +197,11 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     state.select_revealer.set_child(Some(&batch));
     state.select_revealer.set_reveal_child(false);
 
-    page.append(&page_header(&tr("Search Manager"), &[]));
+    page.append(&page_header_trailing(
+        &tr("Search Manager"),
+        &[],
+        Some(filter_entry.upcast_ref()),
+    ));
     page.append(&bar);
     page.append(&state.select_revealer);
     page.append(&state.search_stack);

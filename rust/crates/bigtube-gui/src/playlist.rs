@@ -169,15 +169,14 @@ pub fn show(
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_child(Some(&list));
+    // Compact filter pinned to the header (right), narrowing the list by title.
     let filter_entry = crate::app::make_filter_entry();
     filter_entry.connect_search_changed(move |e| {
         needle.replace(e.text().to_lowercase());
         filter.changed(gtk::FilterChange::Different);
     });
-    let results_pane = gtk::Box::new(gtk::Orientation::Vertical, 0);
-    results_pane.append(&filter_entry);
-    results_pane.append(&scrolled);
-    stack.add_named(&results_pane, Some("results"));
+    header.pack_end(&filter_entry);
+    stack.add_named(&scrolled, Some("results"));
 
     // Empty / error.
     let status = adw::StatusPage::builder()

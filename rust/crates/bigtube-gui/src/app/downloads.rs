@@ -17,7 +17,7 @@ use bigtube_core::downloader::{DownloadParams, VideoDownloader};
 use bigtube_core::progress::{Progress, ProgressFn, StatusCode};
 
 use super::converter::{add_converter_file, is_audio_input};
-use super::widgets::{combo_row, next_key, page_header, status_page};
+use super::widgets::{combo_row, next_key, page_header_trailing, status_page};
 use super::{
     apply_theme_classes, delete_output_file, history_path, history_status_label,
     max_download_history, now_epoch_secs, open_containing_folder, remove_list_card,
@@ -42,19 +42,19 @@ pub(crate) fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
         let state = state.clone();
         clear.connect_clicked(move |_| confirm_clear_all_downloads(&state));
     }
-    let header = page_header(&tr("Downloads Manager"), &[clear]);
+    // Compact filter in the header (right) narrows the rows by title.
+    let filter_entry = super::make_filter_entry();
+    super::wire_listbox_filter(&filter_entry, &state.downloads_box);
+    let header = page_header_trailing(
+        &tr("Downloads Manager"),
+        &[clear],
+        Some(filter_entry.upcast_ref()),
+    );
 
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_vexpand(true);
     scrolled.set_child(Some(&state.downloads_box));
-
-    // Filter field above the list, narrowing rows by their title.
-    let filter_entry = super::make_filter_entry();
-    super::wire_listbox_filter(&filter_entry, &state.downloads_box);
-    let list_pane = gtk::Box::new(gtk::Orientation::Vertical, 0);
-    list_pane.append(&filter_entry);
-    list_pane.append(&scrolled);
 
     let empty = status_page(
         "bigtube-download-symbolic",
@@ -63,7 +63,7 @@ pub(crate) fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
     );
     state.downloads_stack.set_vexpand(true);
     state.downloads_stack.add_named(&empty, Some("empty"));
-    state.downloads_stack.add_named(&list_pane, Some("list"));
+    state.downloads_stack.add_named(&scrolled, Some("list"));
     state.downloads_stack.set_visible_child_name("empty");
 
     page.append(&header);

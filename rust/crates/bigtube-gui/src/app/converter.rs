@@ -13,7 +13,7 @@ use gtk::glib;
 
 use bigtube_core::config;
 
-use super::widgets::{fmt_eta, page_header, status_page};
+use super::widgets::{fmt_eta, page_header_trailing, status_page};
 use super::{
     a11y_label, apply_theme_classes, converter_history_path, delete_output_file,
     max_converter_history, media_summary_text, open_containing_folder, remove_list_card,
@@ -75,19 +75,19 @@ pub(crate) fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
         let state = state.clone();
         clear.connect_clicked(move |_| confirm_clear_all_converter(&state));
     }
-    let header = page_header(&tr("Converter Manager"), &[add, clear]);
+    // Compact filter in the header (right) narrows the rows by file name.
+    let filter_entry = super::make_filter_entry();
+    super::wire_listbox_filter(&filter_entry, &state.converter_box);
+    let header = page_header_trailing(
+        &tr("Converter Manager"),
+        &[add, clear],
+        Some(filter_entry.upcast_ref()),
+    );
 
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_vexpand(true);
     scrolled.set_child(Some(&state.converter_box));
-
-    // Filter field above the list, narrowing rows by their file name.
-    let filter_entry = super::make_filter_entry();
-    super::wire_listbox_filter(&filter_entry, &state.converter_box);
-    let list_pane = gtk::Box::new(gtk::Orientation::Vertical, 0);
-    list_pane.append(&filter_entry);
-    list_pane.append(&scrolled);
 
     // Empty-state acts as the drop zone hint.
     let empty = status_page(
@@ -97,7 +97,7 @@ pub(crate) fn build_converter_page(state: &Rc<AppState>) -> gtk::Widget {
     );
     state.converter_stack.set_vexpand(true);
     state.converter_stack.add_named(&empty, Some("empty"));
-    state.converter_stack.add_named(&list_pane, Some("list"));
+    state.converter_stack.add_named(&scrolled, Some("list"));
     state.converter_stack.set_visible_child_name("empty");
 
     page.append(&header);
