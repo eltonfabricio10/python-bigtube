@@ -987,7 +987,29 @@ pub fn build_window(app: &adw::Application) {
     // update. Off the UI thread so it never delays the window appearing.
     start_update_check(&state);
 
+    // Keyboard focus follows the active tab: land on the search field when the
+    // Search page is shown (including at startup), and clear focus elsewhere so
+    // the compact header filter never grabs it (e.g. on the Downloads tab).
+    {
+        let state_cb = state.clone();
+        let window_cb = window.clone();
+        state.stack.connect_visible_child_name_notify(move |stack| {
+            if stack.visible_child_name().as_deref() == Some("search") {
+                if let Some(e) = state_cb.search_entry.borrow().as_ref() {
+                    e.grab_focus();
+                }
+            } else {
+                gtk::prelude::GtkWindowExt::set_focus(&window_cb, gtk::Widget::NONE);
+            }
+        });
+    }
+
     window.present();
+    // Initial tab is Search → focus the search field, not the header filter.
+    let initial_entry = state.search_entry.borrow().clone();
+    if let Some(e) = initial_entry {
+        e.grab_focus();
+    }
 }
 
 /// On launch (when `check_updates_on_startup` is on), make sure yt-dlp/deno are
