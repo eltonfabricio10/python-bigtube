@@ -47,10 +47,6 @@ msgstr "Manager de căutare"
 msgid "Downloads Manager"
 msgstr "Manager de descărcări"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:79
-msgid "Settings Manager"
-msgstr "Manager de setări"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:80
 msgid "Converter Manager"
 msgstr "Manager de conversie"
@@ -83,10 +79,6 @@ msgstr "Inserați adresa URL sau introduceți cuvinte cheie..."
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:94
 msgid "No results found!"
 msgstr "Nu s-au găsit rezultate!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:95
-msgid "Searching for:"
-msgstr "Se caută:"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:98
 msgid "No Results"
@@ -122,10 +114,6 @@ msgstr "Copiază linkul"
 msgid "Link Copied!"
 msgstr "Link copiat!"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:108
-msgid "Ignored input:"
-msgstr "Intrare ignorată:"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:111
 msgid "Select Quality"
 msgstr "Selectați calitatea"
@@ -138,33 +126,13 @@ msgstr "Formate video"
 msgid "Duration:"
 msgstr "Durată:"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:114
-msgid "Audio Only"
-msgstr "Numai audio"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:118
 msgid "Clear History"
 msgstr "Șterge istoricul"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:119
-msgid "Clear History?"
-msgstr "Ștergeți istoricul?"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:121
-msgid ""
-"This will remove all entries from the list.\n"
-"Files will remain on disk."
-msgstr ""
-"Aceasta va elimina toate intrările din listă.\n"
-"Fișierele vor rămâne pe disc."
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:123
 msgid "History cleared successfully!"
 msgstr "Istoricul a fost șters cu succes!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:124
-msgid "Failed to get info for"
-msgstr "Nu s-au putut obține informații pentru"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:127
 msgid "Download Folder"
@@ -205,10 +173,6 @@ msgstr "Adaugă metadate la fișiere"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:138
 msgid "Enable ClipBoard Monitor"
 msgstr "Activează monitorul de clipboard"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:139
-msgid "Embed Subtitles"
-msgstr "Încorporează subtitrări"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:140
 msgid "Storage"
@@ -432,10 +396,6 @@ msgstr "Întrerupt"
 msgid "Paused"
 msgstr "În pauză"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:201
-msgid "Resuming..."
-msgstr "Se reia..."
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:204
 msgid "Pause"
 msgstr "Pauză"
@@ -443,14 +403,6 @@ msgstr "Pauză"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:205
 msgid "Resume"
 msgstr "Reia"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:206
-msgid "Cancel Conversion"
-msgstr "Anulează conversia"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:209
-msgid "Critical Error:"
-msgstr "Eroare critică:"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:210
 msgid "Network Error!"
@@ -480,33 +432,9 @@ msgstr "Nu este suficient spațiu pe disc!"
 msgid "Error searching for video!"
 msgstr "Eroare la căutarea videoclipului!"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:217
-msgid "File Already Exists!"
-msgstr "Fișierul există deja!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:218
-msgid "Overwrite this file?"
-msgstr "Suprascrieți acest fișier?"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:219
-msgid "File Not Found, Remove from History?"
-msgstr "Fișierul nu a fost găsit, eliminați din istoric?"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:221
-msgid "The following file exists in history but was not found on disk:\n"
-msgstr "Următorul fișier există în istoric, dar nu a fost găsit pe disc:\n"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:223
-msgid "Item removed from history."
-msgstr "Element eliminat din istoric."
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:224
 msgid "Invalid URL format"
 msgstr "Format URL nevalid"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:227
-msgid "Stopped"
-msgstr "Oprit"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:228
 msgid "Buffering..."
@@ -516,34 +444,6 @@ msgstr "Se memorează în buffer..."
 msgid "BigTube Player"
 msgstr "Player BigTube"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:232
-msgid "Insufficient disk space!"
-msgstr "Spațiu insuficient pe disc!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:233
-msgid "Could not check disk space!"
-msgstr "Nu s-a putut verifica spațiul pe disc!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:234
-msgid "FFmpeg not found. Some features will be limited!"
-msgstr "FFmpeg nu a fost găsit. Unele caracteristici vor fi limitate!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:235
-msgid "Download completed successfully!"
-msgstr "Descărcarea a fost finalizată cu succes!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:236
-msgid "Download cancelled by user!"
-msgstr "Descărcarea a fost anulată de utilizator!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:237
-msgid "Download failed!"
-msgstr "Descărcarea a eșuat!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:238
-msgid "Download timed out!"
-msgstr "Descărcarea a expirat!"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:239
 msgid "Starting download..."
 msgstr "Se începe descărcarea..."
@@ -552,33 +452,9 @@ msgstr "Se începe descărcarea..."
 msgid "Resuming download..."
 msgstr "Se reia descărcarea..."
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:243
-msgid "No internet connection!"
-msgstr "Fără conexiune la internet!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:244
-msgid "yt-dlp update available:"
-msgstr "Actualizare yt-dlp disponibilă:"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:245
-msgid "Checking for updates..."
-msgstr "Se verifică actualizările..."
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:249
 msgid "Drag and drop files here to convert"
 msgstr "Trageți și plasați fișiere aici pentru a le converti"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:250
-msgid "Convert your media files"
-msgstr "Convertiți fișierele media"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:251
-msgid "Or paste image URL / File Path"
-msgstr "Sau inserați adresa URL a imaginii / Calea fișierului"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:252
-msgid "Convert to:"
-msgstr "Convertește în:"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:253
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:292
@@ -589,89 +465,17 @@ msgstr "Convertește"
 msgid "Ready"
 msgstr "Gata"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:257
-msgid "Selected: "
-msgstr "Selectat: "
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:258
-msgid "Downloading image..."
-msgstr "Se descarcă imaginea..."
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:259
-msgid "Converting to"
-msgstr "Se convertește în"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:260
 msgid "Success!"
 msgstr "Succes!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:262
-msgid "Error occurred"
-msgstr "A apărut o eroare"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:265
-msgid "Conversion Complete"
-msgstr "Conversie finalizată"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:266
-msgid "Saved to:"
-msgstr "Salvat în:"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:267
-msgid "Failed:"
-msgstr "A eșuat:"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:268
-msgid "Conversion Cancelled"
-msgstr "Conversie anulată"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:271
 msgid "Select Media Files"
 msgstr "Selectați fișiere media"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:272
-msgid "_Open"
-msgstr "_Deschide"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:273
-msgid "_Cancel"
-msgstr "_Anulează"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:274
 msgid "Media Files"
 msgstr "Fișiere media"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:277
-msgid "File Not Found"
-msgstr "Fișierul nu a fost găsit"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:279
-msgid ""
-"The converted file was not found. Would you like to convert it again or "
-"remove it from history?"
-msgstr ""
-"Fișierul convertit nu a fost găsit. Doriți să îl convertiți din nou sau să "
-"îl eliminați din istoric?"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:281
-msgid "Convert Again"
-msgstr "Convertește din nou"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:282
-msgid "Remove from History"
-msgstr "Elimină din istoric"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:283
-msgid "Source File Missing"
-msgstr "Fișierul sursă lipsește"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:285
-msgid ""
-"The source file for this conversion is missing. Would you like to remove it "
-"from the list?"
-msgstr ""
-"Fișierul sursă pentru această conversie lipsește. Doriți să îl eliminați din"
-" listă?"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:288
 msgid "Add Files"
@@ -685,17 +489,9 @@ msgstr "Elimină din listă"
 msgid "Open Folder"
 msgstr "Deschide folderul"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:291
-msgid "Play Converted File"
-msgstr "Redă fișierul convertit"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:293
 msgid "Add to Converter"
 msgstr "Adaugă în convertor"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:294
-msgid "Convert All"
-msgstr "Convertește tot"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:296
 msgid "Add Metadata"
@@ -705,25 +501,9 @@ msgstr "Adaugă metadate"
 msgid "Add Subtitles"
 msgstr "Adaugă subtitrări"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:298
-msgid "options available"
-msgstr "opțiuni disponibile"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:299
 msgid "No formats found"
 msgstr "Nu s-au găsit formate"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:300
-msgid "Local File"
-msgstr "Fișier local"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:301
-msgid "ETA: "
-msgstr "ETA: "
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:304
-msgid "Select source"
-msgstr "Selectați sursa"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:307
 msgid "Previous"
@@ -766,52 +546,17 @@ msgstr "Redă toate"
 msgid "Download all"
 msgstr "Descarcă toate"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:319
-msgid "Download selected"
-msgstr "Descarcă selectate"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:320
 msgid "Select videos"
 msgstr "Selectați videoclipuri"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:321
-#, python-brace-format
-msgid "{count} selected"
-msgstr "{count} selectate"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:322
-msgid "Back to results"
-msgstr "Înapoi la rezultate"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:323
 msgid "Loading playlist…"
 msgstr "Se încarcă lista de redare…"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:324
-#, python-brace-format
-msgid "Playlist: {title}"
-msgstr "Lista de redare: {title}"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:327
-msgid "Reset Application to Clean State?"
-msgstr "Resetați aplicația la starea inițială?"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:329
-msgid ""
-"This will PERMANENTLY delete all settings, search history, download history,"
-" and converter history. This action cannot be undone."
-msgstr ""
-"Aceasta va șterge PERMANENT toate setările, istoricul căutărilor, istoricul "
-"descărcărilor și istoricul convertorului. Această acțiune nu poate fi "
-"anulată."
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
 msgstr "Toate datele aplicației au fost șterse. Aplicația va reporni acum."
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:332
-msgid "Failed to select folder"
-msgstr "Nu s-a putut selecta folderul"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:333
 msgid "Components updated successfully! ✅"
@@ -846,10 +591,6 @@ msgstr "În coadă"
 msgid "Schedule Download"
 msgstr "Programează descărcarea"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:345
-msgid "Select Date &amp; Time"
-msgstr "Selectați data și ora"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:346
 msgid "Date"
 msgstr "Data"
@@ -866,18 +607,6 @@ msgstr "Ora (HH:MM)"
 msgid "Schedule"
 msgstr "Programează"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:351
-msgid "Link Detected:"
-msgstr "Link detectat:"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:352
-msgid "Link detected! Paste in search to download."
-msgstr "Link detectat! Inserați în căutare pentru a descărca."
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:354
-msgid "Scheduled:"
-msgstr "Programat:"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:357
 msgid "h"
 msgstr "h"
@@ -889,14 +618,6 @@ msgstr "m"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:359
 msgid "s"
 msgstr "s"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:362
-msgid "© 2026 BigTube"
-msgstr "© 2026 BigTube"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:363
-msgid "Help"
-msgstr "Ajutor"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:364
 msgid "About"
@@ -919,11 +640,6 @@ msgstr "Selectează toate / niciunul"
 msgid "Download Selected ({count})"
 msgstr "Descarcă selectate ({count})"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:371
-#, python-brace-format
-msgid "Starting batch download of {count} items..."
-msgstr "Se începe descărcarea în lot a {count} elemente..."
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:374
 msgid "Search Settings"
 msgstr "Setări de căutare"
@@ -944,10 +660,6 @@ msgstr "Sugestii maxime"
 msgid "Clear Search History"
 msgstr "Șterge istoricul căutărilor"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:379
-msgid "Delete Suggestion"
-msgstr "Șterge sugestia"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:380
 msgid "Maximum Search Results"
 msgstr "Rezultate maxime de căutare"
@@ -960,239 +672,45 @@ msgstr "Descărcări simultane maxime"
 msgid "Concurrent Fragments"
 msgstr "Fragmente concurente"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:383
-msgid "Number of parallel fragments per download (1-16)"
-msgstr "Numărul de fragmente paralele per descărcare (1-16)"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:384
 msgid "Download Speed Limit (KB/s)"
 msgstr "Limită de viteză de descărcare (KB/s)"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:385
-msgid "Set to 0 for unlimited"
-msgstr "Setați la 0 pentru nelimitat"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:386
 msgid "System Notifications"
 msgstr "Notificări de sistem"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:387
-msgid "Export History"
-msgstr "Exportă istoricul"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:388
-msgid "Import History"
-msgstr "Importă istoricul"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:389
 msgid "Post-Processing Command"
 msgstr "Comandă de post-procesare"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:390
-msgid "Command to run after download. Use {} for filename."
-msgstr "Comandă de rulat după descărcare. Folosiți {} pentru numele fișierului."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
 msgid "Cookies File"
 msgstr "Fișier de cookie-uri"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:392
-msgid "Path to a cookies.txt file (Netscape format)"
-msgstr "Calea către un fișier cookies.txt (format Netscape)"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:393
 msgid "Cookies From Browser"
 msgstr "Cookie-uri din browser"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:394
-msgid "Browser name or profile for yt-dlp (e.g., firefox)"
-msgstr "Numele browserului sau profilul pentru yt-dlp (de exemplu, firefox)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:395
 msgid "User Agent"
 msgstr "Agent utilizator"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:396
-msgid "Override the User-Agent used by yt-dlp"
-msgstr "Suprascrieți User-Agent folosit de yt-dlp"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:397
 msgid "Proxy"
 msgstr "Proxy"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:398
-msgid ""
-"Proxy URL (e.g., socks5://127.0.0.1:1080 or http://user:pass@host:port)"
-msgstr ""
-"Adresa URL proxy (de exemplu, socks5://127.0.0.1:1080 sau "
-"http://user:pass@host:port)"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:400
-msgid ""
-"Invalid proxy URL. Use scheme://host:port (http, https, socks4, socks5)."
-msgstr ""
-"Adresa URL proxy nevalidă. Utilizați schemă://gazdă:port (http, https, "
-"socks4, socks5)."
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:402
-#, python-brace-format
-msgid "Proxy not reachable: {error}"
-msgstr "Proxy inaccesibil: {error}"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:403
-msgid "Proxy connection successful."
-msgstr "Conexiune proxy reușită."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:404
 msgid "None"
 msgstr "Niciunul"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:405
-msgid "History exported successfully!"
-msgstr "Istoricul a fost exportat cu succes!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:406
-msgid "History imported successfully!"
-msgstr "Istoricul a fost importat cu succes!"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:407
-#, python-brace-format
-msgid "Reset failed: {error}"
-msgstr "Resetarea a eșuat: {error}"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:408
-#, python-brace-format
-msgid "Failed: {error}"
-msgstr "A eșuat: {error}"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:409
-msgid "Invalid history file format"
-msgstr "Format de fișier de istoric nevalid"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:410
-msgid "Error importing history file"
-msgstr "Eroare la importarea fișierului de istoric"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:413
-msgid "Toggle between light, dark, or system theme"
-msgstr "Comutați între tema luminoasă, întunecată sau de sistem"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:414
-msgid "Select a custom accent color for the interface"
-msgstr "Selectați o culoare de accent personalizată pentru interfață"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:415
-msgid "Check for updates to yt-dlp and components"
-msgstr "Verificați actualizările pentru yt-dlp și componente"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:416
-msgid "Directory where downloads will be saved"
-msgstr "Directorul în care vor fi salvate descărcările"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:417
-msgid "Default resolution or format for new downloads"
-msgstr "Rezoluția sau formatul implicit pentru descărcări noi"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:418
-msgid "How many videos can download at the same time"
-msgstr "Câte videoclipuri se pot descărca în același timp"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:419
-msgid "Add artist, album, and covers to downloaded files"
-msgstr "Adaugă artist, album și coperți la fișierele descărcate"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:420
-msgid "Attempt to fetch and embed subtitles if found"
-msgstr "Încearcă să preia și să încorporeze subtitrări dacă sunt găsite"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:421
-msgid "Show system-level alerts for download events"
-msgstr "Afișează alerte la nivel de sistem pentru evenimentele de descărcare"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:422
-msgid "Automatically detect video links in your clipboard"
-msgstr "Detectează automat linkurile video din clipboard"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:423
-msgid "Keep a log of your past downloads locally"
-msgstr "Păstrează local un jurnal al descărcărilor anterioare"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:424
-msgid "Wipe all history and temporary data on exit"
-msgstr "Șterge tot istoricul și datele temporare la ieșire"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:425
-msgid "Save your download history to a file"
-msgstr "Salvează istoricul descărcărilor într-un fișier"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:426
-msgid "Restore history from a backup file"
-msgstr "Restaurează istoricul dintr-un fișier de rezervă"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:427
 msgid "Permanently delete all settings and history"
 msgstr "Șterge definitiv toate setările și istoricul"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:428
-msgid "Keep track of your search queries locally"
-msgstr "Urmărește local interogările de căutare"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:429
-msgid "Maximum number of items in search results"
-msgstr "Numărul maxim de elemente din rezultatele căutării"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:430
-msgid "Show suggestions while typing in search bar"
-msgstr "Afișează sugestii în timp ce tastați în bara de căutare"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:431
-msgid "Number of suggestions to display at once"
-msgstr "Numărul de sugestii afișate simultan"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:432
 msgid "Delete all previous search entries"
 msgstr "Șterge toate intrările de căutare anterioare"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:433
-msgid "Target directory for converted files"
-msgstr "Directorul țintă pentru fișierele convertite"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:434
-msgid "Keep a history of converted media files"
-msgstr "Păstrează un istoric al fișierelor media convertite"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:435
-msgid "Save converted files next to originals"
-msgstr "Salvează fișierele convertite lângă originale"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:438
-#, python-brace-format
-msgid "{count} downloading"
-msgstr "{count} se descarcă"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:439
-#, python-brace-format
-msgid "{count} queued"
-msgstr "{count} în coadă"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:440
-#, python-brace-format
-msgid "{count} paused"
-msgstr "{count} în pauză"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:444
-msgid "BigTube Help"
-msgstr "Ajutor BigTube"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:446
-msgid ""
-"To search for a video, paste a URL or type keywords in the search box.\n"
-"You can also drag and drop local media files onto the Converter tab to change their format.\n"
-"Check Settings to change download quality and themes."
-msgstr ""
-"Pentru a căuta un videoclip, inserați o adresă URL sau introduceți cuvinte cheie în caseta de căutare.\n"
-"De asemenea, puteți trage și plasa fișiere media locale în fila Convertor pentru a le schimba formatul.\n"
-"Verificați Setări pentru a schimba calitatea descărcărilor și temele."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:450
 msgid "Untitled"
@@ -1206,20 +724,6 @@ msgstr "Necunoscut"
 msgid "Best Available Quality"
 msgstr "Cea mai bună calitate disponibilă"
 
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:453
-#, python-brace-format
-msgid "MKV - Best Quality ({resolution}p)"
-msgstr "MKV - Cea mai bună calitate ({resolution}p)"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:454
-msgid "Audio MP3 (Convert)"
-msgstr "Audio MP3 (convertire)"
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:455
-#, python-brace-format
-msgid "Audio {ext} - {kbps}kbps"
-msgstr "Audio {ext} - {kbps}kbps"
-
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:456
 msgid "yt-dlp v"
 msgstr "yt-dlp v"
@@ -1231,10 +735,6 @@ msgstr "FFmpeg nu a fost găsit. Se omit metadatele."
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:458
 msgid "FFmpeg not found. Skipping subtitles."
 msgstr "FFmpeg nu a fost găsit. Se omit subtitrările."
-
-#: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:459
-msgid "OK"
-msgstr "OK"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:460
 msgid "yt-dlp missing"
@@ -1321,10 +821,6 @@ msgid "Update timestamp"
 msgstr "Actualizează marcajul de timp"
 
 #: bigtube-gui
-msgid "Common browsers"
-msgstr "Browsere uzuale"
-
-#: bigtube-gui
 msgid "Known proxies"
 msgstr "Proxy-uri cunoscute"
 
@@ -1337,32 +833,12 @@ msgid "Installed browsers"
 msgstr "Browsere instalate"
 
 #: bigtube-gui
-msgid "Scheduled Downloads"
-msgstr "Descărcări programate"
-
-#: bigtube-gui
-msgid "No Scheduled Downloads"
-msgstr "Nicio descărcare programată"
-
-#: bigtube-gui
-msgid "Schedule a download to see it here"
-msgstr "Programați o descărcare pentru a o vedea aici"
-
-#: bigtube-gui
-msgid "Add Schedule"
-msgstr "Adaugă o programare"
-
-#: bigtube-gui
 msgid "Schedule all"
 msgstr "Programează toate"
 
 #: bigtube-gui
 msgid "Schedule Selected"
 msgstr "Programează selectate"
-
-#: bigtube-gui
-msgid "Paste a video or playlist URL to schedule."
-msgstr "Lipiți un URL de video sau playlist pentru a-l programa."
 
 #: bigtube-gui
 msgid "Continue"
@@ -1375,14 +851,6 @@ msgstr "Programat!"
 #: bigtube-gui
 msgid "Edit"
 msgstr "Editează"
-
-#: bigtube-gui
-msgid "Download as"
-msgstr "Descarcă ca"
-
-#: bigtube-gui
-msgid "Choose whether to download the video or audio only."
-msgstr "Alegeți dacă să descărcați videoclipul sau numai audio."
 
 #: bigtube-gui
 msgid "Repeat"
@@ -1491,10 +959,6 @@ msgstr "Limitează viteza de descărcare (0 = nelimitat)"
 #: bigtube-gui
 msgid "Embed title, artist and other tags in the file"
 msgstr "Încorporează titlul, artistul și alte etichete în fișier"
-
-#: bigtube-gui
-msgid "Download and embed subtitles when available"
-msgstr "Descarcă și încorporează subtitrările când sunt disponibile"
 
 #: bigtube-gui
 msgid "Notify when a download finishes"
@@ -1751,32 +1215,8 @@ msgstr "Elimină la anulare"
 msgid "Automatically remove an item from the list when it is cancelled"
 msgstr "Elimină automat un element din listă când este anulat"
 
-msgid "Rendering Engine"
-msgstr "Motor de randare"
-
 msgid "Automatic"
 msgstr "Automat"
-
-msgid "GPU (OpenGL)"
-msgstr "GPU (OpenGL)"
-
-msgid "GPU (Vulkan)"
-msgstr "GPU (Vulkan)"
-
-msgid "Software (Cairo)"
-msgstr "Software (Cairo)"
-
-msgid "Used to draw the interface — restart to apply"
-msgstr "Folosit pentru a desena interfața — repornește pentru a aplica"
-
-msgid "Restart BigTube to apply the rendering engine"
-msgstr "Repornește BigTube pentru a aplica motorul de randare"
-
-msgid "Restart Required"
-msgstr "Repornire necesară"
-
-msgid "The rendering engine only changes after a restart. Restart BigTube now?"
-msgstr "Motorul de randare se schimbă doar după repornire. Reporniți BigTube acum?"
 
 msgid "Playback unavailable — install the GStreamer gtk4 plugin"
 msgstr "Redare indisponibilă — instalați modulul gtk4 pentru GStreamer"

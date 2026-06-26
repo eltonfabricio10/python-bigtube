@@ -84,7 +84,7 @@ mkdir -p ~/.local/share/locale/pt_BR/LC_MESSAGES
 msgfmt po/pt_BR.po -o ~/.local/share/locale/pt_BR/LC_MESSAGES/bigtube.mo
 ```
 
-O script `scripts/auto_translate.py` (polib + deep-translator) pode auxiliar na geração/atualização das traduções. O empacotamento (`rust/packaging/stage-tree.sh`) compila todos os `.po` para `/usr/share/locale` automaticamente.
+As traduções são feitas à mão. Ao adicionar uma string nova no código (`tr("…")` / `tr_markup("…")`), adicione o `msgid` correspondente a todos os `.po` **e** ao `bigtube.pot`. O script `scripts/sync_i18n.py` mantém os catálogos honestos contra o código Rust: `python3 scripts/sync_i18n.py` lista os `msgid` órfãos (strings renomeadas/removidas), `--prune` os remove de todos os catálogos, e `--check` falha (exit 1) se houver órfãos — útil no CI. O empacotamento (`rust/packaging/stage-tree.sh`) compila todos os `.po` para `/usr/share/locale` automaticamente.
 
 ## CI
 
