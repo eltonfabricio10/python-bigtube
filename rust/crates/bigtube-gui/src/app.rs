@@ -1434,6 +1434,8 @@ fn import_history(state: &Rc<AppState>) {
                                 if let Some(w) = state.window.borrow().clone() {
                                     apply_theme(&w);
                                 }
+                                // Rebuild the visible history lists from the restored files.
+                                reload_history_views(&state);
                                 "Backup imported successfully!"
                             }
                             None => "Invalid backup file",
@@ -1445,6 +1447,23 @@ fn import_history(state: &Rc<AppState>) {
             }
         }
     });
+}
+
+/// Rebuild the download and converter history lists from disk — used after an
+/// import so the restored entries show without a restart. Clears the current
+/// rows first so nothing is duplicated. Scheduled-download timers are left to
+/// re-arm on the next launch (re-arming live would double existing timers).
+fn reload_history_views(state: &Rc<AppState>) {
+    while let Some(c) = state.downloads_box.first_child() {
+        state.downloads_box.remove(&c);
+    }
+    state.download_rows.borrow_mut().clear();
+    load_download_history(state);
+
+    while let Some(c) = state.converter_box.first_child() {
+        state.converter_box.remove(&c);
+    }
+    load_converter_history(state);
 }
 
 fn clear_search_history(state: &Rc<AppState>) {
