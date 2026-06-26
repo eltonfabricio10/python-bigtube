@@ -180,12 +180,14 @@ pub(crate) fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
 
     page.add(&build_appearance_group(state, &c));
     page.add(&build_downloads_group(state, &c));
+    page.add(&build_performance_group(state, &c));
     page.add(&build_postprocessing_group(state, &c));
     page.add(&build_subtitles_group(state, &c));
     page.add(&build_playback_group(state, &c));
     page.add(&build_converter_group(state, &c));
     page.add(&build_search_group(state, &c));
     page.add(&build_network_group(state, &c));
+    page.add(&build_system_group(state, &c));
     page.add(&build_storage_group(state, &c));
 
     page.upcast()
@@ -294,6 +296,13 @@ fn build_appearance_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGrou
     }
     group.add(&color_row);
 
+    group
+}
+
+/// App-level: component updates, notifications, clipboard watching.
+fn build_system_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
+    let group = adw::PreferencesGroup::builder().title(tr("System")).build();
+
     // Current version + yt-dlp update.
     let version_row = adw::ActionRow::builder()
         .title(tr("Current Version"))
@@ -319,6 +328,20 @@ fn build_appearance_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGrou
         &tr("On launch, download missing components and notify if yt-dlp has an update"),
         c.check_updates_on_startup,
         |v| set_cfg("check_updates_on_startup", serde_json::json!(v)),
+    ));
+
+    group.add(&switch_row(
+        &tr("Enable ClipBoard Monitor"),
+        &tr("Detect copied links and offer to download them"),
+        c.monitor_clipboard,
+        |v| set_cfg("monitor_clipboard", serde_json::json!(v)),
+    ));
+
+    group.add(&switch_row(
+        &tr("System Notifications"),
+        &tr("Notify when a download finishes"),
+        c.system_notifications,
+        |v| set_cfg("system_notifications", serde_json::json!(v)),
     ));
 
     group
@@ -361,14 +384,6 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
     });
     group.add(&quality_row);
 
-    group.add(&spin_row(
-        &tr("Max Simultaneous Downloads"),
-        &tr("How many downloads run at the same time"),
-        1.0,
-        10.0,
-        c.max_concurrent as f64,
-        |v| set_cfg("max_concurrent_downloads", serde_json::json!(v as i64)),
-    ));
     group.add(&switch_row(
         &tr("Save Download History"),
         &tr("Keep a record of completed downloads"),
@@ -396,17 +411,40 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         c.remove_on_cancel,
         |v| set_cfg("remove_on_cancel", serde_json::json!(v)),
     ));
-    group.add(&switch_row(
-        &tr("System Notifications"),
-        &tr("Notify when a download finishes"),
-        c.system_notifications,
-        |v| set_cfg("system_notifications", serde_json::json!(v)),
+
+    group
+}
+
+/// Download throughput / rate controls.
+fn build_performance_group(_state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
+    let group = adw::PreferencesGroup::builder()
+        .title(tr("Performance"))
+        .build();
+
+    group.add(&spin_row(
+        &tr("Max Simultaneous Downloads"),
+        &tr("How many downloads run at the same time"),
+        1.0,
+        10.0,
+        c.max_concurrent as f64,
+        |v| set_cfg("max_concurrent_downloads", serde_json::json!(v as i64)),
     ));
-    group.add(&switch_row(
-        &tr("Enable ClipBoard Monitor"),
-        &tr("Detect copied links and offer to download them"),
-        c.monitor_clipboard,
-        |v| set_cfg("monitor_clipboard", serde_json::json!(v)),
+    group.add(&spin_row(
+        &tr("Concurrent Fragments"),
+        &tr("Parallel fragments per download (faster, uses more bandwidth)"),
+        1.0,
+        16.0,
+        c.concurrent_fragments as f64,
+        |v| set_cfg("concurrent_fragments", serde_json::json!(v as i64)),
+    ));
+    group.add(&spin_row_step(
+        &tr("Download Speed Limit (KB/s)"),
+        &tr("Cap the download rate (0 = unlimited)"),
+        0.0,
+        100_000.0,
+        100.0,
+        c.rate_limit as f64,
+        |v| set_cfg("rate_limit", serde_json::json!(v as i64)),
     ));
 
     group
@@ -546,24 +584,6 @@ fn build_network_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
     let group = adw::PreferencesGroup::builder()
         .title(tr_markup("Network & Advanced"))
         .build();
-
-    group.add(&spin_row(
-        &tr("Concurrent Fragments"),
-        &tr("Parallel fragments per download (faster, uses more bandwidth)"),
-        1.0,
-        16.0,
-        c.concurrent_fragments as f64,
-        |v| set_cfg("concurrent_fragments", serde_json::json!(v as i64)),
-    ));
-    group.add(&spin_row_step(
-        &tr("Download Speed Limit (KB/s)"),
-        &tr("Cap the download rate (0 = unlimited)"),
-        0.0,
-        100_000.0,
-        100.0,
-        c.rate_limit as f64,
-        |v| set_cfg("rate_limit", serde_json::json!(v as i64)),
-    ));
 
     // Cookies file.
     let cookies_row = adw::ActionRow::builder()

@@ -1815,3 +1815,7 @@ msgstr "Omite segmentos de patrocinio del vídeo (base de datos de SponsorBlock)
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr "Posprocesamiento"
+
+#: bigtube-gui
+msgid "Performance"
+msgstr "Rendimiento"

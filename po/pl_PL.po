@@ -1817,3 +1817,7 @@ msgstr "Pomija sponsorowane fragmenty w filmie (baza SponsorBlock)"
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr "Przetwarzanie końcowe"
+
+#: bigtube-gui
+msgid "Performance"
+msgstr "Wydajność"

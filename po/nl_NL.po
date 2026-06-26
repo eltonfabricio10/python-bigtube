@@ -1821,3 +1821,7 @@ msgstr "Slaat sponsorsegmenten in de video over (SponsorBlock-database)"
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr "Nabewerking"
+
+#: bigtube-gui
+msgid "Performance"
+msgstr "Prestaties"

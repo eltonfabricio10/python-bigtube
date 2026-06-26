@@ -1818,3 +1818,7 @@ msgstr "Preskočí sponzorské časti vo videu (databáza SponsorBlock)"
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr "Dodatočné spracovanie"
+
+#: bigtube-gui
+msgid "Performance"
+msgstr "Výkon"

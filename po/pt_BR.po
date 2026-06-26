@@ -1816,3 +1816,7 @@ msgstr "Pula trechos de patrocínio no vídeo (base do SponsorBlock)"
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr "Pós-processamento"
+
+#: bigtube-gui
+msgid "Performance"
+msgstr "Desempenho"

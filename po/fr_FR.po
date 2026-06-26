@@ -1820,3 +1820,7 @@ msgstr "Ignore les segments sponsorisés de la vidéo (base SponsorBlock)"
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr "Post-traitement"
+
+#: bigtube-gui
+msgid "Performance"
+msgstr "Performances"

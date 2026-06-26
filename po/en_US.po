@@ -1816,3 +1816,7 @@ msgstr "Skip in-video sponsor segments (SponsorBlock database)"
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr "Post-Processing"
+
+#: bigtube-gui
+msgid "Performance"
+msgstr "Performance"
