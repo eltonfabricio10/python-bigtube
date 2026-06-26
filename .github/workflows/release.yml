@@ -255,6 +255,57 @@ jobs:
           files: bigtube-*.rpm
           fail_on_unmatched_files: true
 
+  build-appimage:
+    name: Build AppImage (portable)
+    needs: [prepare-release, build-and-release]
+    if: ${{ needs.prepare-release.outputs.should_release == 'true' }}
+    runs-on: ubuntu-latest
+    container:
+      # Build on Ubuntu 24.04 (GTK 4.14, libadwaita 1.5, glibc 2.39). The AppImage
+      # bundles GTK4/libadwaita + the GStreamer plugins (incl. the gtk4 sink), so
+      # it runs on any x86_64 system with glibc >= 2.39 regardless of the distro's
+      # GTK version — broader than the .deb/.rpm, which need the distro's GTK.
+      image: ubuntu:24.04
+    env:
+      DEBIAN_FRONTEND: noninteractive
+      PKGVER: ${{ needs.prepare-release.outputs.pkgver }}
+    steps:
+      - name: Install build + bundle tooling
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates curl git build-essential pkg-config gettext \
+            file patchelf desktop-file-utils librsvg2-common \
+            libgtk-4-dev libadwaita-1-dev libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libgtk-4-1 libadwaita-1-0 \
+            gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-bad gstreamer1.0-gtk4 gstreamer1.0-libav
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+            | sh -s -- -y --default-toolchain stable --profile minimal
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.prepare-release.outputs.tag }}
+
+      - name: Compile, stage, and build the AppImage
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          (cd rust && cargo build --release --locked)
+
+          stage="$GITHUB_WORKSPACE/stage"
+          bash rust/packaging/stage-tree.sh "$stage"
+          bash rust/packaging/build-appimage.sh "$stage" "$PKGVER"
+          ls -lh BigTube-*.AppImage
+
+      - name: Attach the AppImage to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare-release.outputs.tag }}
+          files: BigTube-*.AppImage
+          fail_on_unmatched_files: true
+
   deploy-aur:
     name: Deploy to Arch User Repository
     needs: build-and-release
