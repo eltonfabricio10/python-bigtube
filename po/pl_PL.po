@@ -1813,3 +1813,11 @@ msgstr "Usuń segmenty"
 #: bigtube-gui
 msgid "Skip in-video sponsor segments (SponsorBlock database)"
 msgstr "Pomija sponsorowane fragmenty w filmie (baza SponsorBlock)"
+
+#: bigtube-gui
+msgid "Post-Processing"
+msgstr "Przetwarzanie końcowe"
+
+#: bigtube-gui
+msgid "Download List"
+msgstr "Lista pobierań"

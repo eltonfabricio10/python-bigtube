@@ -1814,3 +1814,11 @@ msgstr "Szegmensek eltávolítása"
 #: bigtube-gui
 msgid "Skip in-video sponsor segments (SponsorBlock database)"
 msgstr "Kihagyja a videóban lévő szponzorszakaszokat (SponsorBlock adatbázis)"
+
+#: bigtube-gui
+msgid "Post-Processing"
+msgstr "Utófeldolgozás"
+
+#: bigtube-gui
+msgid "Download List"
+msgstr "Letöltési lista"

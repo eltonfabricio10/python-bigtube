@@ -1812,3 +1812,11 @@ msgstr "Odebrat segmenty"
 #: bigtube-gui
 msgid "Skip in-video sponsor segments (SponsorBlock database)"
 msgstr "Přeskočí sponzorské části ve videu (databáze SponsorBlock)"
+
+#: bigtube-gui
+msgid "Post-Processing"
+msgstr "Následné zpracování"
+
+#: bigtube-gui
+msgid "Download List"
+msgstr "Seznam stahování"

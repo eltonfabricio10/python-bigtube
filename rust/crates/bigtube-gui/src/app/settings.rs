@@ -180,8 +180,10 @@ pub(crate) fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
 
     page.add(&build_appearance_group(state, &c));
     page.add(&build_downloads_group(state, &c));
+    page.add(&build_postprocessing_group(state, &c));
     page.add(&build_subtitles_group(state, &c));
     page.add(&build_playback_group(state, &c));
+    page.add(&build_download_list_group(state, &c));
     page.add(&build_converter_group(state, &c));
     page.add(&build_search_group(state, &c));
     page.add(&build_network_group(state, &c));
@@ -368,38 +370,28 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         c.max_concurrent as f64,
         |v| set_cfg("max_concurrent_downloads", serde_json::json!(v as i64)),
     ));
-    group.add(&spin_row(
-        &tr("Concurrent Fragments"),
-        &tr("Parallel fragments per download (faster, uses more bandwidth)"),
-        1.0,
-        16.0,
-        c.concurrent_fragments as f64,
-        |v| set_cfg("concurrent_fragments", serde_json::json!(v as i64)),
-    ));
-    group.add(&spin_row_step(
-        &tr("Download Speed Limit (KB/s)"),
-        &tr("Cap the download rate (0 = unlimited)"),
-        0.0,
-        100_000.0,
-        100.0,
-        c.rate_limit as f64,
-        |v| set_cfg("rate_limit", serde_json::json!(v as i64)),
+    group.add(&switch_row(
+        &tr("System Notifications"),
+        &tr("Notify when a download finishes"),
+        c.system_notifications,
+        |v| set_cfg("system_notifications", serde_json::json!(v)),
     ));
     group.add(&switch_row(
-        &tr("Save Download History"),
-        &tr("Keep a record of completed downloads"),
-        c.save_history,
-        |v| set_cfg("save_history", serde_json::json!(v)),
+        &tr("Enable ClipBoard Monitor"),
+        &tr("Detect copied links and offer to download them"),
+        c.monitor_clipboard,
+        |v| set_cfg("monitor_clipboard", serde_json::json!(v)),
     ));
-    group.add(&spin_row_step(
-        &tr("Maximum History Entries"),
-        &tr("How many finished downloads to keep in the list"),
-        10.0,
-        1000.0,
-        10.0,
-        c.max_download_history as f64,
-        |v| set_cfg("max_download_history", serde_json::json!(v as i64)),
-    ));
+
+    group
+}
+
+/// Output post-processing applied to finished downloads (all need ffmpeg).
+fn build_postprocessing_group(_state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
+    let group = adw::PreferencesGroup::builder()
+        .title(tr("Post-Processing"))
+        .build();
+
     group.add(&switch_row(
         &tr("Add Metadata to Files"),
         &tr("Embed title, artist and other tags in the file"),
@@ -433,17 +425,29 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
     });
     group.add(&sb_row);
 
+    group
+}
+
+/// Download list / history behavior.
+fn build_download_list_group(_state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
+    let group = adw::PreferencesGroup::builder()
+        .title(tr("Download List"))
+        .build();
+
     group.add(&switch_row(
-        &tr("System Notifications"),
-        &tr("Notify when a download finishes"),
-        c.system_notifications,
-        |v| set_cfg("system_notifications", serde_json::json!(v)),
+        &tr("Save Download History"),
+        &tr("Keep a record of completed downloads"),
+        c.save_history,
+        |v| set_cfg("save_history", serde_json::json!(v)),
     ));
-    group.add(&switch_row(
-        &tr("Enable ClipBoard Monitor"),
-        &tr("Detect copied links and offer to download them"),
-        c.monitor_clipboard,
-        |v| set_cfg("monitor_clipboard", serde_json::json!(v)),
+    group.add(&spin_row_step(
+        &tr("Maximum History Entries"),
+        &tr("How many finished downloads to keep in the list"),
+        10.0,
+        1000.0,
+        10.0,
+        c.max_download_history as f64,
+        |v| set_cfg("max_download_history", serde_json::json!(v as i64)),
     ));
     group.add(&switch_row(
         &tr("Remove When Complete"),
@@ -543,6 +547,24 @@ fn build_network_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
     let group = adw::PreferencesGroup::builder()
         .title(tr_markup("Network & Advanced"))
         .build();
+
+    group.add(&spin_row(
+        &tr("Concurrent Fragments"),
+        &tr("Parallel fragments per download (faster, uses more bandwidth)"),
+        1.0,
+        16.0,
+        c.concurrent_fragments as f64,
+        |v| set_cfg("concurrent_fragments", serde_json::json!(v as i64)),
+    ));
+    group.add(&spin_row_step(
+        &tr("Download Speed Limit (KB/s)"),
+        &tr("Cap the download rate (0 = unlimited)"),
+        0.0,
+        100_000.0,
+        100.0,
+        c.rate_limit as f64,
+        |v| set_cfg("rate_limit", serde_json::json!(v as i64)),
+    ));
 
     // Cookies file.
     let cookies_row = adw::ActionRow::builder()

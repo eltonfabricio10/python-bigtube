@@ -1817,3 +1817,11 @@ msgstr "Elimină segmentele"
 #: bigtube-gui
 msgid "Skip in-video sponsor segments (SponsorBlock database)"
 msgstr "Sare peste segmentele sponsorizate din videoclip (baza de date SponsorBlock)"
+
+#: bigtube-gui
+msgid "Post-Processing"
+msgstr "Post-procesare"
+
+#: bigtube-gui
+msgid "Download List"
+msgstr "Lista de descărcări"
