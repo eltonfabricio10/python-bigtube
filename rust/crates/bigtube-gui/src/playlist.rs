@@ -367,10 +367,7 @@ fn cache_path() -> PathBuf {
 const CACHE_MAX_ENTRIES: usize = 30;
 
 fn load_cache() -> HashMap<String, Vec<SearchResult>> {
-    std::fs::read_to_string(cache_path())
-        .ok()
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+    bigtube_core::json_store::load_json(cache_path(), HashMap::new())
 }
 
 fn cache_get(url: &str) -> Option<Vec<SearchResult>> {
@@ -392,7 +389,6 @@ fn cache_put(url: &str, list: &[SearchResult]) {
             map.remove(&k);
         }
     }
-    if let Ok(json) = serde_json::to_string(&map) {
-        let _ = std::fs::write(cache_path(), json);
-    }
+    // Atomic + locked write through json_store, like every other data file.
+    bigtube_core::json_store::save_json(cache_path(), &map, None);
 }
