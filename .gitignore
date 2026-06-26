@@ -25,3 +25,4 @@ core.*
 # Local env
 .env
 .env.local
+rust/.appimage/

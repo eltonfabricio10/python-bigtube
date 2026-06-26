@@ -37,6 +37,9 @@ raw="https://raw.githubusercontent.com/linuxdeploy"
 fetch "$gh/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage" linuxdeploy
 fetch "$raw/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh" linuxdeploy-plugin-gtk.sh
 fetch "$raw/linuxdeploy-plugin-gstreamer/master/linuxdeploy-plugin-gstreamer.sh" linuxdeploy-plugin-gstreamer.sh
+# appimagetool packages the AppDir in a separate step (we package by hand so the
+# RELR fixup below lands between deploy and packaging).
+fetch "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage" appimagetool
 
 export PATH="$tools:$PATH"
 # Nested AppImages (linuxdeploy, appimagetool) run without FUSE — works in CI.
@@ -49,13 +52,68 @@ export DEPLOY_GTK_VERSION=4
 export NO_STRIP=1
 export OUTPUT="BigTube-${version}-x86_64.AppImage"
 
+# Deploy GTK/GStreamer into the AppDir, but DON'T package yet — we package after
+# the RELR fixup below.
 "$tools/linuxdeploy" \
   --appdir "$appdir" \
   --desktop-file "$appdir/usr/share/applications/${appid}.desktop" \
   --icon-file "$appdir/usr/share/icons/hicolor/512x512/apps/bigtube.png" \
   --plugin gtk \
-  --plugin gstreamer \
-  --output appimage
+  --plugin gstreamer
+
+# ---------------------------------------------------------------------------
+# Undo patchelf's RELR corruption.
+#
+# linuxdeploy runs `patchelf --set-rpath` on every bundled lib/helper to make
+# them find each other. patchelf 0.18 mangles ELF objects that use RELR
+# (relative-relocation) sections — the default on glibc>=2.36 distros (Arch,
+# Ubuntu 23.10+, Fedora 38+). The result segfaults inside ld-linux during
+# relocation, *before* main(), so the AppImage won't even start on those hosts.
+#
+# Fix: restore every RELR object to its pristine system copy (byte-identical to
+# what linuxdeploy bundled, minus the broken rpath) and let an AppRun hook set
+# LD_LIBRARY_PATH so they still find their bundled deps on any host.
+# ---------------------------------------------------------------------------
+echo "restoring RELR objects mangled by patchelf..."
+declare -A SYSLIB
+while IFS= read -r p; do
+  b=$(basename "$p"); [ -n "${SYSLIB[$b]:-}" ] || SYSLIB[$b]="$p"
+done < <(find /usr/lib /usr/lib64 /lib /lib64 -xtype f \
+           \( -name '*.so*' -o -name 'gst-plugin-scanner' -o -name 'gst-ptp-helper' \) 2>/dev/null)
+restored=0
+while IFS= read -r obj; do
+  readelf -d "$obj" 2>/dev/null | grep -q '(RELR)' || continue
+  src="${SYSLIB[$(basename "$obj")]:-}"
+  [ -n "$src" ] || continue            # no system twin (e.g. our own binary) -> leave it
+  cp -f --no-preserve=mode "$(readlink -f "$src")" "$obj" && restored=$((restored+1))
+done < <(find "$appdir/usr/lib" -type f \( -name '*.so*' -o -name 'gst-plugin-scanner' -o -name 'gst-ptp-helper' \))
+echo "  restored $restored objects"
+
+# The LADSPA plugin crashes on load in a bundled context (host LADSPA deps) and
+# BigTube never uses audio-effect plugins, so drop it — keeps the registry scan
+# clean instead of relying on the scanner to blacklist it.
+find "$appdir/usr/lib" -name 'libgstladspa.so' -delete 2>/dev/null || true
+
+# Runtime env so the pristine (rpath-less) libs resolve, and so GStreamer finds
+# its out-of-process scanner (which sandboxes any crashy plugin instead of
+# taking the app down). linuxdeploy's own gstreamer hook points the scanner at
+# the wrong subdir, so we compute the real paths from the AppDir here.
+scanner_rel=$(cd "$appdir" && find usr/lib -type f -name gst-plugin-scanner | head -1)
+plugin_rel=$(cd "$appdir" && dirname "$(find usr/lib -type f -name 'libgstcoreelements.so' | head -1)")
+cat > "$appdir/apprun-hooks/zz-bigtube-fixup.sh" <<EOF
+export LD_LIBRARY_PATH="\$APPDIR/usr/lib:\$APPDIR/usr/lib/x86_64-linux-gnu\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
+export GST_PLUGIN_SCANNER="\$APPDIR/${scanner_rel}"
+export GST_PLUGIN_SCANNER_1_0="\$APPDIR/${scanner_rel}"
+export GST_PLUGIN_SYSTEM_PATH_1_0="\$APPDIR/${plugin_rel}"
+export GST_PLUGIN_PATH_1_0="\$APPDIR/${plugin_rel}"
+EOF
+# Make sure the hook is sourced by AppRun.
+if ! grep -q zz-bigtube-fixup "$appdir/AppRun"; then
+  sed -i 's#\(source "\$this_dir"/apprun-hooks/"linuxdeploy-plugin-gtk.sh"\)#\1\nsource "$this_dir"/apprun-hooks/"zz-bigtube-fixup.sh"#' "$appdir/AppRun"
+fi
+
+# Package the fixed AppDir.
+ARCH=x86_64 "$tools/appimagetool" "$appdir" "$OUTPUT"
 
 echo "built: $OUTPUT"
 ls -lh "$OUTPUT"
