@@ -178,14 +178,16 @@ pub(crate) fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
         }
     };
 
+    // Group order follows the user's journey: interface first, then the
+    // search → watch → download → convert flow, with advanced/system/storage last.
     page.add(&build_appearance_group(state, &c));
+    page.add(&build_search_group(state, &c));
+    page.add(&build_playback_group(state, &c));
     page.add(&build_downloads_group(state, &c));
     page.add(&build_performance_group(state, &c));
     page.add(&build_postprocessing_group(state, &c));
     page.add(&build_subtitles_group(state, &c));
-    page.add(&build_playback_group(state, &c));
     page.add(&build_converter_group(state, &c));
-    page.add(&build_search_group(state, &c));
     page.add(&build_network_group(state, &c));
     page.add(&build_system_group(state, &c));
     page.add(&build_storage_group(state, &c));
