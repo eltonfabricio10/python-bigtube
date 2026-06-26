@@ -212,13 +212,13 @@ bigtube -d <url> --format "bestvideo+bestaudio"  # custom format
 
 Las preferencias se guardan en `~/.config/bigtube/config.json`. Cuando el archivo no existe o está dañado, BigTube vuelve a crear la configuración con los valores predeterminados. Las rutas vacías o las opciones deshabilitadas simplemente hacen que la aplicación recurra al comportamiento predeterminado.
 
-### Apariencia y componentes
+> La página de ajustes está organizada en grupos en este orden: **Apariencia**, **Búsqueda**, **Reproducción**, **Descargas**, **Rendimiento**, **Posprocesamiento**, **Subtítulos**, **Convertidor multimedia**, **Red y avanzado**, **Sistema** y **Almacenamiento**.
+
+### Apariencia
 | Ajuste | Predeterminado | Explicación |
 |---------|---------|-------------|
 | **Tema de la interfaz** | Seguir al sistema | Define si la interfaz usa el tema del sistema, fuerza un tema claro o fuerza un tema oscuro. |
 | **Esquema de color** | Azul predeterminado | Cambia la paleta/color de acento de la interfaz. Opciones: Azul predeterminado, Violeta moderno, Verde esmeralda, Naranja Sunburst, Rosa vibrante, Cian nórdico, Nieve nórdica, Gruvbox Retro, Catppuccin Mocha, Dracula Dark, Tokyo Night, Rosé Pine, Solarized Dark, Monokai Pro, Cyberpunk Neon y Marca BigTube. |
-| **Versión actual / actualizar componentes** | Automático | Muestra la versión local de `yt-dlp` y permite actualizar los componentes descargados por la aplicación, como `yt-dlp` y `deno`, en `~/.local/share/bigtube/bin/`. |
-| **Buscar actualizaciones al iniciar** | Habilitado | Busca componentes `yt-dlp`/`deno` más recientes al iniciar la aplicación. |
 
 ### Búsqueda
 | Ajuste | Predeterminado | Explicación |
@@ -229,22 +229,20 @@ Las preferencias se guardan en `~/.config/bigtube/config.json`. Cuando el archiv
 | **Borrar historial de búsquedas** | Acción manual | Elimina todas las entradas guardadas del historial de búsquedas. No borra los archivos descargados. |
 | **Máximo de resultados de búsqueda** | 15 | Define cuántos resultados solicita BigTube a `yt-dlp` para las búsquedas de texto. Acepta valores de 5 a 100. |
 
+### Reproducción
+| Ajuste | Predeterminado | Explicación |
+|---------|---------|-------------|
+| **Calidad de vista previa** | 360p | Calidad usada por el reproductor de la aplicación al previsualizar antes de descargar: `144p`, `240p`, `360p` (progresivo), `480p` o `720p` (streaming HLS). |
+
 ### Descargas
 | Ajuste | Predeterminado | Explicación |
 |---------|---------|-------------|
-| **Descargas simultáneas** | 3 | Controla cuántos videos se pueden descargar al mismo tiempo. Acepta valores de 1 a 10. |
 | **Carpeta de descargas** | `~/Downloads/BigTube/` | Define dónde se guardan los archivos descargados. La aplicación crea la carpeta cuando es necesario. |
-| **Monitor del portapapeles** | Deshabilitado | Detecta automáticamente los enlaces de video copiados al portapapeles mientras la aplicación está abierta. |
-| **Notificaciones del sistema** | Habilitado | Controla las notificaciones del sistema para los eventos y errores de descarga. |
 | **Calidad preferida** | Preguntar siempre | Define el formato predeterminado para las nuevas descargas. Puede preguntar en cada descarga, descargar el mejor video, elegir 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p, o descargar solo el audio como MP3, M4A, Opus, FLAC, WAV o AAC. |
-| **Agregar metadatos** | Deshabilitado | Intenta incrustar el artista, el álbum, la portada y otros metadatos en los archivos descargados. Requiere `ffmpeg`; si no está instalado, la aplicación omite este paso. |
-| **SponsorBlock** | Deshabilitado | Omite segmentos de patrocinio dentro del video usando la base de datos de SponsorBlock. "Marcar capítulos" añade marcadores (no destructivo); "Eliminar segmentos" los corta del archivo. Requiere `ffmpeg`. |
-| **Fragmentos concurrentes** | 16 | Define cuántos fragmentos paralelos usa `yt-dlp` por descarga. Acepta valores de 1 a 16. Los valores más altos pueden acelerar las descargas segmentadas, pero también aumentan el uso de la red. |
-| **Límite de velocidad** | 0 KB/s | Limita la velocidad de descarga en KB/s. `0` significa sin límite. Acepta valores de 0 a 100000. |
-| **Eliminar al completar** | Deshabilitado | Elimina automáticamente las descargas finalizadas de la lista. |
-| **Eliminar al cancelar** | Deshabilitado | Elimina automáticamente las descargas canceladas de la lista. |
 | **Guardar historial de descargas** | Habilitado | Mantiene un registro local de las descargas en `history.json`, usado por la vista de historial/lista. |
 | **Máximo de entradas del historial** | 100 | Cuántas entradas de descargas se conservan en la lista. Acepta valores de 10 a 1000. |
+| **Eliminar al completar** | Deshabilitado | Elimina automáticamente las descargas finalizadas de la lista. |
+| **Eliminar al cancelar** | Deshabilitado | Elimina automáticamente las descargas canceladas de la lista. |
 
 #### Opciones de calidad
 | Opción | Explicación |
@@ -256,26 +254,26 @@ Las preferencias se guardan en `~/.config/bigtube/config.json`. Cuando el archiv
 | **Audio (M4A)** | Descarga solo el audio, priorizando el códec/contenedor M4A. |
 | **Audio (Opus / FLAC / WAV / AAC)** | Extrae solo el audio y lo convierte al formato elegido con la máxima calidad. |
 
+### Rendimiento
+| Ajuste | Predeterminado | Explicación |
+|---------|---------|-------------|
+| **Descargas simultáneas máximas** | 3 | Controla cuántos videos se pueden descargar al mismo tiempo. Acepta valores de 1 a 10. |
+| **Fragmentos concurrentes** | 16 | Define cuántos fragmentos paralelos usa `yt-dlp` por descarga. Acepta valores de 1 a 16. Los valores más altos pueden acelerar las descargas segmentadas, pero también aumentan el uso de la red. |
+| **Límite de velocidad de descarga** | 0 KB/s | Limita la velocidad de descarga en KB/s. `0` significa sin límite. Acepta valores de 0 a 100000. |
+
+### Posprocesamiento
+| Ajuste | Predeterminado | Explicación |
+|---------|---------|-------------|
+| **Agregar metadatos** | Deshabilitado | Intenta incrustar el artista, el álbum, la portada y otros metadatos en los archivos descargados. Requiere `ffmpeg`; si no está instalado, la aplicación omite este paso. |
+| **SponsorBlock** | Deshabilitado | Omite segmentos de patrocinio dentro del video usando la base de datos de SponsorBlock. "Marcar capítulos" añade marcadores (no destructivo); "Eliminar segmentos" los corta del archivo. Requiere `ffmpeg`. |
+| **Comando de posprocesamiento** | Vacío | Ejecuta un comando después de la descarga usando `yt-dlp --exec`. Usa `{}` en el comando para representar el archivo descargado. |
+
 ### Subtítulos
 | Ajuste | Predeterminado | Explicación |
 |---------|---------|-------------|
 | **Subtítulos** | Desactivado | Manejo de subtítulos para las descargas: `Off`, `Embed` (incrustar) en el archivo, guardar como `File` (sidecar) separado, o `Both` (ambos). La incrustación requiere `ffmpeg`. |
 | **Idiomas** | `en,pt,es` | Lista separada por comas de códigos de idioma de subtítulos a obtener (p. ej. `en,pt,es`). |
 | **Incluir autogenerados** | Habilitado | Obtiene también los subtítulos generados automáticamente (por máquina), no solo los manuales. |
-
-### Reproducción
-| Ajuste | Predeterminado | Explicación |
-|---------|---------|-------------|
-| **Calidad de vista previa** | 360p | Calidad usada por el reproductor de la aplicación al previsualizar antes de descargar: `144p`, `240p`, `360p` (progresivo), `480p` o `720p` (streaming HLS). |
-
-### Red y avanzado
-| Ajuste | Predeterminado | Explicación |
-|---------|---------|-------------|
-| **Archivo de cookies** | Vacío | Usa un archivo `cookies.txt` en formato Netscape con `yt-dlp --cookies`, útil para contenido que requiere una sesión autenticada. |
-| **Cookies del navegador** | Ninguno | Importa cookies directamente de un navegador detectado, como Firefox, Chrome, Chromium, Brave, Microsoft Edge, Vivaldi u Opera, usando `yt-dlp --cookies-from-browser`. |
-| **User-Agent** | Predeterminado de BigTube | Reemplaza el User-Agent enviado a `yt-dlp`. Si se deja vacío, la aplicación usa un User-Agent seguro basado en Chrome. Incluye preajustes para los navegadores detectados. |
-| **Proxy** | Vacío | Enruta las búsquedas, los metadatos, el reproductor y las descargas a través del proxy indicado. Acepta URLs `http`, `https`, `socks4`, `socks4a`, `socks5` y `socks5h`, p. ej. `socks5://127.0.0.1:1080`. |
-| **Comando de posprocesamiento** | Vacío | Ejecuta un comando después de la descarga usando `yt-dlp --exec`. Usa `{}` en el comando para representar el archivo descargado. |
 
 ### Convertidor multimedia
 | Ajuste | Predeterminado | Explicación |
@@ -286,6 +284,22 @@ Las preferencias se guardan en `~/.config/bigtube/config.json`. Cuando el archiv
 | **Eliminar al completar** | Deshabilitado | Elimina automáticamente las conversiones finalizadas de la lista. |
 | **Eliminar al cancelar** | Deshabilitado | Elimina automáticamente las conversiones canceladas de la lista. |
 | **Máximo de entradas del historial** | 50 | Cuántas entradas de conversiones se conservan en la lista. Acepta valores de 10 a 500. |
+
+### Red y avanzado
+| Ajuste | Predeterminado | Explicación |
+|---------|---------|-------------|
+| **Archivo de cookies** | Vacío | Usa un archivo `cookies.txt` en formato Netscape con `yt-dlp --cookies`, útil para contenido que requiere una sesión autenticada. |
+| **Cookies del navegador** | Ninguno | Importa cookies directamente de un navegador detectado, como Firefox, Chrome, Chromium, Brave, Microsoft Edge, Vivaldi u Opera, usando `yt-dlp --cookies-from-browser`. |
+| **User-Agent** | Predeterminado de BigTube | Reemplaza el User-Agent enviado a `yt-dlp`. Si se deja vacío, la aplicación usa un User-Agent seguro basado en Chrome. Incluye preajustes para los navegadores detectados. |
+| **Proxy** | Vacío | Enruta las búsquedas, los metadatos, el reproductor y las descargas a través del proxy indicado. Acepta URLs `http`, `https`, `socks4`, `socks4a`, `socks5` y `socks5h`, p. ej. `socks5://127.0.0.1:1080`. |
+
+### Sistema
+| Ajuste | Predeterminado | Explicación |
+|---------|---------|-------------|
+| **Versión actual / actualizar componentes** | Automático | Muestra la versión local de `yt-dlp` y permite actualizar los componentes descargados por la aplicación, como `yt-dlp` y `deno`, en `~/.local/share/bigtube/bin/`. |
+| **Buscar actualizaciones al iniciar** | Habilitado | Busca componentes `yt-dlp`/`deno` más recientes al iniciar la aplicación. |
+| **Monitor del portapapeles** | Deshabilitado | Detecta automáticamente los enlaces de video copiados al portapapeles mientras la aplicación está abierta. |
+| **Notificaciones del sistema** | Habilitado | Controla las notificaciones del sistema para los eventos y errores de descarga. |
 
 ### Almacenamiento y privacidad
 | Ajuste | Predeterminado | Explicación |

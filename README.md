@@ -212,13 +212,13 @@ bigtube -d <url> --format "bestvideo+bestaudio"  # custom format
 
 Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't exist or is corrupted, BigTube recreates the configuration with default values. Empty paths or disabled options simply make the app fall back to default behavior.
 
-### Appearance and components
+> The settings page is organized into groups in this order: **Appearance**, **Search**, **Playback**, **Downloads**, **Performance**, **Post-Processing**, **Subtitles**, **Media converter**, **Network & advanced**, **System** and **Storage**.
+
+### Appearance
 | Setting | Default | Explanation |
 |---------|---------|-------------|
 | **Interface theme** | Follow system | Defines whether the interface uses the system theme, forces a light theme, or forces a dark theme. |
 | **Color scheme** | Default Blue | Changes the visual palette/accent of the interface. Options: Default Blue, Modern Violet, Emerald Green, Sunburst Orange, Vibrant Rose, Nordic Cyan, Nordic Snow, Gruvbox Retro, Catppuccin Mocha, Dracula Dark, Tokyo Night, Rosé Pine, Solarized Dark, Monokai Pro, Cyberpunk Neon, and BigTube Brand. |
-| **Current version / update components** | Automatic | Shows the local `yt-dlp` version and lets you update the components downloaded by the app, such as `yt-dlp` and `deno`, in `~/.local/share/bigtube/bin/`. |
-| **Check for updates on startup** | Enabled | Checks for newer `yt-dlp`/`deno` components when the app starts. |
 
 ### Search
 | Setting | Default | Explanation |
@@ -229,22 +229,20 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | **Clear search history** | Manual action | Removes all saved search history entries. Does not delete downloaded files. |
 | **Maximum search results** | 15 | Defines how many results BigTube requests from `yt-dlp` for text searches. Accepts values from 5 to 100. |
 
+### Playback
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Preview quality** | 360p | Quality used by the in-app player when previewing before download: `144p`, `240p`, `360p` (progressive), `480p`, or `720p` (HLS streaming). |
+
 ### Downloads
 | Setting | Default | Explanation |
 |---------|---------|-------------|
-| **Simultaneous downloads** | 3 | Controls how many videos can download at the same time. Accepts values from 1 to 10. |
 | **Download folder** | `~/Downloads/BigTube/` | Defines where downloaded files are saved. The app creates the folder when needed. |
-| **Clipboard monitor** | Disabled | Automatically detects video links copied to the clipboard while the app is open. |
-| **System notifications** | Enabled | Controls system notifications for download events and errors. |
 | **Preferred quality** | Ask every time | Defines the default format for new downloads. It can ask on each download, download the best video, choose 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p, or download audio only as MP3, M4A, Opus, FLAC, WAV, or AAC. |
-| **Add metadata** | Disabled | Tries to embed artist, album, cover, and other metadata into downloaded files. Requires `ffmpeg`; if it isn't installed, the app skips this step. |
-| **SponsorBlock** | Off | Skips in-video sponsor segments using the SponsorBlock database. `Mark chapters` adds chapter markers (non-destructive); `Remove segments` cuts them out. Requires `ffmpeg`. |
-| **Concurrent fragments** | 16 | Defines how many parallel fragments `yt-dlp` uses per download. Accepts values from 1 to 16. Higher values can speed up segmented downloads but also increase network usage. |
-| **Speed limit** | 0 KB/s | Limits download speed in KB/s. `0` means no limit. Accepts values from 0 to 100000. |
-| **Remove when complete** | Disabled | Automatically removes finished downloads from the list. |
-| **Remove when cancelled** | Disabled | Automatically removes cancelled downloads from the list. |
 | **Save download history** | Enabled | Keeps a local record of downloads in `history.json`, used by the history/list view. |
 | **Maximum history entries** | 100 | How many download entries to keep in the list. Accepts values from 10 to 1000. |
+| **Remove when complete** | Disabled | Automatically removes finished downloads from the list. |
+| **Remove when cancelled** | Disabled | Automatically removes cancelled downloads from the list. |
 
 #### Quality options
 | Option | Explanation |
@@ -256,26 +254,26 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | **Audio (M4A)** | Downloads audio only, prioritizing the M4A codec/container. |
 | **Audio (Opus / FLAC / WAV / AAC)** | Extracts audio only and converts it to the chosen format at the highest quality. |
 
+### Performance
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Max simultaneous downloads** | 3 | Controls how many videos can download at the same time. Accepts values from 1 to 10. |
+| **Concurrent fragments** | 16 | Defines how many parallel fragments `yt-dlp` uses per download. Accepts values from 1 to 16. Higher values can speed up segmented downloads but also increase network usage. |
+| **Download speed limit** | 0 KB/s | Limits download speed in KB/s. `0` means no limit. Accepts values from 0 to 100000. |
+
+### Post-Processing
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Add metadata** | Disabled | Tries to embed artist, album, cover, and other metadata into downloaded files. Requires `ffmpeg`; if it isn't installed, the app skips this step. |
+| **SponsorBlock** | Off | Skips in-video sponsor segments using the SponsorBlock database. `Mark chapters` adds chapter markers (non-destructive); `Remove segments` cuts them out. Requires `ffmpeg`. |
+| **Post-processing command** | Empty | Runs a command after the download using `yt-dlp --exec`. Use `{}` in the command to represent the downloaded file. |
+
 ### Subtitles
 | Setting | Default | Explanation |
 |---------|---------|-------------|
 | **Subtitles** | Off | Subtitle handling for downloads: `Off`, `Embed` into the file, save as a separate `File` (sidecar), or `Both`. Embedding requires `ffmpeg`. |
 | **Languages** | `en,pt,es` | Comma-separated list of subtitle language codes to fetch (e.g. `en,pt,es`). |
 | **Include auto-generated** | Enabled | Also fetches machine-generated (automatic) captions, not just manual ones. |
-
-### Playback
-| Setting | Default | Explanation |
-|---------|---------|-------------|
-| **Preview quality** | 360p | Quality used by the in-app player when previewing before download: `144p`, `240p`, `360p` (progressive), `480p`, or `720p` (HLS streaming). |
-
-### Network and advanced
-| Setting | Default | Explanation |
-|---------|---------|-------------|
-| **Cookies file** | Empty | Uses a Netscape-format `cookies.txt` file with `yt-dlp --cookies`, useful for content that requires an authenticated session. |
-| **Browser cookies** | None | Imports cookies directly from a detected browser, such as Firefox, Chrome, Chromium, Brave, Microsoft Edge, Vivaldi, or Opera, using `yt-dlp --cookies-from-browser`. |
-| **User-Agent** | BigTube default | Overrides the User-Agent sent to `yt-dlp`. If left empty, the app uses a safe Chrome-based User-Agent. Includes presets for detected browsers. |
-| **Proxy** | Empty | Routes searches, metadata, player, and downloads through the given proxy. Accepts `http`, `https`, `socks4`, `socks4a`, `socks5`, and `socks5h` URLs, e.g. `socks5://127.0.0.1:1080`. |
-| **Post-processing command** | Empty | Runs a command after the download using `yt-dlp --exec`. Use `{}` in the command to represent the downloaded file. |
 
 ### Media converter
 | Setting | Default | Explanation |
@@ -286,6 +284,22 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | **Remove when complete** | Disabled | Automatically removes finished conversions from the list. |
 | **Remove when cancelled** | Disabled | Automatically removes cancelled conversions from the list. |
 | **Maximum history entries** | 50 | How many conversion entries to keep in the list. Accepts values from 10 to 500. |
+
+### Network and advanced
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Cookies file** | Empty | Uses a Netscape-format `cookies.txt` file with `yt-dlp --cookies`, useful for content that requires an authenticated session. |
+| **Browser cookies** | None | Imports cookies directly from a detected browser, such as Firefox, Chrome, Chromium, Brave, Microsoft Edge, Vivaldi, or Opera, using `yt-dlp --cookies-from-browser`. |
+| **User-Agent** | BigTube default | Overrides the User-Agent sent to `yt-dlp`. If left empty, the app uses a safe Chrome-based User-Agent. Includes presets for detected browsers. |
+| **Proxy** | Empty | Routes searches, metadata, player, and downloads through the given proxy. Accepts `http`, `https`, `socks4`, `socks4a`, `socks5`, and `socks5h` URLs, e.g. `socks5://127.0.0.1:1080`. |
+
+### System
+| Setting | Default | Explanation |
+|---------|---------|-------------|
+| **Current version / update components** | Automatic | Shows the local `yt-dlp` version and lets you update the components downloaded by the app, such as `yt-dlp` and `deno`, in `~/.local/share/bigtube/bin/`. |
+| **Check for updates on startup** | Enabled | Checks for newer `yt-dlp`/`deno` components when the app starts. |
+| **Clipboard monitor** | Disabled | Automatically detects video links copied to the clipboard while the app is open. |
+| **System notifications** | Enabled | Controls system notifications for download events and errors. |
 
 ### Storage and privacy
 | Setting | Default | Explanation |
