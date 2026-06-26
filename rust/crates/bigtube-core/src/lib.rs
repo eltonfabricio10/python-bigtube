@@ -4,6 +4,7 @@
 //! `src/bigtube/core/` package so it can be tested headlessly and reused by the
 //! GTK4 front-end. See `PORTING_RUST.md` (Fase 1) for the migration plan.
 
+pub mod backup;
 pub mod config;
 pub mod converter;
 pub mod converter_history;

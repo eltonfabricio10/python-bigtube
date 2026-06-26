@@ -1822,3 +1822,39 @@ msgstr "Utófeldolgozás"
 #: bigtube-gui
 msgid "Performance"
 msgstr "Teljesítmény"
+
+#: bigtube-gui
+msgid "Export Backup"
+msgstr "Biztonsági mentés exportálása"
+
+#: bigtube-gui
+msgid "Import Backup"
+msgstr "Biztonsági mentés importálása"
+
+#: bigtube-gui
+msgid "Save all settings and history to a file"
+msgstr "Minden beállítás és előzmény mentése fájlba"
+
+#: bigtube-gui
+msgid "Restore all settings and history from a backup file"
+msgstr "Minden beállítás és előzmény visszaállítása biztonsági mentésből"
+
+#: bigtube-gui
+msgid "Backup exported successfully!"
+msgstr "A biztonsági mentés sikeresen exportálva!"
+
+#: bigtube-gui
+msgid "Failed to export backup"
+msgstr "A biztonsági mentés exportálása sikertelen"
+
+#: bigtube-gui
+msgid "Backup imported successfully!"
+msgstr "A biztonsági mentés sikeresen importálva!"
+
+#: bigtube-gui
+msgid "Invalid backup file"
+msgstr "Érvénytelen biztonsági mentés fájl"
+
+#: bigtube-gui
+msgid "Error reading backup file"
+msgstr "Hiba a biztonsági mentés fájl olvasásakor"

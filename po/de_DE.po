@@ -1823,3 +1823,39 @@ msgstr "Nachbearbeitung"
 #: bigtube-gui
 msgid "Performance"
 msgstr "Leistung"
+
+#: bigtube-gui
+msgid "Export Backup"
+msgstr "Backup exportieren"
+
+#: bigtube-gui
+msgid "Import Backup"
+msgstr "Backup importieren"
+
+#: bigtube-gui
+msgid "Save all settings and history to a file"
+msgstr "Alle Einstellungen und den Verlauf in eine Datei speichern"
+
+#: bigtube-gui
+msgid "Restore all settings and history from a backup file"
+msgstr "Alle Einstellungen und den Verlauf aus einer Backup-Datei wiederherstellen"
+
+#: bigtube-gui
+msgid "Backup exported successfully!"
+msgstr "Backup erfolgreich exportiert!"
+
+#: bigtube-gui
+msgid "Failed to export backup"
+msgstr "Backup-Export fehlgeschlagen"
+
+#: bigtube-gui
+msgid "Backup imported successfully!"
+msgstr "Backup erfolgreich importiert!"
+
+#: bigtube-gui
+msgid "Invalid backup file"
+msgstr "Ungültige Backup-Datei"
+
+#: bigtube-gui
+msgid "Error reading backup file"
+msgstr "Fehler beim Lesen der Backup-Datei"

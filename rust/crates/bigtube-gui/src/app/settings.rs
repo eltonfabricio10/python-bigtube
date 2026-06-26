@@ -796,8 +796,8 @@ fn build_storage_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
     {
         let state = state.clone();
         group.add(&button_row(
-            &tr("Export History"),
-            &tr("Save your download history to a file"),
+            &tr("Export Backup"),
+            &tr("Save all settings and history to a file"),
             "bigtube-document-export-symbolic",
             false,
             move || export_history(&state),
@@ -807,8 +807,8 @@ fn build_storage_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
     {
         let state = state.clone();
         group.add(&button_row(
-            &tr("Import History"),
-            &tr("Restore history from a backup file"),
+            &tr("Import Backup"),
+            &tr("Restore all settings and history from a backup file"),
             "bigtube-document-import-symbolic",
             false,
             move || import_history(&state),

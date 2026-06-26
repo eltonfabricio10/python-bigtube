@@ -1372,39 +1372,46 @@ fn run_update(state: &Rc<AppState>, row: &adw::ActionRow, btn: gtk::Button) {
     });
 }
 
+/// Export a full backup: config + every history and the playlist cache, bundled
+/// into one JSON file the user picks.
 fn export_history(state: &Rc<AppState>) {
     let Some(window) = state.window.borrow().clone() else {
         return;
     };
+    // Flush any debounced config write so the bundle captures the latest values.
+    config_saver().flush();
     let dialog = gtk::FileDialog::builder()
-        .title(tr("Export History"))
-        .initial_name("bigtube_history.json")
+        .title(tr("Export Backup"))
+        .initial_name("bigtube_backup.json")
         .build();
     let state = state.clone();
     dialog.save(Some(&window), gtk::gio::Cancellable::NONE, move |res| {
         if let Ok(file) = res {
             if let Some(path) = file.path() {
-                let items = bigtube_core::history::HistoryManager::new(history_path()).load();
-                let ok = serde_json::to_string_pretty(&items)
+                let bundle = bigtube_core::backup::build_backup(&bigtube_core::paths::config_dir());
+                let ok = serde_json::to_string_pretty(&bundle)
                     .ok()
                     .and_then(|s| std::fs::write(&path, s).ok())
                     .is_some();
                 state.toast(&tr(if ok {
-                    "History exported successfully!"
+                    "Backup exported successfully!"
                 } else {
-                    "Failed to select folder"
+                    "Failed to export backup"
                 }));
             }
         }
     });
 }
 
+/// Import a full backup: restore every file to disk, then reload the config and
+/// re-apply the theme live. (History/converter lists are read on the next visit
+/// or restart.)
 fn import_history(state: &Rc<AppState>) {
     let Some(window) = state.window.borrow().clone() else {
         return;
     };
     let dialog = gtk::FileDialog::builder()
-        .title(tr("Import History"))
+        .title(tr("Import Backup"))
         .build();
     let state = state.clone();
     dialog.open(Some(&window), gtk::gio::Cancellable::NONE, move |res| {
@@ -1414,13 +1421,25 @@ fn import_history(state: &Rc<AppState>) {
                     .ok()
                     .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
                 {
-                    Some(serde_json::Value::Array(items)) => {
-                        bigtube_core::history::HistoryManager::new(history_path())
-                            .save_immediate(items);
-                        "History imported successfully!"
+                    Some(bundle) => {
+                        match bigtube_core::backup::restore_backup(
+                            &bigtube_core::paths::config_dir(),
+                            &bundle,
+                        ) {
+                            Some(_) => {
+                                // Reload config from the restored file and re-theme.
+                                if let Ok(mut c) = config::global().write() {
+                                    c.load();
+                                }
+                                if let Some(w) = state.window.borrow().clone() {
+                                    apply_theme(&w);
+                                }
+                                "Backup imported successfully!"
+                            }
+                            None => "Invalid backup file",
+                        }
                     }
-                    Some(_) => "Invalid history file format",
-                    None => "Error importing history file",
+                    None => "Error reading backup file",
                 };
                 state.toast(&tr(msg));
             }

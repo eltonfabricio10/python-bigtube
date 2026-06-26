@@ -1822,3 +1822,39 @@ msgstr "Dodatočné spracovanie"
 #: bigtube-gui
 msgid "Performance"
 msgstr "Výkon"
+
+#: bigtube-gui
+msgid "Export Backup"
+msgstr "Exportovať zálohu"
+
+#: bigtube-gui
+msgid "Import Backup"
+msgstr "Importovať zálohu"
+
+#: bigtube-gui
+msgid "Save all settings and history to a file"
+msgstr "Uložiť všetky nastavenia a históriu do súboru"
+
+#: bigtube-gui
+msgid "Restore all settings and history from a backup file"
+msgstr "Obnoviť všetky nastavenia a históriu zo zálohy"
+
+#: bigtube-gui
+msgid "Backup exported successfully!"
+msgstr "Záloha úspešne exportovaná!"
+
+#: bigtube-gui
+msgid "Failed to export backup"
+msgstr "Export zálohy zlyhal"
+
+#: bigtube-gui
+msgid "Backup imported successfully!"
+msgstr "Záloha úspešne importovaná!"
+
+#: bigtube-gui
+msgid "Invalid backup file"
+msgstr "Neplatný súbor zálohy"
+
+#: bigtube-gui
+msgid "Error reading backup file"
+msgstr "Chyba pri čítaní súboru zálohy"

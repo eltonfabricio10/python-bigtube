@@ -1821,3 +1821,39 @@ msgstr "Przetwarzanie końcowe"
 #: bigtube-gui
 msgid "Performance"
 msgstr "Wydajność"
+
+#: bigtube-gui
+msgid "Export Backup"
+msgstr "Eksportuj kopię zapasową"
+
+#: bigtube-gui
+msgid "Import Backup"
+msgstr "Importuj kopię zapasową"
+
+#: bigtube-gui
+msgid "Save all settings and history to a file"
+msgstr "Zapisz wszystkie ustawienia i historię do pliku"
+
+#: bigtube-gui
+msgid "Restore all settings and history from a backup file"
+msgstr "Przywróć wszystkie ustawienia i historię z pliku kopii zapasowej"
+
+#: bigtube-gui
+msgid "Backup exported successfully!"
+msgstr "Pomyślnie wyeksportowano kopię zapasową!"
+
+#: bigtube-gui
+msgid "Failed to export backup"
+msgstr "Nie udało się wyeksportować kopii zapasowej"
+
+#: bigtube-gui
+msgid "Backup imported successfully!"
+msgstr "Pomyślnie zaimportowano kopię zapasową!"
+
+#: bigtube-gui
+msgid "Invalid backup file"
+msgstr "Nieprawidłowy plik kopii zapasowej"
+
+#: bigtube-gui
+msgid "Error reading backup file"
+msgstr "Błąd odczytu pliku kopii zapasowej"
