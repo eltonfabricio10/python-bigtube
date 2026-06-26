@@ -54,6 +54,7 @@
 | **Metadata** | Automatic embedding of tags, album, and artist |
 | **Subtitles** | Embed and/or save as sidecar files, manual + auto-generated, per-language selection |
 | **Scheduling** | Queue downloads to run later, one-off or on a recurring schedule |
+| **SponsorBlock** | Skip in-video sponsor segments — mark them as chapters or cut them out (uses the [SponsorBlock](https://sponsor.ajay.app/) database) |
 | **Concurrency** | Multiple simultaneous downloads with configurable parallel fragments |
 | **Resume** | Continue interrupted downloads |
 
@@ -237,6 +238,7 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | **System notifications** | Enabled | Controls system notifications for download events and errors. |
 | **Preferred quality** | Ask every time | Defines the default format for new downloads. It can ask on each download, download the best video, choose 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p, or download audio only as MP3, M4A, Opus, FLAC, WAV, or AAC. |
 | **Add metadata** | Disabled | Tries to embed artist, album, cover, and other metadata into downloaded files. Requires `ffmpeg`; if it isn't installed, the app skips this step. |
+| **SponsorBlock** | Off | Skips in-video sponsor segments using the SponsorBlock database. `Mark chapters` adds chapter markers (non-destructive); `Remove segments` cuts them out. Requires `ffmpeg`. |
 | **Concurrent fragments** | 16 | Defines how many parallel fragments `yt-dlp` uses per download. Accepts values from 1 to 16. Higher values can speed up segmented downloads but also increase network usage. |
 | **Speed limit** | 0 KB/s | Limits download speed in KB/s. `0` means no limit. Accepts values from 0 to 100000. |
 | **Remove when complete** | Disabled | Automatically removes finished downloads from the list. |
@@ -326,6 +328,8 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | `cookies_browser` | `""` | Browser cookies |
 | `user_agent` | `""` | Custom User-Agent |
 | `proxy` | `""` | Proxy |
+| `sponsorblock_mode` | `off` | SponsorBlock: `off`, `mark`, `remove` |
+| `sponsorblock_cats` | `sponsor,selfpromo,interaction` | SponsorBlock categories to act on |
 | `preview_quality` | `360p` | In-app player preview quality |
 | `remove_on_complete` | `false` | Remove finished downloads from the list |
 | `remove_on_cancel` | `false` | Remove cancelled downloads from the list |

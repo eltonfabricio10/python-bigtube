@@ -410,6 +410,11 @@ pub fn build_download_args(
         cfg.get_bool("subtitle_auto"),
         has_ffmpeg,
     ));
+    cmd.extend(sponsorblock_args(
+        &cfg.get_string("sponsorblock_mode"),
+        &cfg.get_string("sponsorblock_cats"),
+        has_ffmpeg,
+    ));
     if params.force_overwrite {
         cmd.push("--force-overwrites".into());
     }
@@ -504,6 +509,49 @@ fn subtitle_args(mode: &str, langs: &str, auto: bool, has_ffmpeg: bool) -> Vec<S
         out.push("--embed-subs".to_string());
     }
     out
+}
+
+/// SponsorBlock categories yt-dlp understands. The configured list is filtered
+/// against this allowlist so a malformed config can't inject arbitrary args.
+const SPONSORBLOCK_CATS: &[&str] = &[
+    "sponsor",
+    "selfpromo",
+    "interaction",
+    "intro",
+    "outro",
+    "preview",
+    "filler",
+    "music_offtopic",
+    "poi_highlight",
+];
+
+/// Keep only known categories; fall back to a sensible default if none remain.
+fn sanitize_sponsorblock_cats(cats: &str) -> String {
+    let picked: Vec<&str> = cats
+        .split(',')
+        .map(str::trim)
+        .filter(|c| SPONSORBLOCK_CATS.contains(c))
+        .collect();
+    if picked.is_empty() {
+        "sponsor,selfpromo,interaction".to_string()
+    } else {
+        picked.join(",")
+    }
+}
+
+/// Build yt-dlp SponsorBlock args. `mark` adds chapter markers (non-destructive);
+/// `remove` cuts the segments out of the file. Both rewrite the container, so
+/// without ffmpeg the feature is a no-op.
+fn sponsorblock_args(mode: &str, cats: &str, has_ffmpeg: bool) -> Vec<String> {
+    if !has_ffmpeg {
+        return Vec::new();
+    }
+    let flag = match mode {
+        "mark" => "--sponsorblock-mark",
+        "remove" => "--sponsorblock-remove",
+        _ => return Vec::new(),
+    };
+    vec![flag.to_string(), sanitize_sponsorblock_cats(cats)]
 }
 
 /// Audio output extensions that take yt-dlp's `--extract-audio` path.
@@ -1391,6 +1439,26 @@ mod tests {
         let no_ff = subtitle_args("embed", "en", false, false);
         assert!(no_ff.contains(&"--write-sub".to_string()));
         assert!(!no_ff.contains(&"--embed-subs".to_string()));
+    }
+
+    #[test]
+    fn sponsorblock_args_modes() {
+        // Off (or unknown) and missing ffmpeg both yield nothing.
+        assert!(sponsorblock_args("off", "sponsor", true).is_empty());
+        assert!(sponsorblock_args("remove", "sponsor", false).is_empty());
+
+        let mark = sponsorblock_args("mark", "sponsor,selfpromo", true);
+        assert_eq!(mark[0], "--sponsorblock-mark");
+        assert_eq!(mark[1], "sponsor,selfpromo");
+
+        let remove = sponsorblock_args("remove", "sponsor", true);
+        assert_eq!(remove[0], "--sponsorblock-remove");
+
+        // Junk categories are dropped and fall back to the default set.
+        let cleaned = sponsorblock_args("mark", "bogus, sponsor , evil", true);
+        assert_eq!(cleaned[1], "sponsor");
+        let empty = sponsorblock_args("mark", "nope", true);
+        assert_eq!(empty[1], "sponsor,selfpromo,interaction");
     }
 
     #[test]

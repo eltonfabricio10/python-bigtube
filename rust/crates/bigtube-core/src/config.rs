@@ -360,6 +360,13 @@ fn build_defaults() -> Map<String, Value> {
     m.insert("subtitle_mode".into(), json!("off"));
     m.insert("subtitle_langs".into(), json!("en,pt,es"));
     m.insert("subtitle_auto".into(), json!(true));
+    // SponsorBlock: mode "off"|"mark"|"remove" and the comma-separated
+    // categories to act on. Off by default; needs ffmpeg to rewrite the file.
+    m.insert("sponsorblock_mode".into(), json!("off"));
+    m.insert(
+        "sponsorblock_cats".into(),
+        json!("sponsor,selfpromo,interaction"),
+    );
     m.insert("save_history".into(), json!(true));
     m.insert("save_search_history".into(), json!(true));
     m.insert("enable_suggestions".into(), json!(true));

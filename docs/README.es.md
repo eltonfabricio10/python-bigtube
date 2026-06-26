@@ -54,6 +54,7 @@
 | **Metadatos** | Incrustación automática de etiquetas, álbum y artista |
 | **Subtítulos** | Incrusta o guarda como archivos sidecar, manuales + autogenerados, selección por idioma |
 | **Programación** | Pon descargas en cola para ejecutarlas más tarde, una sola vez o de forma recurrente |
+| **SponsorBlock** | Omite segmentos de patrocinio dentro del video — márcalos como capítulos o elimínalos del archivo (usa la base de datos de [SponsorBlock](https://sponsor.ajay.app/)) |
 | **Concurrencia** | Múltiples descargas simultáneas con fragmentos paralelos configurables |
 | **Reanudar** | Continúa descargas interrumpidas |
 
@@ -237,6 +238,7 @@ Las preferencias se guardan en `~/.config/bigtube/config.json`. Cuando el archiv
 | **Notificaciones del sistema** | Habilitado | Controla las notificaciones del sistema para los eventos y errores de descarga. |
 | **Calidad preferida** | Preguntar siempre | Define el formato predeterminado para las nuevas descargas. Puede preguntar en cada descarga, descargar el mejor video, elegir 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p, o descargar solo el audio como MP3, M4A, Opus, FLAC, WAV o AAC. |
 | **Agregar metadatos** | Deshabilitado | Intenta incrustar el artista, el álbum, la portada y otros metadatos en los archivos descargados. Requiere `ffmpeg`; si no está instalado, la aplicación omite este paso. |
+| **SponsorBlock** | Deshabilitado | Omite segmentos de patrocinio dentro del video usando la base de datos de SponsorBlock. "Marcar capítulos" añade marcadores (no destructivo); "Eliminar segmentos" los corta del archivo. Requiere `ffmpeg`. |
 | **Fragmentos concurrentes** | 16 | Define cuántos fragmentos paralelos usa `yt-dlp` por descarga. Acepta valores de 1 a 16. Los valores más altos pueden acelerar las descargas segmentadas, pero también aumentan el uso de la red. |
 | **Límite de velocidad** | 0 KB/s | Limita la velocidad de descarga en KB/s. `0` significa sin límite. Acepta valores de 0 a 100000. |
 | **Eliminar al completar** | Deshabilitado | Elimina automáticamente las descargas finalizadas de la lista. |
@@ -326,6 +328,8 @@ Las preferencias se guardan en `~/.config/bigtube/config.json`. Cuando el archiv
 | `cookies_browser` | `""` | Cookies del navegador |
 | `user_agent` | `""` | User-Agent personalizado |
 | `proxy` | `""` | Proxy |
+| `sponsorblock_mode` | `off` | SponsorBlock: `off`, `mark`, `remove` |
+| `sponsorblock_cats` | `sponsor,selfpromo,interaction` | Categorías de SponsorBlock a aplicar |
 | `preview_quality` | `360p` | Calidad de vista previa del reproductor de la aplicación |
 | `remove_on_complete` | `false` | Eliminar las descargas finalizadas de la lista |
 | `remove_on_cancel` | `false` | Eliminar las descargas canceladas de la lista |

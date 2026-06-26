@@ -54,6 +54,7 @@
 | **Metadados** | Incorporação automática de tags, álbum e artista |
 | **Legendas** | Incorporar e/ou salvar como arquivo sidecar, manuais + auto-geradas, seleção por idioma |
 | **Agendamento** | Enfileire downloads para rodar mais tarde, uma vez só ou em agenda recorrente |
+| **SponsorBlock** | Pula trechos de patrocínio no meio do vídeo — marca como capítulos ou remove do arquivo (usa a base do [SponsorBlock](https://sponsor.ajay.app/)) |
 | **Concorrência** | Múltiplos downloads simultâneos com fragmentos paralelos configuráveis |
 | **Retomada** | Continuar downloads interrompidos |
 
@@ -237,6 +238,7 @@ As preferências são salvas em `~/.config/bigtube/config.json`. Quando o arquiv
 | **Notificações do sistema** | Ativado | Controla avisos do sistema para eventos e erros de download. |
 | **Qualidade preferida** | Perguntar sempre | Define o formato padrão para novos downloads. Pode perguntar a cada download, baixar o melhor vídeo, escolher 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p ou baixar somente áudio em MP3, M4A, Opus, FLAC, WAV ou AAC. |
 | **Adicionar metadados** | Desativado | Tenta incorporar artista, álbum, capa e outros metadados aos arquivos baixados. Requer `ffmpeg`; se ele não estiver instalado, o app ignora essa etapa. |
+| **SponsorBlock** | Desligado | Pula trechos de patrocínio dentro do vídeo usando a base do SponsorBlock. "Marcar capítulos" adiciona marcadores (não destrutivo); "Remover segmentos" corta do arquivo. Requer `ffmpeg`. |
 | **Fragmentos simultâneos** | 16 | Define quantos fragmentos paralelos o `yt-dlp` usa por download. Aceita valores de 1 a 16. Valores maiores podem acelerar downloads segmentados, mas também aumentam uso de rede. |
 | **Limite de velocidade** | 0 KB/s | Limita a velocidade do download em KB/s. `0` significa sem limite. Aceita valores de 0 a 100000. |
 | **Remover ao concluir** | Desativado | Remove automaticamente da lista os downloads finalizados. |
@@ -326,6 +328,8 @@ As preferências são salvas em `~/.config/bigtube/config.json`. Quando o arquiv
 | `cookies_browser` | `""` | Cookies do navegador |
 | `user_agent` | `""` | User-Agent customizado |
 | `proxy` | `""` | Proxy |
+| `sponsorblock_mode` | `off` | SponsorBlock: `off`, `mark`, `remove` |
+| `sponsorblock_cats` | `sponsor,selfpromo,interaction` | Categorias do SponsorBlock a aplicar |
 | `preview_quality` | `360p` | Qualidade de pré-visualização do player integrado |
 | `remove_on_complete` | `false` | Remover da lista os downloads finalizados |
 | `remove_on_cancel` | `false` | Remover da lista os downloads cancelados |

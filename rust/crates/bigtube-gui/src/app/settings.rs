@@ -151,6 +151,7 @@ pub(crate) fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
             check_updates_on_startup: cfg.get_bool("check_updates_on_startup"),
             rate_limit: cfg.get_i64("rate_limit"),
             add_metadata: cfg.get_bool("add_metadata"),
+            sponsorblock_mode: cfg.get_string("sponsorblock_mode"),
             subtitle_mode: cfg.get_string("subtitle_mode"),
             subtitle_langs: cfg.get_string("subtitle_langs"),
             subtitle_auto: cfg.get_bool("subtitle_auto"),
@@ -203,6 +204,7 @@ struct Cfg {
     check_updates_on_startup: bool,
     rate_limit: i64,
     add_metadata: bool,
+    sponsorblock_mode: String,
     subtitle_mode: String,
     subtitle_langs: String,
     subtitle_auto: bool,
@@ -404,6 +406,33 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         c.add_metadata,
         |v| set_cfg("add_metadata", serde_json::json!(v)),
     ));
+
+    // SponsorBlock: skip in-video sponsor/self-promo segments using the
+    // community database. "Mark" adds chapters (non-destructive); "Remove"
+    // cuts them out. Both need ffmpeg.
+    let sb_modes = ["off", "mark", "remove"];
+    let sb_row = combo_row(
+        &tr("SponsorBlock"),
+        &[tr("Off"), tr("Mark chapters"), tr("Remove segments")],
+    );
+    sb_row.set_subtitle(&tr(
+        "Skip in-video sponsor segments (SponsorBlock database)",
+    ));
+    sb_row.set_selected(
+        sb_modes
+            .iter()
+            .position(|m| *m == c.sponsorblock_mode)
+            .unwrap_or(0) as u32,
+    );
+    sb_row.connect_selected_notify(move |row| {
+        let val = sb_modes
+            .get(row.selected() as usize)
+            .copied()
+            .unwrap_or("off");
+        set_cfg("sponsorblock_mode", serde_json::json!(val));
+    });
+    group.add(&sb_row);
+
     group.add(&switch_row(
         &tr("System Notifications"),
         &tr("Notify when a download finishes"),

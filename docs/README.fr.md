@@ -54,6 +54,7 @@
 | **Métadonnées** | Intégration automatique des tags, de l'album et de l'artiste |
 | **Sous-titres** | Intégration et/ou enregistrement comme fichiers sidecar, manuels + auto-générés, sélection par langue |
 | **Planification** | Mettez des téléchargements en file pour plus tard, ponctuels ou selon un horaire récurrent |
+| **SponsorBlock** | Ignore les segments sponsorisés dans la vidéo — marquez-les comme chapitres ou retirez-les du fichier (utilise la base [SponsorBlock](https://sponsor.ajay.app/)) |
 | **Concurrence** | Plusieurs téléchargements simultanés avec fragments parallèles configurables |
 | **Reprise** | Reprise des téléchargements interrompus |
 
@@ -237,6 +238,7 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | **Notifications système** | Activé | Contrôle les notifications système pour les événements de téléchargement et les erreurs. |
 | **Qualité préférée** | Demander à chaque fois | Définit le format par défaut pour les nouveaux téléchargements. Peut demander à chaque téléchargement, télécharger la meilleure vidéo, choisir 4K, 2K, 1080p, 720p, 480p, 360p, 240p, 144p, ou télécharger uniquement l'audio au format MP3, M4A, Opus, FLAC, WAV ou AAC. |
 | **Ajouter des métadonnées** | Désactivé | Tente d'intégrer l'artiste, l'album, la pochette et d'autres métadonnées dans les fichiers téléchargés. Nécessite `ffmpeg` ; s'il n'est pas installé, l'application ignore cette étape. |
+| **SponsorBlock** | Désactivé | Ignore les segments sponsorisés dans la vidéo via la base SponsorBlock. « Marquer les chapitres » ajoute des repères (non destructif) ; « Retirer les segments » les coupe du fichier. Nécessite `ffmpeg`. |
 | **Fragments simultanés** | 16 | Définit combien de fragments parallèles `yt-dlp` utilise par téléchargement. Accepte des valeurs de 1 à 16. Des valeurs plus élevées peuvent accélérer les téléchargements segmentés mais augmentent aussi l'utilisation du réseau. |
 | **Limite de vitesse** | 0 Ko/s | Limite la vitesse de téléchargement en Ko/s. `0` signifie aucune limite. Accepte des valeurs de 0 à 100000. |
 | **Supprimer une fois terminé** | Désactivé | Supprime automatiquement de la liste les téléchargements terminés. |
@@ -326,6 +328,8 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | `cookies_browser` | `""` | Cookies du navigateur |
 | `user_agent` | `""` | User-Agent personnalisé |
 | `proxy` | `""` | Proxy |
+| `sponsorblock_mode` | `off` | SponsorBlock : `off`, `mark`, `remove` |
+| `sponsorblock_cats` | `sponsor,selfpromo,interaction` | Catégories SponsorBlock à traiter |
 | `preview_quality` | `360p` | Qualité d'aperçu du lecteur intégré |
 | `remove_on_complete` | `false` | Supprimer de la liste les téléchargements terminés |
 | `remove_on_cancel` | `false` | Supprimer de la liste les téléchargements annulés |
