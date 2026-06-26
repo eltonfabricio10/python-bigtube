@@ -132,7 +132,9 @@ Baixe o `BigTube-*-x86_64.AppImage` da [última release](https://github.com/elto
 chmod +x BigTube-*-x86_64.AppImage
 ./BigTube-*-x86_64.AppImage
 ```
-> Empacota o GTK4/libadwaita e os plugins do GStreamer (incluindo o sink gtk4 do player), então roda em qualquer sistema x86_64 com **glibc ≥ 2.39**, independente da versão do GTK da distro. `ffmpeg` e `yt-dlp` são usados em runtime se presentes; o app baixa o `yt-dlp` na própria pasta de dados no primeiro uso.
+> Empacota o GTK4/libadwaita e os plugins do GStreamer (incluindo o sink gtk4 do player), então roda em qualquer sistema x86_64 independente da versão do GTK da distro. `ffmpeg` e `yt-dlp` são usados em runtime se presentes; o app baixa o `yt-dlp` na própria pasta de dados no primeiro uso.
+>
+> **Observação:** o AppImage precisa de **glibc ≥ 2.41** (Debian 13+, Ubuntu 25.10+, Fedora 42+, ou uma distro rolling como Arch/openSUSE Tumbleweed). Em sistemas mais antigos, use os pacotes `.deb`/`.rpm`/AUR.
 
 ### Compilando do código-fonte (Cargo)
 Requer o toolchain Rust (`rustup`) e as dependências de sistema listadas abaixo.

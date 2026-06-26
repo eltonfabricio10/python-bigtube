@@ -261,11 +261,13 @@ jobs:
     if: ${{ needs.prepare-release.outputs.should_release == 'true' }}
     runs-on: ubuntu-latest
     container:
-      # Build on Ubuntu 24.04 (GTK 4.14, libadwaita 1.5, glibc 2.39). The AppImage
-      # bundles GTK4/libadwaita + the GStreamer plugins (incl. the gtk4 sink), so
-      # it runs on any x86_64 system with glibc >= 2.39 regardless of the distro's
-      # GTK version — broader than the .deb/.rpm, which need the distro's GTK.
-      image: ubuntu:24.04
+      # Build on Debian 13 "trixie" (GTK 4.18, libadwaita 1.6, glibc 2.41). Unlike
+      # Ubuntu 24.04, trixie ships a prebuilt gstreamer1.0-gtk4, so the gtk4 sink
+      # the player needs is just an apt package — no building it from source. The
+      # AppImage bundles GTK4/libadwaita + the GStreamer plugins (incl. that sink),
+      # so it runs on any x86_64 system with glibc >= 2.41 regardless of the
+      # distro's GTK version. (Older systems use the .deb/.rpm/AUR instead.)
+      image: debian:trixie
     env:
       DEBIAN_FRONTEND: noninteractive
       PKGVER: ${{ needs.prepare-release.outputs.pkgver }}
@@ -273,18 +275,14 @@ jobs:
       - name: Install build + bundle tooling
         run: |
           apt-get update
-          # NOTE: Ubuntu 24.04 has no prebuilt gstreamer1.0-gtk4 (only the Rust
-          # source); we build that sink from source below. The -dev packages for
-          # gtk4/gstreamer-base are what the sink needs to compile.
           apt-get install -y --no-install-recommends \
             ca-certificates curl git build-essential pkg-config gettext \
             file patchelf desktop-file-utils librsvg2-common \
             libgtk-4-dev libadwaita-1-dev libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev \
-            libwayland-dev libegl-dev libx11-dev \
             libgtk-4-1 libadwaita-1-0 \
             gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
-            gstreamer1.0-plugins-bad gstreamer1.0-libav
+            gstreamer1.0-plugins-bad gstreamer1.0-gtk4 gstreamer1.0-libav
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
             | sh -s -- -y --default-toolchain stable --profile minimal
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
@@ -292,24 +290,6 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ needs.prepare-release.outputs.tag }}
-
-      - name: Build the GStreamer gtk4 paintable sink from source
-        run: |
-          # The player needs libgstgtk4.so. Ubuntu 24.04 ships gstreamer 1.24 but
-          # not the prebuilt plugin, so build it with cargo-c from the matching
-          # gst-plugins-rs 0.12 branch and drop it into the system plugin dir so
-          # linuxdeploy bundles it like any other plugin.
-          cargo install cargo-c --locked
-          git clone --depth 1 --branch 0.12 \
-            https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git /tmp/gst-plugins-rs
-          # Match the feature set of the distro-prebuilt plugin so playback is
-          # GL/dmabuf-accelerated rather than CPU-uploaded.
-          (cd /tmp/gst-plugins-rs && cargo cbuild -p gst-plugin-gtk4 --release --locked \
-            --features wayland,x11egl,x11glx,dmabuf)
-          so=$(find /tmp/gst-plugins-rs/target -name libgstgtk4.so | head -1)
-          test -n "$so"
-          install -Dm755 "$so" /usr/lib/x86_64-linux-gnu/gstreamer-1.0/libgstgtk4.so
-          echo "installed gtk4 sink: $so"
 
       - name: Compile, stage, and build the AppImage
         run: |
