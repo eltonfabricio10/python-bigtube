@@ -1798,3 +1798,19 @@ msgstr "Letöltés befejeződött"
 
 msgid "Filter…"
 msgstr "Szűrés…"
+
+#: bigtube-gui
+msgid "SponsorBlock"
+msgstr "SponsorBlock"
+
+#: bigtube-gui
+msgid "Mark chapters"
+msgstr "Fejezetek megjelölése"
+
+#: bigtube-gui
+msgid "Remove segments"
+msgstr "Szegmensek eltávolítása"
+
+#: bigtube-gui
+msgid "Skip in-video sponsor segments (SponsorBlock database)"
+msgstr "Kihagyja a videóban lévő szponzorszakaszokat (SponsorBlock adatbázis)"

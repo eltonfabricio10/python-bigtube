@@ -1796,3 +1796,19 @@ msgstr "Transferência concluída"
 
 msgid "Filter…"
 msgstr "Filtrar…"
+
+#: bigtube-gui
+msgid "SponsorBlock"
+msgstr "SponsorBlock"
+
+#: bigtube-gui
+msgid "Mark chapters"
+msgstr "Marcar capítulos"
+
+#: bigtube-gui
+msgid "Remove segments"
+msgstr "Remover segmentos"
+
+#: bigtube-gui
+msgid "Skip in-video sponsor segments (SponsorBlock database)"
+msgstr "Salta trechos de patrocínio no vídeo (base do SponsorBlock)"

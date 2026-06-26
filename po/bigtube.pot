@@ -1777,3 +1777,19 @@ msgstr ""
 
 msgid "Filter…"
 msgstr ""
+
+#: bigtube-gui
+msgid "SponsorBlock"
+msgstr ""
+
+#: bigtube-gui
+msgid "Mark chapters"
+msgstr ""
+
+#: bigtube-gui
+msgid "Remove segments"
+msgstr ""
+
+#: bigtube-gui
+msgid "Skip in-video sponsor segments (SponsorBlock database)"
+msgstr ""

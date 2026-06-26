@@ -1795,3 +1795,19 @@ msgstr "Descarga completada"
 
 msgid "Filter…"
 msgstr "Filtrar…"
+
+#: bigtube-gui
+msgid "SponsorBlock"
+msgstr "SponsorBlock"
+
+#: bigtube-gui
+msgid "Mark chapters"
+msgstr "Marcar capítulos"
+
+#: bigtube-gui
+msgid "Remove segments"
+msgstr "Eliminar segmentos"
+
+#: bigtube-gui
+msgid "Skip in-video sponsor segments (SponsorBlock database)"
+msgstr "Omite segmentos de patrocinio del vídeo (base de datos de SponsorBlock)"

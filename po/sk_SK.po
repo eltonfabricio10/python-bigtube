@@ -1798,3 +1798,19 @@ msgstr "Sťahovanie dokončené"
 
 msgid "Filter…"
 msgstr "Filtrovať…"
+
+#: bigtube-gui
+msgid "SponsorBlock"
+msgstr "SponsorBlock"
+
+#: bigtube-gui
+msgid "Mark chapters"
+msgstr "Označiť kapitoly"
+
+#: bigtube-gui
+msgid "Remove segments"
+msgstr "Odstrániť segmenty"
+
+#: bigtube-gui
+msgid "Skip in-video sponsor segments (SponsorBlock database)"
+msgstr "Preskočí sponzorské časti vo videu (databáza SponsorBlock)"

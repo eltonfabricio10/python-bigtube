@@ -1796,3 +1796,19 @@ msgstr "Download complete"
 
 msgid "Filter…"
 msgstr "Filter…"
+
+#: bigtube-gui
+msgid "SponsorBlock"
+msgstr "SponsorBlock"
+
+#: bigtube-gui
+msgid "Mark chapters"
+msgstr "Mark chapters"
+
+#: bigtube-gui
+msgid "Remove segments"
+msgstr "Remove segments"
+
+#: bigtube-gui
+msgid "Skip in-video sponsor segments (SponsorBlock database)"
+msgstr "Skip in-video sponsor segments (SponsorBlock database)"
