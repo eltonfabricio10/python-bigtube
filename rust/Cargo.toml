@@ -2,6 +2,16 @@
 resolver = "2"
 members = ["crates/bigtube-core", "crates/bigtube-cli", "crates/bigtube-gui"]
 
+# Optimized release: fat LTO + a single codegen unit for tighter code, symbols
+# stripped, and abort-on-panic (no unwinding — the code never catches panics).
+# NOTE: this is Cargo-level LTO only; it does NOT pass -flto to ring's C/asm
+# build (that's the makepkg breakage we avoid), so `ring` still links.
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
+
 [workspace.package]
 version = "2.2.55"
 edition = "2021"
