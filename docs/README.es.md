@@ -126,6 +126,14 @@ sudo dnf install ./bigtube-*.x86_64.rpm
 ```
 > Compilado en Fedora 40 (requiere **Fedora 40+**). `ffmpeg` (extracción de audio/conversión) está en [RPM Fusion](https://rpmfusion.org/) — actívalo y ejecuta `sudo dnf install ffmpeg` para esas funciones.
 
+### AppImage (portátil, cualquier distro)
+Descarga `BigTube-*-x86_64.AppImage` de la [última versión](https://github.com/eltonfabricio10/bigtube/releases/latest), hazlo ejecutable y ejecútalo:
+```bash
+chmod +x BigTube-*-x86_64.AppImage
+./BigTube-*-x86_64.AppImage
+```
+> Incluye GTK4/libadwaita y los plugins de GStreamer (incluido el sink gtk4 del reproductor), así que funciona en cualquier sistema x86_64 con **glibc ≥ 2.39** sin importar la versión de GTK de la distro. `ffmpeg` y `yt-dlp` se usan en tiempo de ejecución si están presentes; la app descarga `yt-dlp` en su propia carpeta de datos en el primer uso.
+
 ### Compilar desde el código fuente (Cargo)
 Requiere el conjunto de herramientas de Rust (`rustup`) y las dependencias del sistema que se indican a continuación.
 ```bash
