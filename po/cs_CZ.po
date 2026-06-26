@@ -1816,7 +1816,3 @@ msgstr "Přeskočí sponzorské části ve videu (databáze SponsorBlock)"
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr "Následné zpracování"
-
-#: bigtube-gui
-msgid "Download List"
-msgstr "Seznam stahování"

@@ -1797,7 +1797,3 @@ msgstr ""
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr ""
-
-#: bigtube-gui
-msgid "Download List"
-msgstr ""

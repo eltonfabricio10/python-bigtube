@@ -1820,7 +1820,3 @@ msgstr "Omite segmentos de patrocinio del video (base de datos de SponsorBlock)"
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr "Posprocesamiento"
-
-#: bigtube-gui
-msgid "Download List"
-msgstr "Lista de descargas"

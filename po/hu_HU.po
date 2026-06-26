@@ -1818,7 +1818,3 @@ msgstr "Kihagyja a videóban lévő szponzorszakaszokat (SponsorBlock adatbázis
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr "Utófeldolgozás"
-
-#: bigtube-gui
-msgid "Download List"
-msgstr "Letöltési lista"

@@ -1821,7 +1821,3 @@ msgstr "Sare peste segmentele sponsorizate din videoclip (baza de date SponsorBl
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr "Post-procesare"
-
-#: bigtube-gui
-msgid "Download List"
-msgstr "Lista de descărcări"

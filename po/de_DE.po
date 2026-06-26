@@ -1819,7 +1819,3 @@ msgstr "Überspringt Sponsor-Segmente im Video (SponsorBlock-Datenbank)"
 #: bigtube-gui
 msgid "Post-Processing"
 msgstr "Nachbearbeitung"
-
-#: bigtube-gui
-msgid "Download List"
-msgstr "Download-Liste"

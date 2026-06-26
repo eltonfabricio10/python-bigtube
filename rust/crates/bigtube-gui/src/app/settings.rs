@@ -183,7 +183,6 @@ pub(crate) fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
     page.add(&build_postprocessing_group(state, &c));
     page.add(&build_subtitles_group(state, &c));
     page.add(&build_playback_group(state, &c));
-    page.add(&build_download_list_group(state, &c));
     page.add(&build_converter_group(state, &c));
     page.add(&build_search_group(state, &c));
     page.add(&build_network_group(state, &c));
@@ -371,6 +370,33 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         |v| set_cfg("max_concurrent_downloads", serde_json::json!(v as i64)),
     ));
     group.add(&switch_row(
+        &tr("Save Download History"),
+        &tr("Keep a record of completed downloads"),
+        c.save_history,
+        |v| set_cfg("save_history", serde_json::json!(v)),
+    ));
+    group.add(&spin_row_step(
+        &tr("Maximum History Entries"),
+        &tr("How many finished downloads to keep in the list"),
+        10.0,
+        1000.0,
+        10.0,
+        c.max_download_history as f64,
+        |v| set_cfg("max_download_history", serde_json::json!(v as i64)),
+    ));
+    group.add(&switch_row(
+        &tr("Remove When Complete"),
+        &tr("Automatically remove an item from the list once it finishes"),
+        c.remove_on_complete,
+        |v| set_cfg("remove_on_complete", serde_json::json!(v)),
+    ));
+    group.add(&switch_row(
+        &tr("Remove When Cancelled"),
+        &tr("Automatically remove an item from the list when it is cancelled"),
+        c.remove_on_cancel,
+        |v| set_cfg("remove_on_cancel", serde_json::json!(v)),
+    ));
+    group.add(&switch_row(
         &tr("System Notifications"),
         &tr("Notify when a download finishes"),
         c.system_notifications,
@@ -387,7 +413,7 @@ fn build_downloads_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
 }
 
 /// Output post-processing applied to finished downloads (all need ffmpeg).
-fn build_postprocessing_group(_state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
+fn build_postprocessing_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
     let group = adw::PreferencesGroup::builder()
         .title(tr("Post-Processing"))
         .build();
@@ -425,41 +451,14 @@ fn build_postprocessing_group(_state: &Rc<AppState>, c: &Cfg) -> adw::Preference
     });
     group.add(&sb_row);
 
-    group
-}
-
-/// Download list / history behavior.
-fn build_download_list_group(_state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
-    let group = adw::PreferencesGroup::builder()
-        .title(tr("Download List"))
-        .build();
-
-    group.add(&switch_row(
-        &tr("Save Download History"),
-        &tr("Keep a record of completed downloads"),
-        c.save_history,
-        |v| set_cfg("save_history", serde_json::json!(v)),
-    ));
-    group.add(&spin_row_step(
-        &tr("Maximum History Entries"),
-        &tr("How many finished downloads to keep in the list"),
-        10.0,
-        1000.0,
-        10.0,
-        c.max_download_history as f64,
-        |v| set_cfg("max_download_history", serde_json::json!(v as i64)),
-    ));
-    group.add(&switch_row(
-        &tr("Remove When Complete"),
-        &tr("Automatically remove an item from the list once it finishes"),
-        c.remove_on_complete,
-        |v| set_cfg("remove_on_complete", serde_json::json!(v)),
-    ));
-    group.add(&switch_row(
-        &tr("Remove When Cancelled"),
-        &tr("Automatically remove an item from the list when it is cancelled"),
-        c.remove_on_cancel,
-        |v| set_cfg("remove_on_cancel", serde_json::json!(v)),
+    group.add(&entry_row_with_presets(
+        &tr("Post-Processing Command"),
+        &c.post_process_cmd,
+        &tr("Common commands"),
+        to_presets(&POST_PROCESS_PRESETS),
+        "post_process_cmd",
+        state,
+        validate_post_process,
     ));
 
     group
@@ -618,15 +617,6 @@ fn build_network_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
         "proxy",
         state,
         validate_proxy,
-    ));
-    group.add(&entry_row_with_presets(
-        &tr("Post-Processing Command"),
-        &c.post_process_cmd,
-        &tr("Common commands"),
-        to_presets(&POST_PROCESS_PRESETS),
-        "post_process_cmd",
-        state,
-        validate_post_process,
     ));
 
     group
