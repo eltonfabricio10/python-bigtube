@@ -518,7 +518,10 @@ fn show_quality_dialog(
 /// Output file path the downloader will use
 /// (`{download}/[subfolder/]{safe_title}.{ext}`).
 fn output_path(title: &str, format_id: &str, ext: &str, subfolder: Option<&str>) -> String {
-    let dir = config::global().read().unwrap().get_string("download_path");
+    let dir = config::global()
+        .read()
+        .unwrap_or_else(|e| e.into_inner())
+        .get_string("download_path");
     let mut safe = bigtube_core::validators::sanitize_filename(title, 200);
     if safe.is_empty() {
         safe = format!("video_{format_id}");
@@ -781,7 +784,10 @@ pub(crate) fn enqueue_common(
     let sched_id = restore_id.unwrap_or_else(|| key.clone());
 
     // Record a pending history entry up front (so it survives a crash mid-download).
-    let save_history = config::global().read().unwrap().get_bool("save_history");
+    let save_history = config::global()
+        .read()
+        .unwrap_or_else(|e| e.into_inner())
+        .get_bool("save_history");
     if save_history && !restoring {
         let video_info = serde_json::json!({
             "title": title, "url": url, "webpage_url": url,

@@ -397,7 +397,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 sugg_list.remove(&c);
             }
             let (enabled, max) = {
-                let c = config::global().read().unwrap();
+                let c = config::global().read().unwrap_or_else(|e| e.into_inner());
                 (
                     c.get_bool("enable_suggestions"),
                     c.get_i64("max_suggestions").max(1) as usize,

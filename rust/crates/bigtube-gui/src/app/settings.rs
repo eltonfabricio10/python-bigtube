@@ -137,7 +137,7 @@ pub(crate) fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
 
     // Snapshot every config value up front (drops the read lock before wiring).
     let c = {
-        let cfg = config::global().read().unwrap();
+        let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
         Cfg {
             theme_mode: cfg.get_string("theme_mode"),
             theme_color: cfg.get_string("theme_color"),
@@ -750,7 +750,10 @@ fn entry_row_with_presets(
                 if let Some(err) = validate(&txt) {
                     state.toast(&err);
                     // Revert to the last saved value so the bad input doesn't stick.
-                    let saved = config::global().read().unwrap().get_string(cfg_key);
+                    let saved = config::global()
+                        .read()
+                        .unwrap_or_else(|e| e.into_inner())
+                        .get_string(cfg_key);
                     r.set_text(&saved);
                     return;
                 }

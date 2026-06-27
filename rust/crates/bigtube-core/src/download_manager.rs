@@ -90,8 +90,14 @@ impl DownloadManager {
         mgr
     }
 
+    /// Lock `inner`, recovering the guard if a previous holder panicked. A
+    /// poisoned mutex must not permanently kill the queue + scheduler.
+    fn lock_inner(&self) -> std::sync::MutexGuard<'_, Inner> {
+        self.inner.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
     fn max_concurrent() -> i64 {
-        let cfg = config::global().read().unwrap();
+        let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
         let v = cfg.get_i64("max_concurrent_downloads");
         if v > 0 {
             v
@@ -141,7 +147,7 @@ impl DownloadManager {
             scheduled_time: Some(timestamp),
         };
         {
-            let mut inner = self.inner.lock().unwrap();
+            let mut inner = self.lock_inner();
             inner.scheduled.push(task);
             inner.scheduled.sort_by(|a, b| {
                 a.scheduled_time
@@ -161,7 +167,7 @@ impl DownloadManager {
 
     fn enqueue(self: &Arc<Self>, task: Task) {
         {
-            let mut inner = self.inner.lock().unwrap();
+            let mut inner = self.lock_inner();
             inner.seq += 1;
             let seq = inner.seq;
             let priority = task.priority;
@@ -181,7 +187,7 @@ impl DownloadManager {
         let max = Self::max_concurrent();
         loop {
             let task = {
-                let mut inner = self.inner.lock().unwrap();
+                let mut inner = self.lock_inner();
                 if (inner.active.len() as i64) >= max {
                     return;
                 }
@@ -204,7 +210,7 @@ impl DownloadManager {
             }
         };
         {
-            let mut inner = self.inner.lock().unwrap();
+            let mut inner = self.lock_inner();
             inner.active.insert(task.id.clone(), downloader.clone());
         }
         if let Some(cb) = &task.on_start {
@@ -223,7 +229,7 @@ impl DownloadManager {
 
     fn on_task_complete(self: &Arc<Self>, task_id: &str) {
         {
-            let mut inner = self.inner.lock().unwrap();
+            let mut inner = self.lock_inner();
             inner.active.remove(task_id);
         }
         self.process_queue();
@@ -231,7 +237,7 @@ impl DownloadManager {
 
     pub fn cancel_task(self: &Arc<Self>, task_id: &str) {
         let downloader = {
-            let mut inner = self.inner.lock().unwrap();
+            let mut inner = self.lock_inner();
             if let Some(d) = inner.active.get(task_id).cloned() {
                 Some(d)
             } else {
@@ -255,7 +261,7 @@ impl DownloadManager {
 
     fn notify_scheduler(&self) {
         let (lock, cvar) = &*self.wake;
-        *lock.lock().unwrap() = true;
+        *lock.lock().unwrap_or_else(|e| e.into_inner()) = true;
         cvar.notify_all();
     }
 
@@ -263,7 +269,7 @@ impl DownloadManager {
     fn promote_due(self: &Arc<Self>) {
         let now = now_epoch();
         let due: Vec<Task> = {
-            let mut inner = self.inner.lock().unwrap();
+            let mut inner = self.lock_inner();
             let (due, remaining): (Vec<Task>, Vec<Task>) = inner
                 .scheduled
                 .drain(..)
@@ -277,7 +283,7 @@ impl DownloadManager {
     }
 
     fn next_wait(&self) -> Duration {
-        let inner = self.inner.lock().unwrap();
+        let inner = self.lock_inner();
         let next = inner
             .scheduled
             .iter()
@@ -299,8 +305,10 @@ fn scheduler_loop(weak: std::sync::Weak<DownloadManager>, wake: Arc<(Mutex<bool>
         drop(mgr);
 
         let (lock, cvar) = &*wake;
-        let mut woken = lock.lock().unwrap();
-        let (w, _) = cvar.wait_timeout(woken, timeout).unwrap();
+        let mut woken = lock.lock().unwrap_or_else(|e| e.into_inner());
+        let (w, _) = cvar
+            .wait_timeout(woken, timeout)
+            .unwrap_or_else(|e| e.into_inner());
         woken = w;
         *woken = false;
         drop(woken);

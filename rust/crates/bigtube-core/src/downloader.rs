@@ -1020,7 +1020,7 @@ pub struct VideoDownloader {
 impl VideoDownloader {
     pub fn new() -> Result<Self> {
         let (binary_path, env) = {
-            let mut cfg = config::global().write().unwrap();
+            let mut cfg = config::global().write().unwrap_or_else(|e| e.into_inner());
             (cfg.get_yt_dlp_path()?, cfg.get_env_with_bin_path())
         };
         Ok(Self {
@@ -1045,7 +1045,7 @@ impl VideoDownloader {
         let is_yt = is_youtube_url(url);
         // Cookies (browser/file) are included via get_yt_dlp_common_args().
         let common = {
-            let cfg = config::global().read().unwrap();
+            let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
             cfg.get_yt_dlp_common_args()
         };
         let args = build_metadata_args(&common, url, is_yt);
@@ -1103,7 +1103,7 @@ impl VideoDownloader {
     pub fn resolve_plan(&self, url: &str, selector: &str) -> Option<ResolvedPlan> {
         let is_yt = is_youtube_url(url);
         let common = {
-            let cfg = config::global().read().unwrap();
+            let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
             cfg.get_yt_dlp_common_args()
         };
         let args = build_resolve_args(&common, url, selector, is_yt);
@@ -1128,7 +1128,7 @@ impl VideoDownloader {
         self.state.is_paused.store(false, Ordering::SeqCst);
 
         let download_dir = {
-            let cfg = config::global().read().unwrap();
+            let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
             cfg.get_download_path()
         };
         if !std::path::Path::new(&download_dir).exists() {
@@ -1149,7 +1149,7 @@ impl VideoDownloader {
 
         let has_ffmpeg = which("ffmpeg").is_some();
         {
-            let cfg = config::global().read().unwrap();
+            let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
             if cfg.get_bool("add_metadata") && !has_ffmpeg {
                 progress(Progress::status(StatusCode::FfmpegMissingMetadata));
             }
@@ -1160,7 +1160,7 @@ impl VideoDownloader {
         }
 
         let args = {
-            let cfg = config::global().read().unwrap();
+            let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
             build_download_args(&cfg, &params, &download_dir, has_ffmpeg)
         };
         tracing::info!("Command: {} {:?}", self.binary_path, redact_command(&args));

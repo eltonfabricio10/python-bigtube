@@ -16,7 +16,7 @@ pub fn extract_stream_url(url: &str) -> String {
     }
 
     let (binary, env, common, quality) = {
-        let mut cfg = config::global().write().unwrap();
+        let mut cfg = config::global().write().unwrap_or_else(|e| e.into_inner());
         match cfg.get_yt_dlp_path() {
             Ok(b) => (
                 b,

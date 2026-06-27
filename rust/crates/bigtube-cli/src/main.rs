@@ -56,7 +56,11 @@ fn main() {
     let cli = Cli::parse();
 
     if cli.ytdlp_version {
-        let path = config::global().read().unwrap().yt_dlp_path.clone();
+        let path = config::global()
+            .read()
+            .unwrap_or_else(|e| e.into_inner())
+            .yt_dlp_path
+            .clone();
         match updater::get_local_version(&path) {
             Some(v) => println!("yt-dlp {v}"),
             None => println!("yt-dlp not installed"),
@@ -89,7 +93,7 @@ fn run_download(
     // Make sure yt-dlp exists (auto-download if missing), like Python's startup.
     {
         let (yt, deno) = {
-            let c = config::global().read().unwrap();
+            let c = config::global().read().unwrap_or_else(|e| e.into_inner());
             (c.yt_dlp_path.clone(), c.deno_path.clone())
         };
         if !yt.exists() {

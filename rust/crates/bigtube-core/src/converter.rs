@@ -4,14 +4,15 @@
 //! marshals it to the main thread (Python used `GLib.idle_add`). Cancellation is
 //! cooperative via a shared `AtomicBool`.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc;
-use std::sync::Arc;
+use std::sync::{mpsc, Arc, Mutex};
 use std::time::Duration;
+
+use wait_timeout::ChildExt;
 
 use crate::config;
 use crate::errors::BigTubeError;
@@ -169,7 +170,7 @@ pub fn probe_media_summary(path: &str) -> MediaSummary {
 /// Resolve the output directory and a non-colliding output path.
 fn resolve_output_path(input_path: &str, output_format: &str) -> String {
     let input = Path::new(input_path);
-    let cfg = config::global().read().unwrap();
+    let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
     let use_source = cfg.get_bool("use_source_folder");
 
     let dir = if use_source {
@@ -309,6 +310,27 @@ pub fn convert_media(
     }
     drop(tx);
 
+    // ffmpeg writes its stats/warnings to stderr; if nobody reads it the pipe
+    // buffer fills, ffmpeg blocks on write and never exits — deadlocking the
+    // wait below. Drain it on its own thread, keeping the last lines for a
+    // useful error message on failure.
+    let stderr_tail: Arc<Mutex<VecDeque<String>>> = Arc::new(Mutex::new(VecDeque::new()));
+    if let Some(err) = child.stderr.take() {
+        let tail = stderr_tail.clone();
+        std::thread::spawn(move || {
+            for line in BufReader::new(err)
+                .lines()
+                .map_while(std::result::Result::ok)
+            {
+                let mut t = tail.lock().unwrap();
+                if t.len() == 20 {
+                    t.pop_front();
+                }
+                t.push_back(line);
+            }
+        });
+    }
+
     let cancelled = || cancel.map(|c| c.load(Ordering::SeqCst)).unwrap_or(false);
     let mut us: f64 = 0.0;
     let mut user_cancelled = false;
@@ -326,7 +348,14 @@ pub fn convert_media(
         }
     }
 
-    let status = child.wait().ok();
+    // Bound the final reap so a wedged ffmpeg can never hang the worker thread.
+    let status = match child.wait_timeout(Duration::from_secs(10)) {
+        Ok(Some(s)) => Some(s),
+        _ => {
+            terminate_group(pid, Duration::from_secs(2));
+            child.wait().ok()
+        }
+    };
 
     if user_cancelled || cancelled() {
         let _ = std::fs::remove_file(&output_path);
@@ -341,6 +370,12 @@ pub fn convert_media(
         }
         other => {
             terminate_group(pid, Duration::from_secs(2));
+            let _ = std::fs::remove_file(&output_path);
+            let tail = stderr_tail
+                .lock()
+                .map(|t| t.iter().cloned().collect::<Vec<_>>().join("\n"))
+                .unwrap_or_default();
+            tracing::warn!("ffmpeg failed (code {other:?}):\n{tail}");
             Err(BigTubeError::Config(format!(
                 "Conversion failed with code {other:?}"
             )))

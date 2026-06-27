@@ -13,7 +13,7 @@ use bigtube_core::downloader::VideoDownloader;
 use bigtube_core::progress::{ProgressFn, StatusCode};
 
 use crate::i18n::tr;
-use crate::objects::VideoObject;
+use crate::objects::{NowPlaying, VideoObject};
 
 mod converter;
 mod donations;
@@ -1043,7 +1043,7 @@ fn start_update_check(state: &Rc<AppState>) {
         return;
     }
     let (yt_dlp, deno) = {
-        let c = config::global().read().unwrap();
+        let c = config::global().read().unwrap_or_else(|e| e.into_inner());
         (c.yt_dlp_path.clone(), c.deno_path.clone())
     };
 
@@ -1329,7 +1329,11 @@ fn now_epoch_secs() -> f64 {
 }
 
 fn refresh_version_subtitle(row: &adw::ActionRow) {
-    let yt_dlp = config::global().read().unwrap().yt_dlp_path.clone();
+    let yt_dlp = config::global()
+        .read()
+        .unwrap_or_else(|e| e.into_inner())
+        .yt_dlp_path
+        .clone();
     let (tx, rx) = async_channel::bounded::<String>(1);
     std::thread::spawn(move || {
         let v =
@@ -1346,7 +1350,7 @@ fn refresh_version_subtitle(row: &adw::ActionRow) {
 
 fn run_update(state: &Rc<AppState>, row: &adw::ActionRow, btn: gtk::Button) {
     let (yt_dlp, deno) = {
-        let cfg = config::global().read().unwrap();
+        let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
         (cfg.yt_dlp_path.clone(), cfg.deno_path.clone())
     };
     let (tx, rx) = async_channel::bounded::<(bool, bool, String)>(1);
@@ -1547,7 +1551,10 @@ fn reset_all_data(state: &Rc<AppState>) {
         }
         // Wipe config + every on-disk store (history, search, converter,
         // scheduled). reset_all() recreates the (now-default) config dir.
-        config::global().write().unwrap().reset_all();
+        config::global()
+            .write()
+            .unwrap_or_else(|e| e.into_inner())
+            .reset_all();
 
         // Confirm to the user, then restart on close so the fresh process loads
         // the default state (matches the dialog's promise).
@@ -1708,12 +1715,32 @@ fn search_history_path() -> std::path::PathBuf {
 /// Add/remove the `.playing` highlight on `container` as the player's current
 /// track (its url/path) matches `path`. Uses a weak widget ref so a removed row
 /// isn't kept alive.
+/// Disconnects a row's `now_playing` notify handler once the row widget is
+/// finalized. Stored as widget qdata so its `Drop` runs when the widget dies —
+/// without it, every created row leaves a live handler on the long-lived
+/// `NowPlaying` object, piling up across history reloads/clears.
+struct PlayHighlightGuard {
+    np: glib::WeakRef<NowPlaying>,
+    id: Option<glib::SignalHandlerId>,
+}
+
+impl Drop for PlayHighlightGuard {
+    fn drop(&mut self) {
+        if let (Some(np), Some(id)) = (self.np.upgrade(), self.id.take()) {
+            np.disconnect(id);
+        }
+    }
+}
+
+const PLAY_HIGHLIGHT_GUARD: &str = "bigtube-play-highlight-guard";
+
 fn wire_play_highlight(state: &Rc<AppState>, container: &gtk::Box, path: Rc<RefCell<String>>) {
     let Some(player) = state.player.borrow().clone() else {
         return;
     };
+    let np = player.now_playing();
     let weak = container.downgrade();
-    player.now_playing().connect_url_notify(move |n| {
+    let id = np.connect_url_notify(move |n| {
         let Some(cont) = weak.upgrade() else {
             return;
         };
@@ -1725,6 +1752,13 @@ fn wire_play_highlight(state: &Rc<AppState>, container: &gtk::Box, path: Rc<RefC
             cont.remove_css_class("playing");
         }
     });
+    let guard = PlayHighlightGuard {
+        np: np.downgrade(),
+        id: Some(id),
+    };
+    unsafe {
+        container.set_data::<PlayHighlightGuard>(PLAY_HIGHLIGHT_GUARD, guard);
+    }
 }
 
 fn open_containing_folder(state: &Rc<AppState>, path: &str) {
@@ -1803,7 +1837,10 @@ fn comfortable_window_size() -> (i32, i32) {
 }
 
 fn apply_theme(window: &adw::ApplicationWindow) {
-    let mode = config::global().read().unwrap().get_string("theme_mode");
+    let mode = config::global()
+        .read()
+        .unwrap_or_else(|e| e.into_inner())
+        .get_string("theme_mode");
     let sm = adw::StyleManager::default();
     match mode.as_str() {
         "dark" => sm.set_color_scheme(adw::ColorScheme::ForceDark),
@@ -1831,7 +1868,7 @@ fn apply_theme(window: &adw::ApplicationWindow) {
 /// matches the selected theme.
 pub(crate) fn apply_theme_classes(widget: &impl IsA<gtk::Widget>) {
     let (mode, color) = {
-        let cfg = config::global().read().unwrap();
+        let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
         (cfg.get_string("theme_mode"), cfg.get_string("theme_color"))
     };
     let w = widget.as_ref();

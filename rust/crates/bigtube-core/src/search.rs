@@ -41,7 +41,7 @@ pub struct SearchEngine {
 
 impl SearchEngine {
     pub fn new() -> Result<Self> {
-        let mut cfg = config::global().write().unwrap();
+        let mut cfg = config::global().write().unwrap_or_else(|e| e.into_inner());
         let binary_path = cfg.get_yt_dlp_path()?;
         let env = cfg.get_env_with_bin_path();
         let limit = cfg.get_i64("search_limit");
@@ -160,7 +160,7 @@ impl SearchEngine {
             args.push("youtube:player_client=web,android_vr".into());
         }
         {
-            let cfg = config::global().read().unwrap();
+            let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
             args.extend(cfg.get_yt_dlp_common_args());
         }
         args.push(url.to_string());
