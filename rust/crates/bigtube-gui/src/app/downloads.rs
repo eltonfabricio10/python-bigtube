@@ -314,30 +314,97 @@ pub(crate) fn download_all(state: &Rc<AppState>, items: Vec<VideoObject>) {
     };
 
     let st = state.clone();
+    let win = window.clone();
     show_quality_dialog(&window, move |q| {
         let sel = q.as_value().to_string();
         let ext = quality_ext(q);
-        for o in &items {
-            enqueue_common(
-                &st,
-                &o.url(),
-                &o.title(),
-                &o.thumbnail(),
-                &o.uploader(),
-                &sel,
-                ext,
-                None,
-                false,
-                subfolder.as_deref(),
-                None,
-                "once",
-            );
-        }
-        let msg = match &subfolder {
-            Some(s) => format!("{} → {s}/", tr("Added to downloads")),
-            None => tr("Added to downloads"),
+
+        // How many of the batch would overwrite an existing file?
+        let collisions = items
+            .iter()
+            .filter(|o| {
+                std::path::Path::new(&output_path(&o.title(), &sel, ext, subfolder.as_deref()))
+                    .exists()
+            })
+            .count();
+
+        // One enqueue pass applied to the whole batch: colliding items either get
+        // overwritten or a unique " (n)" title; the rest enqueue as-is.
+        let enqueue_batch: Rc<dyn Fn(bool)> = {
+            let st = st.clone();
+            let items = items.clone();
+            let subfolder = subfolder.clone();
+            let sel = sel.clone();
+            Rc::new(move |overwrite: bool| {
+                for o in &items {
+                    let collides = std::path::Path::new(&output_path(
+                        &o.title(),
+                        &sel,
+                        ext,
+                        subfolder.as_deref(),
+                    ))
+                    .exists();
+                    let (title, force) = match (collides, overwrite) {
+                        (true, true) => (o.title(), true),
+                        (true, false) => (
+                            unique_title(&o.title(), &sel, ext, subfolder.as_deref()),
+                            false,
+                        ),
+                        (false, _) => (o.title(), false),
+                    };
+                    enqueue_common(
+                        &st,
+                        &o.url(),
+                        &title,
+                        &o.thumbnail(),
+                        &o.uploader(),
+                        &sel,
+                        ext,
+                        None,
+                        force,
+                        subfolder.as_deref(),
+                        None,
+                        "once",
+                    );
+                }
+                let msg = match &subfolder {
+                    Some(s) => format!("{} → {s}/", tr("Added to downloads")),
+                    None => tr("Added to downloads"),
+                };
+                st.toast(&msg);
+            })
         };
-        st.toast(&msg);
+
+        if collisions == 0 {
+            enqueue_batch(false);
+            return;
+        }
+        // Ask once and apply the choice to every colliding item in the batch.
+        let dialog = adw::MessageDialog::new(
+            Some(&win),
+            Some(&tr("Some files already exist")),
+            Some(&format!(
+                "{} {}",
+                collisions,
+                tr("file(s) in this batch are already in the download folder.")
+            )),
+        );
+        dialog.add_response("cancel", &tr("Cancel"));
+        dialog.add_response("keep", &tr("Keep Both"));
+        dialog.add_response("overwrite", &tr("Overwrite"));
+        dialog.set_response_appearance("overwrite", adw::ResponseAppearance::Destructive);
+        dialog.set_default_response(Some("keep"));
+        dialog.set_close_response("cancel");
+        apply_theme_classes(&dialog);
+        dialog.connect_response(None, move |dlg, resp| {
+            match resp {
+                "overwrite" => enqueue_batch(true),
+                "keep" => enqueue_batch(false),
+                _ => {}
+            }
+            dlg.close();
+        });
+        dialog.present();
     });
 }
 
@@ -602,7 +669,7 @@ fn enqueue_download_checked(
                 None, "once",
             ),
             "keep" => {
-                let t = unique_title(&title, &format_id, &ext);
+                let t = unique_title(&title, &format_id, &ext, None);
                 enqueue_download(&state, &url, &t, &thumbnail, &uploader, &format_id, &ext);
             }
             _ => {}
@@ -613,13 +680,13 @@ fn enqueue_download_checked(
 }
 
 /// A title whose `output_path` doesn't collide, appending " (n)" as needed.
-fn unique_title(title: &str, format_id: &str, ext: &str) -> String {
-    if !std::path::Path::new(&output_path(title, format_id, ext, None)).exists() {
+fn unique_title(title: &str, format_id: &str, ext: &str, subfolder: Option<&str>) -> String {
+    if !std::path::Path::new(&output_path(title, format_id, ext, subfolder)).exists() {
         return title.to_string();
     }
     for n in 1..1000 {
         let candidate = format!("{title} ({n})");
-        if !std::path::Path::new(&output_path(&candidate, format_id, ext, None)).exists() {
+        if !std::path::Path::new(&output_path(&candidate, format_id, ext, subfolder)).exists() {
             return candidate;
         }
     }

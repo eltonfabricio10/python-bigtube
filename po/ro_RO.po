@@ -1301,3 +1301,12 @@ msgstr "Fișier de backup nevalid"
 #: bigtube-gui
 msgid "Error reading backup file"
 msgstr "Eroare la citirea fișierului de backup"
+
+msgid "Some files already exist"
+msgstr "Unele fișiere există deja"
+
+msgid "file(s) in this batch are already in the download folder."
+msgstr "fișier(e) din acest lot sunt deja în folderul de descărcări."
+
+msgid "A file with this name is already in the output folder."
+msgstr "Un fișier cu acest nume există deja în folderul de ieșire."

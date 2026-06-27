@@ -1301,3 +1301,12 @@ msgstr "Ongeldig back-upbestand"
 #: bigtube-gui
 msgid "Error reading backup file"
 msgstr "Fout bij het lezen van het back-upbestand"
+
+msgid "Some files already exist"
+msgstr "Sommige bestanden bestaan al"
+
+msgid "file(s) in this batch are already in the download folder."
+msgstr "bestand(en) in deze batch staan al in de downloadmap."
+
+msgid "A file with this name is already in the output folder."
+msgstr "Een bestand met deze naam staat al in de uitvoermap."

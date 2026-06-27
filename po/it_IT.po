@@ -1299,3 +1299,12 @@ msgstr "File di backup non valido"
 #: bigtube-gui
 msgid "Error reading backup file"
 msgstr "Errore durante la lettura del file di backup"
+
+msgid "Some files already exist"
+msgstr "Alcuni file esistono già"
+
+msgid "file(s) in this batch are already in the download folder."
+msgstr "file in questo lotto sono già nella cartella dei download."
+
+msgid "A file with this name is already in the output folder."
+msgstr "Un file con questo nome è già nella cartella di output."

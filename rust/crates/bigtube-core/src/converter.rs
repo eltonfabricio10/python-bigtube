@@ -170,8 +170,10 @@ pub fn probe_media_summary(path: &str) -> MediaSummary {
     summary
 }
 
-/// Resolve the output directory and a non-colliding output path.
-fn resolve_output_path(input_path: &str, output_format: &str) -> String {
+/// Resolve the output directory and path. With `overwrite`, returns the natural
+/// `{base}.{ext}` path (replacing any existing file); otherwise appends " (n)"
+/// to avoid colliding with an existing file.
+fn resolve_output_path(input_path: &str, output_format: &str, overwrite: bool) -> String {
     let input = Path::new(input_path);
     let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
     let use_source = cfg.get_bool("use_source_folder");
@@ -196,12 +198,21 @@ fn resolve_output_path(input_path: &str, output_format: &str) -> String {
         .and_then(|s| s.to_str())
         .unwrap_or("output");
     let mut output = dir.join(format!("{base}.{output_format}"));
-    let mut counter = 1;
-    while output.exists() {
-        output = dir.join(format!("{base} ({counter}).{output_format}"));
-        counter += 1;
+    if !overwrite {
+        let mut counter = 1;
+        while output.exists() {
+            output = dir.join(format!("{base} ({counter}).{output_format}"));
+            counter += 1;
+        }
     }
     output.to_string_lossy().into_owned()
+}
+
+/// The natural output path a conversion would write to (before any " (n)"
+/// de-duplication). The GUI checks this to decide whether to prompt about
+/// overwriting an existing file.
+pub fn planned_output_path(input_path: &str, output_format: &str) -> String {
+    resolve_output_path(input_path, output_format, true)
 }
 
 /// Build the ffmpeg argument list (pure, testable). `sub_file` is an optional
@@ -258,6 +269,7 @@ fn find_subtitle(input_path: &str) -> Option<String> {
 
 /// Convert `input_path` to `output_format` (`convert_media`). Returns the output
 /// path. Blocking; run off the UI thread.
+#[allow(clippy::too_many_arguments)]
 pub fn convert_media(
     input_path: &str,
     output_format: &str,
@@ -265,6 +277,7 @@ pub fn convert_media(
     add_metadata: bool,
     add_subtitles: bool,
     cancel: Option<&Arc<AtomicBool>>,
+    overwrite: bool,
 ) -> Result<String> {
     if !Path::new(input_path).exists() {
         return Err(BigTubeError::Config(format!(
@@ -272,7 +285,7 @@ pub fn convert_media(
         )));
     }
 
-    let output_path = resolve_output_path(input_path, output_format);
+    let output_path = resolve_output_path(input_path, output_format, overwrite);
     let duration = get_media_duration(input_path);
     let sub_file = if add_subtitles {
         find_subtitle(input_path)

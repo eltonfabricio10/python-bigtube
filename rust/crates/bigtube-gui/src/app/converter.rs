@@ -48,6 +48,16 @@ fn convert_formats_for(path: &std::path::Path) -> &'static [&'static str] {
     }
 }
 
+/// The selected output format string read live from a row's dropdown. Reads the
+/// model's current item (not a captured static list), so it stays correct after
+/// the Video/Audio toggle repopulates the dropdown.
+fn selected_format(dd: &gtk::DropDown) -> String {
+    dd.selected_item()
+        .and_downcast::<gtk::StringObject>()
+        .map(|s| s.string().to_string())
+        .unwrap_or_else(|| "mp4".to_string())
+}
+
 enum ConvMsg {
     /// `(fraction 0..1, speed_x, eta_seconds)`.
     Progress(f64, Option<f64>, Option<f64>),
@@ -184,6 +194,8 @@ pub(crate) struct PendingConv {
     add_subtitles: bool,
     ui: ConvUi,
     cancel_flag: Arc<AtomicBool>,
+    // Replace an existing output file instead of writing a " (n)" copy.
+    overwrite: bool,
 }
 
 /// Queue a conversion and try to start it. The row shows "Queued" until its
@@ -224,6 +236,7 @@ fn pump_conversion(state: &Rc<AppState>) {
         job.add_subtitles,
         job.ui,
         job.cancel_flag,
+        job.overwrite,
         state.clone(),
     );
 }
@@ -296,6 +309,21 @@ fn add_converter_row(
             format.set_selected(i as u32);
         }
     }
+    // Per-file output type (Video / Audio). Switching it repopulates the format
+    // dropdown, so a video can be converted to an audio format (extract audio)
+    // and vice-versa. Defaults to the source's own media type.
+    let type_box = gtk::Box::new(gtk::Orientation::Horizontal, 0);
+    type_box.add_css_class("linked");
+    let t_video = gtk::ToggleButton::with_label(&tr("Video"));
+    let t_audio = gtk::ToggleButton::with_label(&tr("Audio"));
+    t_audio.set_group(Some(&t_video));
+    if is_video {
+        t_video.set_active(true);
+    } else {
+        t_audio.set_active(true);
+    }
+    type_box.append(&t_video);
+    type_box.append(&t_audio);
     let convert = gtk::Button::from_icon_name("bigtube-view-refresh-symbolic");
     convert.add_css_class("flat");
     convert.set_tooltip_text(Some(&tr("Convert")));
@@ -323,6 +351,7 @@ fn add_converter_row(
     // Top row: name + format input + convert/cancel (next to the dropdown) +
     // delete. Only play/folder live in the bottom row next to the status.
     header.append(&name_lbl);
+    header.append(&type_box);
     header.append(&format);
     header.append(&convert);
     header.append(&cancel);
@@ -335,9 +364,28 @@ fn add_converter_row(
     meta_chk.set_active(restore.as_ref().map(|r| r.1).unwrap_or(true));
     let subs_chk = gtk::CheckButton::with_label(&tr("Add Subtitles"));
     subs_chk.set_active(restore.as_ref().map(|r| r.2).unwrap_or(true));
+    // Subtitles only apply when producing a video output from a video source.
     subs_chk.set_visible(is_video);
     opts.append(&meta_chk);
     opts.append(&subs_chk);
+
+    // Switching the Video/Audio toggle repopulates the format list and toggles
+    // the subtitle option.
+    {
+        let format = format.clone();
+        let subs_chk = subs_chk.clone();
+        let input_is_video = is_video;
+        t_video.connect_toggled(move |b| {
+            let video_out = b.is_active();
+            let fmts: &[&str] = if video_out {
+                &VIDEO_FORMATS
+            } else {
+                &AUDIO_FORMATS
+            };
+            format.set_model(Some(&gtk::StringList::new(fmts)));
+            subs_chk.set_visible(video_out && input_is_video);
+        });
+    }
 
     let status = gtk::Label::new(Some(tr("Ready").as_str()));
     status.set_xalign(0.0);
@@ -387,10 +435,9 @@ fn add_converter_row(
     // converted, and keep the stored format/options in sync as the user tweaks
     // them. The entry is dropped on removal (confirm_delete_converter) or once
     // the conversion succeeds (run_conversion).
-    let fmt_at = |i: u32| formats.get(i as usize).copied().unwrap_or("mp4");
     save_pending_conv(
         &source,
-        fmt_at(format.selected()),
+        &selected_format(&format),
         meta_chk.is_active(),
         subs_chk.is_active(),
     );
@@ -399,7 +446,7 @@ fn add_converter_row(
         format.connect_selected_notify(move |dd| {
             save_pending_conv(
                 &src,
-                fmt_at(dd.selected()),
+                &selected_format(dd),
                 meta.is_active(),
                 subs.is_active(),
             );
@@ -408,13 +455,13 @@ fn add_converter_row(
     {
         let (src, dd, subs) = (source.clone(), format.clone(), subs_chk.clone());
         meta_chk.connect_toggled(move |m| {
-            save_pending_conv(&src, fmt_at(dd.selected()), m.is_active(), subs.is_active());
+            save_pending_conv(&src, &selected_format(&dd), m.is_active(), subs.is_active());
         });
     }
     {
         let (src, dd, meta) = (source.clone(), format.clone(), meta_chk.clone());
         subs_chk.connect_toggled(move |s| {
-            save_pending_conv(&src, fmt_at(dd.selected()), meta.is_active(), s.is_active());
+            save_pending_conv(&src, &selected_format(&dd), meta.is_active(), s.is_active());
         });
     }
 
@@ -450,31 +497,76 @@ fn add_converter_row(
         let cancel = cancel.clone();
         let state = state.clone();
         convert.connect_clicked(move |btn| {
-            let fmt = formats
-                .get(format.selected() as usize)
-                .copied()
-                .unwrap_or("mp4")
-                .to_string();
+            let _ = btn;
+            let fmt = selected_format(&format);
             // Read the per-row option toggles; subtitles never apply to audio.
             let add_metadata = ui.meta_chk.is_active();
             let add_subtitles = is_video && ui.subs_chk.is_active();
-            let flag = Arc::new(AtomicBool::new(false));
-            {
-                let flag = flag.clone();
-                cancel.connect_clicked(move |_| flag.store(true, Ordering::SeqCst));
+            let source = path.to_string_lossy().to_string();
+
+            // One enqueue, parameterised by the overwrite choice.
+            let do_enqueue: Rc<dyn Fn(bool)> = {
+                let state = state.clone();
+                let path = path.clone();
+                let ui = ui.clone();
+                let cancel = cancel.clone();
+                let fmt = fmt.clone();
+                Rc::new(move |overwrite: bool| {
+                    let flag = Arc::new(AtomicBool::new(false));
+                    {
+                        let flag = flag.clone();
+                        cancel.connect_clicked(move |_| flag.store(true, Ordering::SeqCst));
+                    }
+                    enqueue_conversion(
+                        &state,
+                        PendingConv {
+                            path: path.clone(),
+                            fmt: fmt.clone(),
+                            add_metadata,
+                            add_subtitles,
+                            ui: ui.clone(),
+                            cancel_flag: flag,
+                            overwrite,
+                        },
+                    );
+                })
+            };
+
+            // If the output already exists, ask: Overwrite / Keep Both / Cancel.
+            let planned = bigtube_core::converter::planned_output_path(&source, &fmt);
+            if !std::path::Path::new(&planned).exists() {
+                do_enqueue(false);
+                return;
             }
-            let _ = btn;
-            enqueue_conversion(
-                &state,
-                PendingConv {
-                    path: path.clone(),
-                    fmt,
-                    add_metadata,
-                    add_subtitles,
-                    ui: ui.clone(),
-                    cancel_flag: flag,
-                },
+            let Some(window) = state.window.borrow().clone() else {
+                do_enqueue(false);
+                return;
+            };
+            let dialog = adw::MessageDialog::new(
+                Some(&window),
+                Some(&tr("File already exists")),
+                Some(&format!(
+                    "{}\n\n{}",
+                    tr("A file with this name is already in the output folder."),
+                    planned
+                )),
             );
+            dialog.add_response("cancel", &tr("Cancel"));
+            dialog.add_response("keep", &tr("Keep Both"));
+            dialog.add_response("overwrite", &tr("Overwrite"));
+            dialog.set_response_appearance("overwrite", adw::ResponseAppearance::Destructive);
+            dialog.set_default_response(Some("keep"));
+            dialog.set_close_response("cancel");
+            apply_theme_classes(&dialog);
+            dialog.connect_response(None, move |dlg, resp| {
+                match resp {
+                    "overwrite" => do_enqueue(true),
+                    "keep" => do_enqueue(false),
+                    _ => {}
+                }
+                dlg.close();
+            });
+            dialog.present();
         });
     }
 }
@@ -487,6 +579,7 @@ fn run_conversion(
     add_subtitles: bool,
     ui: ConvUi,
     cancel_flag: Arc<AtomicBool>,
+    overwrite: bool,
     state: Rc<AppState>,
 ) {
     use bigtube_core::converter::{convert_media, ConvertProgressFn};
@@ -509,6 +602,7 @@ fn run_conversion(
             add_metadata,
             add_subtitles,
             Some(&flag),
+            overwrite,
         )
         .map_err(|e| e.to_string());
         let _ = tx.send_blocking(ConvMsg::Done(result));

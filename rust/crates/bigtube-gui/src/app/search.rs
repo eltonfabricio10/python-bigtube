@@ -322,6 +322,41 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         focus.connect_leave(move |_| popover.popdown());
         entry.add_controller(focus);
     }
+    // focus-leave misses clicks on non-focusable areas (they don't move focus
+    // off the entry). Also dismiss on any press in the window that isn't on the
+    // entry. The popover is its own surface, so clicks on a suggestion don't
+    // reach this gesture.
+    if let Some(window) = state.window.borrow().clone() {
+        let gesture = gtk::GestureClick::new();
+        gesture.set_propagation_phase(gtk::PropagationPhase::Capture);
+        {
+            let popover = popover.clone();
+            let entry = entry.clone();
+            gesture.connect_pressed(move |g, _, x, y| {
+                if !popover.is_visible() {
+                    return;
+                }
+                let Some(root) = g.widget() else { return };
+                let on_entry = root.pick(x, y, gtk::PickFlags::DEFAULT).is_some_and(|w| {
+                    w == *entry.upcast_ref::<gtk::Widget>() || w.is_ancestor(&entry)
+                });
+                if !on_entry {
+                    popover.popdown();
+                }
+            });
+        }
+        window.add_controller(gesture);
+
+        // Close it when the window is minimized or loses focus — a non-autohide
+        // popover would otherwise stay floating (focus-leave doesn't reliably
+        // fire on minimize on every compositor).
+        let popover = popover.clone();
+        window.connect_is_active_notify(move |w| {
+            if !w.is_active() {
+                popover.popdown();
+            }
+        });
+    }
 
     // The last query actually searched — guards against the delayed
     // `search-changed` wiping freshly loaded results after a suggestion pick.

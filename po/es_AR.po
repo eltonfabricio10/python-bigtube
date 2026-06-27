@@ -1300,3 +1300,12 @@ msgstr "Archivo de copia de seguridad no válido"
 #: bigtube-gui
 msgid "Error reading backup file"
 msgstr "Error al leer el archivo de copia de seguridad"
+
+msgid "Some files already exist"
+msgstr "Algunos archivos ya existen"
+
+msgid "file(s) in this batch are already in the download folder."
+msgstr "archivo(s) de este lote ya están en la carpeta de descargas."
+
+msgid "A file with this name is already in the output folder."
+msgstr "Ya existe un archivo con este nombre en la carpeta de salida."

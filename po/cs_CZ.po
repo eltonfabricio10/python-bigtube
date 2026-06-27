@@ -1299,3 +1299,12 @@ msgstr "Neplatný soubor zálohy"
 #: bigtube-gui
 msgid "Error reading backup file"
 msgstr "Chyba při čtení souboru zálohy"
+
+msgid "Some files already exist"
+msgstr "Některé soubory již existují"
+
+msgid "file(s) in this batch are already in the download folder."
+msgstr "soubor(y) v této dávce už jsou ve složce stahování."
+
+msgid "A file with this name is already in the output folder."
+msgstr "Soubor s tímto názvem už je ve výstupní složce."

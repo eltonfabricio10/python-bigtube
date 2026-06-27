@@ -1301,3 +1301,12 @@ msgstr "Érvénytelen biztonsági mentés fájl"
 #: bigtube-gui
 msgid "Error reading backup file"
 msgstr "Hiba a biztonsági mentés fájl olvasásakor"
+
+msgid "Some files already exist"
+msgstr "Néhány fájl már létezik"
+
+msgid "file(s) in this batch are already in the download folder."
+msgstr "fájl ebben a kötegben már a letöltési mappában van."
+
+msgid "A file with this name is already in the output folder."
+msgstr "Egy ilyen nevű fájl már a kimeneti mappában van."

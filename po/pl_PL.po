@@ -1301,3 +1301,12 @@ msgstr "Nieprawidłowy plik kopii zapasowej"
 #: bigtube-gui
 msgid "Error reading backup file"
 msgstr "Błąd odczytu pliku kopii zapasowej"
+
+msgid "Some files already exist"
+msgstr "Niektóre pliki już istnieją"
+
+msgid "file(s) in this batch are already in the download folder."
+msgstr "plik(i) w tej partii już są w folderze pobierania."
+
+msgid "A file with this name is already in the output folder."
+msgstr "Plik o tej nazwie już znajduje się w folderze wyjściowym."
