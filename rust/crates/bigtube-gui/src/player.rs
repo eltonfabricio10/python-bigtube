@@ -372,11 +372,15 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     volume.set_value(1.0);
     volume.add_css_class("flat");
     volume.set_focus_on_click(false);
+    volume.set_valign(gtk::Align::Center);
 
     // Opens the favorites modal (view/play/remove/clear the starred list).
     let btn_favorites = gtk::Button::from_icon_name("bigtube-emblem-favorite-symbolic");
     btn_favorites.add_css_class("flat");
     btn_favorites.set_focus_on_click(false);
+    // Center vertically so it doesn't stretch to the bar's full height (which
+    // makes its hover/highlight a tall block instead of a compact button).
+    btn_favorites.set_valign(gtk::Align::Center);
     btn_favorites.set_tooltip_text(Some(&tr("Favorites")));
     crate::app::a11y_label(&btn_favorites, &tr("Favorites"));
 
