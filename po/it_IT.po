@@ -1308,3 +1308,9 @@ msgstr "file in questo lotto sono già nella cartella dei download."
 
 msgid "A file with this name is already in the output folder."
 msgstr "Un file con questo nome è già nella cartella di output."
+
+msgid "Maximize"
+msgstr "Massimizza"
+
+msgid "Fullscreen"
+msgstr "Schermo intero"

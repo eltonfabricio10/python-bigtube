@@ -76,7 +76,13 @@ fn parse_dl_progress(line: &str) -> Option<(Option<String>, Option<String>)> {
     };
     let percent = clean(f.first());
     let downloaded = num(f.get(1));
-    let total = num(f.get(2)).or_else(|| num(f.get(3))); // exact, else estimate
+    // Only show a total when yt-dlp reports an EXACT one (`total_bytes`). For
+    // DASH/HLS it usually only has `total_bytes_estimate`, which it recomputes
+    // from the variable bitrate every fragment — so it visibly jitters up and
+    // down. Showing that as "X / Y" looks broken; we drop it and keep the
+    // honest, monotonic "downloaded · speed · ETA" instead. (The progress *bar*
+    // still uses yt-dlp's estimate-based percent, but it's clamped monotonic.)
+    let total = num(f.get(2)); // exact total_bytes only; estimate is hidden
     let speed = clean(f.get(4));
     let eta = clean(f.get(5));
 
@@ -1870,11 +1876,13 @@ mod tests {
     }
 
     #[test]
-    fn parse_dl_progress_falls_back_to_estimate_and_skips_na() {
-        // total NA -> use estimate; speed NA -> omitted.
+    fn parse_dl_progress_hides_estimate_total_and_skips_na() {
+        // Only an estimate total (exact is NA) -> total is hidden, leaving the
+        // honest "downloaded · ETA" (speed NA -> omitted). This avoids the
+        // jittery "X / Y" that the recomputed estimate would produce.
         let line = "@BTDL@ 10.0%|||1048576|||NA|||52428800|||NA|||01:00";
         let (_p, detail) = parse_dl_progress(line).unwrap();
-        assert_eq!(detail.as_deref(), Some("1.0 MiB / 50.0 MiB · ETA 01:00"));
+        assert_eq!(detail.as_deref(), Some("1.0 MiB · ETA 01:00"));
         // Non-progress line -> None.
         assert!(parse_dl_progress("[download] 50%").is_none());
     }

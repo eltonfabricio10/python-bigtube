@@ -1309,3 +1309,9 @@ msgstr "Datei(en) in diesem Stapel sind bereits im Download-Ordner."
 
 msgid "A file with this name is already in the output folder."
 msgstr "Eine Datei mit diesem Namen ist bereits im Ausgabeordner."
+
+msgid "Maximize"
+msgstr "Maximieren"
+
+msgid "Fullscreen"
+msgstr "Vollbild"

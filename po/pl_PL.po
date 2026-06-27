@@ -1310,3 +1310,9 @@ msgstr "plik(i) w tej partii już są w folderze pobierania."
 
 msgid "A file with this name is already in the output folder."
 msgstr "Plik o tej nazwie już znajduje się w folderze wyjściowym."
+
+msgid "Maximize"
+msgstr "Maksymalizuj"
+
+msgid "Fullscreen"
+msgstr "Pełny ekran"

@@ -34,8 +34,12 @@
     <file>scalable/actions/bigtube-system-search-symbolic.svg</file>
     <file>scalable/actions/bigtube-user-trash-symbolic.svg</file>
     <file>scalable/actions/bigtube-video-x-generic-symbolic.svg</file>
+    <file>scalable/actions/bigtube-view-fullscreen-symbolic.svg</file>
     <file>scalable/actions/bigtube-view-list-symbolic.svg</file>
     <file>scalable/actions/bigtube-view-refresh-symbolic.svg</file>
+    <file>scalable/actions/bigtube-view-restore-symbolic.svg</file>
     <file>scalable/actions/bigtube-window-close-symbolic.svg</file>
+    <file>scalable/actions/bigtube-window-maximize-symbolic.svg</file>
+    <file>scalable/actions/bigtube-window-restore-symbolic.svg</file>
   </gresource>
 </gresources>

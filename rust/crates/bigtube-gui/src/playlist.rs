@@ -180,6 +180,33 @@ pub fn show(
     });
     header.pack_end(&filter_ctrl);
     header.pack_end(&select_btn);
+
+    // Maximize toggle (icon flips to "restore" while maximized).
+    let max_btn = gtk::Button::from_icon_name("bigtube-window-maximize-symbolic");
+    max_btn.set_focus_on_click(false);
+    max_btn.set_tooltip_text(Some(&tr("Maximize")));
+    crate::app::a11y_label(&max_btn, &tr("Maximize"));
+    {
+        let w = win.clone();
+        max_btn.connect_clicked(move |_| {
+            if w.is_maximized() {
+                w.unmaximize();
+            } else {
+                w.maximize();
+            }
+        });
+    }
+    {
+        let b = max_btn.clone();
+        win.connect_maximized_notify(move |w| {
+            b.set_icon_name(if w.is_maximized() {
+                "bigtube-window-restore-symbolic"
+            } else {
+                "bigtube-window-maximize-symbolic"
+            });
+        });
+    }
+    header.pack_end(&max_btn);
     stack.add_named(&scrolled, Some("results"));
 
     // Empty / error.

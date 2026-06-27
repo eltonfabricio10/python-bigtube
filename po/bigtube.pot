@@ -1302,3 +1302,9 @@ msgstr ""
 
 msgid "A file with this name is already in the output folder."
 msgstr ""
+
+msgid "Maximize"
+msgstr ""
+
+msgid "Fullscreen"
+msgstr ""

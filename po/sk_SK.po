@@ -1308,3 +1308,9 @@ msgstr "súbor(y) v tejto dávke už sú v priečinku sťahovania."
 
 msgid "A file with this name is already in the output folder."
 msgstr "Súbor s týmto názvom už je vo výstupnom priečinku."
+
+msgid "Maximize"
+msgstr "Maximalizovať"
+
+msgid "Fullscreen"
+msgstr "Celá obrazovka"

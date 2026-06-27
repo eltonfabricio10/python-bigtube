@@ -1305,3 +1305,9 @@ msgstr "ficheiro(s) deste lote já estão na pasta de transferências."
 
 msgid "A file with this name is already in the output folder."
 msgstr "Já existe um ficheiro com este nome na pasta de saída."
+
+msgid "Maximize"
+msgstr "Maximizar"
+
+msgid "Fullscreen"
+msgstr "Ecrã inteiro"

@@ -1310,3 +1310,9 @@ msgstr "fájl ebben a kötegben már a letöltési mappában van."
 
 msgid "A file with this name is already in the output folder."
 msgstr "Egy ilyen nevű fájl már a kimeneti mappában van."
+
+msgid "Maximize"
+msgstr "Teljes méret"
+
+msgid "Fullscreen"
+msgstr "Teljes képernyő"

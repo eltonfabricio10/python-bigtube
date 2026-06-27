@@ -1308,3 +1308,9 @@ msgstr "file(s) in this batch are already in the download folder."
 
 msgid "A file with this name is already in the output folder."
 msgstr "A file with this name is already in the output folder."
+
+msgid "Maximize"
+msgstr "Maximize"
+
+msgid "Fullscreen"
+msgstr "Fullscreen"

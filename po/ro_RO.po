@@ -1310,3 +1310,9 @@ msgstr "fișier(e) din acest lot sunt deja în folderul de descărcări."
 
 msgid "A file with this name is already in the output folder."
 msgstr "Un fișier cu acest nume există deja în folderul de ieșire."
+
+msgid "Maximize"
+msgstr "Maximizează"
+
+msgid "Fullscreen"
+msgstr "Ecran complet"

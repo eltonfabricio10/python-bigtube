@@ -1310,3 +1310,9 @@ msgstr "bestand(en) in deze batch staan al in de downloadmap."
 
 msgid "A file with this name is already in the output folder."
 msgstr "Een bestand met deze naam staat al in de uitvoermap."
+
+msgid "Maximize"
+msgstr "Maximaliseren"
+
+msgid "Fullscreen"
+msgstr "Volledig scherm"

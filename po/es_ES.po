@@ -1304,3 +1304,9 @@ msgstr "archivo(s) de este lote ya están en la carpeta de descargas."
 
 msgid "A file with this name is already in the output folder."
 msgstr "Ya existe un archivo con este nombre en la carpeta de salida."
+
+msgid "Maximize"
+msgstr "Maximizar"
+
+msgid "Fullscreen"
+msgstr "Pantalla completa"

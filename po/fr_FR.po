@@ -1309,3 +1309,9 @@ msgstr "fichier(s) de ce lot sont déjà dans le dossier de téléchargement."
 
 msgid "A file with this name is already in the output folder."
 msgstr "Un fichier portant ce nom est déjà dans le dossier de sortie."
+
+msgid "Maximize"
+msgstr "Agrandir"
+
+msgid "Fullscreen"
+msgstr "Plein écran"

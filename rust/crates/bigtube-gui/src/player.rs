@@ -57,6 +57,18 @@ pub struct Player {
     showing_frames: Cell<bool>,
     volume: gtk::ScaleButton,
     video_window: adw::Window,
+    // Overlay controls inside the detachable video window (mirror of the bar).
+    video_toolbar: adw::ToolbarView,
+    ov_prev: gtk::Button,
+    ov_play: gtk::Button,
+    ov_next: gtk::Button,
+    ov_scale: gtk::Scale,
+    ov_cur: gtk::Label,
+    ov_tot: gtk::Label,
+    ov_reveal: gtk::Revealer,
+    // Bumped on each pointer motion; a scheduled auto-hide only fires if it
+    // still matches (i.e. no motion happened in between).
+    autohide_gen: Cell<u64>,
     seeking: Rc<Cell<bool>>,
     duration: Rc<Cell<f64>>,
     token: Arc<AtomicU64>,
@@ -117,9 +129,90 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     let picture = gtk::Picture::new();
     picture.set_paintable(Some(&paintable));
     picture.set_size_request(640, 360);
+
+    // Header bar with maximize + fullscreen toggles (icons flip to a "restore"
+    // glyph once active, driven by the window's notify::maximized/fullscreened).
+    let header = adw::HeaderBar::new();
+    let btn_max = gtk::Button::from_icon_name("bigtube-window-maximize-symbolic");
+    btn_max.add_css_class("flat");
+    btn_max.set_focus_on_click(false);
+    btn_max.set_tooltip_text(Some(&tr("Maximize")));
+    crate::app::a11y_label(&btn_max, &tr("Maximize"));
+    let btn_fs = gtk::Button::from_icon_name("bigtube-view-fullscreen-symbolic");
+    btn_fs.add_css_class("flat");
+    btn_fs.set_focus_on_click(false);
+    btn_fs.set_tooltip_text(Some(&tr("Fullscreen")));
+    crate::app::a11y_label(&btn_fs, &tr("Fullscreen"));
+    header.pack_end(&btn_max);
+    header.pack_end(&btn_fs);
+
+    // Overlay controls — a compact mirror of the bottom bar that floats over the
+    // video so playback stays drivable when the window is maximized or
+    // fullscreen (the main window's bar is then unreachable). It auto-hides in
+    // fullscreen and reappears on pointer motion.
+    let ov_prev = gtk::Button::from_icon_name("bigtube-media-skip-backward-symbolic");
+    let ov_play = gtk::Button::from_icon_name("bigtube-media-playback-start-symbolic");
+    let ov_next = gtk::Button::from_icon_name("bigtube-media-skip-forward-symbolic");
+    let ov_fs = gtk::Button::from_icon_name("bigtube-view-fullscreen-symbolic");
+    for (b, tip) in [
+        (&ov_prev, tr("Previous")),
+        (&ov_next, tr("Next")),
+        (&ov_fs, tr("Fullscreen")),
+    ] {
+        b.add_css_class("flat");
+        b.add_css_class("osd");
+        b.add_css_class("circular");
+        b.set_focus_on_click(false);
+        b.set_tooltip_text(Some(&tip));
+    }
+    ov_play.add_css_class("osd");
+    ov_play.add_css_class("circular");
+    ov_play.set_focus_on_click(false);
+    ov_play.set_tooltip_text(Some(&tr("Play/Pause")));
+
+    let ov_cur = gtk::Label::new(Some("--:--"));
+    ov_cur.add_css_class("numeric");
+    let ov_scale = gtk::Scale::new(gtk::Orientation::Horizontal, None::<&gtk::Adjustment>);
+    ov_scale.set_range(0.0, 1.0);
+    ov_scale.set_hexpand(true);
+    ov_scale.set_draw_value(false);
+    let ov_tot = gtk::Label::new(Some("--:--"));
+    ov_tot.add_css_class("numeric");
+
+    let ov_buttons = gtk::Box::new(gtk::Orientation::Horizontal, 8);
+    ov_buttons.set_halign(gtk::Align::Center);
+    ov_buttons.append(&ov_prev);
+    ov_buttons.append(&ov_play);
+    ov_buttons.append(&ov_next);
+    let ov_progress = gtk::Box::new(gtk::Orientation::Horizontal, 8);
+    ov_progress.append(&ov_cur);
+    ov_progress.append(&ov_scale);
+    ov_progress.append(&ov_tot);
+    ov_progress.append(&ov_fs);
+    let ov_box = gtk::Box::new(gtk::Orientation::Vertical, 4);
+    ov_box.add_css_class("osd");
+    ov_box.add_css_class("toolbar");
+    ov_box.set_margin_start(12);
+    ov_box.set_margin_end(12);
+    ov_box.set_margin_bottom(12);
+    ov_box.set_margin_top(6);
+    ov_box.append(&ov_buttons);
+    ov_box.append(&ov_progress);
+
+    let ov_reveal = gtk::Revealer::new();
+    ov_reveal.set_transition_type(gtk::RevealerTransitionType::SlideUp);
+    ov_reveal.set_valign(gtk::Align::End);
+    ov_reveal.set_halign(gtk::Align::Fill);
+    ov_reveal.set_child(Some(&ov_box));
+    ov_reveal.set_reveal_child(true);
+
+    let overlay = gtk::Overlay::new();
+    overlay.set_child(Some(&picture));
+    overlay.add_overlay(&ov_reveal);
+
     let video_view = adw::ToolbarView::new();
-    video_view.add_top_bar(&adw::HeaderBar::new());
-    video_view.set_content(Some(&picture));
+    video_view.add_top_bar(&header);
+    video_view.set_content(Some(&overlay));
     let video_window = adw::Window::builder()
         .transient_for(parent)
         .title(tr("BigTube Player"))
@@ -303,6 +396,15 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         showing_frames: Cell::new(false),
         volume: volume.clone(),
         video_window: video_window.clone(),
+        video_toolbar: video_view.clone(),
+        ov_prev: ov_prev.clone(),
+        ov_play: ov_play.clone(),
+        ov_next: ov_next.clone(),
+        ov_scale: ov_scale.clone(),
+        ov_cur,
+        ov_tot,
+        ov_reveal: ov_reveal.clone(),
+        autohide_gen: Cell::new(0),
         seeking: Rc::new(Cell::new(false)),
         duration: Rc::new(Cell::new(0.0)),
         token: Arc::new(AtomicU64::new(0)),
@@ -355,7 +457,12 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         let key = gtk::EventControllerKey::new();
         key.connect_key_pressed(move |_, keyval, _, _| {
             if keyval == gtk::gdk::Key::Escape {
-                w.set_visible(false);
+                // Escape exits fullscreen first, then closes (hides) the window.
+                if w.is_fullscreen() {
+                    w.unfullscreen();
+                } else {
+                    w.set_visible(false);
+                }
                 glib::Propagation::Stop
             } else {
                 glib::Propagation::Proceed
@@ -382,7 +489,13 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     }
     {
         let p = player.clone();
-        video_window.connect_hide(move |_| p.update_inline());
+        video_window.connect_hide(move |w| {
+            // Don't reopen stuck in fullscreen next time.
+            if w.is_fullscreen() {
+                w.unfullscreen();
+            }
+            p.update_inline();
+        });
     }
     // Seek.
     {
@@ -400,6 +513,103 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
             }
             glib::Propagation::Proceed
         });
+    }
+    // Overlay seek bar mirrors the bottom one.
+    {
+        let p = player.clone();
+        ov_scale.connect_change_value(move |_, _, value| {
+            let dur = p.duration.get();
+            if dur > 0.0 {
+                p.seeking.set(true);
+                let secs = (value * dur).max(0.0);
+                let _ = p.playbin.seek_simple(
+                    gst::SeekFlags::FLUSH | gst::SeekFlags::KEY_UNIT,
+                    gst::ClockTime::from_seconds(secs as u64),
+                );
+                p.seeking.set(false);
+            }
+            glib::Propagation::Proceed
+        });
+    }
+    // Overlay transport buttons drive the same player.
+    {
+        let p = player.clone();
+        ov_play.connect_clicked(move |_| p.toggle());
+    }
+    {
+        let p = player.clone();
+        ov_prev.connect_clicked(move |_| p.prev());
+    }
+    {
+        let p = player.clone();
+        ov_next.connect_clicked(move |_| p.next());
+    }
+    // Maximize / fullscreen toggles (header + overlay).
+    {
+        let w = video_window.clone();
+        btn_max.connect_clicked(move |_| {
+            if w.is_maximized() {
+                w.unmaximize();
+            } else {
+                w.maximize();
+            }
+        });
+    }
+    {
+        let w = video_window.clone();
+        btn_fs.connect_clicked(move |_| {
+            if w.is_fullscreen() {
+                w.unfullscreen();
+            } else {
+                w.fullscreen();
+            }
+        });
+    }
+    {
+        let w = video_window.clone();
+        ov_fs.connect_clicked(move |_| {
+            if w.is_fullscreen() {
+                w.unfullscreen();
+            } else {
+                w.fullscreen();
+            }
+        });
+    }
+    // Keep the toggle icons in sync with the actual window state.
+    {
+        let b = btn_max.clone();
+        video_window.connect_maximized_notify(move |w| {
+            b.set_icon_name(if w.is_maximized() {
+                "bigtube-window-restore-symbolic"
+            } else {
+                "bigtube-window-maximize-symbolic"
+            });
+        });
+    }
+    {
+        let p = player.clone();
+        let bf = btn_fs.clone();
+        let of = ov_fs.clone();
+        video_window.connect_fullscreened_notify(move |w| {
+            let icon = if w.is_fullscreen() {
+                "bigtube-view-restore-symbolic"
+            } else {
+                "bigtube-view-fullscreen-symbolic"
+            };
+            bf.set_icon_name(icon);
+            of.set_icon_name(icon);
+            // Entering fullscreen starts the auto-hide cycle; leaving it pins the
+            // controls + header back on.
+            p.show_controls();
+        });
+    }
+    // Reveal the overlay controls (and header) on pointer motion; they auto-hide
+    // again after a few seconds while fullscreen.
+    {
+        let p = player.clone();
+        let motion = gtk::EventControllerMotion::new();
+        motion.connect_motion(move |_, _, _| p.show_controls());
+        overlay.add_controller(motion);
     }
 
     // Bus watch: handle buffering (HLS/network streams), advance on EOS, stop on
@@ -463,6 +673,33 @@ impl Player {
     /// Result rows watch this to highlight the row that's playing.
     pub fn now_playing(&self) -> NowPlaying {
         self.now_playing.clone()
+    }
+
+    /// Set the play/pause glyph on both the bottom bar and the overlay button.
+    fn set_play_icon(&self, icon: &str) {
+        self.btn_play.set_icon_name(icon);
+        self.ov_play.set_icon_name(icon);
+    }
+
+    /// Reveal the video-window overlay controls (and header) and, while
+    /// fullscreen, schedule them to auto-hide after a few idle seconds.
+    fn show_controls(self: &Rc<Self>) {
+        self.ov_reveal.set_reveal_child(true);
+        self.video_toolbar.set_reveal_top_bars(true);
+        if !self.video_window.is_fullscreen() {
+            return; // windowed/maximized: controls stay pinned.
+        }
+        let gen = self.autohide_gen.get().wrapping_add(1);
+        self.autohide_gen.set(gen);
+        let this = self.clone();
+        glib::timeout_add_local_once(Duration::from_secs(3), move || {
+            // Only hide if no motion happened since (gen unchanged) and we're
+            // still fullscreen.
+            if this.autohide_gen.get() == gen && this.video_window.is_fullscreen() {
+                this.ov_reveal.set_reveal_child(false);
+                this.video_toolbar.set_reveal_top_bars(false);
+            }
+        });
     }
 
     /// Play a single remote item (resolved via yt-dlp), as a one-item queue.
@@ -565,6 +802,9 @@ impl Player {
         self.scale.set_value(0.0);
         self.time_cur.set_text(&fmt_time(0.0));
         self.time_tot.set_text("--:--");
+        self.ov_scale.set_value(0.0);
+        self.ov_cur.set_text(&fmt_time(0.0));
+        self.ov_tot.set_text("--:--");
 
         if item.is_local {
             let shown_artist = if item.artist.is_empty() {
@@ -622,8 +862,7 @@ impl Player {
         let _ = self.playbin.set_state(gst::State::Null);
         self.playbin.set_property("uri", uri);
         let _ = self.playbin.set_state(gst::State::Playing);
-        self.btn_play
-            .set_icon_name("bigtube-media-playback-pause-symbolic");
+        self.set_play_icon("bigtube-media-playback-pause-symbolic");
     }
 
     fn prev(self: &Rc<Self>) {
@@ -691,6 +930,8 @@ impl Player {
         let many = self.queue.borrow().len() > 1;
         self.btn_prev.set_sensitive(many);
         self.btn_next.set_sensitive(many);
+        self.ov_prev.set_sensitive(many);
+        self.ov_next.set_sensitive(many);
     }
 
     /// Show the inline video for video items; fall back to the thumbnail (and
@@ -720,12 +961,16 @@ impl Player {
         self.btn_stop.set_sensitive(on);
         self.scale.set_sensitive(on);
         self.volume.set_sensitive(on);
+        self.ov_play.set_sensitive(on);
+        self.ov_scale.set_sensitive(on);
         if on {
             // prev/next + inline video refine themselves per queue/item.
             self.update_nav();
         } else {
             self.btn_prev.set_sensitive(false);
             self.btn_next.set_sensitive(false);
+            self.ov_prev.set_sensitive(false);
+            self.ov_next.set_sensitive(false);
         }
     }
 
@@ -761,13 +1006,11 @@ impl Player {
         if state == gst::State::Playing {
             self.paused_by_user.set(true);
             let _ = self.playbin.set_state(gst::State::Paused);
-            self.btn_play
-                .set_icon_name("bigtube-media-playback-start-symbolic");
+            self.set_play_icon("bigtube-media-playback-start-symbolic");
         } else {
             self.paused_by_user.set(false);
             let _ = self.playbin.set_state(gst::State::Playing);
-            self.btn_play
-                .set_icon_name("bigtube-media-playback-pause-symbolic");
+            self.set_play_icon("bigtube-media-playback-pause-symbolic");
         }
     }
 
@@ -782,11 +1025,13 @@ impl Player {
         self.showing_frames.set(false);
         self.set_loading(false);
         let _ = self.playbin.set_state(gst::State::Null);
-        self.btn_play
-            .set_icon_name("bigtube-media-playback-start-symbolic");
+        self.set_play_icon("bigtube-media-playback-start-symbolic");
         self.scale.set_value(0.0);
+        self.ov_scale.set_value(0.0);
         self.time_cur.set_text("--:--");
         self.time_tot.set_text("--:--");
+        self.ov_cur.set_text("--:--");
+        self.ov_tot.set_text("--:--");
         self.title_lbl.set_text(&tr("Unknown Title"));
         self.video_window.set_title(Some(&tr("BigTube Player")));
         self.artist_lbl.set_text(&tr("Unknown Artist"));
@@ -820,11 +1065,16 @@ impl Player {
             .unwrap_or(0.0);
         self.duration.set(dur);
         if dur > 0.0 {
-            self.scale.set_value(pos / dur);
-            self.time_cur.set_text(&fmt_time(pos));
+            let frac = pos / dur;
+            let cur = fmt_time(pos);
             // Right label counts the remaining time down (e.g. "-12:34").
-            let remaining = (dur - pos).max(0.0);
-            self.time_tot.set_text(&format!("-{}", fmt_time(remaining)));
+            let remaining = format!("-{}", fmt_time((dur - pos).max(0.0)));
+            self.scale.set_value(frac);
+            self.time_cur.set_text(&cur);
+            self.time_tot.set_text(&remaining);
+            self.ov_scale.set_value(frac);
+            self.ov_cur.set_text(&cur);
+            self.ov_tot.set_text(&remaining);
         }
         // Real playback progress means the current track works — clear the
         // error streak so a later failure starts skipping fresh.
