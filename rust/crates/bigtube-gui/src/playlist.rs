@@ -53,9 +53,11 @@ pub fn show(
     on_download_all: BatchAction,
     on_schedule_all: BatchAction,
 ) {
+    // Non-modal so the player bar in the main window stays usable while a
+    // playlist is open.
     let win = adw::Window::builder()
         .transient_for(parent)
-        .modal(true)
+        .modal(false)
         .default_width(560)
         .default_height(480)
         .title(&title)
@@ -144,7 +146,7 @@ pub fn show(
             on_copy.clone(),
         );
         let (fav_toggle, fav_query) = crate::app::favorites::make_handlers();
-        row.set_favorite_handlers(fav_toggle, fav_query);
+        row.set_favorite_handlers(fav_toggle, fav_query, crate::app::favorites::watch());
         row.set_now_playing(now_playing.clone());
         list_item.set_child(Some(&row));
     });

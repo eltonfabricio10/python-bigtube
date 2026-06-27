@@ -11,7 +11,7 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 
 use crate::i18n::tr;
-use crate::objects::{NowPlaying, VideoObject};
+use crate::objects::{FavoritesWatch, NowPlaying, VideoObject};
 
 /// Cap the in-memory texture cache so long browsing sessions don't grow it
 /// without bound (each decoded thumbnail holds GPU memory). Thumbnails are
@@ -73,6 +73,7 @@ mod imp {
         pub on_copy: RefCell<Option<RowAction>>,
         pub on_favorite: RefCell<Option<FavToggle>>,
         pub is_favorite: RefCell<Option<FavQuery>>,
+        pub fav_watch: OnceCell<FavoritesWatch>,
         pub thumb_gen: Cell<u64>,
         // Property bindings for the current item, cleared on rebind.
         pub bindings: RefCell<Vec<glib::Binding>>,
@@ -308,13 +309,29 @@ impl SearchResultRow {
 
     /// Install the favorite toggle + state-query handlers and reveal the heart
     /// button. `toggle` flips membership (returning the new state); `is_fav`
-    /// reports the current state so the icon can be set on (re)bind.
-    pub fn set_favorite_handlers(&self, toggle: FavToggle, is_fav: FavQuery) {
+    /// reports the current state so the icon can be set on (re)bind. `watch`
+    /// notifies when the list changes elsewhere (e.g. "favorite all") so the
+    /// heart restays in sync without a rebind.
+    pub fn set_favorite_handlers(
+        &self,
+        toggle: FavToggle,
+        is_fav: FavQuery,
+        watch: FavoritesWatch,
+    ) {
         let imp = self.imp();
         imp.on_favorite.replace(Some(toggle));
         imp.is_favorite.replace(Some(is_fav));
         if let Some(btn) = imp.btn_favorite.get() {
             btn.set_visible(true);
+        }
+        if imp.fav_watch.get().is_none() {
+            let weak = self.downgrade();
+            watch.connect_rev_notify(move |_| {
+                if let Some(row) = weak.upgrade() {
+                    row.refresh_favorite();
+                }
+            });
+            let _ = imp.fav_watch.set(watch);
         }
         self.refresh_favorite();
     }

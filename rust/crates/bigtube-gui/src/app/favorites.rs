@@ -10,9 +10,24 @@ use gtk::glib;
 use bigtube_core::favorites::{FavoriteItem, Favorites};
 
 use crate::i18n::tr;
-use crate::objects::VideoObject;
+use crate::objects::{FavoritesWatch, VideoObject};
 use crate::player::{Player, QueueItem};
 use crate::row::{FavQuery, FavToggle};
+
+thread_local! {
+    /// Process-wide "favorites changed" observable (main thread only).
+    static WATCH: FavoritesWatch = FavoritesWatch::new();
+}
+
+/// Clone of the shared favorites-changed observable.
+pub(crate) fn watch() -> FavoritesWatch {
+    WATCH.with(|w| w.clone())
+}
+
+/// Bump the observable so every heart re-queries its state.
+fn notify_changed() {
+    WATCH.with(|w| w.bump());
+}
 
 /// On-disk favorites file (`~/.config/bigtube/favorites.json`).
 pub(crate) fn favorites_path() -> std::path::PathBuf {
@@ -83,9 +98,20 @@ pub(crate) fn set_heart_icon(btn: &gtk::Button, favorited: bool) {
 
 /// Toggle + query handlers to wire into a `SearchResultRow`'s heart button.
 pub(crate) fn make_handlers() -> (FavToggle, FavQuery) {
-    let toggle: FavToggle = Rc::new(|obj: VideoObject| favorites().toggle(item_from(&obj)));
+    let toggle: FavToggle = Rc::new(|obj: VideoObject| {
+        let now = favorites().toggle(item_from(&obj));
+        notify_changed();
+        now
+    });
     let query: FavQuery = Rc::new(|url: &str| favorites().contains(url));
     (toggle, query)
+}
+
+/// Toggle a downloaded local file's favorite state; returns the new state.
+pub(crate) fn toggle_local(path: &str, artist: &str) -> bool {
+    let now = favorites().toggle(local_item(path, artist));
+    notify_changed();
+    now
 }
 
 /// Favorite every (non-playlist) item in `objs`; returns how many were newly
@@ -100,6 +126,9 @@ pub(crate) fn add_all(objs: &[VideoObject]) -> usize {
         if favs.add(item_from(obj)) {
             added += 1;
         }
+    }
+    if added > 0 {
+        notify_changed();
     }
     added
 }
@@ -121,14 +150,17 @@ fn to_queue(items: &[FavoriteItem]) -> Vec<QueueItem> {
 
 /// Open the favorites modal over `parent`, playing through `player`.
 pub(crate) fn open_window(parent: &impl IsA<gtk::Window>, player: &Rc<Player>) {
+    // Non-modal so the player bar in the main window stays usable while the
+    // favorites list is open.
     let win = adw::Window::builder()
         .transient_for(parent)
-        .modal(true)
+        .modal(false)
         .default_width(560)
         .default_height(520)
         .title(tr("Favorites"))
         .build();
     crate::app::apply_theme_classes(&win);
+    let now_playing = player.now_playing();
 
     let toolbar = adw::ToolbarView::new();
     let header = adw::HeaderBar::new();
@@ -190,8 +222,26 @@ pub(crate) fn open_window(parent: &impl IsA<gtk::Window>, player: &Rc<Player>) {
         stack.set_visible_child_name("empty");
     } else {
         stack.set_visible_child_name("list");
+        let current = now_playing.url();
         for fav in &items {
             let lbr = build_fav_row(fav);
+            // Highlight the row that's playing now, and keep it in sync as the
+            // track changes.
+            if !current.is_empty() && current == fav.url {
+                lbr.row.add_css_class("playing");
+            }
+            {
+                let row = lbr.row.clone();
+                let url = fav.url.clone();
+                now_playing.connect_url_notify(move |np| {
+                    let cur = np.url();
+                    if !cur.is_empty() && cur == url {
+                        row.add_css_class("playing");
+                    } else {
+                        row.remove_css_class("playing");
+                    }
+                });
+            }
             // Play from this item (resolve its index in the live list at click
             // time, since removals shift positions).
             {
@@ -211,6 +261,7 @@ pub(crate) fn open_window(parent: &impl IsA<gtk::Window>, player: &Rc<Player>) {
                 let show_empty = show_empty_if_needed.clone();
                 lbr.on_remove.connect_clicked(move |_| {
                     favorites().remove(&url);
+                    notify_changed();
                     list.remove(&row);
                     show_empty();
                 });
@@ -254,6 +305,7 @@ pub(crate) fn open_window(parent: &impl IsA<gtk::Window>, player: &Rc<Player>) {
             dialog.connect_response(None, move |dlg, resp| {
                 if resp == "clear" {
                     favorites().clear();
+                    notify_changed();
                     while let Some(child) = list.first_child() {
                         list.remove(&child);
                     }

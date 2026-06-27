@@ -1150,8 +1150,7 @@ pub(crate) fn wire_row_footer(state: &Rc<AppState>, row: &DownloadRow) {
             if path.is_empty() {
                 return;
             }
-            let item = crate::app::favorites::local_item(&path, &artist.borrow());
-            let now = crate::app::favorites::favorites().toggle(item);
+            let now = crate::app::favorites::toggle_local(&path, &artist.borrow());
             crate::app::favorites::set_heart_icon(b, now);
         });
     }

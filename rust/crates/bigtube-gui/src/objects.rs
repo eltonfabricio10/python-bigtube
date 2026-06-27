@@ -88,6 +88,50 @@ impl Default for NowPlaying {
     }
 }
 
+mod fav_watch_imp {
+    use super::*;
+
+    #[derive(Default, glib::Properties)]
+    #[properties(wrapper_type = super::FavoritesWatch)]
+    pub struct FavoritesWatch {
+        /// Monotonic revision, bumped whenever the favorites list changes.
+        #[property(get, set)]
+        pub rev: Cell<u64>,
+    }
+
+    #[glib::object_subclass]
+    impl ObjectSubclass for FavoritesWatch {
+        const NAME: &'static str = "BigTubeFavoritesWatch";
+        type Type = super::FavoritesWatch;
+    }
+
+    #[glib::derived_properties]
+    impl ObjectImpl for FavoritesWatch {}
+}
+
+glib::wrapper! {
+    /// A shared, observable "favorites changed" handle. Any mutation bumps `rev`;
+    /// rows and the player-bar heart watch it to re-query their starred state.
+    pub struct FavoritesWatch(ObjectSubclass<fav_watch_imp::FavoritesWatch>);
+}
+
+impl FavoritesWatch {
+    pub fn new() -> Self {
+        glib::Object::builder().build()
+    }
+
+    /// Signal that the favorites list changed.
+    pub fn bump(&self) {
+        self.set_rev(self.rev().wrapping_add(1));
+    }
+}
+
+impl Default for FavoritesWatch {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl VideoObject {
     /// Build from a core `SearchResult`.
     pub fn from_result(r: &SearchResult) -> Self {
