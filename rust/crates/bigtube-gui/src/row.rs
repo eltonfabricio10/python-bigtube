@@ -426,6 +426,12 @@ impl SearchResultRow {
         imp.btn_play.get().unwrap().set_visible(!is_playlist);
         imp.btn_download.get().unwrap().set_visible(!is_playlist);
         imp.btn_open.get().unwrap().set_visible(is_playlist);
+        // The heart is for individual videos only — never on a playlist row
+        // (which just opens the playlist window). Only when handlers are wired.
+        if let Some(btn) = imp.btn_favorite.get() {
+            let has_handlers = imp.is_favorite.borrow().is_some();
+            btn.set_visible(has_handlers && !is_playlist);
+        }
 
         // Invalidate any in-flight thumbnail load for the previous item.
         imp.thumb_gen.set(imp.thumb_gen.get().wrapping_add(1));

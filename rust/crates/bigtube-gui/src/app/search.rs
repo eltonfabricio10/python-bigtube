@@ -117,6 +117,8 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             on_open.clone(),
             on_copy.clone(),
         );
+        let (fav_toggle, fav_query) = crate::app::favorites::make_handlers();
+        row.set_favorite_handlers(fav_toggle, fav_query, crate::app::favorites::watch());
         if let Some(player) = setup_state.player.borrow().clone() {
             row.set_now_playing(player.now_playing());
         }
