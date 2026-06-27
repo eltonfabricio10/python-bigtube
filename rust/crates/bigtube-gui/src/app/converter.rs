@@ -573,7 +573,7 @@ fn run_conversion(
                     }
                     if config::global()
                         .read()
-                        .unwrap()
+                        .unwrap_or_else(|e| e.into_inner())
                         .get_bool("save_converter_history")
                     {
                         bigtube_core::converter_history::ConverterHistoryManager::with_max(

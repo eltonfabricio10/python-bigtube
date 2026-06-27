@@ -539,7 +539,7 @@ impl Player {
         // "<video name> - <quality>" (the configured in-app preview quality).
         let quality = config::global()
             .read()
-            .unwrap()
+            .unwrap_or_else(|e| e.into_inner())
             .get_string("preview_quality");
         let win_title = if quality.is_empty() {
             shown_title.clone()
@@ -799,6 +799,13 @@ impl Player {
 
     fn update_position(&self) {
         if self.seeking.get() {
+            return;
+        }
+        // Nothing playing → skip the position/duration queries. current_state()
+        // is a cheap cached read (no blocking pipeline query), so the 500ms tick
+        // costs almost nothing while idle.
+        let st = self.playbin.current_state();
+        if st != gst::State::Playing && st != gst::State::Paused {
             return;
         }
         let pos = self

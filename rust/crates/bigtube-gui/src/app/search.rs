@@ -531,7 +531,7 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
     // Persist the query to search history (honouring the setting).
     let save = config::global()
         .read()
-        .unwrap()
+        .unwrap_or_else(|e| e.into_inner())
         .get_bool("save_search_history");
     bigtube_core::search_history::SearchHistory::new(search_history_path()).add(&query, save);
 

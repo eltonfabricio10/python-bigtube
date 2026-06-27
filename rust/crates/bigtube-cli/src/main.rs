@@ -86,7 +86,7 @@ fn run_download(
     if let Some(dir) = output {
         config::global()
             .write()
-            .unwrap()
+            .unwrap_or_else(|e| e.into_inner())
             .set("download_path", json!(dir));
     }
 

@@ -1041,7 +1041,7 @@ pub fn build_window(app: &adw::Application) {
 fn start_update_check(state: &Rc<AppState>) {
     if !config::global()
         .read()
-        .unwrap()
+        .unwrap_or_else(|e| e.into_inner())
         .get_bool("check_updates_on_startup")
     {
         return;
@@ -1646,17 +1646,20 @@ fn start_clipboard_monitor(state: &Rc<AppState>) {
     // True while the prompt is open, so we don't stack dialogs each tick.
     let prompting = Rc::new(Cell::new(false));
 
-    glib::timeout_add_seconds_local(1, move || {
-        // Respect the live setting; skip polling while disabled.
+    // React to actual clipboard changes instead of polling once a second for the
+    // whole session. The `changed` signal fires only when the clipboard contents
+    // are replaced, so there's no steady background wakeup + allocation.
+    clipboard.connect_changed(move |clipboard| {
+        // Respect the live setting.
         if !config::global()
             .read()
-            .unwrap()
+            .unwrap_or_else(|e| e.into_inner())
             .get_bool("monitor_clipboard")
         {
-            return glib::ControlFlow::Continue;
+            return;
         }
         if prompting.get() {
-            return glib::ControlFlow::Continue;
+            return;
         }
         let state = state.clone();
         let last = last.clone();
@@ -1671,7 +1674,6 @@ fn start_clipboard_monitor(state: &Rc<AppState>) {
                 }
             }
         });
-        glib::ControlFlow::Continue
     });
 }
 

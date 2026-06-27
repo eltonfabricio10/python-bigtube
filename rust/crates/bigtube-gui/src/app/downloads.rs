@@ -5,6 +5,7 @@
 //! shared list/file/play helpers live in the parent module (reached via `super::`).
 
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -429,7 +430,7 @@ fn show_quality_dialog(
         .collect();
     let default_quality = config::global()
         .read()
-        .unwrap()
+        .unwrap_or_else(|e| e.into_inner())
         .get_string("default_quality");
     let start_audio = audio.iter().any(|(_, q)| q.as_value() == default_quality);
 
@@ -1101,13 +1102,19 @@ pub(crate) fn play_download_at(state: &Rc<AppState>, clicked: &gtk::Box) {
         return;
     };
     let rows = state.download_rows.borrow();
+    // Index rows by their card widget so the per-child lookup below is O(1).
+    // Scanning every row for every child was O(n^2) on large histories.
+    let by_card: HashMap<usize, &DownloadRow> = rows
+        .values()
+        .map(|r| (r.container.as_ptr() as usize, r))
+        .collect();
     let mut items = Vec::new();
     let mut start = 0usize;
     let mut child = state.downloads_box.first_child();
     while let Some(c) = child {
         let next = c.next_sibling();
         if let Some(card) = card_of(&c) {
-            if let Some((_, row)) = rows.iter().find(|(_, r)| r.container == card) {
+            if let Some(row) = by_card.get(&(card.as_ptr() as usize)) {
                 let path = row.file_path.borrow().clone();
                 if !path.is_empty() && std::path::Path::new(&path).exists() {
                     if card == *clicked {
