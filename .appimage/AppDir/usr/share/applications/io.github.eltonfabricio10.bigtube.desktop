@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=BigTube
+GenericName=Multimedia Downloader
+GenericName[pt_BR]=Baixador de Mídia
+Comment=Universal Multimedia Downloader
+Comment[pt_BR]=Baixador Universal de Mídia
+Exec=bigtube-gui
+Icon=bigtube
+Terminal=false
+Categories=Video;AudioVideo;Network;
+Keywords=download;video;audio;youtube;converter;mp3;mp4;yt-dlp;
+Keywords[pt_BR]=baixar;download;video;audio;youtube;conversor;mp3;mp4;
+StartupNotify=true
+StartupWMClass=io.github.eltonfabricio10.bigtube

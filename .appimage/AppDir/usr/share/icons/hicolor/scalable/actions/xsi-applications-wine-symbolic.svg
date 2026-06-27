@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   height="16px"
+   viewBox="0 0 16 16"
+   width="16px"
+   version="1.1"
+   id="svg9322"
+   sodipodi:docname="xsi-applications-wine-symbolic.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs9326" />
+  <sodipodi:namedview
+     id="namedview9324"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="5.6734271"
+     inkscape:cx="-14.277085"
+     inkscape:cy="-24.852703"
+     inkscape:window-width="2560"
+     inkscape:window-height="1348"
+     inkscape:window-x="2560"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg9322" />
+  <g
+     id="SVGRepo_bgCarrier"
+     stroke-width="0"
+     transform="translate(1.4099318,3.0146056)"
+     style="fill:#000000;fill-opacity:1" />
+  <g
+     id="SVGRepo_tracerCarrier"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     transform="translate(1.4099318,3.0146056)"
+     style="fill:#000000;fill-opacity:1" />
+  <g
+     id="SVGRepo_bgCarrier-3"
+     stroke-width="0"
+     transform="matrix(0.69999937,0,0,0.699965,-4.8899798,-2.2568595)"
+     style="fill:#2e3436;fill-opacity:1" />
+  <g
+     id="SVGRepo_tracerCarrier-6"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     transform="matrix(0.69999937,0,0,0.699965,-4.8899798,-2.2568595)"
+     style="fill:#2e3436;fill-opacity:1" />
+  <g
+     id="SVGRepo_bgCarrier-39"
+     stroke-width="0"
+     transform="matrix(0.05357143,0,0,0.05357143,-102.89464,-133.98637)" />
+  <g
+     id="SVGRepo_tracerCarrier-4"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     transform="matrix(0.05357143,0,0,0.05357143,-102.89464,-133.98637)" />
+  <g
+     id="SVGRepo_bgCarrier-1"
+     stroke-width="0"
+     transform="matrix(0.07142857,0,0,0.07142857,-130.84894,-103.80106)"
+     style="fill:#2e3436;fill-opacity:1" />
+  <g
+     id="SVGRepo_tracerCarrier-2"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     transform="matrix(0.07142857,0,0,0.07142857,-130.84894,-103.80106)"
+     style="fill:#2e3436;fill-opacity:1" />
+  <g
+     id="SVGRepo_iconCarrier"
+     transform="matrix(-0.05134122,-0.0375387,-0.0375387,0.05134122,19.171262,6.383435)"
+     style="fill:#2e3436;fill-opacity:1">
+    <path
+       d="M 209.73047,110.01318 183.67285,21.73535 A 7.99985,7.99985 0 0 0 176,16 H 80 a 7.99985,7.99985 0 0 0 -7.67285,5.73535 L 46.26953,110.01367 A 31.984,31.984 0 0 0 47.791,132.24951 88.23263,88.23263 0 0 0 120,183.62012 V 224 H 88 a 8,8 0 0 0 0,16 h 80 a 8,8 0 0 0 0,-16 h -32 v -40.37988 a 88.2322,88.2322 0 0 0 72.209,-51.3711 31.98167,31.98167 0 0 0 1.52147,-22.23584 z M 131.57764,96.84473 C 105.398,83.75488 84.38428,83.76318 69.66943,87.25586 L 85.97949,32 h 84.041 l 20.8125,70.5083 c -10.77635,4.4927 -31.07713,8.42529 -59.25535,-5.66357 z"
+       id="path9562"
+       style="fill:#2e3436;fill-opacity:1" />
+  </g>
+</svg>
