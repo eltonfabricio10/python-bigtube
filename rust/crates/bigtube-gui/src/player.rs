@@ -437,24 +437,19 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
             crate::app::favorites::open_window(&parent, &p);
         });
     }
-    // Fill the player-bar heart while the current track is a favorite; refresh
-    // it when the track changes or the favorites list is edited anywhere.
+    // Fill the player-bar heart whenever there are any favorites at all (an
+    // at-a-glance "you have favorites to open"); outline when the list is empty.
+    // Refreshes whenever the favorites list changes anywhere.
     {
         let btn = btn_favorites.clone();
-        let np = player.now_playing();
         let refresh = Rc::new(move || {
-            let url = np.url();
-            let fav = !url.is_empty() && crate::app::favorites::favorites().contains(&url);
-            btn.set_icon_name(if fav {
+            let any = !crate::app::favorites::favorites().list().is_empty();
+            btn.set_icon_name(if any {
                 "bigtube-emblem-favorite-filled-symbolic"
             } else {
                 "bigtube-emblem-favorite-symbolic"
             });
         });
-        {
-            let r = refresh.clone();
-            player.now_playing().connect_url_notify(move |_| r());
-        }
         {
             let r = refresh.clone();
             crate::app::favorites::watch().connect_rev_notify(move |_| r());
