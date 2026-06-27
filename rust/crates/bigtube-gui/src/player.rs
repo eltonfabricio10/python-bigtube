@@ -373,9 +373,17 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     volume.add_css_class("circular");
     volume.set_focus_on_click(false);
 
+    // Opens the favorites modal (view/play/remove/clear the starred list).
+    let btn_favorites = gtk::Button::from_icon_name("bigtube-emblem-favorite-symbolic");
+    btn_favorites.add_css_class("circular");
+    btn_favorites.set_focus_on_click(false);
+    btn_favorites.set_tooltip_text(Some(&tr("Favorites")));
+    crate::app::a11y_label(&btn_favorites, &tr("Favorites"));
+
     bar.append(&thumb_stack);
     bar.append(&title_box);
     bar.append(&player_box);
+    bar.append(&btn_favorites);
     bar.append(&volume);
 
     let player = Rc::new(Player {
@@ -417,6 +425,14 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         _bus_watch: RefCell::new(None),
     });
 
+    // Open the favorites modal.
+    {
+        let p = player.clone();
+        let parent = parent.clone();
+        btn_favorites.connect_clicked(move |_| {
+            crate::app::favorites::open_window(&parent, &p);
+        });
+    }
     // Play / pause.
     {
         let p = player.clone();

@@ -76,6 +76,10 @@ pub fn show(
     sched_all.set_focus_on_click(false);
     sched_all.set_tooltip_text(Some(&tr("Schedule all")));
     crate::app::a11y_label(&sched_all, &tr("Schedule all"));
+    let fav_all = gtk::Button::from_icon_name("bigtube-emblem-favorite-symbolic");
+    fav_all.set_focus_on_click(false);
+    fav_all.set_tooltip_text(Some(&tr("Favorite all")));
+    crate::app::a11y_label(&fav_all, &tr("Favorite all"));
     let select_btn = gtk::ToggleButton::new();
     select_btn.set_icon_name("bigtube-selection-mode-symbolic");
     select_btn.set_focus_on_click(false);
@@ -84,6 +88,7 @@ pub fn show(
     header.pack_start(&play_all);
     header.pack_start(&dl_all);
     header.pack_start(&sched_all);
+    header.pack_start(&fav_all);
     // select_btn + the filter control are packed at the end later, so the filter
     // can sit at the far-right corner (after the select button).
     toolbar.add_top_bar(&header);
@@ -138,6 +143,8 @@ pub fn show(
             Rc::new(|_| {}),
             on_copy.clone(),
         );
+        let (fav_toggle, fav_query) = crate::app::favorites::make_handlers();
+        row.set_favorite_handlers(fav_toggle, fav_query);
         row.set_now_playing(now_playing.clone());
         list_item.set_child(Some(&row));
     });
@@ -149,6 +156,19 @@ pub fn show(
             row.set_item(&video);
         }
     });
+    // Favorite every video in the playlist at once.
+    {
+        let store = store.clone();
+        fav_all.connect_clicked(move |_| {
+            let mut objs = Vec::new();
+            for i in 0..store.n_items() {
+                if let Some(o) = store.item(i).and_then(|o| o.downcast::<VideoObject>().ok()) {
+                    objs.push(o);
+                }
+            }
+            crate::app::favorites::add_all(&objs);
+        });
+    }
     // A local title filter narrows the playlist as you type (wraps the store;
     // selection wraps the filter so only matching rows show).
     let needle = Rc::new(RefCell::new(String::new()));

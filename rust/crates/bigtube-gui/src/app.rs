@@ -18,6 +18,7 @@ use crate::objects::{NowPlaying, VideoObject};
 mod converter;
 mod donations;
 mod downloads;
+pub(crate) mod favorites;
 mod search;
 mod settings;
 mod widgets;
@@ -55,6 +56,7 @@ struct DownloadRow {
     btn_folder: gtk::Button,
     btn_play: gtk::Button,
     btn_convert: gtk::Button,
+    btn_favorite: gtk::Button,
     file_path: Rc<RefCell<String>>,
     artist: Rc<RefCell<String>>,
     // Shared across clones so buttons and the Started handler see the same state.
@@ -166,8 +168,13 @@ impl DownloadRow {
         btn_convert.add_css_class("flat");
         btn_convert.set_tooltip_text(Some(&tr("Add to Converter")));
         a11y_label(&btn_convert, &tr("Add to Converter"));
+        let btn_favorite = gtk::Button::from_icon_name("bigtube-emblem-favorite-symbolic");
+        btn_favorite.add_css_class("flat");
+        btn_favorite.set_tooltip_text(Some(&tr("Add to Favorites")));
+        a11y_label(&btn_favorite, &tr("Add to Favorites"));
         actions.append(&btn_folder);
         actions.append(&btn_play);
+        actions.append(&btn_favorite);
         actions.append(&btn_convert);
         footer.append(&detail);
         footer.append(&actions);
@@ -251,6 +258,7 @@ impl DownloadRow {
             btn_folder,
             btn_play,
             btn_convert,
+            btn_favorite,
             btn_delete,
             file_path: Rc::new(RefCell::new(file_path.to_string())),
             artist: Rc::new(RefCell::new(artist.to_string())),

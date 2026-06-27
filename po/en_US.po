@@ -1314,3 +1314,30 @@ msgstr "Maximize"
 
 msgid "Fullscreen"
 msgstr "Fullscreen"
+
+msgid "Favorites"
+msgstr "Favorites"
+
+msgid "Add to Favorites"
+msgstr "Add to Favorites"
+
+msgid "Remove from Favorites"
+msgstr "Remove from Favorites"
+
+msgid "Clear favorites"
+msgstr "Clear favorites"
+
+msgid "Clear favorites?"
+msgstr "Clear favorites?"
+
+msgid "This removes every item from your favorites."
+msgstr "This removes every item from your favorites."
+
+msgid "No favorites yet"
+msgstr "No favorites yet"
+
+msgid "Tap the heart on a video to add it here."
+msgstr "Tap the heart on a video to add it here."
+
+msgid "Favorite all"
+msgstr "Favorite all"

@@ -1316,3 +1316,30 @@ msgstr "Maximizează"
 
 msgid "Fullscreen"
 msgstr "Ecran complet"
+
+msgid "Favorites"
+msgstr "Favorite"
+
+msgid "Add to Favorites"
+msgstr "Adaugă la favorite"
+
+msgid "Remove from Favorites"
+msgstr "Elimină din favorite"
+
+msgid "Clear favorites"
+msgstr "Golește favoritele"
+
+msgid "Clear favorites?"
+msgstr "Golești favoritele?"
+
+msgid "This removes every item from your favorites."
+msgstr "Aceasta elimină toate elementele din favorite."
+
+msgid "No favorites yet"
+msgstr "Încă niciun favorit"
+
+msgid "Tap the heart on a video to add it here."
+msgstr "Atinge inima unui videoclip pentru a-l adăuga aici."
+
+msgid "Favorite all"
+msgstr "Adaugă toate la favorite"

@@ -1315,3 +1315,30 @@ msgstr "Agrandir"
 
 msgid "Fullscreen"
 msgstr "Plein écran"
+
+msgid "Favorites"
+msgstr "Favoris"
+
+msgid "Add to Favorites"
+msgstr "Ajouter aux favoris"
+
+msgid "Remove from Favorites"
+msgstr "Retirer des favoris"
+
+msgid "Clear favorites"
+msgstr "Vider les favoris"
+
+msgid "Clear favorites?"
+msgstr "Vider les favoris ?"
+
+msgid "This removes every item from your favorites."
+msgstr "Cela supprime tous les éléments de vos favoris."
+
+msgid "No favorites yet"
+msgstr "Aucun favori pour l'instant"
+
+msgid "Tap the heart on a video to add it here."
+msgstr "Touchez le cœur d'une vidéo pour l'ajouter ici."
+
+msgid "Favorite all"
+msgstr "Tout ajouter aux favoris"

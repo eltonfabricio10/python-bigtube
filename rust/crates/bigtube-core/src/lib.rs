@@ -13,6 +13,7 @@ pub mod download_manager;
 pub mod downloader;
 pub mod enums;
 pub mod errors;
+pub mod favorites;
 pub mod helpers;
 pub mod history;
 pub mod json_store;

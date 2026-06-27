@@ -1314,3 +1314,30 @@ msgstr "Maximalizovat"
 
 msgid "Fullscreen"
 msgstr "Celá obrazovka"
+
+msgid "Favorites"
+msgstr "Oblíbené"
+
+msgid "Add to Favorites"
+msgstr "Přidat do oblíbených"
+
+msgid "Remove from Favorites"
+msgstr "Odebrat z oblíbených"
+
+msgid "Clear favorites"
+msgstr "Vymazat oblíbené"
+
+msgid "Clear favorites?"
+msgstr "Vymazat oblíbené?"
+
+msgid "This removes every item from your favorites."
+msgstr "Tímto odeberete všechny položky z oblíbených."
+
+msgid "No favorites yet"
+msgstr "Zatím žádné oblíbené"
+
+msgid "Tap the heart on a video to add it here."
+msgstr "Klepnutím na srdíčko u videa jej sem přidáte."
+
+msgid "Favorite all"
+msgstr "Vše do oblíbených"

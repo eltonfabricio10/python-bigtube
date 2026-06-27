@@ -1316,3 +1316,30 @@ msgstr "Teljes méret"
 
 msgid "Fullscreen"
 msgstr "Teljes képernyő"
+
+msgid "Favorites"
+msgstr "Kedvencek"
+
+msgid "Add to Favorites"
+msgstr "Hozzáadás a kedvencekhez"
+
+msgid "Remove from Favorites"
+msgstr "Eltávolítás a kedvencekből"
+
+msgid "Clear favorites"
+msgstr "Kedvencek törlése"
+
+msgid "Clear favorites?"
+msgstr "Törli a kedvenceket?"
+
+msgid "This removes every item from your favorites."
+msgstr "Ez eltávolít minden elemet a kedvencek közül."
+
+msgid "No favorites yet"
+msgstr "Még nincsenek kedvencek"
+
+msgid "Tap the heart on a video to add it here."
+msgstr "Koppints egy videó szívére, hogy ide kerüljön."
+
+msgid "Favorite all"
+msgstr "Összes a kedvencekhez"

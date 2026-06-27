@@ -1136,6 +1136,25 @@ pub(crate) fn wire_row_footer(state: &Rc<AppState>, row: &DownloadRow) {
             }
         });
     }
+    // Favorite toggle for the downloaded local file.
+    {
+        let fp = row.file_path.clone();
+        let artist = row.artist.clone();
+        let btn = row.btn_favorite.clone();
+        crate::app::favorites::set_heart_icon(
+            &btn,
+            crate::app::favorites::favorites().contains(&fp.borrow()),
+        );
+        btn.connect_clicked(move |b| {
+            let path = fp.borrow().clone();
+            if path.is_empty() {
+                return;
+            }
+            let item = crate::app::favorites::local_item(&path, &artist.borrow());
+            let now = crate::app::favorites::favorites().toggle(item);
+            crate::app::favorites::set_heart_icon(b, now);
+        });
+    }
     // Per-row delete: ask whether to drop just the history entry or the file too.
     {
         let state = state.clone();

@@ -47,6 +47,10 @@ thread_local! {
 
 /// Shared callback type for the row's action buttons.
 pub type RowAction = Rc<dyn Fn(VideoObject)>;
+/// Toggle a favorite; returns the new state (true = now favorited).
+pub type FavToggle = Rc<dyn Fn(VideoObject) -> bool>;
+/// Query whether a URL is currently favorited.
+pub type FavQuery = Rc<dyn Fn(&str) -> bool>;
 
 mod imp {
     use super::*;
@@ -61,11 +65,14 @@ mod imp {
         pub btn_download: OnceCell<gtk::Button>,
         pub btn_open: OnceCell<gtk::Button>,
         pub btn_copy: OnceCell<gtk::Button>,
+        pub btn_favorite: OnceCell<gtk::Button>,
         pub item: RefCell<Option<VideoObject>>,
         pub on_play: RefCell<Option<RowAction>>,
         pub on_download: RefCell<Option<RowAction>>,
         pub on_open: RefCell<Option<RowAction>>,
         pub on_copy: RefCell<Option<RowAction>>,
+        pub on_favorite: RefCell<Option<FavToggle>>,
+        pub is_favorite: RefCell<Option<FavQuery>>,
         pub thumb_gen: Cell<u64>,
         // Property bindings for the current item, cleared on rebind.
         pub bindings: RefCell<Vec<glib::Binding>>,
@@ -145,10 +152,20 @@ mod imp {
             btn_copy.set_valign(gtk::Align::Center);
             btn_copy.set_tooltip_text(Some(&tr("Copy Link")));
             crate::app::a11y_label(&btn_copy, &tr("Copy Link"));
+            // Favorite toggle (hidden until favorite handlers are installed; the
+            // icon flips between an outline and a filled heart per state).
+            let btn_favorite = gtk::Button::from_icon_name("bigtube-emblem-favorite-symbolic");
+            btn_favorite.add_css_class("flat");
+            btn_favorite.set_focus_on_click(false);
+            btn_favorite.set_valign(gtk::Align::Center);
+            btn_favorite.set_tooltip_text(Some(&tr("Add to Favorites")));
+            crate::app::a11y_label(&btn_favorite, &tr("Add to Favorites"));
+            btn_favorite.set_visible(false);
 
             obj.append(&checkbox);
             obj.append(&thumb);
             obj.append(&vbox);
+            obj.append(&btn_favorite);
             obj.append(&btn_play);
             obj.append(&btn_download);
             obj.append(&btn_open);
@@ -199,6 +216,18 @@ mod imp {
                     }
                 }
             });
+            let weak = obj.downgrade();
+            btn_favorite.connect_clicked(move |_| {
+                if let Some(row) = weak.upgrade() {
+                    let imp = row.imp();
+                    if let (Some(item), Some(cb)) =
+                        (imp.item.borrow().clone(), imp.on_favorite.borrow().clone())
+                    {
+                        let now_fav = cb(item);
+                        row.set_favorite_icon(now_fav);
+                    }
+                }
+            });
 
             let _ = self.checkbox.set(checkbox);
             let _ = self.thumb.set(thumb);
@@ -208,6 +237,7 @@ mod imp {
             let _ = self.btn_download.set(btn_download);
             let _ = self.btn_open.set(btn_open);
             let _ = self.btn_copy.set(btn_copy);
+            let _ = self.btn_favorite.set(btn_favorite);
         }
     }
 
@@ -276,12 +306,57 @@ impl SearchResultRow {
         self.imp().on_copy.replace(Some(on_copy));
     }
 
+    /// Install the favorite toggle + state-query handlers and reveal the heart
+    /// button. `toggle` flips membership (returning the new state); `is_fav`
+    /// reports the current state so the icon can be set on (re)bind.
+    pub fn set_favorite_handlers(&self, toggle: FavToggle, is_fav: FavQuery) {
+        let imp = self.imp();
+        imp.on_favorite.replace(Some(toggle));
+        imp.is_favorite.replace(Some(is_fav));
+        if let Some(btn) = imp.btn_favorite.get() {
+            btn.set_visible(true);
+        }
+        self.refresh_favorite();
+    }
+
+    /// Flip the heart between filled (favorited) and outline, updating tooltip.
+    fn set_favorite_icon(&self, favorited: bool) {
+        if let Some(btn) = self.imp().btn_favorite.get() {
+            btn.set_icon_name(if favorited {
+                "bigtube-emblem-favorite-filled-symbolic"
+            } else {
+                "bigtube-emblem-favorite-symbolic"
+            });
+            let tip = if favorited {
+                tr("Remove from Favorites")
+            } else {
+                tr("Add to Favorites")
+            };
+            btn.set_tooltip_text(Some(&tip));
+        }
+    }
+
+    /// Recompute the heart state for the currently-bound item.
+    fn refresh_favorite(&self) {
+        let imp = self.imp();
+        let favorited = match (
+            imp.item.borrow().as_ref(),
+            imp.is_favorite.borrow().as_ref(),
+        ) {
+            (Some(item), Some(q)) => q(&item.url()),
+            _ => false,
+        };
+        self.set_favorite_icon(favorited);
+    }
+
     /// Bind a model item to this row (called on factory bind).
     pub fn set_item(&self, item: &VideoObject) {
         let imp = self.imp();
         imp.item.replace(Some(item.clone()));
-        // Recompute the highlight for the newly-bound item (rows are recycled).
+        // Recompute the highlight + favorite state for the newly-bound item
+        // (rows are recycled).
         self.refresh_playing();
+        self.refresh_favorite();
 
         // Rebind the selection checkbox to this item (drop the previous item's
         // bindings first, since rows are recycled).
