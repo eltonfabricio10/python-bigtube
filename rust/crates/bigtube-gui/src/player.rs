@@ -822,7 +822,9 @@ impl Player {
         if dur > 0.0 {
             self.scale.set_value(pos / dur);
             self.time_cur.set_text(&fmt_time(pos));
-            self.time_tot.set_text(&fmt_time(dur));
+            // Right label counts the remaining time down (e.g. "-12:34").
+            let remaining = (dur - pos).max(0.0);
+            self.time_tot.set_text(&format!("-{}", fmt_time(remaining)));
         }
         // Real playback progress means the current track works — clear the
         // error streak so a later failure starts skipping fresh.

@@ -66,6 +66,11 @@ struct DownloadRow {
     // The persisted schedule id, while this row is a pending scheduled download
     // (lets the "Scheduled" management tab find and cancel/edit the live row).
     sched_id: Rc<RefCell<Option<String>>>,
+    // Last shown progress fraction, to keep the bar monotonic: yt-dlp's percent
+    // is derived from a fluctuating size *estimate* on some streams, so it can
+    // briefly go backwards. We ignore small regressions but allow a large drop
+    // (a real new phase, e.g. video→audio in a DASH merge).
+    last_fraction: Rc<Cell<f64>>,
 }
 
 impl DownloadRow {
@@ -254,6 +259,7 @@ impl DownloadRow {
             is_paused,
             is_error,
             sched_id: Rc::new(RefCell::new(None)),
+            last_fraction: Rc::new(Cell::new(0.0)),
         }
     }
 
@@ -268,6 +274,15 @@ impl DownloadRow {
         self.status.set_text(&status_label(status));
         if let Some(p) = percent {
             if let Some(f) = parse_percent(p) {
+                // Keep the bar monotonic against estimate jitter; allow a big
+                // drop (>30%) through as a genuine new phase.
+                let last = self.last_fraction.get();
+                let f = if f < last && (last - f) < 0.30 {
+                    last
+                } else {
+                    f
+                };
+                self.last_fraction.set(f);
                 self.progress.set_fraction(f);
             }
         }
@@ -320,6 +335,7 @@ impl DownloadRow {
     fn reset_to_initial(&self) {
         self.is_error.set(true); // routes the pause button to the retry path
         self.is_paused.set(false);
+        self.last_fraction.set(0.0);
         self.progress.set_fraction(0.0);
         self.set_progress_class("");
         self.detail.set_visible(false);
@@ -863,12 +879,23 @@ pub fn build_window(app: &adw::Application) {
                             .unwrap_or(false)
                         {
                             if let Some(gapp) = gio::Application::default() {
-                                let note = gio::Notification::new(&tr("Download complete"));
-                                if let Some((path, _)) = &info {
-                                    if let Some(name) = std::path::Path::new(path).file_name() {
-                                        note.set_body(Some(&name.to_string_lossy()));
+                                // Title is the app name; the body says what happened
+                                // ("Download complete" + the file name).
+                                let note = gio::Notification::new("BigTube");
+                                let body = match &info {
+                                    Some((path, _)) => {
+                                        match std::path::Path::new(path).file_name() {
+                                            Some(name) => format!(
+                                                "{}\n{}",
+                                                tr("Download complete"),
+                                                name.to_string_lossy()
+                                            ),
+                                            None => tr("Download complete"),
+                                        }
                                     }
-                                }
+                                    None => tr("Download complete"),
+                                };
+                                note.set_body(Some(&body));
                                 gapp.send_notification(None, &note);
                             }
                         }
@@ -1515,34 +1542,6 @@ fn clear_search_history(state: &Rc<AppState>) {
         dlg.close();
         if resp == "clear" {
             bigtube_core::search_history::SearchHistory::new(search_history_path()).clear();
-            state.toast(&tr("History cleared successfully!"));
-        }
-    });
-    dialog.present();
-}
-
-fn clear_converter_history(state: &Rc<AppState>) {
-    let Some(window) = state.window.borrow().clone() else {
-        return;
-    };
-    let dialog = adw::MessageDialog::new(
-        Some(&window),
-        Some(&tr("Clear conversion history?")),
-        Some(&tr("Delete all previous conversion entries")),
-    );
-    dialog.add_response("cancel", &tr("Cancel"));
-    dialog.add_response("clear", &tr("Clear"));
-    dialog.set_response_appearance("clear", adw::ResponseAppearance::Destructive);
-    dialog.set_default_response(Some("cancel"));
-    dialog.set_close_response("cancel");
-    apply_theme_classes(&dialog);
-
-    let state = state.clone();
-    dialog.connect_response(None, move |dlg, resp| {
-        dlg.close();
-        if resp == "clear" {
-            bigtube_core::converter_history::ConverterHistoryManager::new(converter_history_path())
-                .clear_all();
             state.toast(&tr("History cleared successfully!"));
         }
     });

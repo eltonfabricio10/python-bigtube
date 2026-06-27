@@ -138,6 +138,8 @@ fn cleanup_intermediates(output: &str) {
         }
         let is_temp = frag.is_match(name)
             || name.ends_with(".part")
+            // DASH/HLS per-fragment scratch files: `<name>.part-FragN`.
+            || name.contains(".part-Frag")
             || name.ends_with(".ytdl")
             || name.ends_with(".temp.mp4")
             || name.ends_with(".temp.mkv");

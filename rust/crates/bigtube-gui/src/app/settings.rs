@@ -11,9 +11,8 @@ use bigtube_core::config;
 
 use super::widgets::{button_row, combo_row, spin_row, spin_row_step, switch_row};
 use super::{
-    apply_theme, clear_converter_history, clear_search_history, export_history, import_history,
-    refresh_version_subtitle, reset_all_data, run_update, set_cfg, tr_markup, AppState,
-    QUALITY_OPTIONS,
+    apply_theme, clear_search_history, export_history, import_history, refresh_version_subtitle,
+    reset_all_data, run_update, set_cfg, tr_markup, AppState, QUALITY_OPTIONS,
 };
 use crate::i18n::tr;
 
@@ -885,16 +884,8 @@ fn build_converter_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup
         c.max_converter_history as f64,
         |v| set_cfg("max_converter_history", serde_json::json!(v as i64)),
     ));
-    {
-        let state = state.clone();
-        group.add(&button_row(
-            &tr("Clear Conversion History"),
-            &tr("Delete all previous conversion entries"),
-            "bigtube-user-trash-symbolic",
-            false,
-            move || clear_converter_history(&state),
-        ));
-    }
+    // The converter page header already has a "Clear History" button, so a
+    // duplicate here in Settings is redundant.
 
     group
 }
