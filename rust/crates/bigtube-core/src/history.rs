@@ -4,7 +4,7 @@
 //! Entries are dynamic JSON objects, mirroring the Python dicts so the on-disk
 //! format is identical.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
 use serde_json::{json, Map, Value};
@@ -82,47 +82,8 @@ impl HistoryManager {
 
     /// Add a new download at the top of the list (`add_entry`). Immediate save.
     pub fn add_entry(&self, video_info: &Value, format_data: &Value, file_path: &str) -> Value {
+        let new_item = build_history_item(video_info, format_data, file_path);
         let mut history = self.load();
-
-        let mut item = Map::new();
-        item.insert(
-            "id".into(),
-            video_info.get("id").cloned().unwrap_or(Value::Null),
-        );
-        item.insert(
-            "title".into(),
-            json!(str_or(video_info, "title", "Unknown Title")),
-        );
-        let url = first_str(video_info, &["url", "webpage_url"]).unwrap_or_default();
-        item.insert("url".into(), json!(url));
-        item.insert(
-            "thumbnail".into(),
-            json!(str_or(video_info, "thumbnail", "")),
-        );
-        item.insert("uploader".into(), json!(str_or(video_info, "uploader", "")));
-        item.insert("file_path".into(), json!(file_path));
-        let format_id = format_data
-            .get("id")
-            .or_else(|| format_data.get("format_id"))
-            .cloned()
-            .unwrap_or(Value::Null);
-        item.insert("format_id".into(), format_id);
-        item.insert(
-            "ext".into(),
-            format_data.get("ext").cloned().unwrap_or(Value::Null),
-        );
-        item.insert(
-            "scheduled_time".into(),
-            video_info
-                .get("scheduled_time")
-                .cloned()
-                .unwrap_or(Value::Null),
-        );
-        item.insert("status".into(), json!(DownloadStatus::Pending.as_value()));
-        item.insert("progress".into(), json!(0.0));
-        item.insert("timestamp".into(), json!(now_epoch()));
-
-        let new_item = Value::Object(item);
         history.insert(0, new_item.clone());
         history.truncate(self.max_size);
         self.save_immediate(history);
@@ -219,6 +180,143 @@ impl HistoryManager {
     }
 }
 
+/// Build a single history entry from yt-dlp metadata. Pure (no I/O), shared by
+/// [`HistoryManager::add_entry`] and [`add_entry_now`].
+fn build_history_item(video_info: &Value, format_data: &Value, file_path: &str) -> Value {
+    let mut item = Map::new();
+    item.insert(
+        "id".into(),
+        video_info.get("id").cloned().unwrap_or(Value::Null),
+    );
+    item.insert(
+        "title".into(),
+        json!(str_or(video_info, "title", "Unknown Title")),
+    );
+    let url = first_str(video_info, &["url", "webpage_url"]).unwrap_or_default();
+    item.insert("url".into(), json!(url));
+    item.insert(
+        "thumbnail".into(),
+        json!(str_or(video_info, "thumbnail", "")),
+    );
+    item.insert("uploader".into(), json!(str_or(video_info, "uploader", "")));
+    item.insert("file_path".into(), json!(file_path));
+    let format_id = format_data
+        .get("id")
+        .or_else(|| format_data.get("format_id"))
+        .cloned()
+        .unwrap_or(Value::Null);
+    item.insert("format_id".into(), format_id);
+    item.insert(
+        "ext".into(),
+        format_data.get("ext").cloned().unwrap_or(Value::Null),
+    );
+    item.insert(
+        "scheduled_time".into(),
+        video_info
+            .get("scheduled_time")
+            .cloned()
+            .unwrap_or(Value::Null),
+    );
+    item.insert("status".into(), json!(DownloadStatus::Pending.as_value()));
+    item.insert("progress".into(), json!(0.0));
+    item.insert("timestamp".into(), json!(now_epoch()));
+    Value::Object(item)
+}
+
+// --- One-shot mutations -----------------------------------------------------
+// These do a single synchronous load → mutate → save WITHOUT constructing a
+// `HistoryManager` (whose `new()` spawns a debouncer thread that is immediately
+// flushed and joined on drop — pure churn for a one-off write). Each re-reads
+// the current file, preserving the "never clobber a freshly-imported history"
+// invariant. Call them serially per file: `json_store` locks each write but not
+// across the load→save, so parallel callers could lose updates.
+
+fn mutate_now(path: &Path, f: impl FnOnce(&mut Vec<Value>) -> bool) {
+    let mut items: Vec<Value> = load_json(path, Vec::new());
+    if f(&mut items) {
+        save_json(path, &items, Some(2));
+    }
+}
+
+/// Append a new entry at the top, capped at `max_size` (`add_entry`, one-shot).
+pub fn add_entry_now(
+    path: &Path,
+    max_size: usize,
+    video_info: &Value,
+    format_data: &Value,
+    file_path: &str,
+) {
+    let item = build_history_item(video_info, format_data, file_path);
+    mutate_now(path, |items| {
+        items.insert(0, item);
+        items.truncate(max_size.max(1));
+        true
+    });
+}
+
+/// Remove the entry for `file_path` (`remove_entry`, one-shot).
+pub fn remove_entry_now(path: &Path, file_path: &str) {
+    mutate_now(path, |items| {
+        let before = items.len();
+        items.retain(|i| i.get("file_path").and_then(Value::as_str) != Some(file_path));
+        items.len() != before
+    });
+}
+
+/// Update status/progress of the entry for `file_path` (`update_status`, one-shot).
+pub fn update_status_now(
+    path: &Path,
+    file_path: &str,
+    status: DownloadStatus,
+    progress: Option<f64>,
+) {
+    let now = now_epoch();
+    let status_val = status.as_value();
+    mutate_now(path, |items| {
+        let mut changed = false;
+        for item in items.iter_mut() {
+            if item.get("file_path").and_then(Value::as_str) == Some(file_path) {
+                if item.get("status").and_then(Value::as_str) != Some(status_val) {
+                    item["status"] = json!(status_val);
+                    changed = true;
+                }
+                if let Some(p) = progress {
+                    if item.get("progress").and_then(Value::as_f64) != Some(p) {
+                        item["progress"] = json!(p);
+                        changed = true;
+                    }
+                }
+                if changed {
+                    item["last_updated"] = json!(now);
+                }
+                break;
+            }
+        }
+        changed
+    });
+}
+
+/// Store the probed media summary on the entry for `file_path` (one-shot).
+pub fn set_media_summary_now(path: &Path, file_path: &str, summary: &str) {
+    mutate_now(path, |items| {
+        for item in items.iter_mut() {
+            if item.get("file_path").and_then(Value::as_str) == Some(file_path) {
+                if item.get("media_summary").and_then(Value::as_str) != Some(summary) {
+                    item["media_summary"] = json!(summary);
+                    return true;
+                }
+                break;
+            }
+        }
+        false
+    });
+}
+
+/// Wipe the entire history (`clear_all`, one-shot).
+pub fn clear_all_now(path: &Path) {
+    save_json(path, &Vec::<Value>::new(), Some(2));
+}
+
 fn str_or(obj: &Value, key: &str, default: &str) -> String {
     obj.get(key)
         .and_then(Value::as_str)
@@ -282,5 +380,34 @@ mod tests {
             m.add_entry(&info, &json!({"ext": "mp4"}), &format!("/tmp/{i}.mp4"));
         }
         assert_eq!(m.load().len(), MAX_HISTORY_SIZE);
+    }
+
+    #[test]
+    fn one_shot_functions_roundtrip() {
+        let dir = tempfile::tempdir().unwrap();
+        let p = dir.path().join("history.json");
+        let info = json!({"id": "a", "title": "T", "webpage_url": "http://x"});
+        add_entry_now(&p, 100, &info, &json!({"ext": "mp4"}), "/tmp/a.mp4");
+        update_status_now(&p, "/tmp/a.mp4", DownloadStatus::Completed, Some(100.0));
+        set_media_summary_now(&p, "/tmp/a.mp4", "H.264 · AAC");
+
+        let items: Vec<Value> = load_json(&p, Vec::new());
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0]["status"], json!("completed"));
+        assert_eq!(items[0]["progress"], json!(100.0));
+        assert_eq!(items[0]["media_summary"], json!("H.264 · AAC"));
+
+        remove_entry_now(&p, "/tmp/a.mp4");
+        let after: Vec<Value> = load_json(&p, Vec::new());
+        assert!(after.is_empty());
+    }
+
+    #[test]
+    fn one_shot_never_clobbers_when_empty_target() {
+        // Removing from a non-existent file is a no-op, not a write of `[]`.
+        let dir = tempfile::tempdir().unwrap();
+        let p = dir.path().join("history.json");
+        remove_entry_now(&p, "/tmp/missing.mp4");
+        assert!(!p.exists());
     }
 }

@@ -86,7 +86,7 @@ pub(crate) fn cancel_scheduled_by_id(state: &Rc<AppState>, id: &str) {
             }
             let fp = row.file_path.borrow().clone();
             if !fp.is_empty() {
-                bigtube_core::history::HistoryManager::new(history_path()).remove_entry(&fp);
+                bigtube_core::history::remove_entry_now(&history_path(), &fp);
             }
             remove_list_card(&state.downloads_box, &row.container);
         }
@@ -795,8 +795,13 @@ pub(crate) fn enqueue_common(
             "scheduled_time": schedule_ts,
         });
         let format_data = serde_json::json!({ "id": format_id, "ext": ext });
-        bigtube_core::history::HistoryManager::with_max(history_path(), max_download_history())
-            .add_entry(&video_info, &format_data, &file_path);
+        bigtube_core::history::add_entry_now(
+            &history_path(),
+            max_download_history(),
+            &video_info,
+            &format_data,
+            &file_path,
+        );
     }
 
     let tx = state.ui_tx.clone();
@@ -811,7 +816,8 @@ pub(crate) fn enqueue_common(
             } else {
                 DownloadStatus::Error
             };
-            bigtube_core::history::HistoryManager::new(history_path()).update_status(
+            bigtube_core::history::update_status_now(
+                &history_path(),
                 &fp_cb,
                 st,
                 Some(if p.status == StatusCode::Completed {
@@ -886,7 +892,7 @@ pub(crate) fn enqueue_common(
             if let Some(row) = st.download_rows.borrow_mut().remove(&key_c) {
                 let fp = row.file_path.borrow().clone();
                 if !fp.is_empty() {
-                    bigtube_core::history::HistoryManager::new(history_path()).remove_entry(&fp);
+                    bigtube_core::history::remove_entry_now(&history_path(), &fp);
                 }
                 remove_list_card(&st.downloads_box, &row.container);
             }
@@ -1178,7 +1184,7 @@ pub(crate) fn confirm_clear_all_downloads(state: &Rc<AppState>) {
             }
             drop(rows);
             // Wipe the saved history so nothing reloads on restart.
-            bigtube_core::history::HistoryManager::new(history_path()).clear_all();
+            bigtube_core::history::clear_all_now(&history_path());
             state.update_downloads_empty();
         }
         dlg.close();
@@ -1241,7 +1247,7 @@ pub(crate) fn confirm_delete_download(
                 delete_output_file(&file_path);
             }
             if !file_path.is_empty() {
-                bigtube_core::history::HistoryManager::new(history_path()).remove_entry(&file_path);
+                bigtube_core::history::remove_entry_now(&history_path(), &file_path);
             }
             remove_download_row(&state, &container);
         }
@@ -1436,8 +1442,7 @@ pub(crate) fn load_download_history(state: &Rc<AppState>) {
                 }
                 remove_download_row(&state2, &container);
                 if !fp_owned.is_empty() {
-                    bigtube_core::history::HistoryManager::new(history_path())
-                        .remove_entry(&fp_owned);
+                    bigtube_core::history::remove_entry_now(&history_path(), &fp_owned);
                 }
                 enqueue_download(&state2, &u, &t, &th, &up, &f, &e);
             });

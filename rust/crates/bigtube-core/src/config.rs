@@ -127,11 +127,9 @@ impl ConfigManager {
 
     /// Persists current state to JSON (`indent=4` like Python).
     pub fn save(&self) {
-        if save_json(
-            &self.config_file,
-            &Value::Object(self.data.clone()),
-            Some(4),
-        ) {
+        // Serialize the map by reference — `serde_json::Map` is `Serialize`, so
+        // there's no need to clone the whole config just to write it.
+        if save_json(&self.config_file, &self.data, Some(4)) {
             tracing::info!("Settings saved.");
         }
     }

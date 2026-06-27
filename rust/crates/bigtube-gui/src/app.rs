@@ -879,8 +879,7 @@ pub fn build_window(app: &adw::Application) {
                         if remove {
                             if let Some((path, _)) = &info {
                                 if !path.is_empty() {
-                                    bigtube_core::history::HistoryManager::new(history_path())
-                                        .remove_entry(path);
+                                    bigtube_core::history::remove_entry_now(&history_path(), path);
                                 }
                             }
                             if let Some(row) =
@@ -918,8 +917,10 @@ pub fn build_window(app: &adw::Application) {
                             if let Some((path, paused)) = &info {
                                 if !paused {
                                     if !path.is_empty() {
-                                        bigtube_core::history::HistoryManager::new(history_path())
-                                            .remove_entry(path);
+                                        bigtube_core::history::remove_entry_now(
+                                            &history_path(),
+                                            path,
+                                        );
                                     }
                                     if let Some(row) =
                                         state_for_loop.download_rows.borrow_mut().remove(&key)
@@ -956,8 +957,11 @@ pub fn build_window(app: &adw::Application) {
                         // Persist it so the row shows the same summary after restart.
                         let fp = row.file_path.borrow().clone();
                         if !fp.is_empty() {
-                            bigtube_core::history::HistoryManager::new(history_path())
-                                .set_media_summary(&fp, &text);
+                            bigtube_core::history::set_media_summary_now(
+                                &history_path(),
+                                &fp,
+                                &text,
+                            );
                         }
                     }
                 }
