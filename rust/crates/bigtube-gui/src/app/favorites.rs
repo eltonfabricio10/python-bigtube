@@ -148,33 +148,49 @@ fn to_queue(items: &[FavoriteItem]) -> Vec<QueueItem> {
         .collect()
 }
 
-/// Open the favorites modal over `parent`, playing through `player`.
-pub(crate) fn open_window(parent: &impl IsA<gtk::Window>, player: &Rc<Player>) {
-    // Non-modal so the player bar in the main window stays usable while the
-    // favorites list is open.
-    let win = adw::Window::builder()
-        .transient_for(parent)
-        .modal(false)
-        .default_width(560)
-        .default_height(520)
-        .title(tr("Favorites"))
-        .build();
-    crate::app::apply_theme_classes(&win);
+/// Open the favorites list as a popover (balloon) anchored to `anchor` (the
+/// player-bar heart button), playing through `player`.
+pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) {
+    let pop = gtk::Popover::new();
+    pop.set_parent(anchor);
+    pop.set_autohide(true);
+    pop.add_css_class("menu");
+    crate::app::apply_theme_classes(&pop);
+    // Free the popover (and its parent link) once dismissed, so each open starts
+    // fresh and we don't leak hidden popovers under the button.
+    pop.connect_closed(|p| {
+        let p = p.clone();
+        glib::idle_add_local_once(move || p.unparent());
+    });
     let now_playing = player.now_playing();
+    let root_win = anchor
+        .as_ref()
+        .root()
+        .and_then(|r| r.downcast::<gtk::Window>().ok());
 
-    let toolbar = adw::ToolbarView::new();
-    let header = adw::HeaderBar::new();
+    // Compact header: title + play-all + clear-all.
+    let header = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+    header.set_margin_start(6);
+    header.set_margin_end(6);
+    header.set_margin_top(4);
+    header.set_margin_bottom(2);
+    let title = gtk::Label::new(Some(&tr("Favorites")));
+    title.add_css_class("heading");
+    title.set_hexpand(true);
+    title.set_xalign(0.0);
     let play_all = gtk::Button::from_icon_name("bigtube-media-playback-start-symbolic");
+    play_all.add_css_class("flat");
     play_all.set_focus_on_click(false);
     play_all.set_tooltip_text(Some(&tr("Play all")));
     crate::app::a11y_label(&play_all, &tr("Play all"));
     let clear_all = gtk::Button::from_icon_name("bigtube-user-trash-symbolic");
+    clear_all.add_css_class("flat");
     clear_all.set_focus_on_click(false);
     clear_all.set_tooltip_text(Some(&tr("Clear favorites")));
     crate::app::a11y_label(&clear_all, &tr("Clear favorites"));
-    header.pack_start(&play_all);
-    header.pack_end(&clear_all);
-    toolbar.add_top_bar(&header);
+    header.append(&title);
+    header.append(&play_all);
+    header.append(&clear_all);
 
     // A stack toggles between the list and an empty state.
     let stack = gtk::Stack::new();
@@ -183,27 +199,28 @@ pub(crate) fn open_window(parent: &impl IsA<gtk::Window>, player: &Rc<Player>) {
     let list = gtk::ListBox::new();
     list.set_selection_mode(gtk::SelectionMode::None);
     list.add_css_class("boxed-list");
-    list.set_margin_top(12);
-    list.set_margin_bottom(12);
-    list.set_margin_start(12);
-    list.set_margin_end(12);
     list.set_valign(gtk::Align::Start);
     let scrolled = gtk::ScrolledWindow::new();
-    scrolled.set_vexpand(true);
+    scrolled.set_propagate_natural_height(true);
+    scrolled.set_min_content_width(320);
+    scrolled.set_max_content_height(360);
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_child(Some(&list));
     stack.add_named(&scrolled, Some("list"));
 
-    let empty = adw::StatusPage::builder()
-        .icon_name("bigtube-emblem-favorite-symbolic")
-        .title(tr("No favorites yet"))
-        .description(tr("Tap the heart on a video to add it here."))
-        .build();
-    empty.set_vexpand(true);
+    let empty = gtk::Label::new(Some(&tr("No favorites yet")));
+    empty.add_css_class("dim-label");
+    empty.set_margin_top(18);
+    empty.set_margin_bottom(18);
+    empty.set_margin_start(24);
+    empty.set_margin_end(24);
     stack.add_named(&empty, Some("empty"));
 
-    toolbar.set_content(Some(&stack));
-    win.set_content(Some(&toolbar));
+    let root_box = gtk::Box::new(gtk::Orientation::Vertical, 4);
+    root_box.append(&header);
+    root_box.append(&gtk::Separator::new(gtk::Orientation::Horizontal));
+    root_box.append(&stack);
+    pop.set_child(Some(&root_box));
 
     // Switch to the empty state when the last row is removed.
     let show_empty_if_needed: Rc<dyn Fn()> = {
@@ -215,6 +232,12 @@ pub(crate) fn open_window(parent: &impl IsA<gtk::Window>, player: &Rc<Player>) {
             }
         })
     };
+
+    // Track the now-playing signal handlers so they can be disconnected when the
+    // popover closes (it's recreated on each open — don't pile up handlers on the
+    // long-lived NowPlaying object).
+    let np_handlers: Rc<std::cell::RefCell<Vec<glib::SignalHandlerId>>> =
+        Rc::new(std::cell::RefCell::new(Vec::new()));
 
     // Populate from disk.
     let items = favorites().list();
@@ -233,7 +256,7 @@ pub(crate) fn open_window(parent: &impl IsA<gtk::Window>, player: &Rc<Player>) {
             {
                 let row = lbr.row.clone();
                 let url = fav.url.clone();
-                now_playing.connect_url_notify(move |np| {
+                let id = now_playing.connect_url_notify(move |np| {
                     let cur = np.url();
                     if !cur.is_empty() && cur == url {
                         row.add_css_class("playing");
@@ -241,16 +264,19 @@ pub(crate) fn open_window(parent: &impl IsA<gtk::Window>, player: &Rc<Player>) {
                         row.remove_css_class("playing");
                     }
                 });
+                np_handlers.borrow_mut().push(id);
             }
             // Play from this item (resolve its index in the live list at click
-            // time, since removals shift positions).
+            // time, since removals shift positions), then dismiss the popover.
             {
                 let player = player.clone();
                 let url = fav.url.clone();
+                let pop = pop.clone();
                 lbr.on_play.connect_clicked(move |_| {
                     let items = favorites().list();
                     let start = items.iter().position(|f| f.url == url).unwrap_or(0);
                     player.play_queue(to_queue(&items), start);
+                    pop.popdown();
                 });
             }
             // Remove just this row, in place.
@@ -270,27 +296,29 @@ pub(crate) fn open_window(parent: &impl IsA<gtk::Window>, player: &Rc<Player>) {
         }
     }
 
-    // Play all.
+    // Play all, then dismiss.
     {
         let player = player.clone();
+        let pop = pop.clone();
         play_all.connect_clicked(move |_| {
             let items = favorites().list();
             if !items.is_empty() {
                 player.play_queue(to_queue(&items), 0);
+                pop.popdown();
             }
         });
     }
-    // Clear all (with confirmation).
+    // Clear all (with confirmation). The confirm dialog is parented to the main
+    // window; opening it dismisses the autohiding popover.
     {
-        let win = win.clone();
-        let list = list.clone();
-        let stack = stack.clone();
+        let pop = pop.clone();
         clear_all.connect_clicked(move |_| {
             if favorites().list().is_empty() {
                 return;
             }
+            pop.popdown();
             let dialog = adw::MessageDialog::new(
-                Some(&win),
+                root_win.as_ref(),
                 Some(&tr("Clear favorites?")),
                 Some(&tr("This removes every item from your favorites.")),
             );
@@ -300,16 +328,10 @@ pub(crate) fn open_window(parent: &impl IsA<gtk::Window>, player: &Rc<Player>) {
             dialog.set_default_response(Some("cancel"));
             dialog.set_close_response("cancel");
             crate::app::apply_theme_classes(&dialog);
-            let list = list.clone();
-            let stack = stack.clone();
             dialog.connect_response(None, move |dlg, resp| {
                 if resp == "clear" {
                     favorites().clear();
                     notify_changed();
-                    while let Some(child) = list.first_child() {
-                        list.remove(&child);
-                    }
-                    stack.set_visible_child_name("empty");
                 }
                 dlg.close();
             });
@@ -317,22 +339,18 @@ pub(crate) fn open_window(parent: &impl IsA<gtk::Window>, player: &Rc<Player>) {
         });
     }
 
-    // Escape closes.
+    // Disconnect the now-playing watchers when the popover is dismissed.
     {
-        let w = win.clone();
-        let key = gtk::EventControllerKey::new();
-        key.connect_key_pressed(move |_, keyval, _, _| {
-            if keyval == gtk::gdk::Key::Escape {
-                w.close();
-                glib::Propagation::Stop
-            } else {
-                glib::Propagation::Proceed
+        let np = now_playing.clone();
+        let ids = np_handlers.clone();
+        pop.connect_closed(move |_| {
+            for id in ids.borrow_mut().drain(..) {
+                np.disconnect(id);
             }
         });
-        win.add_controller(key);
     }
 
-    win.present();
+    pop.popup();
 }
 
 /// One favorites row (a `ListBoxRow`) with play + remove buttons exposed.

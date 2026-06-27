@@ -154,21 +154,18 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     let ov_play = gtk::Button::from_icon_name("bigtube-media-playback-start-symbolic");
     let ov_next = gtk::Button::from_icon_name("bigtube-media-skip-forward-symbolic");
     let ov_fs = gtk::Button::from_icon_name("bigtube-view-fullscreen-symbolic");
+    // Flat (not circular) so the strip stays slim.
     for (b, tip) in [
         (&ov_prev, tr("Previous")),
+        (&ov_play, tr("Play/Pause")),
         (&ov_next, tr("Next")),
         (&ov_fs, tr("Fullscreen")),
     ] {
         b.add_css_class("flat");
-        b.add_css_class("osd");
-        b.add_css_class("circular");
         b.set_focus_on_click(false);
+        b.set_valign(gtk::Align::Center);
         b.set_tooltip_text(Some(&tip));
     }
-    ov_play.add_css_class("osd");
-    ov_play.add_css_class("circular");
-    ov_play.set_focus_on_click(false);
-    ov_play.set_tooltip_text(Some(&tr("Play/Pause")));
 
     let ov_cur = gtk::Label::new(Some("--:--"));
     ov_cur.add_css_class("numeric");
@@ -176,28 +173,25 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     ov_scale.set_range(0.0, 1.0);
     ov_scale.set_hexpand(true);
     ov_scale.set_draw_value(false);
+    ov_scale.set_valign(gtk::Align::Center);
     let ov_tot = gtk::Label::new(Some("--:--"));
     ov_tot.add_css_class("numeric");
 
-    let ov_buttons = gtk::Box::new(gtk::Orientation::Horizontal, 8);
-    ov_buttons.set_halign(gtk::Align::Center);
-    ov_buttons.append(&ov_prev);
-    ov_buttons.append(&ov_play);
-    ov_buttons.append(&ov_next);
-    let ov_progress = gtk::Box::new(gtk::Orientation::Horizontal, 8);
-    ov_progress.append(&ov_cur);
-    ov_progress.append(&ov_scale);
-    ov_progress.append(&ov_tot);
-    ov_progress.append(&ov_fs);
-    let ov_box = gtk::Box::new(gtk::Orientation::Vertical, 4);
+    // A single slim row: transport + time + seek + fullscreen.
+    let ov_box = gtk::Box::new(gtk::Orientation::Horizontal, 6);
     ov_box.add_css_class("osd");
     ov_box.add_css_class("toolbar");
-    ov_box.set_margin_start(12);
-    ov_box.set_margin_end(12);
-    ov_box.set_margin_bottom(12);
-    ov_box.set_margin_top(6);
-    ov_box.append(&ov_buttons);
-    ov_box.append(&ov_progress);
+    ov_box.set_margin_start(10);
+    ov_box.set_margin_end(10);
+    ov_box.set_margin_bottom(10);
+    ov_box.set_margin_top(2);
+    ov_box.append(&ov_prev);
+    ov_box.append(&ov_play);
+    ov_box.append(&ov_next);
+    ov_box.append(&ov_cur);
+    ov_box.append(&ov_scale);
+    ov_box.append(&ov_tot);
+    ov_box.append(&ov_fs);
 
     let ov_reveal = gtk::Revealer::new();
     ov_reveal.set_transition_type(gtk::RevealerTransitionType::SlideUp);
@@ -429,12 +423,11 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         _bus_watch: RefCell::new(None),
     });
 
-    // Open the favorites modal.
+    // Open the favorites popover (anchored to this button).
     {
         let p = player.clone();
-        let parent = parent.clone();
-        btn_favorites.connect_clicked(move |_| {
-            crate::app::favorites::open_window(&parent, &p);
+        btn_favorites.connect_clicked(move |b| {
+            crate::app::favorites::open_popover(b, &p);
         });
     }
     // Fill the player-bar heart whenever there are any favorites at all (an
@@ -533,6 +526,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
             if w.is_fullscreen() {
                 w.unfullscreen();
             }
+            w.set_cursor(None); // restore pointer in case it was blanked
             p.update_inline();
         });
     }
@@ -617,12 +611,16 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     // Keep the toggle icons in sync with the actual window state.
     {
         let b = btn_max.clone();
+        let p = player.clone();
         video_window.connect_maximized_notify(move |w| {
             b.set_icon_name(if w.is_maximized() {
                 "bigtube-window-restore-symbolic"
             } else {
                 "bigtube-window-maximize-symbolic"
             });
+            // Maximizing starts the auto-hide cycle; restoring pins controls +
+            // pointer back on.
+            p.show_controls();
         });
     }
     {
@@ -720,23 +718,34 @@ impl Player {
         self.ov_play.set_icon_name(icon);
     }
 
-    /// Reveal the video-window overlay controls (and header) and, while
-    /// fullscreen, schedule them to auto-hide after a few idle seconds.
+    /// Whether the video window is in an "immersive" state (fullscreen or
+    /// maximized) where the controls, header, and pointer should auto-hide.
+    fn immersive(&self) -> bool {
+        self.video_window.is_fullscreen() || self.video_window.is_maximized()
+    }
+
+    /// Reveal the video-window overlay controls + header + pointer, and — while
+    /// immersive (fullscreen/maximized) — schedule them to auto-hide after a
+    /// couple of idle seconds.
     fn show_controls(self: &Rc<Self>) {
         self.ov_reveal.set_reveal_child(true);
         self.video_toolbar.set_reveal_top_bars(true);
-        if !self.video_window.is_fullscreen() {
-            return; // windowed/maximized: controls stay pinned.
+        self.video_window.set_cursor(None); // restore default pointer
+        if !self.immersive() {
+            return; // plain windowed: controls stay pinned, pointer visible.
         }
         let gen = self.autohide_gen.get().wrapping_add(1);
         self.autohide_gen.set(gen);
         let this = self.clone();
-        glib::timeout_add_local_once(Duration::from_secs(3), move || {
+        glib::timeout_add_local_once(Duration::from_secs(2), move || {
             // Only hide if no motion happened since (gen unchanged) and we're
-            // still fullscreen.
-            if this.autohide_gen.get() == gen && this.video_window.is_fullscreen() {
+            // still immersive.
+            if this.autohide_gen.get() == gen && this.immersive() {
                 this.ov_reveal.set_reveal_child(false);
                 this.video_toolbar.set_reveal_top_bars(false);
+                // Blank the pointer over the video.
+                let blank = gtk::gdk::Cursor::from_name("none", None);
+                this.video_window.set_cursor(blank.as_ref());
             }
         });
     }
