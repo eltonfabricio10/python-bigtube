@@ -278,6 +278,7 @@ jobs:
           apt-get install -y --no-install-recommends \
             ca-certificates curl git build-essential pkg-config gettext \
             file patchelf desktop-file-utils librsvg2-common \
+            adwaita-icon-theme hicolor-icon-theme gtk-update-icon-cache \
             libgtk-4-dev libadwaita-1-dev libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev \
             libgtk-4-1 libadwaita-1-0 \

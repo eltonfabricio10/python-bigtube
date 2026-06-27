@@ -94,6 +94,17 @@ echo "  restored $restored objects"
 # clean instead of relying on the scanner to blacklist it.
 find "$appdir/usr/lib" -name 'libgstladspa.so' -delete 2>/dev/null || true
 
+# Bundle the Adwaita icon theme. linuxdeploy doesn't bundle icon themes, so a
+# libadwaita app loses its symbolic icons (window controls, etc.) on hosts that
+# don't ship Adwaita. Copy it (and a hicolor index) into the AppDir.
+mkdir -p "$appdir/usr/share/icons"
+for theme in Adwaita hicolor; do
+  src="/usr/share/icons/$theme"
+  [ -d "$src" ] && cp -an "$src" "$appdir/usr/share/icons/" 2>/dev/null || true
+done
+command -v gtk-update-icon-cache >/dev/null 2>&1 \
+  && gtk-update-icon-cache -qtf "$appdir/usr/share/icons/Adwaita" 2>/dev/null || true
+
 # Runtime env so the pristine (rpath-less) libs resolve, and so GStreamer finds
 # its out-of-process scanner (which sandboxes any crashy plugin instead of
 # taking the app down). linuxdeploy's own gstreamer hook points the scanner at
@@ -106,6 +117,11 @@ export GST_PLUGIN_SCANNER="\$APPDIR/${scanner_rel}"
 export GST_PLUGIN_SCANNER_1_0="\$APPDIR/${scanner_rel}"
 export GST_PLUGIN_SYSTEM_PATH_1_0="\$APPDIR/${plugin_rel}"
 export GST_PLUGIN_PATH_1_0="\$APPDIR/${plugin_rel}"
+# BigTube is a libadwaita app. linuxdeploy's gtk hook forces GTK_THEME=Adwaita:<variant>,
+# which layers the legacy GTK Adwaita CSS on top of libadwaita's own stylesheet and
+# renders broken/ugly. Unset it so libadwaita styles natively (it still picks up
+# light/dark from the desktop portal, which the gtk hook already queried).
+unset GTK_THEME
 EOF
 # Make sure the hook is sourced by AppRun.
 if ! grep -q zz-bigtube-fixup "$appdir/AppRun"; then
