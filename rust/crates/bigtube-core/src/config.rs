@@ -42,7 +42,7 @@ pub struct ConfigManager {
     pub deno_path: PathBuf,
     defaults: Map<String, Value>,
     data: Map<String, Value>,
-    cached_env: Option<HashMap<String, String>>,
+    cached_env: std::sync::OnceLock<HashMap<String, String>>,
 }
 
 impl ConfigManager {
@@ -58,7 +58,7 @@ impl ConfigManager {
             bin_dir,
             defaults: build_defaults(),
             data: Map::new(),
-            cached_env: None,
+            cached_env: std::sync::OnceLock::new(),
         }
     }
 
@@ -232,18 +232,21 @@ impl ConfigManager {
     }
 
     /// `os.environ` copy with `bin_dir` prepended to `PATH` (cached).
-    pub fn get_env_with_bin_path(&mut self) -> HashMap<String, String> {
-        if self.cached_env.is_none() {
-            let mut env: HashMap<String, String> = std::env::vars().collect();
-            let prev = env.get("PATH").cloned().unwrap_or_default();
-            let sep = if cfg!(windows) { ";" } else { ":" };
-            env.insert(
-                "PATH".into(),
-                format!("{}{}{}", self.bin_dir.display(), sep, prev),
-            );
-            self.cached_env = Some(env);
-        }
-        self.cached_env.clone().unwrap()
+    /// Takes `&self` (the cache is a `OnceLock`) so callers — e.g. spawning a
+    /// download — only need a read lock on the global config, not a write lock.
+    pub fn get_env_with_bin_path(&self) -> HashMap<String, String> {
+        self.cached_env
+            .get_or_init(|| {
+                let mut env: HashMap<String, String> = std::env::vars().collect();
+                let prev = env.get("PATH").cloned().unwrap_or_default();
+                let sep = if cfg!(windows) { ";" } else { ":" };
+                env.insert(
+                    "PATH".into(),
+                    format!("{}{}{}", self.bin_dir.display(), sep, prev),
+                );
+                env
+            })
+            .clone()
     }
 
     pub fn get_user_agent(&self) -> String {

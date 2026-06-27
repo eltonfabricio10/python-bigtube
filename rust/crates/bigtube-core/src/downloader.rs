@@ -30,6 +30,9 @@ use crate::Result;
 
 static PROGRESS_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\d{1,3}(?:\.\d+)?)\s*%").unwrap());
 
+/// Matches yt-dlp fragment files (`.fNNN.<ext>`) to clean up after a download.
+static FRAG_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.f\d+\.[A-Za-z0-9]+$").unwrap());
+
 /// yt-dlp `--progress-template` for the download phase. Emits a stable, parseable
 /// line: a marker followed by percent/downloaded/total/estimate/speed/eta joined
 /// by `|||` (a delimiter that won't appear in yt-dlp's human-readable values).
@@ -122,7 +125,7 @@ fn cleanup_intermediates(output: &str) {
     let Ok(entries) = std::fs::read_dir(dir) else {
         return;
     };
-    let frag = Regex::new(r"\.f\d+\.[A-Za-z0-9]+$").unwrap();
+    let frag = &*FRAG_REGEX;
     for entry in entries.flatten() {
         let name = entry.file_name();
         let Some(name) = name.to_str() else { continue };
@@ -1020,7 +1023,9 @@ pub struct VideoDownloader {
 impl VideoDownloader {
     pub fn new() -> Result<Self> {
         let (binary_path, env) = {
-            let mut cfg = config::global().write().unwrap_or_else(|e| e.into_inner());
+            // Read lock now suffices — get_env_with_bin_path takes &self (OnceLock
+            // cache), so concurrent task starts don't serialize on a write lock.
+            let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
             (cfg.get_yt_dlp_path()?, cfg.get_env_with_bin_path())
         };
         Ok(Self {
@@ -1132,7 +1137,9 @@ impl VideoDownloader {
             cfg.get_download_path()
         };
         if !std::path::Path::new(&download_dir).exists() {
-            let _ = std::fs::create_dir_all(&download_dir);
+            if let Err(e) = std::fs::create_dir_all(&download_dir) {
+                tracing::warn!("Could not create download dir {download_dir}: {e}");
+            }
         }
 
         // Disk-space check.
@@ -1225,8 +1232,10 @@ impl VideoDownloader {
                     if last_log.len() == 20 {
                         last_log.pop_front();
                     }
-                    last_log.push_back(line.clone());
+                    // Process before moving the line into the ring buffer, so we
+                    // don't clone it on every progress line.
                     self.process_line(&line, &mut current_status, progress);
+                    last_log.push_back(line);
                 }
                 Err(mpsc::RecvTimeoutError::Timeout) => {
                     if last_output.elapsed() > DOWNLOAD_IDLE_TIMEOUT {

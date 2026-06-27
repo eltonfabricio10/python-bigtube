@@ -12,6 +12,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{mpsc, Arc, Mutex};
 use std::time::Duration;
 
+use once_cell::sync::Lazy;
 use wait_timeout::ChildExt;
 
 use crate::config;
@@ -21,6 +22,10 @@ use crate::util::which;
 use crate::Result;
 
 const FFPROBE_TIMEOUT: Duration = Duration::from_secs(30);
+
+/// Process environment snapshot for spawning ffprobe — captured once instead of
+/// re-collecting `std::env::vars()` on every probe call.
+static PROBE_ENV: Lazy<HashMap<String, String>> = Lazy::new(|| std::env::vars().collect());
 
 /// `(progress 0..1, speed, eta_seconds)` — speed/eta may be `None`.
 pub type ConvertProgressFn = Arc<dyn Fn(f64, Option<f64>, Option<f64>) + Send + Sync>;
@@ -41,8 +46,7 @@ pub fn get_media_duration(input_path: &str) -> f64 {
         "default=noprint_wrappers=1:nokey=1".to_string(),
         input_path.to_string(),
     ];
-    let env: HashMap<String, String> = std::env::vars().collect();
-    match run_with_timeout("ffprobe", &args, &env, FFPROBE_TIMEOUT) {
+    match run_with_timeout("ffprobe", &args, &PROBE_ENV, FFPROBE_TIMEOUT) {
         Ok((0, stdout, _)) => {
             let s = stdout.trim();
             if s.is_empty() || s == "N/A" {
@@ -155,8 +159,7 @@ pub fn probe_media_summary(path: &str) -> MediaSummary {
         "json".to_string(),
         path.to_string(),
     ];
-    let env: HashMap<String, String> = std::env::vars().collect();
-    if let Ok((0, stdout, _)) = run_with_timeout("ffprobe", &args, &env, FFPROBE_TIMEOUT) {
+    if let Ok((0, stdout, _)) = run_with_timeout("ffprobe", &args, &PROBE_ENV, FFPROBE_TIMEOUT) {
         let m = parse_ffprobe_meta(&stdout);
         summary.vcodec = m.vcodec;
         summary.acodec = m.acodec;

@@ -1397,10 +1397,19 @@ fn export_history(state: &Rc<AppState>) {
         if let Ok(file) = res {
             if let Some(path) = file.path() {
                 let bundle = bigtube_core::backup::build_backup(&bigtube_core::paths::config_dir());
-                let ok = serde_json::to_string_pretty(&bundle)
-                    .ok()
-                    .and_then(|s| std::fs::write(&path, s).ok())
-                    .is_some();
+                let ok = match serde_json::to_string_pretty(&bundle) {
+                    Ok(s) => match std::fs::write(&path, s) {
+                        Ok(()) => true,
+                        Err(e) => {
+                            tracing::error!("Failed to write backup to {}: {e}", path.display());
+                            false
+                        }
+                    },
+                    Err(e) => {
+                        tracing::error!("Failed to serialize backup: {e}");
+                        false
+                    }
+                };
                 state.toast(&tr(if ok {
                     "Backup exported successfully!"
                 } else {
@@ -1425,11 +1434,13 @@ fn import_history(state: &Rc<AppState>) {
     dialog.open(Some(&window), gtk::gio::Cancellable::NONE, move |res| {
         if let Ok(file) = res {
             if let Some(path) = file.path() {
-                let msg = match std::fs::read_to_string(&path)
-                    .ok()
-                    .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
-                {
-                    Some(bundle) => {
+                let parsed = std::fs::read_to_string(&path)
+                    .map_err(|e| e.to_string())
+                    .and_then(|s| {
+                        serde_json::from_str::<serde_json::Value>(&s).map_err(|e| e.to_string())
+                    });
+                let msg = match parsed {
+                    Ok(bundle) => {
                         match bigtube_core::backup::restore_backup(
                             &bigtube_core::paths::config_dir(),
                             &bundle,
@@ -1446,10 +1457,19 @@ fn import_history(state: &Rc<AppState>) {
                                 reload_history_views(&state);
                                 "Backup imported successfully!"
                             }
-                            None => "Invalid backup file",
+                            None => {
+                                tracing::warn!(
+                                    "Backup rejected (not a valid bigtube backup): {}",
+                                    path.display()
+                                );
+                                "Invalid backup file"
+                            }
                         }
                     }
-                    None => "Error reading backup file",
+                    Err(e) => {
+                        tracing::error!("Could not read backup {}: {e}", path.display());
+                        "Error reading backup file"
+                    }
                 };
                 state.toast(&tr(msg));
             }
