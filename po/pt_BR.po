@@ -481,6 +481,9 @@ msgid "Remove from list"
 msgstr "Remover da lista"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:290
+msgid "Location:"
+msgstr "Local:"
+
 msgid "Open Folder"
 msgstr "Abrir Pasta"
 

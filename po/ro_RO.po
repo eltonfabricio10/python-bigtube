@@ -486,6 +486,9 @@ msgid "Remove from list"
 msgstr "Elimină din listă"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:290
+msgid "Location:"
+msgstr "Locație:"
+
 msgid "Open Folder"
 msgstr "Deschide folderul"
 

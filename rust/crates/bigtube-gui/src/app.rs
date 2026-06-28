@@ -128,8 +128,9 @@ impl DownloadRow {
         header.append(&cancel);
         header.append(&btn_delete);
 
-        // Destination path shown under the title.
-        let path_lbl = gtk::Label::new(Some(file_path));
+        // Destination folder shown under the title ("Location: <folder>"); the
+        // full path stays available as the tooltip.
+        let path_lbl = gtk::Label::new(Some(&location_label(file_path)));
         path_lbl.set_xalign(0.0);
         path_lbl.set_ellipsize(gtk::pango::EllipsizeMode::Middle);
         path_lbl.set_tooltip_text(Some(file_path));
@@ -1865,6 +1866,18 @@ fn wire_play_highlight(
     unsafe {
         container.set_data::<PlayHighlightGuard>(PLAY_HIGHLIGHT_GUARD, guard);
     }
+}
+
+/// "Location: <folder>" label text for the directory holding `path` (falls back
+/// to the path itself if it has no parent). Shown under a row's title instead of
+/// the full file path.
+pub(crate) fn location_label(path: &str) -> String {
+    let dir = std::path::Path::new(path)
+        .parent()
+        .map(|p| p.to_string_lossy().to_string())
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| path.to_string());
+    format!("{} {dir}", tr("Location:"))
 }
 
 fn open_containing_folder(state: &Rc<AppState>, path: &str) {

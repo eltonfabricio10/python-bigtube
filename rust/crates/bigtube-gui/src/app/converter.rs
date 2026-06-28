@@ -164,6 +164,8 @@ fn pick_files(state: &Rc<AppState>) {
 struct ConvUi {
     progress: gtk::ProgressBar,
     status: gtk::Label,
+    detail: gtk::Label,
+    loc_lbl: gtk::Label,
     convert: gtk::Button,
     cancel: gtk::Button,
     folder: gtk::Button,
@@ -262,6 +264,7 @@ impl ConvUi {
         self.set_progress_class("");
         self.progress.set_fraction(0.0);
         self.status.set_text(&tr("Ready"));
+        self.detail.set_text("");
     }
 }
 
@@ -355,14 +358,29 @@ fn add_converter_row(
     remove.add_css_class("flat");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
     a11y_label(&remove, &tr("Remove from list"));
+    // Short status word lives in the top row (like the downloads list); the
+    // detailed progress / media summary goes in the bottom row.
+    let status = gtk::Label::new(Some(tr("Ready").as_str()));
+    status.set_ellipsize(gtk::pango::EllipsizeMode::End);
+    status.add_css_class("dim-label");
+    status.add_css_class("caption");
     // Top row: name + format input + convert/cancel (next to the dropdown) +
-    // delete. Only play/folder live in the bottom row next to the status.
+    // status + delete. The bottom row carries the detail line + play/folder/fav.
     header.append(&name_lbl);
     header.append(&type_box);
     header.append(&format);
     header.append(&convert);
     header.append(&cancel);
+    header.append(&status);
     header.append(&remove);
+
+    // Output folder under the title ("Location: <folder>"); starts at the source
+    // file's folder and is updated to the real output folder once it succeeds.
+    let loc_lbl = gtk::Label::new(Some(&crate::app::location_label(&path.to_string_lossy())));
+    loc_lbl.set_xalign(0.0);
+    loc_lbl.set_ellipsize(gtk::pango::EllipsizeMode::Middle);
+    loc_lbl.add_css_class("dim-label");
+    loc_lbl.add_css_class("caption");
 
     // Conversion options (mirrors `converter_row.py`): both default on; the
     // subtitle toggle only applies to video inputs.
@@ -394,26 +412,31 @@ fn add_converter_row(
         });
     }
 
-    let status = gtk::Label::new(Some(tr("Ready").as_str()));
-    status.set_xalign(0.0);
-    status.set_hexpand(true);
-    status.set_ellipsize(gtk::pango::EllipsizeMode::End);
-    status.add_css_class("dim-label");
-    status.add_css_class("caption");
     let progress = gtk::ProgressBar::new();
     progress.set_fraction(0.0);
 
-    // Bottom row: status on the left, play/folder (post-conversion) on the right.
+    // Live progress detail ("45% · 1.2x · ETA 00:10") while converting, then the
+    // media summary once done — bottom-left, on the same row as the actions.
+    let detail = gtk::Label::new(None);
+    detail.set_xalign(0.0);
+    detail.set_hexpand(true);
+    detail.set_ellipsize(gtk::pango::EllipsizeMode::End);
+    detail.add_css_class("dim-label");
+    detail.add_css_class("caption");
+
+    // Bottom row: detail on the left, play/folder/favorite (post-conversion) on
+    // the right.
     let footer = gtk::Box::new(gtk::Orientation::Horizontal, 6);
     let actions = gtk::Box::new(gtk::Orientation::Horizontal, 6);
     actions.set_halign(gtk::Align::End);
     actions.append(&folder);
     actions.append(&play);
     actions.append(&favorite);
-    footer.append(&status);
+    footer.append(&detail);
     footer.append(&actions);
 
     pad.append(&header);
+    pad.append(&loc_lbl);
     pad.append(&opts);
     pad.append(&progress);
     pad.append(&footer);
@@ -428,6 +451,8 @@ fn add_converter_row(
     let ui = ConvUi {
         progress,
         status,
+        detail,
+        loc_lbl,
         convert: convert.clone(),
         cancel: cancel.clone(),
         folder: folder.clone(),
@@ -652,8 +677,8 @@ fn run_conversion(
                     if let Some(e) = eta.filter(|e| *e > 0.0) {
                         parts.push(format!("ETA {}", fmt_eta(e)));
                     }
-                    ui.status
-                        .set_text(&format!("{}: {}", tr("Converting"), parts.join(" · ")));
+                    ui.status.set_text(&tr("Converting"));
+                    ui.detail.set_text(&parts.join(" · "));
                 }
                 ConvMsg::Done(Ok(out)) => {
                     // Converted: it graduates from the pending queue (it'll be
@@ -677,6 +702,8 @@ fn run_conversion(
                     ui.convert.set_visible(true);
                     ui.set_inputs_sensitive(true);
                     ui.out_path.replace(out.clone());
+                    ui.loc_lbl.set_text(&crate::app::location_label(&out));
+                    ui.loc_lbl.set_tooltip_text(Some(&out));
                     ui.folder.set_visible(true);
                     ui.play.set_visible(true);
                     ui.favorite.set_visible(true);
@@ -685,7 +712,7 @@ fn run_conversion(
                         crate::app::favorites::favorites().contains(&out),
                     );
                     // Probe the converted file (codecs + real size) and show it as
-                    // the status, replacing the generic "Success!".
+                    // the bottom detail line (the top keeps the "Success!" word).
                     {
                         let (itx, irx) = async_channel::bounded::<String>(1);
                         let outp = out.clone();
@@ -693,11 +720,11 @@ fn run_conversion(
                             let s = bigtube_core::converter::probe_media_summary(&outp);
                             let _ = itx.send_blocking(media_summary_text(&s, &outp));
                         });
-                        let status_lbl = ui.status.clone();
+                        let detail_lbl = ui.detail.clone();
                         glib::spawn_future_local(async move {
                             if let Ok(text) = irx.recv().await {
                                 if !text.is_empty() {
-                                    status_lbl.set_text(&text);
+                                    detail_lbl.set_text(&text);
                                 }
                             }
                         });
@@ -740,6 +767,7 @@ fn run_conversion(
                         tracing::error!("conversion failed: {e}");
                         ui.status.set_text(&tr("Conversion failed"));
                         ui.status.set_tooltip_text(Some(&e));
+                        ui.detail.set_text("");
                     }
                 }
             }
@@ -942,29 +970,43 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
     let remove = gtk::Button::from_icon_name("bigtube-user-trash-symbolic");
     remove.add_css_class("flat");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
-    header.append(&name_lbl);
-    header.append(&fmt_lbl);
-    header.append(&folder);
-    header.append(&play);
-    header.append(&favorite);
-    header.append(&remove);
-
-    // Destination path under the name.
-    let path_lbl = gtk::Label::new(Some(output));
-    path_lbl.set_xalign(0.0);
-    path_lbl.set_ellipsize(gtk::pango::EllipsizeMode::Middle);
-    path_lbl.set_tooltip_text(Some(output));
-    path_lbl.add_css_class("dim-label");
-    path_lbl.add_css_class("caption");
-
+    // Top row: name + format + status + delete (matching the downloads list).
     let status = gtk::Label::new(Some(tr("Success!").as_str()));
-    status.set_xalign(0.0);
+    status.set_ellipsize(gtk::pango::EllipsizeMode::End);
     status.add_css_class("dim-label");
     status.add_css_class("caption");
+    header.append(&name_lbl);
+    header.append(&fmt_lbl);
+    header.append(&status);
+    header.append(&remove);
+
+    // Output folder under the name ("Location: <folder>"); full path as tooltip.
+    let loc_lbl = gtk::Label::new(Some(&crate::app::location_label(output)));
+    loc_lbl.set_xalign(0.0);
+    loc_lbl.set_ellipsize(gtk::pango::EllipsizeMode::Middle);
+    loc_lbl.set_tooltip_text(Some(output));
+    loc_lbl.add_css_class("dim-label");
+    loc_lbl.add_css_class("caption");
+
+    // Bottom row: media-summary detail on the left, play/folder/favorite right.
+    let detail = gtk::Label::new(None);
+    detail.set_xalign(0.0);
+    detail.set_hexpand(true);
+    detail.set_ellipsize(gtk::pango::EllipsizeMode::End);
+    detail.add_css_class("dim-label");
+    detail.add_css_class("caption");
+    let footer = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+    let actions = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+    actions.set_halign(gtk::Align::End);
+    actions.append(&folder);
+    actions.append(&play);
+    actions.append(&favorite);
+    footer.append(&detail);
+    footer.append(&actions);
 
     pad.append(&header);
-    pad.append(&path_lbl);
-    pad.append(&status);
+    pad.append(&loc_lbl);
+    pad.append(&footer);
     container.append(&pad);
     state.converter_box.append(&container);
 
@@ -976,6 +1018,23 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
         &favorite,
         exists && crate::app::favorites::favorites().contains(output),
     );
+    // Probe the file for the media summary (codecs + size), shown as the detail.
+    if exists {
+        let (itx, irx) = async_channel::bounded::<String>(1);
+        let outp = output.to_string();
+        std::thread::spawn(move || {
+            let s = bigtube_core::converter::probe_media_summary(&outp);
+            let _ = itx.send_blocking(media_summary_text(&s, &outp));
+        });
+        let detail_lbl = detail.clone();
+        glib::spawn_future_local(async move {
+            if let Ok(text) = irx.recv().await {
+                if !text.is_empty() {
+                    detail_lbl.set_text(&text);
+                }
+            }
+        });
+    }
 
     let out = output.to_string();
     {

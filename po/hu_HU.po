@@ -486,6 +486,9 @@ msgid "Remove from list"
 msgstr "Eltávolítás a listáról"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:290
+msgid "Location:"
+msgstr "Hely:"
+
 msgid "Open Folder"
 msgstr "Mappa megnyitása"
 

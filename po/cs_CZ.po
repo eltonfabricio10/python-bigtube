@@ -486,6 +486,9 @@ msgid "Remove from list"
 msgstr "Odebrat ze seznamu"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:290
+msgid "Location:"
+msgstr "Umístění:"
+
 msgid "Open Folder"
 msgstr "Otevřít složku"
 
