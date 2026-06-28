@@ -149,13 +149,27 @@ impl SearchEngine {
     /// Process a direct link, expanding playlists (`_handle_direct_link`).
     pub fn handle_direct_link(&self, url: &str) -> Result<Vec<SearchResult>> {
         let is_playlist = is_playlist_url(url);
+        // A channel page lists thousands of videos; resolving each is very slow.
+        // Expand it flat and capped (its Videos tab) so the results show quickly.
+        let is_channel = crate::validators::is_channel_url(url);
+        let url = if is_channel {
+            channel_videos_url(url)
+        } else {
+            url.to_string()
+        };
+        let url = url.as_str();
+
         let mut args: Vec<String> = Vec::new();
-        if is_playlist {
+        if is_playlist || is_channel {
             args.push("--flat-playlist".into());
+        }
+        if is_channel {
+            args.push("--playlist-end".into());
+            args.push(self.search_limit.max(1).to_string());
         }
         args.push("--dump-json".into());
         args.push("--skip-download".into());
-        if !is_playlist {
+        if !is_playlist && !is_channel {
             args.push("--no-playlist".into());
         }
         if crate::helpers::is_youtube_url(url) {
@@ -172,7 +186,7 @@ impl SearchEngine {
         if results.is_empty() {
             return Err(BigTubeError::Search("No results found!".into()));
         }
-        if is_playlist && crate::helpers::is_youtube_url(url) {
+        if (is_playlist || is_channel) && crate::helpers::is_youtube_url(url) {
             for r in results.iter_mut() {
                 if !r.url.is_empty()
                     && !r.url.starts_with("http://")
@@ -334,6 +348,23 @@ fn is_playlist_entry(entry: &Value) -> bool {
         .or_else(|| entry.get("ie"))
         .and_then(Value::as_str);
     matches!(ie, Some("YoutubeTab") | Some("YoutubePlaylist"))
+}
+
+/// Point a channel URL at its Videos tab so a flat expansion lists videos (not
+/// the channel's tab index). Leaves an already-tabbed URL (`/videos`, `/shorts`,
+/// `/streams`, `/playlists`) untouched.
+fn channel_videos_url(url: &str) -> String {
+    let base = url.trim_end_matches('/');
+    let lower = base.to_lowercase();
+    if lower.ends_with("/videos")
+        || lower.ends_with("/shorts")
+        || lower.ends_with("/streams")
+        || lower.ends_with("/playlists")
+        || lower.ends_with("/featured")
+    {
+        return base.to_string();
+    }
+    format!("{base}/videos")
 }
 
 /// Query YouTube's public autocomplete endpoint for search-term completions.

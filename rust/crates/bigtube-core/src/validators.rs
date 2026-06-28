@@ -122,6 +122,25 @@ pub fn is_playlist_url(url: &str) -> bool {
     false
 }
 
+/// True for a YouTube channel page URL (`/@handle`, `/channel/UC…`, `/c/Name`,
+/// `/user/Name`). These enumerate many videos, so the caller should expand them
+/// flat (and capped) rather than resolving every entry.
+pub fn is_channel_url(url: &str) -> bool {
+    let trimmed = url.trim();
+    let Ok(parsed) = Url::parse(trimmed) else {
+        return false;
+    };
+    let host = parsed.host_str().unwrap_or("").to_lowercase();
+    if !host.contains("youtube.com") {
+        return false;
+    }
+    let path = parsed.path().to_lowercase();
+    path.starts_with("/@")
+        || path.starts_with("/channel/")
+        || path.starts_with("/c/")
+        || path.starts_with("/user/")
+}
+
 static WHITESPACE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s+").unwrap());
 
 /// Cleans and normalizes a URL (`sanitize_url`): prefix `https://` for `www.`,
@@ -296,6 +315,21 @@ mod tests {
         assert!(!is_valid_url("just some text"));
         assert!(!is_valid_url("ftp://server/file")); // no http(s) pattern
         assert!(!is_valid_url("youtube.com/watch?v=x")); // no scheme
+    }
+
+    #[test]
+    fn channel_detection() {
+        assert!(is_channel_url("https://www.youtube.com/@SomeHandle"));
+        assert!(is_channel_url(
+            "https://www.youtube.com/channel/UCabcdef123"
+        ));
+        assert!(is_channel_url("https://www.youtube.com/c/SomeName"));
+        assert!(is_channel_url("https://www.youtube.com/user/SomeUser"));
+        assert!(is_channel_url("https://www.youtube.com/@Handle/videos"));
+        // A plain video / playlist is not a channel.
+        assert!(!is_channel_url("https://www.youtube.com/watch?v=abc"));
+        assert!(!is_channel_url("https://www.youtube.com/playlist?list=PL1"));
+        assert!(!is_channel_url("https://vimeo.com/@someone"));
     }
 
     #[test]
