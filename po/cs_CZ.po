@@ -649,6 +649,12 @@ msgid "Save Search History"
 msgstr "Ukládat historii vyhledávání"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:376
+msgid "Show Playlists in Results"
+msgstr "Zobrazit playlisty ve výsledcích"
+
+msgid "Include playlists alongside videos in search results"
+msgstr "Zahrnout playlisty spolu s videi ve výsledcích hledání"
+
 msgid "Enable Search Suggestions"
 msgstr "Povolit návrhy vyhledávání"
 

@@ -58,6 +58,13 @@ mod now_playing_imp {
         /// URL/path of the item the player is currently on (empty = nothing).
         #[property(get, set)]
         pub url: RefCell<String>,
+        /// True while the active track is actually playing (false = paused/stopped),
+        /// so result rows can mirror the bar's play/pause glyph.
+        #[property(get, set)]
+        pub playing: Cell<bool>,
+        /// Player-installed callback to toggle play/pause, so a row's play button
+        /// can drive the player without a direct handle to it.
+        pub toggle_cb: RefCell<Option<std::rc::Rc<dyn Fn()>>>,
     }
 
     #[glib::object_subclass]
@@ -79,6 +86,19 @@ glib::wrapper! {
 impl NowPlaying {
     pub fn new() -> Self {
         glib::Object::builder().build()
+    }
+
+    /// Install the player's play/pause toggle (called once by the player).
+    pub fn set_toggle_cb(&self, f: std::rc::Rc<dyn Fn()>) {
+        self.imp().toggle_cb.replace(Some(f));
+    }
+
+    /// Ask the player to toggle play/pause (no-op if no player is wired).
+    pub fn request_toggle(&self) {
+        let cb = self.imp().toggle_cb.borrow().clone();
+        if let Some(cb) = cb {
+            cb();
+        }
     }
 }
 

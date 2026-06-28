@@ -464,6 +464,13 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         let p = player.clone();
         btn_play.connect_clicked(move |_| p.toggle());
     }
+    // Let result rows drive play/pause through the shared NowPlaying handle.
+    {
+        let p = player.clone();
+        player
+            .now_playing
+            .set_toggle_cb(Rc::new(move || p.toggle()));
+    }
     // Stop.
     {
         let p = player.clone();
@@ -753,10 +760,13 @@ impl Player {
         self.now_playing.clone()
     }
 
-    /// Set the play/pause glyph on both the bottom bar and the overlay button.
+    /// Set the play/pause glyph on both the bottom bar and the overlay button,
+    /// and mirror the playing state on the shared handle so result rows can show
+    /// the same glyph on the active track.
     fn set_play_icon(&self, icon: &str) {
         self.btn_play.set_icon_name(icon);
         self.ov_play.set_icon_name(icon);
+        self.now_playing.set_playing(icon.contains("pause"));
     }
 
     /// Reveal the video-window overlay controls + header + pointer, then schedule

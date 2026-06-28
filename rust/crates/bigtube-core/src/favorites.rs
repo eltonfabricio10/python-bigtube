@@ -31,7 +31,7 @@ pub struct FavoriteItem {
     /// URL that must be resolved via yt-dlp at play time.
     #[serde(default)]
     pub is_local: bool,
-    /// Unix epoch (seconds) when added — newest first in the list.
+    /// Unix epoch (seconds) when added — oldest first, newest appended last.
     #[serde(default)]
     pub added: i64,
 }
@@ -46,7 +46,7 @@ impl Favorites {
         Self { path }
     }
 
-    /// The whole list, newest first.
+    /// The whole list, in insertion order (oldest first, newest last).
     pub fn list(&self) -> Vec<FavoriteItem> {
         load_json(&self.path, Vec::new())
     }
@@ -68,8 +68,8 @@ impl Favorites {
         if item.added == 0 {
             item.added = now_epoch() as i64;
         }
-        // Newest first.
-        list.insert(0, item);
+        // Newest appended at the end.
+        list.push(item);
         save_json(&self.path, &list, Some(2));
         true
     }
@@ -123,8 +123,9 @@ mod tests {
         assert!(f.add(item("b")));
         assert!(f.contains("a"));
         assert_eq!(f.list().len(), 2);
-        // newest first
-        assert_eq!(f.list()[0].url, "b");
+        // newest last
+        assert_eq!(f.list()[0].url, "a");
+        assert_eq!(f.list()[1].url, "b");
 
         // toggle removes, then re-adds
         assert!(!f.toggle(item("a")));

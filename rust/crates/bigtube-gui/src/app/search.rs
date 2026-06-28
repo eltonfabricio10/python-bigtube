@@ -567,10 +567,13 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
     state.search_store.remove_all();
 
     // Persist the query to search history (honouring the setting).
-    let save = config::global()
-        .read()
-        .unwrap_or_else(|e| e.into_inner())
-        .get_bool("save_search_history");
+    let (save, show_playlists) = {
+        let c = config::global().read().unwrap_or_else(|e| e.into_inner());
+        (
+            c.get_bool("save_search_history"),
+            c.get_bool("show_playlists"),
+        )
+    };
     bigtube_core::search_history::SearchHistory::new(search_history_path()).add(&query, save);
 
     // Show the spinner page while the search runs.
@@ -605,7 +608,9 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
                     for r in &list {
                         // Direct-link results are already expanded videos; drop any
                         // stray playlist wrapper so no "open playlist" row appears.
-                        if is_url_search && r.is_playlist {
+                        // Also honour the "Show Playlists" setting for keyword
+                        // searches (default on).
+                        if r.is_playlist && (is_url_search || !show_playlists) {
                             continue;
                         }
                         let obj = VideoObject::from_result(r);

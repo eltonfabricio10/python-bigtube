@@ -59,13 +59,15 @@ pub type FavQuery = Rc<dyn Fn(&str) -> bool>;
 /// `NowPlaying` / `FavoritesWatch` objects.
 struct HandlerGuard<T: glib::object::ObjectType> {
     obj: glib::WeakRef<T>,
-    id: Option<glib::SignalHandlerId>,
+    ids: Vec<glib::SignalHandlerId>,
 }
 
 impl<T: glib::object::ObjectType> Drop for HandlerGuard<T> {
     fn drop(&mut self) {
-        if let (Some(obj), Some(id)) = (self.obj.upgrade(), self.id.take()) {
-            obj.disconnect(id);
+        if let Some(obj) = self.obj.upgrade() {
+            for id in self.ids.drain(..) {
+                obj.disconnect(id);
+            }
         }
     }
 }
@@ -197,6 +199,15 @@ mod imp {
             let weak = obj.downgrade();
             btn_play.connect_clicked(move |_| {
                 if let Some(row) = weak.upgrade() {
+                    // If this row is the active track, the button acts as the
+                    // player's play/pause toggle (kept in sync with the bar);
+                    // otherwise it starts playback from this item.
+                    if row.is_active() {
+                        if let Some(now) = row.imp().now_playing.get() {
+                            now.request_toggle();
+                            return;
+                        }
+                    }
                     let imp = row.imp();
                     if let (Some(item), Some(cb)) =
                         (imp.item.borrow().clone(), imp.on_play.borrow().clone())
@@ -293,10 +304,17 @@ impl SearchResultRow {
                 row.refresh_playing();
             }
         });
+        // Also re-sync the play/pause glyph when the player toggles state.
+        let weak2 = self.downgrade();
+        let id2 = now.connect_playing_notify(move |_| {
+            if let Some(row) = weak2.upgrade() {
+                row.refresh_playing();
+            }
+        });
         // Disconnect when the row dies (rows can be recreated per search).
         let guard = HandlerGuard {
             obj: now.downgrade(),
-            id: Some(id),
+            ids: vec![id, id2],
         };
         unsafe {
             self.set_data::<HandlerGuard<NowPlaying>>(NOW_PLAYING_GUARD, guard);
@@ -304,21 +322,36 @@ impl SearchResultRow {
         let _ = self.imp().now_playing.set(now);
     }
 
-    /// Add/remove the `.playing` highlight based on whether this row's item is
-    /// the track the player is currently on.
-    fn refresh_playing(&self) {
+    /// True when this row's item is the track the player is currently on.
+    fn is_active(&self) -> bool {
         let imp = self.imp();
-        let active = match (imp.item.borrow().as_ref(), imp.now_playing.get()) {
+        match (imp.item.borrow().as_ref(), imp.now_playing.get()) {
             (Some(item), Some(now)) => {
                 let cur = now.url();
                 !cur.is_empty() && item.url() == cur
             }
             _ => false,
-        };
+        }
+    }
+
+    /// Add/remove the `.playing` highlight and mirror the bar's play/pause glyph
+    /// on the active row's play button (pause while playing, play while paused).
+    fn refresh_playing(&self) {
+        let imp = self.imp();
+        let active = self.is_active();
         if active {
             self.add_css_class("playing");
         } else {
             self.remove_css_class("playing");
+        }
+        if let Some(btn) = imp.btn_play.get() {
+            let playing = active && imp.now_playing.get().map(|n| n.playing()).unwrap_or(false);
+            let icon = if playing {
+                "bigtube-media-playback-pause-symbolic"
+            } else {
+                "bigtube-media-playback-start-symbolic"
+            };
+            btn.set_icon_name(icon);
         }
     }
 
@@ -362,7 +395,7 @@ impl SearchResultRow {
             });
             let guard = HandlerGuard {
                 obj: watch.downgrade(),
-                id: Some(id),
+                ids: vec![id],
             };
             unsafe {
                 self.set_data::<HandlerGuard<FavoritesWatch>>(FAV_WATCH_GUARD, guard);
