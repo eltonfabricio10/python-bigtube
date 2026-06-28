@@ -189,7 +189,9 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
     let pop = gtk::Popover::new();
     pop.set_parent(anchor);
     pop.set_autohide(true);
-    pop.add_css_class("menu");
+    // `favorites-popover` paints the popover background like the window (see
+    // style.css); no `menu` class so the content isn't cramped to the edges.
+    pop.add_css_class("favorites-popover");
     // Pop up above the bar button, right-aligned so it grows from the right edge
     // leftward (halign End) rather than centering on the anchor. The hard width
     // request on the content (below) keeps halign from collapsing it.
@@ -259,6 +261,11 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
     let root_box = gtk::Box::new(gtk::Orientation::Vertical, 4);
     // Hard width so row titles get room (the popover sizes to this).
     root_box.set_width_request(460);
+    // Breathing room from the popover edge.
+    root_box.set_margin_top(8);
+    root_box.set_margin_bottom(8);
+    root_box.set_margin_start(8);
+    root_box.set_margin_end(8);
     root_box.append(&header);
     root_box.append(&gtk::Separator::new(gtk::Orientation::Horizontal));
     root_box.append(&stack);
