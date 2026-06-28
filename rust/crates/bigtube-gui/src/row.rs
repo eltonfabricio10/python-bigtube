@@ -52,6 +52,27 @@ pub type FavToggle = Rc<dyn Fn(VideoObject) -> bool>;
 /// Query whether a URL is currently favorited.
 pub type FavQuery = Rc<dyn Fn(&str) -> bool>;
 
+/// Disconnects a row's signal handler on a long-lived shared object when the row
+/// itself is finalized. Stored as widget qdata so its `Drop` runs on the row's
+/// death — without it, rows created fresh (e.g. a `ListBox::bind_model` list that
+/// rebuilds on every search/filter) would pile up live handlers on the shared
+/// `NowPlaying` / `FavoritesWatch` objects.
+struct HandlerGuard<T: glib::object::ObjectType> {
+    obj: glib::WeakRef<T>,
+    id: Option<glib::SignalHandlerId>,
+}
+
+impl<T: glib::object::ObjectType> Drop for HandlerGuard<T> {
+    fn drop(&mut self) {
+        if let (Some(obj), Some(id)) = (self.obj.upgrade(), self.id.take()) {
+            obj.disconnect(id);
+        }
+    }
+}
+
+const NOW_PLAYING_GUARD: &str = "bigtube-row-now-playing-guard";
+const FAV_WATCH_GUARD: &str = "bigtube-row-fav-watch-guard";
+
 mod imp {
     use super::*;
 
@@ -267,11 +288,19 @@ impl SearchResultRow {
     /// highlights itself whenever its bound item becomes the active track.
     pub fn set_now_playing(&self, now: NowPlaying) {
         let weak = self.downgrade();
-        now.connect_url_notify(move |_| {
+        let id = now.connect_url_notify(move |_| {
             if let Some(row) = weak.upgrade() {
                 row.refresh_playing();
             }
         });
+        // Disconnect when the row dies (rows can be recreated per search).
+        let guard = HandlerGuard {
+            obj: now.downgrade(),
+            id: Some(id),
+        };
+        unsafe {
+            self.set_data::<HandlerGuard<NowPlaying>>(NOW_PLAYING_GUARD, guard);
+        }
         let _ = self.imp().now_playing.set(now);
     }
 
@@ -326,11 +355,18 @@ impl SearchResultRow {
         }
         if imp.fav_watch.get().is_none() {
             let weak = self.downgrade();
-            watch.connect_rev_notify(move |_| {
+            let id = watch.connect_rev_notify(move |_| {
                 if let Some(row) = weak.upgrade() {
                     row.refresh_favorite();
                 }
             });
+            let guard = HandlerGuard {
+                obj: watch.downgrade(),
+                id: Some(id),
+            };
+            unsafe {
+                self.set_data::<HandlerGuard<FavoritesWatch>>(FAV_WATCH_GUARD, guard);
+            }
             let _ = imp.fav_watch.set(watch);
         }
         self.refresh_favorite();

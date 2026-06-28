@@ -1040,10 +1040,10 @@ button:focus:not(:focus-visible) {
     background-color: @window_bg_color;
 }
 
-/* A thin rule under the video so it has a defined bottom edge (windowed /
-   maximized); removed in fullscreen where the video meets the screen edge. */
+/* A thin window-coloured gap under the video (windowed / maximized) so it
+   doesn't run right into the bottom edge; removed in fullscreen. */
 .video-frame {
-    border-bottom: 1px solid alpha(@borders, 0.7);
+    margin-bottom: 6px;
 }
 
 /* -----------------------------------------------------------------------------

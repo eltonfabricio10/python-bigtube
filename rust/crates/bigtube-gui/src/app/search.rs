@@ -55,7 +55,6 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     bar.append(&btn_select);
 
     // Results list.
-    let factory = gtk::SignalListItemFactory::new();
     let on_download: RowAction = {
         let state = state.clone();
         Rc::new(move |item: VideoObject| on_download_clicked(&state, &item))
@@ -107,32 +106,6 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             );
         })
     };
-    let setup_state = state.clone();
-    factory.connect_setup(move |_, list_item| {
-        let list_item = list_item.downcast_ref::<gtk::ListItem>().unwrap();
-        let row = SearchResultRow::new();
-        row.set_handlers(
-            on_play.clone(),
-            on_download.clone(),
-            on_open.clone(),
-            on_copy.clone(),
-        );
-        let (fav_toggle, fav_query) = crate::app::favorites::make_handlers();
-        row.set_favorite_handlers(fav_toggle, fav_query, crate::app::favorites::watch());
-        if let Some(player) = setup_state.player.borrow().clone() {
-            row.set_now_playing(player.now_playing());
-        }
-        list_item.set_child(Some(&row));
-    });
-    factory.connect_bind(|_, list_item| {
-        let list_item = list_item.downcast_ref::<gtk::ListItem>().unwrap();
-        if let (Some(child), Some(item)) = (list_item.child(), list_item.item()) {
-            let row = child.downcast::<SearchResultRow>().unwrap();
-            let video = item.downcast::<VideoObject>().unwrap();
-            row.set_item(&video);
-        }
-    });
-
     // A local title filter narrows the fetched results as you type. The filter
     // wraps the store; selection wraps the filter so the ListView shows only the
     // matching rows (the underlying store — and select-all/append — is untouched).
@@ -148,12 +121,40 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     });
     let filter_model =
         gtk::FilterListModel::new(Some(state.search_store.clone()), Some(filter.clone()));
-    // NoSelection: rows act via their own buttons / selection-mode checkboxes, so
-    // the ListView must not auto-select (and highlight) row 0 — that competes with
-    // the now-playing highlight.
-    let selection = gtk::NoSelection::new(Some(filter_model));
-    let list = gtk::ListView::new(Some(selection), Some(factory));
-    list.set_vexpand(true);
+    // A boxed-list ListBox gives the carded look (matching the playlist + the
+    // favorites popover) while keeping the full SearchResultRow (thumbnail,
+    // title, every action, selection mode, now-playing highlight). Rows act via
+    // their own buttons, so no selection highlight. Per-row handlers on the
+    // shared NowPlaying / favorites-watch are disconnected via the row's qdata
+    // guards when rows are rebuilt on a new search.
+    let list = gtk::ListBox::new();
+    list.set_selection_mode(gtk::SelectionMode::None);
+    list.add_css_class("boxed-list");
+    list.set_valign(gtk::Align::Start);
+    list.set_margin_top(12);
+    list.set_margin_bottom(12);
+    list.set_margin_start(12);
+    list.set_margin_end(12);
+    {
+        let state = state.clone();
+        list.bind_model(Some(&filter_model), move |obj| {
+            let video = obj.downcast_ref::<VideoObject>().unwrap();
+            let row = SearchResultRow::new();
+            row.set_handlers(
+                on_play.clone(),
+                on_download.clone(),
+                on_open.clone(),
+                on_copy.clone(),
+            );
+            let (fav_toggle, fav_query) = crate::app::favorites::make_handlers();
+            row.set_favorite_handlers(fav_toggle, fav_query, crate::app::favorites::watch());
+            if let Some(player) = state.player.borrow().clone() {
+                row.set_now_playing(player.now_playing());
+            }
+            row.set_item(video);
+            row.upcast::<gtk::Widget>()
+        });
+    }
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_child(Some(&list));
