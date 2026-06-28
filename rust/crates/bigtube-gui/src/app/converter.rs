@@ -697,7 +697,7 @@ fn run_conversion(
                     }
                     ui.progress.set_fraction(1.0);
                     ui.set_progress_class("success");
-                    ui.status.set_text(&tr("Success!"));
+                    ui.status.set_text(&tr("Completed"));
                     ui.cancel.set_visible(false);
                     ui.convert.set_visible(true);
                     ui.set_inputs_sensitive(true);
@@ -971,7 +971,7 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
     remove.add_css_class("flat");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
     // Top row: name + format + status + delete (matching the downloads list).
-    let status = gtk::Label::new(Some(tr("Success!").as_str()));
+    let status = gtk::Label::new(Some(tr("Completed").as_str()));
     status.set_ellipsize(gtk::pango::EllipsizeMode::End);
     status.add_css_class("dim-label");
     status.add_css_class("caption");

@@ -389,8 +389,8 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     bar.append(&thumb_stack);
     bar.append(&title_box);
     bar.append(&player_box);
-    bar.append(&btn_favorites);
     bar.append(&volume);
+    bar.append(&btn_favorites);
 
     let player = Rc::new(Player {
         playbin: playbin.clone(),
