@@ -1033,10 +1033,10 @@ button:focus:not(:focus-visible) {
     box-shadow: inset 3px 0 0 0 var(--bigtube-accent);
 }
 
-/* Favorites popover: paint its body + arrow with the window background so it
-   reads as part of the app rather than a distinct elevated menu surface. */
-.favorites-popover > contents,
-.favorites-popover > arrow {
+/* Favorites popover: paint its body with the window background so it reads as
+   part of the app rather than a distinct elevated menu surface. (Arrow is
+   disabled in code, so it needs no styling.) */
+.favorites-popover > contents {
     background-color: @window_bg_color;
 }
 

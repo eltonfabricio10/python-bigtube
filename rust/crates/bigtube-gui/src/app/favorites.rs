@@ -189,6 +189,9 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
     let pop = gtk::Popover::new();
     pop.set_parent(anchor);
     pop.set_autohide(true);
+    // No arrow — its base produced an ugly square corner where it met the body.
+    // A clean rounded rectangle reads better as a panel.
+    pop.set_has_arrow(false);
     // `favorites-popover` paints the popover background like the window (see
     // style.css); no `menu` class so the content isn't cramped to the edges.
     pop.add_css_class("favorites-popover");
