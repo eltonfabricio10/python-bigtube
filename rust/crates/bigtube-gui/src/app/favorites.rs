@@ -316,16 +316,15 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
                 np_handlers.borrow_mut().push(id);
             }
             // Play from this item (resolve its index in the live list at click
-            // time, since removals shift positions), then dismiss the popover.
+            // time, since removals shift positions). The popover stays open — it
+            // only closes on a click outside.
             {
                 let player = player.clone();
                 let url = fav.url.clone();
-                let pop = pop.clone();
                 lbr.on_play.connect_clicked(move |_| {
                     let items = favorites().list();
                     let start = items.iter().position(|f| f.url == url).unwrap_or(0);
                     player.play_queue(to_queue(&items), start);
-                    pop.popdown();
                 });
             }
             // Remove just this row, in place.
@@ -345,27 +344,23 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
         }
     }
 
-    // Play all, then dismiss.
+    // Play all. The popover stays open (closes only on an outside click).
     {
         let player = player.clone();
-        let pop = pop.clone();
         play_all.connect_clicked(move |_| {
             let items = favorites().list();
             if !items.is_empty() {
                 player.play_queue(to_queue(&items), 0);
-                pop.popdown();
             }
         });
     }
-    // Clear all (with confirmation). The confirm dialog is parented to the main
-    // window; opening it dismisses the autohiding popover.
+    // Clear all (with confirmation). Opening the modal dialog hands it focus,
+    // which dismisses the autohiding popover on its own.
     {
-        let pop = pop.clone();
         clear_all.connect_clicked(move |_| {
             if favorites().list().is_empty() {
                 return;
             }
-            pop.popdown();
             let dialog = adw::MessageDialog::new(
                 root_win.as_ref(),
                 Some(&tr("Clear favorites?")),
