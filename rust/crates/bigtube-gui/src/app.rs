@@ -1754,40 +1754,72 @@ fn search_history_path() -> std::path::PathBuf {
 /// `NowPlaying` object, piling up across history reloads/clears.
 struct PlayHighlightGuard {
     np: glib::WeakRef<NowPlaying>,
-    id: Option<glib::SignalHandlerId>,
+    ids: Vec<glib::SignalHandlerId>,
 }
 
 impl Drop for PlayHighlightGuard {
     fn drop(&mut self) {
-        if let (Some(np), Some(id)) = (self.np.upgrade(), self.id.take()) {
-            np.disconnect(id);
+        if let Some(np) = self.np.upgrade() {
+            for id in self.ids.drain(..) {
+                np.disconnect(id);
+            }
         }
     }
 }
 
 const PLAY_HIGHLIGHT_GUARD: &str = "bigtube-play-highlight-guard";
 
-fn wire_play_highlight(state: &Rc<AppState>, container: &gtk::Box, path: Rc<RefCell<String>>) {
+/// Highlight `container` while its `path` is the active track, and mirror the
+/// bar's play/pause glyph on `btn_play` (pause while playing, play otherwise) so
+/// the row button stays in sync with the player.
+fn wire_play_highlight(
+    state: &Rc<AppState>,
+    container: &gtk::Box,
+    path: Rc<RefCell<String>>,
+    btn_play: &gtk::Button,
+) {
     let Some(player) = state.player.borrow().clone() else {
         return;
     };
     let np = player.now_playing();
-    let weak = container.downgrade();
-    let id = np.connect_url_notify(move |n| {
-        let Some(cont) = weak.upgrade() else {
-            return;
-        };
-        let cur = n.url();
-        let p = path.borrow();
-        if !cur.is_empty() && !p.is_empty() && *p == cur {
-            cont.add_css_class("playing");
-        } else {
-            cont.remove_css_class("playing");
-        }
-    });
+    let refresh = {
+        let weak = container.downgrade();
+        let btn = btn_play.downgrade();
+        let np = np.clone();
+        let path = path.clone();
+        Rc::new(move || {
+            let Some(cont) = weak.upgrade() else {
+                return;
+            };
+            let cur = np.url();
+            let p = path.borrow();
+            let active = !cur.is_empty() && !p.is_empty() && *p == cur;
+            if active {
+                cont.add_css_class("playing");
+            } else {
+                cont.remove_css_class("playing");
+            }
+            if let Some(btn) = btn.upgrade() {
+                btn.set_icon_name(if active && np.playing() {
+                    "bigtube-media-playback-pause-symbolic"
+                } else {
+                    "bigtube-media-playback-start-symbolic"
+                });
+            }
+        })
+    };
+    refresh();
+    let id_url = {
+        let refresh = refresh.clone();
+        np.connect_url_notify(move |_| refresh())
+    };
+    let id_playing = {
+        let refresh = refresh.clone();
+        np.connect_playing_notify(move |_| refresh())
+    };
     let guard = PlayHighlightGuard {
         np: np.downgrade(),
-        id: Some(id),
+        ids: vec![id_url, id_playing],
     };
     unsafe {
         container.set_data::<PlayHighlightGuard>(PLAY_HIGHLIGHT_GUARD, guard);

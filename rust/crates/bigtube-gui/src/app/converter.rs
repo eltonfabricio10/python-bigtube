@@ -485,10 +485,20 @@ fn add_converter_row(
     {
         let state = state.clone();
         let out_path = ui.out_path.clone();
-        play.connect_clicked(move |_| play_converter_at(&state, &out_path.borrow()));
+        play.connect_clicked(move |_| {
+            // Toggle play/pause in sync with the bar if this output is active.
+            if let Some(player) = state.player.borrow().clone() {
+                let p = out_path.borrow().clone();
+                if !p.is_empty() && player.now_playing().url() == p {
+                    player.now_playing().request_toggle();
+                    return;
+                }
+            }
+            play_converter_at(&state, &out_path.borrow());
+        });
     }
-    // Highlight this row while its output is the one playing.
-    wire_play_highlight(state, &container, ui.out_path.clone());
+    // Highlight this row while its output is the one playing, and sync its glyph.
+    wire_play_highlight(state, &container, ui.out_path.clone(), &play);
 
     // Convert (with a cancel flag the cancel button flips).
     {
@@ -940,10 +950,24 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
     {
         let state = state.clone();
         let out = out.clone();
-        play.connect_clicked(move |_| play_converter_at(&state, &out));
+        play.connect_clicked(move |_| {
+            // Toggle play/pause in sync with the bar if this output is active.
+            if let Some(player) = state.player.borrow().clone() {
+                if !out.is_empty() && player.now_playing().url() == out {
+                    player.now_playing().request_toggle();
+                    return;
+                }
+            }
+            play_converter_at(&state, &out);
+        });
     }
-    // Highlight this row while its output is the one playing.
-    wire_play_highlight(state, &container, Rc::new(RefCell::new(output.to_string())));
+    // Highlight this row while its output is the one playing, and sync its glyph.
+    wire_play_highlight(
+        state,
+        &container,
+        Rc::new(RefCell::new(output.to_string())),
+        &play,
+    );
     {
         let state = state.clone();
         let container = container.clone();

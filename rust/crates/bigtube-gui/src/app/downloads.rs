@@ -1121,11 +1121,22 @@ pub(crate) fn wire_row_footer(state: &Rc<AppState>, row: &DownloadRow) {
     {
         let state = state.clone();
         let container = row.container.clone();
-        row.btn_play
-            .connect_clicked(move |_| play_download_at(&state, &container));
+        let fp = row.file_path.clone();
+        row.btn_play.connect_clicked(move |_| {
+            // If this row's file is the active track, the button toggles
+            // play/pause in sync with the bar; otherwise it starts playback.
+            if let Some(player) = state.player.borrow().clone() {
+                let p = fp.borrow().clone();
+                if !p.is_empty() && player.now_playing().url() == p {
+                    player.now_playing().request_toggle();
+                    return;
+                }
+            }
+            play_download_at(&state, &container);
+        });
     }
-    // Highlight this row while its file is the one playing.
-    wire_play_highlight(state, &row.container, row.file_path.clone());
+    // Highlight this row while its file is the one playing, and sync its glyph.
+    wire_play_highlight(state, &row.container, row.file_path.clone(), &row.btn_play);
     {
         let state = state.clone();
         let fp = row.file_path.clone();
