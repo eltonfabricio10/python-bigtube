@@ -242,7 +242,7 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
     list.set_valign(gtk::Align::Start);
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_propagate_natural_height(true);
-    scrolled.set_min_content_width(400);
+    scrolled.set_min_content_width(460);
     scrolled.set_max_content_height(380);
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_child(Some(&list));

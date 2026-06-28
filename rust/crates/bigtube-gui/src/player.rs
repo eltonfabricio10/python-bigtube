@@ -70,6 +70,10 @@ pub struct Player {
     // Bumped on each pointer motion; a scheduled auto-hide only fires if it
     // still matches (i.e. no motion happened in between).
     autohide_gen: Cell<u64>,
+    // Briefly true right after auto-hiding: swallows the synthetic motion event
+    // that blanking the cursor itself emits, so it doesn't immediately un-hide
+    // (which caused the pointer to flicker).
+    suppress_motion: Cell<bool>,
     seeking: Rc<Cell<bool>>,
     duration: Rc<Cell<f64>>,
     token: Arc<AtomicU64>,
@@ -414,6 +418,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         ov_tot,
         ov_reveal: ov_reveal.clone(),
         autohide_gen: Cell::new(0),
+        suppress_motion: Cell::new(false),
         seeking: Rc::new(Cell::new(false)),
         duration: Rc::new(Cell::new(0.0)),
         token: Arc::new(AtomicU64::new(0)),
@@ -659,6 +664,10 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         let last = Rc::new(Cell::new((f64::NAN, f64::NAN)));
         let motion = gtk::EventControllerMotion::new();
         motion.connect_motion(move |_, x, y| {
+            // Ignore the synthetic event from blanking the cursor.
+            if p.suppress_motion.get() {
+                return;
+            }
             let (lx, ly) = last.get();
             if (x - lx).abs() < 1.0 && (y - ly).abs() < 1.0 {
                 return; // no real movement — don't un-hide
@@ -750,10 +759,8 @@ impl Player {
     fn show_controls(self: &Rc<Self>) {
         self.ov_reveal.set_reveal_child(true);
         self.video_toolbar.set_reveal_top_bars(true);
-        // Restore the default pointer (on the overlay under the pointer and the
-        // window, to be safe).
+        // Restore the default pointer on the overlay that's directly under it.
         self.video_overlay.set_cursor(None);
-        self.video_window.set_cursor(None);
         if !self.immersive() {
             return; // plain windowed: controls stay pinned, pointer visible.
         }
@@ -763,15 +770,20 @@ impl Player {
         glib::timeout_add_local_once(Duration::from_secs(2), move || {
             // Only hide if no motion happened since (gen unchanged) and we're
             // still immersive.
-            if this.autohide_gen.get() == gen && this.immersive() {
-                this.ov_reveal.set_reveal_child(false);
-                this.video_toolbar.set_reveal_top_bars(false);
-                // Blank the pointer over the video (set on the overlay that's
-                // directly under it, not just the toplevel).
-                let blank = gtk::gdk::Cursor::from_name("none", None);
-                this.video_overlay.set_cursor(blank.as_ref());
-                this.video_window.set_cursor(blank.as_ref());
+            if this.autohide_gen.get() != gen || !this.immersive() {
+                return;
             }
+            this.ov_reveal.set_reveal_child(false);
+            this.video_toolbar.set_reveal_top_bars(false);
+            // Blank the pointer over the video. Blanking emits a synthetic
+            // motion event, so suppress motion briefly to stop it un-hiding.
+            this.suppress_motion.set(true);
+            let blank = gtk::gdk::Cursor::from_name("none", None);
+            this.video_overlay.set_cursor(blank.as_ref());
+            let that = this.clone();
+            glib::timeout_add_local_once(Duration::from_millis(350), move || {
+                that.suppress_motion.set(false);
+            });
         });
     }
 
