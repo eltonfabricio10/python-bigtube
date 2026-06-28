@@ -521,12 +521,17 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         let state = state.clone();
         let rebuild = rebuild.clone();
         let last_query = last_query.clone();
+        let filter_entry = filter_entry.clone();
         entry.connect_search_changed(move |e| {
             let text = e.text().to_string();
             // Clear results ONLY when all text is deleted (also closes the popover).
             if text.trim().is_empty() {
                 state.search_store.remove_all();
                 state.update_search_empty();
+                // Clearing the search also clears any active result filter.
+                if !filter_entry.text().is_empty() {
+                    filter_entry.set_text("");
+                }
                 rebuild(&text); // rebuild("") -> popdown
                 return;
             }

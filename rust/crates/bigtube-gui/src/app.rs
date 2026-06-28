@@ -1246,16 +1246,17 @@ pub(crate) fn make_filter_control() -> (gtk::Widget, gtk::SearchEntry) {
             stack.set_visible_child_name("icon");
         });
     }
-    // Losing focus while empty collapses back to the icon; a non-empty filter
-    // stays open so the active filter remains visible.
+    // Clicking outside the filter resets it: clear the text (so results return
+    // to the full set) and collapse back to the icon.
     {
         let stack = stack.clone();
         let entry_w = entry.clone();
         let focus = gtk::EventControllerFocus::new();
         focus.connect_leave(move |_| {
-            if entry_w.text().is_empty() {
-                stack.set_visible_child_name("icon");
+            if !entry_w.text().is_empty() {
+                entry_w.set_text("");
             }
+            stack.set_visible_child_name("icon");
         });
         entry.add_controller(focus);
     }
