@@ -190,6 +190,11 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
     pop.set_parent(anchor);
     pop.set_autohide(true);
     pop.add_css_class("menu");
+    // Pop up above the bar button and bias toward the right edge instead of
+    // centering over the (right-side) anchor.
+    pop.set_position(gtk::PositionType::Top);
+    pop.set_halign(gtk::Align::End);
+    pop.set_offset(40, 0);
     crate::app::apply_theme_classes(&pop);
     // Free the popover (and its parent link) once dismissed, so each open starts
     // fresh and we don't leak hidden popovers under the button.
@@ -237,8 +242,8 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
     list.set_valign(gtk::Align::Start);
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_propagate_natural_height(true);
-    scrolled.set_min_content_width(320);
-    scrolled.set_max_content_height(360);
+    scrolled.set_min_content_width(400);
+    scrolled.set_max_content_height(380);
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_child(Some(&list));
     stack.add_named(&scrolled, Some("list"));
