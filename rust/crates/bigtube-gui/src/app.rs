@@ -1247,7 +1247,8 @@ pub(crate) fn make_filter_control() -> (gtk::Widget, gtk::SearchEntry) {
         });
     }
     // Clicking outside the filter resets it: clear the text (so results return
-    // to the full set) and collapse back to the icon.
+    // to the full set) and collapse back to the icon. focus-leave covers
+    // keyboard/focusable targets (tabbing away, clicking another control).
     {
         let stack = stack.clone();
         let entry_w = entry.clone();
@@ -1259,6 +1260,45 @@ pub(crate) fn make_filter_control() -> (gtk::Widget, gtk::SearchEntry) {
             stack.set_visible_child_name("icon");
         });
         entry.add_controller(focus);
+    }
+    // focus-leave misses clicks on non-focusable areas (the result list
+    // background, page padding) — they never move focus off the entry. So also
+    // watch every press in the window (capture phase) and reset the filter when
+    // the click lands outside the expanded entry. Wired on first realize, when
+    // the widget is attached to its window.
+    {
+        let stack_for_gesture = stack.clone();
+        let entry = entry.clone();
+        let wired = std::rc::Rc::new(std::cell::Cell::new(false));
+        stack.connect_realize(move |s| {
+            if wired.replace(true) {
+                return;
+            }
+            let Some(root) = s.root() else {
+                wired.set(false);
+                return;
+            };
+            let stack = stack_for_gesture.clone();
+            let gesture = gtk::GestureClick::new();
+            gesture.set_propagation_phase(gtk::PropagationPhase::Capture);
+            let entry = entry.clone();
+            gesture.connect_pressed(move |g, _, x, y| {
+                if stack.visible_child_name().as_deref() != Some("entry") {
+                    return;
+                }
+                let Some(root) = g.widget() else { return };
+                let on_entry = root.pick(x, y, gtk::PickFlags::DEFAULT).is_some_and(|w| {
+                    w == *entry.upcast_ref::<gtk::Widget>() || w.is_ancestor(&entry)
+                });
+                if !on_entry {
+                    if !entry.text().is_empty() {
+                        entry.set_text("");
+                    }
+                    stack.set_visible_child_name("icon");
+                }
+            });
+            root.add_controller(gesture);
+        });
     }
 
     (stack.upcast(), entry)
