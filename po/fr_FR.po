@@ -666,7 +666,7 @@ msgid "Online Suggestions"
 msgstr "Suggestions en ligne"
 
 msgid "Also fetch channel and search completions from YouTube while typing"
-msgstr "Récupérer aussi des chaînes et des complétions de recherche YouTube pendant la saisie"
+msgstr "Récupérer aussi des chaînes et des suggestions de recherche YouTube pendant la saisie"
 
 msgid "Maximum Suggestions"
 msgstr "Suggestions maximales"
