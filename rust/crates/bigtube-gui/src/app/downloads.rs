@@ -1164,6 +1164,8 @@ pub(crate) fn wire_row_footer(state: &Rc<AppState>, row: &DownloadRow) {
             let now = crate::app::favorites::toggle_local(&path, &artist.borrow());
             crate::app::favorites::set_heart_icon(b, now);
         });
+        // Keep the heart in sync if this file is unfavorited elsewhere (popover).
+        crate::app::favorites::watch_heart(&row.btn_favorite, row.file_path.clone());
     }
     // Per-row delete: ask whether to drop just the history entry or the file too.
     {

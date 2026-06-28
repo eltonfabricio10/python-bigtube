@@ -2,6 +2,7 @@
 //! heart toggle on result/playlist rows and a modal opened from the player bar.
 //! The modal lists the favorites and lets the user play, remove, or clear them.
 
+use std::cell::RefCell;
 use std::rc::Rc;
 
 use adw::prelude::*;
@@ -105,6 +106,46 @@ pub(crate) fn make_handlers() -> (FavToggle, FavQuery) {
     });
     let query: FavQuery = Rc::new(|url: &str| favorites().contains(url));
     (toggle, query)
+}
+
+/// Disconnects a heart button's `FavoritesWatch` notify handler once the button
+/// is finalized. Stored as button qdata so its `Drop` runs on the button's death
+/// — download rows are recreated on every history reload, so without it they'd
+/// pile up live handlers on the long-lived watch object.
+struct HeartWatchGuard {
+    watch: glib::WeakRef<FavoritesWatch>,
+    id: Option<glib::SignalHandlerId>,
+}
+
+impl Drop for HeartWatchGuard {
+    fn drop(&mut self) {
+        if let (Some(w), Some(id)) = (self.watch.upgrade(), self.id.take()) {
+            w.disconnect(id);
+        }
+    }
+}
+
+const HEART_WATCH_GUARD: &str = "bigtube-heart-watch-guard";
+
+/// Keep a heart button (for the file at `path`) in sync with the favorites list
+/// when it changes elsewhere (e.g. removed from the popover), so it never stays
+/// filled after its item is unfavorited. Disconnects when the button is dropped.
+pub(crate) fn watch_heart(btn: &gtk::Button, path: Rc<RefCell<String>>) {
+    let w = watch();
+    let btn_weak = btn.downgrade();
+    let id = w.connect_rev_notify(move |_| {
+        if let Some(btn) = btn_weak.upgrade() {
+            let p = path.borrow();
+            set_heart_icon(&btn, !p.is_empty() && favorites().contains(&p));
+        }
+    });
+    let guard = HeartWatchGuard {
+        watch: w.downgrade(),
+        id: Some(id),
+    };
+    unsafe {
+        btn.set_data::<HeartWatchGuard>(HEART_WATCH_GUARD, guard);
+    }
 }
 
 /// Toggle a downloaded local file's favorite state; returns the new state.
