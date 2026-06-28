@@ -133,6 +133,41 @@ pub(crate) fn add_all(objs: &[VideoObject]) -> usize {
     added
 }
 
+/// Remove every (non-playlist) item in `objs` from favorites.
+pub(crate) fn remove_all(objs: &[VideoObject]) {
+    let favs = favorites();
+    let mut removed = false;
+    for obj in objs {
+        if obj.is_playlist() {
+            continue;
+        }
+        if favs.contains(&obj.url()) {
+            favs.remove(&obj.url());
+            removed = true;
+        }
+    }
+    if removed {
+        notify_changed();
+    }
+}
+
+/// Whether every (non-playlist) item in `objs` is already favorited. False when
+/// there are no video items at all.
+pub(crate) fn videos_all_favorited(objs: &[VideoObject]) -> bool {
+    let favs = favorites();
+    let mut any = false;
+    for obj in objs {
+        if obj.is_playlist() {
+            continue;
+        }
+        any = true;
+        if !favs.contains(&obj.url()) {
+            return false;
+        }
+    }
+    any
+}
+
 /// Map favorites to a playback queue.
 fn to_queue(items: &[FavoriteItem]) -> Vec<QueueItem> {
     items

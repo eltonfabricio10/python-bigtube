@@ -158,18 +158,64 @@ pub fn show(
             row.set_item(&video);
         }
     });
-    // Favorite every video in the playlist at once.
+    // Favorite-all toggle: adds every video, or removes them all if they're
+    // already favorited. The heart fills while the whole list is favorited and
+    // stays in sync with per-row toggles (via the shared favorites watch) and as
+    // the playlist finishes loading.
     {
-        let store = store.clone();
-        fav_all.connect_clicked(move |_| {
-            let mut objs = Vec::new();
-            for i in 0..store.n_items() {
-                if let Some(o) = store.item(i).and_then(|o| o.downcast::<VideoObject>().ok()) {
-                    objs.push(o);
-                }
+        let collect = {
+            let store = store.clone();
+            move || -> Vec<VideoObject> {
+                (0..store.n_items())
+                    .filter_map(|i| store.item(i).and_then(|o| o.downcast::<VideoObject>().ok()))
+                    .collect()
             }
-            crate::app::favorites::add_all(&objs);
-        });
+        };
+        let update_icon = {
+            let btn = fav_all.clone();
+            let collect = collect.clone();
+            Rc::new(move || {
+                let all = crate::app::favorites::videos_all_favorited(&collect());
+                btn.set_icon_name(if all {
+                    "bigtube-emblem-favorite-filled-symbolic"
+                } else {
+                    "bigtube-emblem-favorite-symbolic"
+                });
+            })
+        };
+        {
+            let collect = collect.clone();
+            let update_icon = update_icon.clone();
+            fav_all.connect_clicked(move |_| {
+                let objs = collect();
+                if crate::app::favorites::videos_all_favorited(&objs) {
+                    crate::app::favorites::remove_all(&objs);
+                } else {
+                    crate::app::favorites::add_all(&objs);
+                }
+                update_icon();
+            });
+        }
+        // Refresh the heart when favorites change anywhere, and as rows load in.
+        {
+            let update_icon = update_icon.clone();
+            let watch = crate::app::favorites::watch();
+            let id = watch.connect_rev_notify(move |_| update_icon());
+            // Disconnect from the long-lived watch when this window is gone, so
+            // handlers don't pile up across playlist opens.
+            let watch2 = watch.clone();
+            let id = std::cell::RefCell::new(Some(id));
+            win.connect_destroy(move |_| {
+                if let Some(id) = id.borrow_mut().take() {
+                    watch2.disconnect(id);
+                }
+            });
+        }
+        {
+            let update_icon = update_icon.clone();
+            store.connect_items_changed(move |_, _, _, _| update_icon());
+        }
+        update_icon();
     }
     // A local title filter narrows the playlist as you type (wraps the store;
     // selection wraps the filter so only matching rows show).

@@ -59,6 +59,7 @@ pub struct Player {
     video_window: adw::Window,
     // Overlay controls inside the detachable video window (mirror of the bar).
     video_toolbar: adw::ToolbarView,
+    video_overlay: gtk::Overlay,
     ov_prev: gtk::Button,
     ov_play: gtk::Button,
     ov_next: gtk::Button,
@@ -198,7 +199,8 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     ov_reveal.set_valign(gtk::Align::End);
     ov_reveal.set_halign(gtk::Align::Fill);
     ov_reveal.set_child(Some(&ov_box));
-    ov_reveal.set_reveal_child(true);
+    // Start hidden; the controls appear on the first pointer motion.
+    ov_reveal.set_reveal_child(false);
 
     let overlay = gtk::Overlay::new();
     overlay.set_child(Some(&picture));
@@ -403,6 +405,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         volume: volume.clone(),
         video_window: video_window.clone(),
         video_toolbar: video_view.clone(),
+        video_overlay: overlay.clone(),
         ov_prev: ov_prev.clone(),
         ov_play: ov_play.clone(),
         ov_next: ov_next.clone(),
@@ -517,7 +520,13 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     // it closes, return to the inline video.
     {
         let stack = thumb_stack.clone();
-        video_window.connect_show(move |_| stack.set_visible_child_name("thumb"));
+        let reveal = ov_reveal.clone();
+        video_window.connect_show(move |_| {
+            stack.set_visible_child_name("thumb");
+            // The control bar starts hidden each time the window opens; it shows
+            // again on the first pointer motion.
+            reveal.set_reveal_child(false);
+        });
     }
     {
         let p = player.clone();
@@ -527,6 +536,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
                 w.unfullscreen();
             }
             w.set_cursor(None); // restore pointer in case it was blanked
+            p.video_overlay.set_cursor(None);
             p.update_inline();
         });
     }
@@ -640,12 +650,22 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
             p.show_controls();
         });
     }
-    // Reveal the overlay controls (and header) on pointer motion; they auto-hide
-    // again after a few seconds while fullscreen.
+    // Reveal the overlay controls (and header) + pointer on real pointer motion;
+    // they auto-hide again after a couple seconds while immersive. A small delta
+    // guard ignores sub-pixel/synthetic events so the pointer can actually stay
+    // hidden once it's still.
     {
         let p = player.clone();
+        let last = Rc::new(Cell::new((f64::NAN, f64::NAN)));
         let motion = gtk::EventControllerMotion::new();
-        motion.connect_motion(move |_, _, _| p.show_controls());
+        motion.connect_motion(move |_, x, y| {
+            let (lx, ly) = last.get();
+            if (x - lx).abs() < 1.0 && (y - ly).abs() < 1.0 {
+                return; // no real movement — don't un-hide
+            }
+            last.set((x, y));
+            p.show_controls();
+        });
         overlay.add_controller(motion);
     }
 
@@ -730,7 +750,10 @@ impl Player {
     fn show_controls(self: &Rc<Self>) {
         self.ov_reveal.set_reveal_child(true);
         self.video_toolbar.set_reveal_top_bars(true);
-        self.video_window.set_cursor(None); // restore default pointer
+        // Restore the default pointer (on the overlay under the pointer and the
+        // window, to be safe).
+        self.video_overlay.set_cursor(None);
+        self.video_window.set_cursor(None);
         if !self.immersive() {
             return; // plain windowed: controls stay pinned, pointer visible.
         }
@@ -743,8 +766,10 @@ impl Player {
             if this.autohide_gen.get() == gen && this.immersive() {
                 this.ov_reveal.set_reveal_child(false);
                 this.video_toolbar.set_reveal_top_bars(false);
-                // Blank the pointer over the video.
+                // Blank the pointer over the video (set on the overlay that's
+                // directly under it, not just the toplevel).
                 let blank = gtk::gdk::Cursor::from_name("none", None);
+                this.video_overlay.set_cursor(blank.as_ref());
                 this.video_window.set_cursor(blank.as_ref());
             }
         });
