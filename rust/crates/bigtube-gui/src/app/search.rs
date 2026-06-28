@@ -721,8 +721,16 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
                         state.search_store.append(&obj);
                     }
                     // Remember the channels behind these results so they can be
-                    // suggested next time the user types.
+                    // suggested next time the user types. For a keyword search the
+                    // query becomes a topic alias (so the channel can be suggested
+                    // by topic, not only by its name); a pasted URL has no topic.
+                    let harvest_query = if is_url_search {
+                        ""
+                    } else {
+                        query_for_prompt.as_str()
+                    };
                     channels().record_many(
+                        harvest_query,
                         list.iter()
                             .map(|r| (r.uploader.as_str(), r.uploader_url.as_str())),
                     );
