@@ -189,7 +189,7 @@ msgstr "Při ukončení vymazat všechna data"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:143
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:248
 msgid "Media Converter"
-msgstr "Převodník médií"
+msgstr "Konvertor médií"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:144
 msgid "Default Output Folder"
@@ -535,11 +535,11 @@ msgstr "{count} videí"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:315
 msgid "Playlist"
-msgstr "Seznam skladeb"
+msgstr "Playlist"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:316
 msgid "Open playlist"
-msgstr "Otevřít seznam skladeb"
+msgstr "Otevřít playlist"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:317
 msgid "Play all"
@@ -555,7 +555,7 @@ msgstr "Vyberte videa"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:323
 msgid "Loading playlist…"
-msgstr "Načítání seznamu skladeb…"
+msgstr "Načítání playlistu…"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
@@ -666,7 +666,7 @@ msgid "Online Suggestions"
 msgstr "Online návrhy"
 
 msgid "Also fetch channel and search completions from YouTube while typing"
-msgstr "Načítat také kanály a doplňování hledání z YouTube při psaní"
+msgstr "Při psaní načítat z YouTube také kanály a návrhy vyhledávání"
 
 msgid "Maximum Suggestions"
 msgstr "Maximální počet návrhů"
@@ -1202,7 +1202,7 @@ msgstr ""
 
 #. bigtube-gui
 msgid "Pix Copy & Paste"
-msgstr "Pix Kopírovat a vložit"
+msgstr "Pix – kopírovat a vložit"
 
 msgid "No video or audio"
 msgstr "Žádné video ani zvuk"
@@ -1232,13 +1232,13 @@ msgid "Automatic"
 msgstr "Automaticky"
 
 msgid "Playback unavailable — install the GStreamer gtk4 plugin"
-msgstr "Přehrávání není dostupné — nainstalujte zásuvný modul gtk4 pro GStreamer"
+msgstr "Přehrávání není dostupné – nainstalujte zásuvný modul gtk4 pro GStreamer"
 
 msgid "Conversion failed"
 msgstr "Převod selhal"
 
 msgid "Couldn't load this playlist"
-msgstr "Tento seznam skladeb se nepodařilo načíst"
+msgstr "Tento playlist se nepodařilo načíst"
 
 msgid "Maximum History Entries"
 msgstr "Maximální počet záznamů historie"
@@ -1319,7 +1319,7 @@ msgid "Some files already exist"
 msgstr "Některé soubory již existují"
 
 msgid "file(s) in this batch are already in the download folder."
-msgstr "soubor(y) v této dávce už jsou ve složce stahování."
+msgstr "soubor(y) v této dávce už jsou ve složce pro stahování."
 
 msgid "A file with this name is already in the output folder."
 msgstr "Soubor s tímto názvem už je ve výstupní složce."

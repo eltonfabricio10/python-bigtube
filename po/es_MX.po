@@ -293,7 +293,7 @@ msgstr "Verde esmeralda"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:171
 msgid "Sunburst Orange"
-msgstr "Naranja resplandor solar"
+msgstr "Naranja solar"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:172
 msgid "Vibrant Rose"
@@ -829,7 +829,7 @@ msgstr "Abrir carpeta de salida"
 
 #: bigtube-gui
 msgid "Make read-only"
-msgstr "Hacer de solo lectura"
+msgstr "Marcar como solo lectura"
 
 #: bigtube-gui
 msgid "Update timestamp"
@@ -1218,13 +1218,13 @@ msgid "Keep"
 msgstr "Conservar"
 
 msgid "Remove When Complete"
-msgstr "Quitar al Completar"
+msgstr "Quitar al completar"
 
 msgid "Automatically remove an item from the list once it finishes"
 msgstr "Quita automáticamente un elemento de la lista cuando finaliza"
 
 msgid "Remove When Cancelled"
-msgstr "Quitar al Cancelar"
+msgstr "Quitar al cancelar"
 
 msgid "Automatically remove an item from the list when it is cancelled"
 msgstr "Quita automáticamente un elemento de la lista cuando se cancela"

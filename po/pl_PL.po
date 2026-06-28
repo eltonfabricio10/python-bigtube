@@ -531,7 +531,7 @@ msgstr "Przełącz okno wideo"
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:314
 #, python-brace-format
 msgid "{count} videos"
-msgstr "Filmy: {count}"
+msgstr "{count} filmów"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:315
 msgid "Playlist"
@@ -636,7 +636,7 @@ msgstr "Przełącz tryb zaznaczania"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:369
 msgid "Select All / None"
-msgstr "Zaznacz wszystkie / żaden"
+msgstr "Zaznacz wszystkie / żadne"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:370
 #, python-brace-format
@@ -701,7 +701,7 @@ msgstr "Polecenie przetwarzania końcowego"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
 msgid "Cookies File"
-msgstr "Plik cookies"
+msgstr "Plik cookie"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:393
 msgid "Cookies From Browser"

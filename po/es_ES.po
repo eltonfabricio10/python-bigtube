@@ -69,7 +69,7 @@ msgstr "Artista desconocido"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:92
 msgid "Paste URL or type keywords..."
-msgstr "Pegue la URL o escriba palabras clave..."
+msgstr "Pega la URL o escribe palabras clave..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:94
 msgid "No results found!"
@@ -81,7 +81,7 @@ msgstr "Sin resultados"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:99
 msgid "Search for videos or paste a URL"
-msgstr "Busque vídeos o pegue una URL"
+msgstr "Busca vídeos o pega una URL"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:100
 msgid "No Downloads"
@@ -89,7 +89,7 @@ msgstr "Sin descargas"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:101
 msgid "Your downloads will appear here"
-msgstr "Sus descargas aparecerán aquí"
+msgstr "Tus descargas aparecerán aquí"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:104
 msgid "Play Video"
@@ -288,7 +288,7 @@ msgstr "Verde esmeralda"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:171
 msgid "Sunburst Orange"
-msgstr "Naranja sunburst"
+msgstr "Naranja solar"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:172
 msgid "Vibrant Rose"
@@ -661,7 +661,7 @@ msgid "Online Suggestions"
 msgstr "Sugerencias en línea"
 
 msgid "Also fetch channel and search completions from YouTube while typing"
-msgstr "También obtener canales y completar búsquedas de YouTube mientras escribes"
+msgstr "Obtener también canales y autocompletado de búsqueda de YouTube mientras escribes"
 
 msgid "Maximum Suggestions"
 msgstr "Sugerencias máximas"
@@ -1004,7 +1004,7 @@ msgstr "Cuántos resultados obtener por búsqueda"
 
 #: bigtube-gui
 msgid "Show matches from your history while typing"
-msgstr "Mostrar coincidencias de su historial mientras escribe"
+msgstr "Mostrar coincidencias de tu historial mientras escribes"
 
 #: bigtube-gui
 msgid "How many suggestions to show"
@@ -1198,7 +1198,7 @@ msgstr ""
 
 #. bigtube-gui
 msgid "Pix Copy & Paste"
-msgstr "Pix Copiar y pegar"
+msgstr "Pix Copiar y Pegar"
 
 msgid "No video or audio"
 msgstr "Sin vídeo ni audio"
@@ -1213,13 +1213,13 @@ msgid "Keep"
 msgstr "Conservar"
 
 msgid "Remove When Complete"
-msgstr "Quitar al Completar"
+msgstr "Quitar al completar"
 
 msgid "Automatically remove an item from the list once it finishes"
 msgstr "Quita automáticamente un elemento de la lista cuando finaliza"
 
 msgid "Remove When Cancelled"
-msgstr "Quitar al Cancelar"
+msgstr "Quitar al cancelar"
 
 msgid "Automatically remove an item from the list when it is cancelled"
 msgstr "Quita automáticamente un elemento de la lista cuando se cancela"

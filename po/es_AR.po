@@ -829,7 +829,7 @@ msgstr "Abrir carpeta de salida"
 
 #: bigtube-gui
 msgid "Make read-only"
-msgstr "Hacer de solo lectura"
+msgstr "Marcar como solo lectura"
 
 #: bigtube-gui
 msgid "Update timestamp"
@@ -1218,13 +1218,13 @@ msgid "Keep"
 msgstr "Conservar"
 
 msgid "Remove When Complete"
-msgstr "Quitar al Completar"
+msgstr "Quitar al completar"
 
 msgid "Automatically remove an item from the list once it finishes"
 msgstr "Quita automáticamente un elemento de la lista cuando finaliza"
 
 msgid "Remove When Cancelled"
-msgstr "Quitar al Cancelar"
+msgstr "Quitar al cancelar"
 
 msgid "Automatically remove an item from the list when it is cancelled"
 msgstr "Quita automáticamente un elemento de la lista cuando se cancela"
@@ -1353,7 +1353,7 @@ msgid "No favorites yet"
 msgstr "Aún no hay favoritos"
 
 msgid "Tap the heart on a video to add it here."
-msgstr "Tocá el corazón de un video para agregarlo aquí."
+msgstr "Tocá el corazón de un video para agregarlo acá."
 
 msgid "Favorite all"
 msgstr "Agregar todo a favoritos"

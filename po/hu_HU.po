@@ -1237,7 +1237,7 @@ msgid "Playback unavailable — install the GStreamer gtk4 plugin"
 msgstr "A lejátszás nem érhető el — telepítse a GStreamer gtk4 bővítményt"
 
 msgid "Conversion failed"
-msgstr "A konvertálás sikertelen"
+msgstr "Az átalakítás sikertelen"
 
 msgid "Couldn't load this playlist"
 msgstr "Nem sikerült betölteni ezt a lejátszási listát"
@@ -1249,7 +1249,7 @@ msgid "How many finished downloads to keep in the list"
 msgstr "Hány befejezett letöltés maradjon a listában"
 
 msgid "How many finished conversions to keep in the list"
-msgstr "Hány befejezett konvertálás maradjon a listában"
+msgstr "Hány befejezett átalakítás maradjon a listában"
 
 msgid "Download complete"
 msgstr "Letöltés befejeződött"
@@ -1311,11 +1311,11 @@ msgstr "A biztonsági mentés sikeresen importálva!"
 
 #: bigtube-gui
 msgid "Invalid backup file"
-msgstr "Érvénytelen biztonsági mentés fájl"
+msgstr "Érvénytelen biztonságimentés-fájl"
 
 #: bigtube-gui
 msgid "Error reading backup file"
-msgstr "Hiba a biztonsági mentés fájl olvasásakor"
+msgstr "Hiba a biztonságimentés-fájl olvasásakor"
 
 msgid "Some files already exist"
 msgstr "Néhány fájl már létezik"
@@ -1327,7 +1327,7 @@ msgid "A file with this name is already in the output folder."
 msgstr "Egy ilyen nevű fájl már a kimeneti mappában van."
 
 msgid "Maximize"
-msgstr "Teljes méret"
+msgstr "Maximalizálás"
 
 msgid "Fullscreen"
 msgstr "Teljes képernyő"
@@ -1354,7 +1354,7 @@ msgid "No favorites yet"
 msgstr "Még nincsenek kedvencek"
 
 msgid "Tap the heart on a video to add it here."
-msgstr "Koppints egy videó szívére, hogy ide kerüljön."
+msgstr "Koppintson egy videó szív ikonjára, hogy ide kerüljön."
 
 msgid "Favorite all"
 msgstr "Összes a kedvencekhez"

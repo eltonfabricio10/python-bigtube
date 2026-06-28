@@ -604,7 +604,7 @@ msgstr "Ora"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:348
 msgid "Time (HH:MM)"
-msgstr "Ora (OO:MM)"
+msgstr "Ora (HH:MM)"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:349
 msgid "Schedule"
@@ -636,7 +636,7 @@ msgstr "Attiva/disattiva la modalità di selezione"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:369
 msgid "Select All / None"
-msgstr "Seleziona tutto/niente"
+msgstr "Seleziona tutto / nessuno"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:370
 #, python-brace-format
@@ -1208,10 +1208,10 @@ msgid "No video or audio"
 msgstr "Nessun video o audio"
 
 msgid "This link has no video or audio. Remove it from the search history?"
-msgstr "Questo link non contiene video né audio. Rimuoverlo dalla cronologia di ricerca?"
+msgstr "Questo collegamento non contiene video né audio. Rimuoverlo dalla cronologia delle ricerche?"
 
 msgid "Couldn't get video or audio from this link."
-msgstr "Impossibile ottenere video o audio da questo link."
+msgstr "Impossibile ottenere video o audio da questo collegamento."
 
 msgid "Keep"
 msgstr "Mantieni"
@@ -1220,13 +1220,13 @@ msgid "Remove When Complete"
 msgstr "Rimuovi al completamento"
 
 msgid "Automatically remove an item from the list once it finishes"
-msgstr "Rimuove automaticamente un elemento dalla lista al termine"
+msgstr "Rimuove automaticamente un elemento dall'elenco al termine"
 
 msgid "Remove When Cancelled"
 msgstr "Rimuovi all’annullamento"
 
 msgid "Automatically remove an item from the list when it is cancelled"
-msgstr "Rimuove automaticamente un elemento dalla lista quando viene annullato"
+msgstr "Rimuove automaticamente un elemento dall'elenco quando viene annullato"
 
 msgid "Automatic"
 msgstr "Automatico"
@@ -1244,10 +1244,10 @@ msgid "Maximum History Entries"
 msgstr "Numero massimo di voci della cronologia"
 
 msgid "How many finished downloads to keep in the list"
-msgstr "Quanti download completati mantenere nella lista"
+msgstr "Quanti download completati mantenere nell'elenco"
 
 msgid "How many finished conversions to keep in the list"
-msgstr "Quante conversioni completate mantenere nella lista"
+msgstr "Quante conversioni completate mantenere nell'elenco"
 
 msgid "Download complete"
 msgstr "Download completato"

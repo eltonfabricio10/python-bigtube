@@ -74,7 +74,7 @@ msgstr "Artist necunoscut"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:92
 msgid "Paste URL or type keywords..."
-msgstr "Inserați adresa URL sau introduceți cuvinte cheie..."
+msgstr "Lipiți adresa URL sau introduceți cuvinte cheie..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:94
 msgid "No results found!"
@@ -86,7 +86,7 @@ msgstr "Niciun rezultat"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:99
 msgid "Search for videos or paste a URL"
-msgstr "Căutați videoclipuri sau inserați o adresă URL"
+msgstr "Căutați videoclipuri sau lipiți o adresă URL"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:100
 msgid "No Downloads"
@@ -666,7 +666,7 @@ msgid "Online Suggestions"
 msgstr "Sugestii online"
 
 msgid "Also fetch channel and search completions from YouTube while typing"
-msgstr "Preia și canale și completări de căutare de pe YouTube în timp ce tastezi"
+msgstr "Preia și canale și completări de căutare de pe YouTube în timp ce tastați"
 
 msgid "Maximum Suggestions"
 msgstr "Sugestii maxime"
@@ -937,7 +937,7 @@ msgstr "Link detectat"
 
 #: bigtube-gui
 msgid "Paste this link in the search and download it?"
-msgstr "Inserați acest link în căutare și descărcați-l?"
+msgstr "Lipiți acest link în căutare și descărcați-l?"
 
 #: bigtube-gui
 msgid "Not Now"
@@ -945,7 +945,7 @@ msgstr "Nu acum"
 
 #: bigtube-gui
 msgid "Paste & Search"
-msgstr "Inserează și caută"
+msgstr "Lipește și caută"
 
 #: bigtube-gui
 msgid "Clear conversion history?"
@@ -1073,7 +1073,7 @@ msgstr "Audio"
 
 #: bigtube-gui
 msgid "Invalid proxy address — use scheme://host:port."
-msgstr "Adresă proxy nevalidă — utilizați schemă://gazdă:port."
+msgstr "Adresă proxy nevalidă — utilizați scheme://host:port."
 
 #: bigtube-gui
 msgid "Invalid user agent."

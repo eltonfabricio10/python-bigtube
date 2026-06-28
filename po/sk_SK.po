@@ -293,7 +293,7 @@ msgstr "Smaragdovo zelená"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:171
 msgid "Sunburst Orange"
-msgstr "Sýta oranžová"
+msgstr "Žiarivá oranžová"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:172
 msgid "Vibrant Rose"
@@ -535,11 +535,11 @@ msgstr "{count} videí"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:315
 msgid "Playlist"
-msgstr "Zoznam skladieb"
+msgstr "Playlist"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:316
 msgid "Open playlist"
-msgstr "Otvoriť zoznam skladieb"
+msgstr "Otvoriť playlist"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:317
 msgid "Play all"
@@ -555,7 +555,7 @@ msgstr "Vybrať videá"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:323
 msgid "Loading playlist…"
-msgstr "Načítava sa zoznam skladieb…"
+msgstr "Načítava sa playlist…"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:331
 msgid "All application data has been cleared. The app will now restart."
@@ -701,7 +701,7 @@ msgstr "Príkaz na následné spracovanie"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:391
 msgid "Cookies File"
-msgstr "Súbor cookies"
+msgstr "Súbor cookie"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:393
 msgid "Cookies From Browser"
@@ -725,7 +725,7 @@ msgstr "Natrvalo odstrániť všetky nastavenia a históriu"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:432
 msgid "Delete all previous search entries"
-msgstr "Vymažte všetky predchádzajúce záznamy vyhľadávania"
+msgstr "Odstrániť všetky predchádzajúce záznamy vyhľadávania"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:450
 msgid "Untitled"
@@ -841,7 +841,7 @@ msgstr "Známe proxy servery"
 
 #: bigtube-gui
 msgid "Local HTTP proxy"
-msgstr "Miestny HTTP proxy"
+msgstr "Lokálny HTTP proxy"
 
 #: bigtube-gui
 msgid "Installed browsers"
@@ -969,7 +969,7 @@ msgstr "Paralelné fragmenty na stiahnutie (rýchlejšie, využíva viac prenoso
 
 #: bigtube-gui
 msgid "Cap the download rate (0 = unlimited)"
-msgstr "Obmedzte rýchlosť sťahovania (0 = neobmedzené)"
+msgstr "Obmedziť rýchlosť sťahovania (0 = neobmedzené)"
 
 #: bigtube-gui
 msgid "Embed title, artist and other tags in the file"
@@ -1232,13 +1232,13 @@ msgid "Automatic"
 msgstr "Automaticky"
 
 msgid "Playback unavailable — install the GStreamer gtk4 plugin"
-msgstr "Prehrávanie nie je dostupné — nainštalujte zásuvný modul gtk4 pre GStreamer"
+msgstr "Prehrávanie nie je dostupné – nainštalujte zásuvný modul gtk4 pre GStreamer"
 
 msgid "Conversion failed"
-msgstr "Prevod zlyhal"
+msgstr "Konverzia zlyhala"
 
 msgid "Couldn't load this playlist"
-msgstr "Tento zoznam skladieb sa nepodarilo načítať"
+msgstr "Tento playlist sa nepodarilo načítať"
 
 msgid "Maximum History Entries"
 msgstr "Maximálny počet záznamov histórie"
@@ -1247,7 +1247,7 @@ msgid "How many finished downloads to keep in the list"
 msgstr "Koľko dokončených sťahovaní ponechať v zozname"
 
 msgid "How many finished conversions to keep in the list"
-msgstr "Koľko dokončených prevodov ponechať v zozname"
+msgstr "Koľko dokončených konverzií ponechať v zozname"
 
 msgid "Download complete"
 msgstr "Sťahovanie dokončené"
@@ -1352,7 +1352,7 @@ msgid "No favorites yet"
 msgstr "Zatiaľ žiadne obľúbené"
 
 msgid "Tap the heart on a video to add it here."
-msgstr "Klepnutím na srdiečko pri videu ho sem pridáte."
+msgstr "Kliknutím na srdiečko pri videu ho sem pridáte."
 
 msgid "Favorite all"
 msgstr "Všetko do obľúbených"

@@ -356,7 +356,7 @@ msgstr "A processar..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:192
 msgid "Merging..."
-msgstr "A mesclar..."
+msgstr "A combinar..."
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:193
 msgid "Extracting Audio..."
@@ -651,7 +651,7 @@ msgid "Show Playlists in Results"
 msgstr "Mostrar Listas de Reprodução nos Resultados"
 
 msgid "Include playlists alongside videos in search results"
-msgstr "Incluir listas de reprodução junto com vídeos nos resultados da pesquisa"
+msgstr "Incluir listas de reprodução juntamente com os vídeos nos resultados da pesquisa"
 
 msgid "Enable Search Suggestions"
 msgstr "Ativar Sugestões de Pesquisa"
@@ -661,7 +661,7 @@ msgid "Online Suggestions"
 msgstr "Sugestões Online"
 
 msgid "Also fetch channel and search completions from YouTube while typing"
-msgstr "Também obter canais e completar pesquisas do YouTube enquanto escreve"
+msgstr "Obter também sugestões de canais e de pesquisa do YouTube enquanto escreve"
 
 msgid "Maximum Suggestions"
 msgstr "Sugestões Máximas"
@@ -1266,7 +1266,7 @@ msgstr "Remover segmentos"
 
 #: bigtube-gui
 msgid "Skip in-video sponsor segments (SponsorBlock database)"
-msgstr "Salta trechos de patrocínio no vídeo (base do SponsorBlock)"
+msgstr "Ignorar segmentos de patrocínio no vídeo (base de dados SponsorBlock)"
 
 #: bigtube-gui
 msgid "Post-Processing"
@@ -1349,7 +1349,7 @@ msgid "No favorites yet"
 msgstr "Ainda sem favoritos"
 
 msgid "Tap the heart on a video to add it here."
-msgstr "Toque no coração de um vídeo para adicioná-lo aqui."
+msgstr "Clique no coração de um vídeo para o adicionar aqui."
 
 msgid "Favorite all"
 msgstr "Adicionar todos aos favoritos"

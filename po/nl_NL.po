@@ -349,7 +349,7 @@ msgstr "Zoeken"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:189
 msgid "Pending"
-msgstr "In behandeling"
+msgstr "In afwachting"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:190
 msgid "Downloading..."
@@ -681,7 +681,7 @@ msgstr "Maximale zoekresultaten"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:381
 msgid "Max Simultaneous Downloads"
-msgstr "Maximaal gelijktijdige downloads"
+msgstr "Maximaal aantal gelijktijdige downloads"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:382
 msgid "Concurrent Fragments"
@@ -957,7 +957,7 @@ msgstr "Conversiegeschiedenis wissen"
 
 #: bigtube-gui
 msgid "Delete all previous conversion entries"
-msgstr "Verwijder alle eerdere conversievermeldingen"
+msgstr "Verwijder alle eerdere conversie-items"
 
 #: bigtube-gui
 msgid "How many downloads run at the same time"
@@ -1009,7 +1009,7 @@ msgstr "Hoeveel resultaten per zoekopdracht worden opgehaald"
 
 #: bigtube-gui
 msgid "Show matches from your history while typing"
-msgstr "Toon overeenkomsten uit uw geschiedenis tijdens het typen"
+msgstr "Toon overeenkomsten uit je geschiedenis tijdens het typen"
 
 #: bigtube-gui
 msgid "How many suggestions to show"
@@ -1204,7 +1204,7 @@ msgstr ""
 
 #. bigtube-gui
 msgid "Pix Copy & Paste"
-msgstr "Pix Kopiëren en plakken"
+msgstr "Pix kopiëren & plakken"
 
 msgid "No video or audio"
 msgstr "Geen video of audio"
@@ -1354,7 +1354,7 @@ msgid "No favorites yet"
 msgstr "Nog geen favorieten"
 
 msgid "Tap the heart on a video to add it here."
-msgstr "Tik op het hartje van een video om het hier toe te voegen."
+msgstr "Klik op het hartje van een video om het hier toe te voegen."
 
 msgid "Favorite all"
 msgstr "Alles aan favorieten"

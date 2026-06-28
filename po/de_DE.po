@@ -156,7 +156,7 @@ msgstr "Erscheinungsbild"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:133
 msgid "Interface Theme"
-msgstr "Oberflächen-Thema"
+msgstr "Oberflächendesign"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:134
 msgid "Color Scheme"
@@ -653,10 +653,10 @@ msgstr "Suchverlauf speichern"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:376
 msgid "Show Playlists in Results"
-msgstr "Playlists in Ergebnissen anzeigen"
+msgstr "Wiedergabelisten in Ergebnissen anzeigen"
 
 msgid "Include playlists alongside videos in search results"
-msgstr "Playlists zusammen mit Videos in den Suchergebnissen anzeigen"
+msgstr "Wiedergabelisten zusammen mit Videos in den Suchergebnissen anzeigen"
 
 msgid "Enable Search Suggestions"
 msgstr "Suchvorschläge aktivieren"
@@ -666,7 +666,7 @@ msgid "Online Suggestions"
 msgstr "Online-Vorschläge"
 
 msgid "Also fetch channel and search completions from YouTube while typing"
-msgstr "Auch Kanäle und Suchvervollständigungen von YouTube beim Tippen abrufen"
+msgstr "Beim Tippen auch Kanal- und Suchvervollständigungen von YouTube abrufen"
 
 msgid "Maximum Suggestions"
 msgstr "Maximale Vorschläge"
@@ -829,7 +829,7 @@ msgstr "Ausgabeordner öffnen"
 
 #: bigtube-gui
 msgid "Make read-only"
-msgstr "Schreibschützen"
+msgstr "Schreibschutz aktivieren"
 
 #: bigtube-gui
 msgid "Update timestamp"
@@ -1199,7 +1199,8 @@ msgid ""
 "If BigTube is useful to you, consider supporting its development. Thank you!"
 " ❤️"
 msgstr ""
-"Wenn BigTube dir nützlich ist, unterstütze gern seine Entwicklung. Danke! ❤️"
+"Wenn BigTube für Sie nützlich ist, unterstützen Sie gern seine Entwicklung. "
+"Danke! ❤️"
 
 #. bigtube-gui
 msgid "Pix Copy & Paste"
@@ -1245,10 +1246,10 @@ msgid "Maximum History Entries"
 msgstr "Maximale Verlaufseinträge"
 
 msgid "How many finished downloads to keep in the list"
-msgstr "Wie viele abgeschlossene Downloads in der Liste behalten"
+msgstr "Wie viele abgeschlossene Downloads in der Liste behalten werden"
 
 msgid "How many finished conversions to keep in the list"
-msgstr "Wie viele abgeschlossene Konvertierungen in der Liste behalten"
+msgstr "Wie viele abgeschlossene Konvertierungen in der Liste behalten werden"
 
 msgid "Download complete"
 msgstr "Download abgeschlossen"
@@ -1347,13 +1348,13 @@ msgid "Clear favorites?"
 msgstr "Favoriten löschen?"
 
 msgid "This removes every item from your favorites."
-msgstr "Dadurch werden alle Einträge aus deinen Favoriten entfernt."
+msgstr "Dadurch werden alle Einträge aus Ihren Favoriten entfernt."
 
 msgid "No favorites yet"
 msgstr "Noch keine Favoriten"
 
 msgid "Tap the heart on a video to add it here."
-msgstr "Tippe auf das Herz eines Videos, um es hier hinzuzufügen."
+msgstr "Tippen Sie auf das Herz eines Videos, um es hier hinzuzufügen."
 
 msgid "Favorite all"
-msgstr "Alle zu Favoriten"
+msgstr "Alle zu Favoriten hinzufügen"

@@ -81,7 +81,7 @@ msgstr "Sem Resultados"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:99
 msgid "Search for videos or paste a URL"
-msgstr "Busque por vídeos ou cole uma URL"
+msgstr "Pesquise vídeos ou cole uma URL"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:100
 msgid "No Downloads"
@@ -409,7 +409,7 @@ msgstr "O conteúdo está protegido por DRM!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:212
 msgid "Video is Private!"
-msgstr "O vídeo é Privado!"
+msgstr "O vídeo é privado!"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:213
 msgid "Unknown Error!"
@@ -716,11 +716,11 @@ msgstr "Nenhum"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:427
 msgid "Permanently delete all settings and history"
-msgstr "Exclua permanentemente todas as configurações e histórico"
+msgstr "Exclui permanentemente todas as configurações e o histórico"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:432
 msgid "Delete all previous search entries"
-msgstr "Exclua todas as entradas de pesquisa anteriores"
+msgstr "Exclui todas as pesquisas anteriores"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:450
 msgid "Untitled"
@@ -952,7 +952,7 @@ msgstr "Limpar histórico de conversão"
 
 #: bigtube-gui
 msgid "Delete all previous conversion entries"
-msgstr "Excluir todas as conversões anteriores"
+msgstr "Exclui todas as conversões anteriores"
 
 #: bigtube-gui
 msgid "How many downloads run at the same time"
@@ -1072,7 +1072,7 @@ msgstr "Endereço de proxy inválido — use esquema://host:porta."
 
 #: bigtube-gui
 msgid "Invalid user agent."
-msgstr "User agent inválido."
+msgstr "Agente de usuário inválido."
 
 #: bigtube-gui
 msgid "Command not found on PATH:"
