@@ -305,34 +305,54 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
         stack.set_visible_child_name("empty");
     } else {
         stack.set_visible_child_name("list");
-        let current = now_playing.url();
         for fav in &items {
             let lbr = build_fav_row(fav);
-            // Highlight the row that's playing now, and keep it in sync as the
-            // track changes.
-            if !current.is_empty() && current == fav.url {
-                lbr.row.add_css_class("playing");
-            }
-            {
+            // Highlight the row that's playing now and mirror the bar's play/pause
+            // glyph on its play button; keep both in sync as the track and the
+            // playing state change.
+            let refresh = {
                 let row = lbr.row.clone();
+                let btn = lbr.on_play.clone();
+                let np = now_playing.clone();
                 let url = fav.url.clone();
-                let id = now_playing.connect_url_notify(move |np| {
-                    let cur = np.url();
-                    if !cur.is_empty() && cur == url {
+                Rc::new(move || {
+                    let active = !np.url().is_empty() && np.url() == url;
+                    if active {
                         row.add_css_class("playing");
                     } else {
                         row.remove_css_class("playing");
                     }
-                });
+                    btn.set_icon_name(if active && np.playing() {
+                        "bigtube-media-playback-pause-symbolic"
+                    } else {
+                        "bigtube-media-playback-start-symbolic"
+                    });
+                })
+            };
+            refresh();
+            {
+                let refresh = refresh.clone();
+                let id = now_playing.connect_url_notify(move |_| refresh());
+                np_handlers.borrow_mut().push(id);
+            }
+            {
+                let refresh = refresh.clone();
+                let id = now_playing.connect_playing_notify(move |_| refresh());
                 np_handlers.borrow_mut().push(id);
             }
             // Play from this item (resolve its index in the live list at click
-            // time, since removals shift positions). The popover stays open — it
-            // only closes on a click outside.
+            // time, since removals shift positions). If this row is already the
+            // active track, the button toggles play/pause in sync with the bar.
+            // The popover stays open — it only closes on a click outside.
             {
                 let player = player.clone();
+                let np = now_playing.clone();
                 let url = fav.url.clone();
                 lbr.on_play.connect_clicked(move |_| {
+                    if !np.url().is_empty() && np.url() == url {
+                        np.request_toggle();
+                        return;
+                    }
                     let items = favorites().list();
                     let start = items.iter().position(|f| f.url == url).unwrap_or(0);
                     player.play_queue(to_queue(&items), start);
