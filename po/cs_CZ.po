@@ -662,6 +662,12 @@ msgid "Enable Search Suggestions"
 msgstr "Povolit návrhy vyhledávání"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:377
+msgid "Online Suggestions"
+msgstr "Online návrhy"
+
+msgid "Also fetch channel and search completions from YouTube while typing"
+msgstr "Načítat také kanály a doplňování hledání z YouTube při psaní"
+
 msgid "Maximum Suggestions"
 msgstr "Maximální počet návrhů"
 

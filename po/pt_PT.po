@@ -657,6 +657,12 @@ msgid "Enable Search Suggestions"
 msgstr "Ativar Sugestões de Pesquisa"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:377
+msgid "Online Suggestions"
+msgstr "Sugestões Online"
+
+msgid "Also fetch channel and search completions from YouTube while typing"
+msgstr "Também obter canais e completar pesquisas do YouTube enquanto escreve"
+
 msgid "Maximum Suggestions"
 msgstr "Sugestões Máximas"
 

@@ -22,6 +22,16 @@ use crate::i18n::tr;
 use crate::objects::VideoObject;
 use crate::row::{RowAction, SearchResultRow};
 
+/// On-disk known-channels index (`~/.config/bigtube/channels.json`).
+fn channels_path() -> std::path::PathBuf {
+    bigtube_core::paths::config_dir().join("channels.json")
+}
+
+/// A fresh handle to the known-channels store.
+fn channels() -> bigtube_core::channels::Channels {
+    bigtube_core::channels::Channels::new(channels_path())
+}
+
 pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     let page = gtk::Box::new(gtk::Orientation::Vertical, 0);
 
@@ -418,6 +428,12 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     #[allow(clippy::type_complexity)]
     let rebuild_slot: Rc<RefCell<Option<Rc<dyn Fn(&str)>>>> = Rc::new(RefCell::new(None));
 
+    // Cache of the last online-autocomplete fetch: (query, suggestions). Lets the
+    // rebuild stay synchronous — it shows what's cached and kicks an async fetch
+    // (which re-runs rebuild) only when the cache misses the current text.
+    let online_cache: Rc<RefCell<(String, Vec<String>)>> =
+        Rc::new(RefCell::new((String::new(), Vec::new())));
+
     // Rebuild the suggestion list for the current text.
     let rebuild: Rc<dyn Fn(&str)> = {
         let sugg_list = sugg_list.clone();
@@ -425,6 +441,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         let entry = entry.clone();
         let trigger = trigger.clone();
         let rebuild_slot = rebuild_slot.clone();
+        let online_cache = online_cache.clone();
         Rc::new(move |text: &str| {
             // Close on every keystroke; we re-open (popup) below only when there
             // are matches. Re-opening yields a fresh surface sized to the current
@@ -434,10 +451,11 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             while let Some(c) = sugg_list.first_child() {
                 sugg_list.remove(&c);
             }
-            let (enabled, max) = {
+            let (enabled, online_enabled, max) = {
                 let c = config::global().read().unwrap_or_else(|e| e.into_inner());
                 (
                     c.get_bool("enable_suggestions"),
+                    c.get_bool("online_suggestions"),
                     c.get_i64("max_suggestions").max(1) as usize,
                 )
             };
@@ -445,42 +463,84 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 popover.popdown();
                 return;
             }
-            let matches = bigtube_core::search_history::SearchHistory::new(search_history_path())
+
+            // Group 1: local search-query history (with a per-item delete button).
+            let history = bigtube_core::search_history::SearchHistory::new(search_history_path())
                 .get_matches(text, max);
-            if matches.is_empty() {
-                popover.popdown();
-                return;
+            // Group 2: known channels harvested from past results (opens the channel).
+            let chans = channels().get_matches(text, max.min(6));
+            // Group 3: online autocomplete completions (from cache; fetched async).
+            let online: Vec<String> = if online_enabled && online_cache.borrow().0 == text {
+                online_cache.borrow().1.clone()
+            } else {
+                Vec::new()
+            };
+
+            // Kick an async online fetch when the cache misses the current text;
+            // when it returns (and the text is unchanged) it re-runs rebuild, which
+            // then renders the online group.
+            if online_enabled && online_cache.borrow().0 != text {
+                let (otx, orx) = async_channel::bounded::<Vec<String>>(1);
+                let q = text.to_string();
+                let qmax = max.min(8);
+                std::thread::spawn(move || {
+                    let _ =
+                        otx.send_blocking(bigtube_core::search::fetch_online_suggestions(&q, qmax));
+                });
+                let entry2 = entry.clone();
+                let rebuild_slot2 = rebuild_slot.clone();
+                let online_cache2 = online_cache.clone();
+                let q2 = text.to_string();
+                glib::spawn_future_local(async move {
+                    if let Ok(res) = orx.recv().await {
+                        // Only apply if the user is still on the same query.
+                        if entry2.text() == q2 {
+                            *online_cache2.borrow_mut() = (q2.clone(), res);
+                            if let Some(rebuild) = rebuild_slot2.borrow().as_ref() {
+                                rebuild(&q2);
+                            }
+                        }
+                    }
+                });
             }
-            for m in matches {
+
+            // Helper: append a simple (non-deletable) suggestion row and return its
+            // pick button for click wiring.
+            let add_row = |icon_name: &str, label: &str| -> gtk::Button {
                 let rowbox = gtk::Box::new(gtk::Orientation::Horizontal, 0);
                 rowbox.add_css_class("suggestion-row");
                 let pick = gtk::Button::new();
                 pick.add_css_class("flat");
                 pick.set_hexpand(true);
-                // Don't steal focus from the entry (keeps the popover open on click).
                 pick.set_can_focus(false);
                 pick.set_focus_on_click(false);
                 let inner = gtk::Box::new(gtk::Orientation::Horizontal, 6);
-                let icon = gtk::Image::from_icon_name("bigtube-document-open-recent-symbolic");
+                let icon = gtk::Image::from_icon_name(icon_name);
                 icon.add_css_class("dim-label");
                 icon.set_pixel_size(14);
-                let lbl = gtk::Label::new(Some(&m));
+                let lbl = gtk::Label::new(Some(label));
                 lbl.set_xalign(0.0);
                 lbl.set_hexpand(true);
                 lbl.set_ellipsize(gtk::pango::EllipsizeMode::End);
                 inner.append(&icon);
                 inner.append(&lbl);
                 pick.set_child(Some(&inner));
+                rowbox.append(&pick);
+                sugg_list.append(&rowbox);
+                pick
+            };
+
+            // History rows (with delete).
+            for m in &history {
+                let pick = add_row("bigtube-document-open-recent-symbolic", m);
+                let rowbox = pick.parent().unwrap();
                 let del = gtk::Button::from_icon_name("bigtube-window-close-symbolic");
                 del.add_css_class("flat");
                 del.set_valign(gtk::Align::Center);
                 del.set_can_focus(false);
                 del.set_focus_on_click(false);
                 del.set_tooltip_text(Some(&tr("Remove from list")));
-                rowbox.append(&pick);
-                rowbox.append(&del);
-                sugg_list.append(&rowbox);
-
+                rowbox.downcast_ref::<gtk::Box>().unwrap().append(&del);
                 {
                     let entry = entry.clone();
                     let trigger = trigger.clone();
@@ -497,13 +557,49 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                     del.connect_clicked(move |_| {
                         bigtube_core::search_history::SearchHistory::new(search_history_path())
                             .remove_item(&q);
-                        // Close and reopen the popover, resized to the matches that
-                        // remain (an empty result just leaves it closed).
                         if let Some(rebuild) = rebuild_slot.borrow().as_ref() {
                             rebuild(&entry.text());
                         }
                     });
                 }
+            }
+
+            // Channel rows: clicking opens the channel (its URL flows through the
+            // Direct Link path, expanding into the channel's videos).
+            for c in &chans {
+                let pick = add_row("bigtube-channel-symbolic", &c.name);
+                let entry = entry.clone();
+                let trigger = trigger.clone();
+                let url = c.url.clone();
+                pick.connect_clicked(move |_| {
+                    entry.set_text(&url);
+                    trigger();
+                });
+            }
+
+            // Online completion rows: dedup against history and the typed text.
+            let mut seen: std::collections::HashSet<String> =
+                history.iter().map(|s| s.to_lowercase()).collect();
+            seen.insert(text.to_lowercase());
+            let mut shown_online = 0;
+            for s in &online {
+                if !seen.insert(s.to_lowercase()) {
+                    continue;
+                }
+                let pick = add_row("bigtube-system-search-symbolic", s);
+                let entry = entry.clone();
+                let trigger = trigger.clone();
+                let q = s.clone();
+                pick.connect_clicked(move |_| {
+                    entry.set_text(&q);
+                    trigger();
+                });
+                shown_online += 1;
+            }
+
+            if history.is_empty() && chans.is_empty() && shown_online == 0 {
+                popover.popdown();
+                return;
             }
             // Match the popover width to the search entry so labels aren't clipped;
             // the popover hugs the box height on its own (no scroll = no leftover).
@@ -624,6 +720,12 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
                         obj.connect_is_selected_notify(move |_| st.refresh_selection_count());
                         state.search_store.append(&obj);
                     }
+                    // Remember the channels behind these results so they can be
+                    // suggested next time the user types.
+                    channels().record_many(
+                        list.iter()
+                            .map(|r| (r.uploader.as_str(), r.uploader_url.as_str())),
+                    );
                     state.update_search_empty();
                     state.refresh_selection_count();
                     // Nothing playable came back.

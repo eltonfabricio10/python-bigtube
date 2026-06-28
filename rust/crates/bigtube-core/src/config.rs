@@ -371,6 +371,7 @@ fn build_defaults() -> Map<String, Value> {
     m.insert("save_history".into(), json!(true));
     m.insert("save_search_history".into(), json!(true));
     m.insert("enable_suggestions".into(), json!(true));
+    m.insert("online_suggestions".into(), json!(true));
     m.insert("max_suggestions".into(), json!(10));
     m.insert("search_limit".into(), json!(15));
     m.insert("show_playlists".into(), json!(true));

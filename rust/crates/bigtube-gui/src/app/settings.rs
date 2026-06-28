@@ -173,6 +173,7 @@ pub(crate) fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
             search_limit: cfg.get_i64("search_limit"),
             show_playlists: cfg.get_bool("show_playlists"),
             enable_suggestions: cfg.get_bool("enable_suggestions"),
+            online_suggestions: cfg.get_bool("online_suggestions"),
             max_suggestions: cfg.get_i64("max_suggestions"),
             save_search_history: cfg.get_bool("save_search_history"),
         }
@@ -232,6 +233,7 @@ struct Cfg {
     search_limit: i64,
     show_playlists: bool,
     enable_suggestions: bool,
+    online_suggestions: bool,
     max_suggestions: i64,
     save_search_history: bool,
 }
@@ -922,6 +924,12 @@ fn build_search_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
         &tr("Show matches from your history while typing"),
         c.enable_suggestions,
         |v| set_cfg("enable_suggestions", serde_json::json!(v)),
+    ));
+    group.add(&switch_row(
+        &tr("Online Suggestions"),
+        &tr("Also fetch channel and search completions from YouTube while typing"),
+        c.online_suggestions,
+        |v| set_cfg("online_suggestions", serde_json::json!(v)),
     ));
     group.add(&spin_row(
         &tr("Maximum Suggestions"),

@@ -27,6 +27,9 @@ pub struct SearchResult {
     pub url: String,
     pub thumbnail: String,
     pub uploader: String,
+    /// Channel/uploader page URL, when yt-dlp provides it (for channel suggestions).
+    #[serde(default)]
+    pub uploader_url: String,
     pub duration: f64,
     pub is_video: bool,
     pub is_playlist: bool,
@@ -333,6 +336,44 @@ fn is_playlist_entry(entry: &Value) -> bool {
     matches!(ie, Some("YoutubeTab") | Some("YoutubePlaylist"))
 }
 
+/// Query YouTube's public autocomplete endpoint for search-term completions.
+/// Best-effort and offline-safe: returns an empty list on any network/parse
+/// error. The `client=firefox` form returns plain JSON: `["q", ["s1","s2",…]]`.
+pub fn fetch_online_suggestions(query: &str, max: usize) -> Vec<String> {
+    let q = query.trim();
+    if q.is_empty() || max == 0 {
+        return Vec::new();
+    }
+    let agent = ureq::AgentBuilder::new()
+        .timeout(Duration::from_secs(4))
+        .build();
+    let resp = agent
+        .get("https://suggestqueries.google.com/complete/search")
+        .query("client", "firefox")
+        .query("ds", "yt")
+        .query("q", q)
+        .call();
+    let body = match resp {
+        Ok(r) => match r.into_string() {
+            Ok(b) => b,
+            Err(_) => return Vec::new(),
+        },
+        Err(_) => return Vec::new(),
+    };
+    let Ok(val) = serde_json::from_str::<Value>(&body) else {
+        return Vec::new();
+    };
+    val.get(1)
+        .and_then(Value::as_array)
+        .map(|a| {
+            a.iter()
+                .filter_map(|v| v.as_str().map(str::to_string))
+                .take(max)
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
 fn parse_entry(entry: &Value, force_audio: bool) -> SearchResult {
     let thumb = extract_thumbnail(entry);
     if is_playlist_entry(entry) {
@@ -363,6 +404,7 @@ fn parse_entry(entry: &Value, force_audio: bool) -> SearchResult {
         url,
         thumbnail: thumb,
         uploader: extract_uploader(entry, force_audio),
+        uploader_url: extract_uploader_url(entry),
         duration: entry.get("duration").and_then(Value::as_f64).unwrap_or(0.0),
         is_video,
         is_playlist: false,
@@ -400,6 +442,7 @@ fn parse_playlist_entry(entry: &Value, thumb: String, force_audio: bool) -> Sear
         url,
         thumbnail: thumb,
         uploader: extract_uploader(entry, force_audio),
+        uploader_url: extract_uploader_url(entry),
         duration: 0.0,
         is_video: false,
         is_playlist: true,
@@ -484,6 +527,23 @@ fn extract_uploader(entry: &Value, prefer_artist: bool) -> String {
         return "YouTube Music".to_string();
     }
     "Unknown".to_string()
+}
+
+/// The channel/uploader page URL from a flat-playlist entry, normalized to an
+/// absolute URL. Empty when yt-dlp didn't provide one.
+fn extract_uploader_url(entry: &Value) -> String {
+    for key in ["uploader_url", "channel_url"] {
+        if let Some(s) = entry.get(key).and_then(Value::as_str) {
+            let s = s.trim();
+            if !s.is_empty() {
+                if s.starts_with("http://") || s.starts_with("https://") {
+                    return s.to_string();
+                }
+                return format!("https://www.youtube.com/{}", s.trim_start_matches('/'));
+            }
+        }
+    }
+    String::new()
 }
 
 fn stringify_credit(value: Option<&Value>) -> String {

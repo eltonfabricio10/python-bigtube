@@ -662,6 +662,12 @@ msgid "Enable Search Suggestions"
 msgstr "Keresési javaslatok engedélyezése"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:377
+msgid "Online Suggestions"
+msgstr "Online javaslatok"
+
+msgid "Also fetch channel and search completions from YouTube while typing"
+msgstr "Csatornák és keresési kiegészítések lekérése a YouTube-ról gépelés közben is"
+
 msgid "Maximum Suggestions"
 msgstr "Javaslatok maximális száma"
 
