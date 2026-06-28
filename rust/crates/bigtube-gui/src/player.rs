@@ -209,6 +209,8 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     let overlay = gtk::Overlay::new();
     overlay.set_child(Some(&picture));
     overlay.add_overlay(&ov_reveal);
+    // Thin rule under the video (windowed/maximized); dropped in fullscreen.
+    overlay.add_css_class("video-frame");
 
     let video_view = adw::ToolbarView::new();
     video_view.add_top_bar(&header);
@@ -650,6 +652,12 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
             };
             bf.set_icon_name(icon);
             of.set_icon_name(icon);
+            // The bottom rule only makes sense windowed/maximized.
+            if w.is_fullscreen() {
+                p.video_overlay.remove_css_class("video-frame");
+            } else {
+                p.video_overlay.add_css_class("video-frame");
+            }
             // Entering fullscreen starts the auto-hide cycle; leaving it pins the
             // controls + header back on.
             p.show_controls();

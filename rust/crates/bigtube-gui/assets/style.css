@@ -1040,6 +1040,12 @@ button:focus:not(:focus-visible) {
     background-color: @window_bg_color;
 }
 
+/* A thin rule under the video so it has a defined bottom edge (windowed /
+   maximized); removed in fullscreen where the video meets the screen edge. */
+.video-frame {
+    border-bottom: 1px solid alpha(@borders, 0.7);
+}
+
 /* -----------------------------------------------------------------------------
    Busy overlay — a dimmed scrim covering the window while a background fetch
    runs, with the spinner+message card floating centered on top.

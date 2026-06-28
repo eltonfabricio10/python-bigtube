@@ -146,31 +146,8 @@ pub fn show(
             win.clipboard().set_text(&item.url());
         })
     };
-    let factory = gtk::SignalListItemFactory::new();
     let on_download_row = on_download.clone();
     let now_playing = player.now_playing();
-    factory.connect_setup(move |_, list_item| {
-        let list_item = list_item.downcast_ref::<gtk::ListItem>().unwrap();
-        let row = SearchResultRow::new();
-        row.set_handlers(
-            on_play.clone(),
-            on_download_row.clone(),
-            Rc::new(|_| {}),
-            on_copy.clone(),
-        );
-        let (fav_toggle, fav_query) = crate::app::favorites::make_handlers();
-        row.set_favorite_handlers(fav_toggle, fav_query, crate::app::favorites::watch());
-        row.set_now_playing(now_playing.clone());
-        list_item.set_child(Some(&row));
-    });
-    factory.connect_bind(|_, list_item| {
-        let list_item = list_item.downcast_ref::<gtk::ListItem>().unwrap();
-        if let (Some(child), Some(item)) = (list_item.child(), list_item.item()) {
-            let row = child.downcast::<SearchResultRow>().unwrap();
-            let video = item.downcast::<VideoObject>().unwrap();
-            row.set_item(&video);
-        }
-    });
     // Favorite-all toggle: adds every video, or removes them all if they're
     // already favorited. The heart fills while the whole list is favorited and
     // stays in sync with per-row toggles (via the shared favorites watch) and as
@@ -243,12 +220,40 @@ pub fn show(
                 .unwrap_or(true)
     });
     let filter_model = gtk::FilterListModel::new(Some(store.clone()), Some(filter.clone()));
-    // NoSelection: avoid the ListView auto-highlighting row 0, which would
-    // compete with the now-playing highlight (rows act via their own buttons).
-    let selection = gtk::NoSelection::new(Some(filter_model));
-    let list = gtk::ListView::new(Some(selection), Some(factory));
-    list.set_vexpand(true);
+    // A boxed-list ListBox gives the carded look of the favorites popover while
+    // keeping the same SearchResultRow content (thumbnail, title, all actions,
+    // selection). Rows act via their own buttons, so no selection highlight.
+    let list = gtk::ListBox::new();
+    list.set_selection_mode(gtk::SelectionMode::None);
+    list.add_css_class("boxed-list");
+    list.set_valign(gtk::Align::Start);
+    list.set_margin_top(12);
+    list.set_margin_bottom(12);
+    list.set_margin_start(12);
+    list.set_margin_end(12);
+    {
+        let on_play = on_play.clone();
+        let on_download_row = on_download_row.clone();
+        let on_copy = on_copy.clone();
+        let now_playing = now_playing.clone();
+        list.bind_model(Some(&filter_model), move |obj| {
+            let video = obj.downcast_ref::<VideoObject>().unwrap();
+            let row = SearchResultRow::new();
+            row.set_handlers(
+                on_play.clone(),
+                on_download_row.clone(),
+                Rc::new(|_| {}),
+                on_copy.clone(),
+            );
+            let (fav_toggle, fav_query) = crate::app::favorites::make_handlers();
+            row.set_favorite_handlers(fav_toggle, fav_query, crate::app::favorites::watch());
+            row.set_now_playing(now_playing.clone());
+            row.set_item(video);
+            row.upcast::<gtk::Widget>()
+        });
+    }
     let scrolled = gtk::ScrolledWindow::new();
+    scrolled.set_vexpand(true);
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_child(Some(&list));
     // Collapsible filter pinned to the far-right of the header (after select).
