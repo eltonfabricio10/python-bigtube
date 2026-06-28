@@ -656,7 +656,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         });
     }
     // Reveal the overlay controls (and header) + pointer on real pointer motion;
-    // they auto-hide again after a couple seconds while immersive.
+    // they auto-hide again after a couple idle seconds.
     //
     // The controller is on the WINDOW, not the overlay: revealing/hiding the top
     // bar shifts the overlay's content, which — for a controller on the overlay —
@@ -751,36 +751,30 @@ impl Player {
         self.ov_play.set_icon_name(icon);
     }
 
-    /// Whether the video window is in an "immersive" state (fullscreen or
-    /// maximized) where the controls, header, and pointer should auto-hide.
-    fn immersive(&self) -> bool {
-        self.video_window.is_fullscreen() || self.video_window.is_maximized()
-    }
-
-    /// Reveal the video-window overlay controls + header + pointer, and — while
-    /// immersive (fullscreen/maximized) — schedule them to auto-hide after a
-    /// couple of idle seconds.
+    /// Reveal the video-window overlay controls + header + pointer, then schedule
+    /// an auto-hide. The pointer and the overlay control bar auto-hide in every
+    /// window state (windowed, maximized, fullscreen); the title bar only hides
+    /// in fullscreen — windowed and maximized keep it.
     fn show_controls(self: &Rc<Self>) {
         self.ov_reveal.set_reveal_child(true);
         self.video_toolbar.set_reveal_top_bars(true);
         // Restore the default pointer on the overlay that's directly under it.
         self.video_overlay.set_cursor(None);
-        if !self.immersive() {
-            return; // plain windowed: controls stay pinned, pointer visible.
-        }
         let gen = self.autohide_gen.get().wrapping_add(1);
         self.autohide_gen.set(gen);
         let this = self.clone();
         glib::timeout_add_local_once(Duration::from_secs(2), move || {
-            // Only hide if no motion happened since (gen unchanged) and we're
-            // still immersive.
-            if this.autohide_gen.get() != gen || !this.immersive() {
+            // Only hide if no motion happened since (gen unchanged).
+            if this.autohide_gen.get() != gen {
                 return;
             }
             this.ov_reveal.set_reveal_child(false);
-            this.video_toolbar.set_reveal_top_bars(false);
-            // Blank the pointer over the video. Blanking emits a synthetic
-            // motion event, so suppress motion briefly to stop it un-hiding.
+            // The title bar only auto-hides in fullscreen.
+            if this.video_window.is_fullscreen() {
+                this.video_toolbar.set_reveal_top_bars(false);
+            }
+            // Blank the pointer over the video. Blanking emits a synthetic motion
+            // event, so suppress motion briefly to stop it un-hiding.
             this.suppress_motion.set(true);
             let blank = gtk::gdk::Cursor::from_name("none", None);
             this.video_overlay.set_cursor(blank.as_ref());

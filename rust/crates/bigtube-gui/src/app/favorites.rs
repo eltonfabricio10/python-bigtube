@@ -190,11 +190,11 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
     pop.set_parent(anchor);
     pop.set_autohide(true);
     pop.add_css_class("menu");
-    // Pop up above the bar button. GTK keeps it on-screen on its own: anchored to
-    // the right-side button it naturally grows leftward. (No halign/offset hacks —
-    // those made it collapse to its natural width instead of honoring the width
-    // request below.)
+    // Pop up above the bar button, right-aligned so it grows from the right edge
+    // leftward (halign End) rather than centering on the anchor. The hard width
+    // request on the content (below) keeps halign from collapsing it.
     pop.set_position(gtk::PositionType::Top);
+    pop.set_halign(gtk::Align::End);
     crate::app::apply_theme_classes(&pop);
     // Free the popover (and its parent link) once dismissed, so each open starts
     // fresh and we don't leak hidden popovers under the button.
