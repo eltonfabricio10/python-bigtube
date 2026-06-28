@@ -190,11 +190,11 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
     pop.set_parent(anchor);
     pop.set_autohide(true);
     pop.add_css_class("menu");
-    // Pop up above the bar button and bias toward the right edge instead of
-    // centering over the (right-side) anchor.
+    // Pop up above the bar button. GTK keeps it on-screen on its own: anchored to
+    // the right-side button it naturally grows leftward. (No halign/offset hacks —
+    // those made it collapse to its natural width instead of honoring the width
+    // request below.)
     pop.set_position(gtk::PositionType::Top);
-    pop.set_halign(gtk::Align::End);
-    pop.set_offset(40, 0);
     crate::app::apply_theme_classes(&pop);
     // Free the popover (and its parent link) once dismissed, so each open starts
     // fresh and we don't leak hidden popovers under the button.
@@ -257,6 +257,8 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
     stack.add_named(&empty, Some("empty"));
 
     let root_box = gtk::Box::new(gtk::Orientation::Vertical, 4);
+    // Hard width so row titles get room (the popover sizes to this).
+    root_box.set_width_request(460);
     root_box.append(&header);
     root_box.append(&gtk::Separator::new(gtk::Orientation::Horizontal));
     root_box.append(&stack);

@@ -656,17 +656,21 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         });
     }
     // Reveal the overlay controls (and header) + pointer on real pointer motion;
-    // they auto-hide again after a couple seconds while immersive. A small delta
-    // guard ignores sub-pixel/synthetic events so the pointer can actually stay
-    // hidden once it's still.
+    // they auto-hide again after a couple seconds while immersive.
+    //
+    // The controller is on the WINDOW, not the overlay: revealing/hiding the top
+    // bar shifts the overlay's content, which — for a controller on the overlay —
+    // would change the (stationary) pointer's widget-relative coordinates and
+    // read as phantom motion, un-hiding everything in a loop. Window-relative
+    // coordinates are stable across those internal reveals. A small delta guard
+    // plus the post-blank suppression flag drop the remaining synthetic events.
     {
         let p = player.clone();
         let last = Rc::new(Cell::new((f64::NAN, f64::NAN)));
         let motion = gtk::EventControllerMotion::new();
         motion.connect_motion(move |_, x, y| {
-            // Ignore the synthetic event from blanking the cursor.
             if p.suppress_motion.get() {
-                return;
+                return; // synthetic event from blanking the cursor
             }
             let (lx, ly) = last.get();
             if (x - lx).abs() < 1.0 && (y - ly).abs() < 1.0 {
@@ -675,7 +679,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
             last.set((x, y));
             p.show_controls();
         });
-        overlay.add_controller(motion);
+        video_window.add_controller(motion);
     }
 
     // Bus watch: handle buffering (HLS/network streams), advance on EOS, stop on
