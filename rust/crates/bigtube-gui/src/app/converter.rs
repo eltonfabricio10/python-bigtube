@@ -955,9 +955,6 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
     name_lbl.set_hexpand(true);
     name_lbl.set_ellipsize(gtk::pango::EllipsizeMode::End);
     name_lbl.add_css_class("heading");
-    let fmt_lbl = gtk::Label::new(Some(&format.to_uppercase()));
-    fmt_lbl.add_css_class("dim-label");
-    fmt_lbl.add_css_class("caption");
     let folder = gtk::Button::from_icon_name("bigtube-folder-open-symbolic");
     folder.add_css_class("flat");
     folder.set_tooltip_text(Some(&tr("Open Folder")));
@@ -970,13 +967,12 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
     let remove = gtk::Button::from_icon_name("bigtube-user-trash-symbolic");
     remove.add_css_class("flat");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
-    // Top row: name + format + status + delete (matching the downloads list).
+    // Top row: name + status + delete (matching the downloads list).
     let status = gtk::Label::new(Some(tr("Completed").as_str()));
     status.set_ellipsize(gtk::pango::EllipsizeMode::End);
     status.add_css_class("dim-label");
     status.add_css_class("caption");
     header.append(&name_lbl);
-    header.append(&fmt_lbl);
     header.append(&status);
     header.append(&remove);
 
