@@ -212,6 +212,14 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
         .as_ref()
         .root()
         .and_then(|r| r.downcast::<gtk::Window>().ok());
+    // Size the popover proportional to the main window (clamped).
+    let (pop_w, pop_h) = match root_win.as_ref() {
+        Some(w) if w.width() > 0 && w.height() > 0 => (
+            ((w.width() as f64 * 0.42) as i32).clamp(360, 620),
+            ((w.height() as f64 * 0.55) as i32).clamp(240, 560),
+        ),
+        _ => (460, 380),
+    };
 
     // Compact header: title + play-all + clear-all.
     let header = gtk::Box::new(gtk::Orientation::Horizontal, 6);
@@ -247,8 +255,8 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
     list.set_valign(gtk::Align::Start);
     let scrolled = gtk::ScrolledWindow::new();
     scrolled.set_propagate_natural_height(true);
-    scrolled.set_min_content_width(460);
-    scrolled.set_max_content_height(380);
+    scrolled.set_min_content_width(pop_w);
+    scrolled.set_max_content_height(pop_h);
     scrolled.set_policy(gtk::PolicyType::Never, gtk::PolicyType::Automatic);
     scrolled.set_child(Some(&list));
     stack.add_named(&scrolled, Some("list"));
@@ -263,7 +271,7 @@ pub(crate) fn open_popover(anchor: &impl IsA<gtk::Widget>, player: &Rc<Player>) 
 
     let root_box = gtk::Box::new(gtk::Orientation::Vertical, 4);
     // Hard width so row titles get room (the popover sizes to this).
-    root_box.set_width_request(460);
+    root_box.set_width_request(pop_w);
     // Breathing room from the popover edge.
     root_box.set_margin_top(8);
     root_box.set_margin_bottom(8);

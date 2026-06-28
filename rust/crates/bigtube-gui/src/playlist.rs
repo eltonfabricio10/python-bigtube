@@ -53,13 +53,26 @@ pub fn show(
     on_download_all: BatchAction,
     on_schedule_all: BatchAction,
 ) {
+    // Size proportional to the main window (clamped to sane bounds).
+    let (win_w, win_h) = {
+        let pw = parent.width();
+        let ph = parent.height();
+        if pw > 0 && ph > 0 {
+            (
+                ((pw as f64 * 0.62) as i32).clamp(480, 1000),
+                ((ph as f64 * 0.82) as i32).clamp(420, 920),
+            )
+        } else {
+            (560, 480)
+        }
+    };
     // Non-modal so the player bar in the main window stays usable while a
     // playlist is open.
     let win = adw::Window::builder()
         .transient_for(parent)
         .modal(false)
-        .default_width(560)
-        .default_height(480)
+        .default_width(win_w)
+        .default_height(win_h)
         .title(&title)
         .build();
     crate::app::apply_theme_classes(&win);
