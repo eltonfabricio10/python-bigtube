@@ -168,6 +168,7 @@ struct ConvUi {
     cancel: gtk::Button,
     folder: gtk::Button,
     play: gtk::Button,
+    favorite: gtk::Button,
     format: gtk::DropDown,
     meta_chk: gtk::CheckButton,
     subs_chk: gtk::CheckButton,
@@ -205,6 +206,7 @@ fn enqueue_conversion(state: &Rc<AppState>, job: PendingConv) {
     job.ui.cancel.set_visible(true);
     job.ui.folder.set_visible(false);
     job.ui.play.set_visible(false);
+    job.ui.favorite.set_visible(false);
     job.ui.set_inputs_sensitive(false);
     job.ui.set_progress_class("");
     job.ui.status.set_text(&tr("Queued"));
@@ -344,6 +346,11 @@ fn add_converter_row(
     play.set_tooltip_text(Some(&tr("Play Video")));
     a11y_label(&play, &tr("Play Video"));
     play.set_visible(false);
+    let favorite = gtk::Button::from_icon_name("bigtube-emblem-favorite-symbolic");
+    favorite.add_css_class("flat");
+    favorite.set_tooltip_text(Some(&tr("Add to Favorites")));
+    a11y_label(&favorite, &tr("Add to Favorites"));
+    favorite.set_visible(false);
     let remove = gtk::Button::from_icon_name("bigtube-user-trash-symbolic");
     remove.add_css_class("flat");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
@@ -402,6 +409,7 @@ fn add_converter_row(
     actions.set_halign(gtk::Align::End);
     actions.append(&folder);
     actions.append(&play);
+    actions.append(&favorite);
     footer.append(&status);
     footer.append(&actions);
 
@@ -424,6 +432,7 @@ fn add_converter_row(
         cancel: cancel.clone(),
         folder: folder.clone(),
         play: play.clone(),
+        favorite: favorite.clone(),
         format: format.clone(),
         meta_chk: meta_chk.clone(),
         subs_chk: subs_chk.clone(),
@@ -499,6 +508,19 @@ fn add_converter_row(
     }
     // Highlight this row while its output is the one playing, and sync its glyph.
     wire_play_highlight(state, &container, ui.out_path.clone(), &play);
+    // Favorite the converted local file (heart appears once it succeeds).
+    {
+        let out_path = ui.out_path.clone();
+        favorite.connect_clicked(move |b| {
+            let path = out_path.borrow().clone();
+            if path.is_empty() {
+                return;
+            }
+            let now = crate::app::favorites::toggle_local(&path, "");
+            crate::app::favorites::set_heart_icon(b, now);
+        });
+    }
+    crate::app::favorites::watch_heart(&favorite, ui.out_path.clone());
 
     // Convert (with a cancel flag the cancel button flips).
     {
@@ -657,6 +679,11 @@ fn run_conversion(
                     ui.out_path.replace(out.clone());
                     ui.folder.set_visible(true);
                     ui.play.set_visible(true);
+                    ui.favorite.set_visible(true);
+                    crate::app::favorites::set_heart_icon(
+                        &ui.favorite,
+                        crate::app::favorites::favorites().contains(&out),
+                    );
                     // Probe the converted file (codecs + real size) and show it as
                     // the status, replacing the generic "Success!".
                     {
@@ -909,6 +936,9 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
     let play = gtk::Button::from_icon_name("bigtube-media-playback-start-symbolic");
     play.add_css_class("flat");
     play.set_tooltip_text(Some(&tr("Play Video")));
+    let favorite = gtk::Button::from_icon_name("bigtube-emblem-favorite-symbolic");
+    favorite.add_css_class("flat");
+    favorite.set_tooltip_text(Some(&tr("Add to Favorites")));
     let remove = gtk::Button::from_icon_name("bigtube-user-trash-symbolic");
     remove.add_css_class("flat");
     remove.set_tooltip_text(Some(&tr("Remove from list")));
@@ -916,6 +946,7 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
     header.append(&fmt_lbl);
     header.append(&folder);
     header.append(&play);
+    header.append(&favorite);
     header.append(&remove);
 
     // Destination path under the name.
@@ -940,6 +971,11 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
     let exists = std::path::Path::new(output).exists();
     folder.set_visible(exists);
     play.set_visible(exists);
+    favorite.set_visible(exists);
+    crate::app::favorites::set_heart_icon(
+        &favorite,
+        exists && crate::app::favorites::favorites().contains(output),
+    );
 
     let out = output.to_string();
     {
@@ -962,12 +998,20 @@ fn add_converted_history_row(state: &Rc<AppState>, source: &str, output: &str, f
         });
     }
     // Highlight this row while its output is the one playing, and sync its glyph.
-    wire_play_highlight(
-        state,
-        &container,
-        Rc::new(RefCell::new(output.to_string())),
-        &play,
-    );
+    let out_rc = Rc::new(RefCell::new(output.to_string()));
+    wire_play_highlight(state, &container, out_rc.clone(), &play);
+    // Favorite the converted local file.
+    {
+        let out = out.clone();
+        favorite.connect_clicked(move |b| {
+            if out.is_empty() {
+                return;
+            }
+            let now = crate::app::favorites::toggle_local(&out, "");
+            crate::app::favorites::set_heart_icon(b, now);
+        });
+    }
+    crate::app::favorites::watch_heart(&favorite, out_rc);
     {
         let state = state.clone();
         let container = container.clone();
