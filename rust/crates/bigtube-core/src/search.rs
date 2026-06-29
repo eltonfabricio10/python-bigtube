@@ -33,6 +33,10 @@ pub struct SearchResult {
     pub duration: f64,
     pub is_video: bool,
     pub is_playlist: bool,
+    /// True for a channel result (from a channel-type search); opened to list the
+    /// channel's videos, like a playlist.
+    #[serde(default)]
+    pub is_channel: bool,
     pub playlist_count: i64,
 }
 
@@ -55,8 +59,9 @@ impl SearchEngine {
         })
     }
 
-    /// Main routing: direct URL, YouTube Music, or YouTube (videos+playlists).
-    pub fn search(&self, query: &str, source: &str) -> Result<Vec<SearchResult>> {
+    /// Main routing: direct URL, YouTube Music, or YouTube. `kind` selects the
+    /// YouTube result type — "videos" (default), "channels", or "playlists".
+    pub fn search(&self, query: &str, source: &str, kind: &str) -> Result<Vec<SearchResult>> {
         let query = query.trim();
         if query.is_empty() {
             return Ok(Vec::new());
@@ -70,16 +75,15 @@ impl SearchEngine {
             return self.handle_direct_link(&sanitized);
         }
 
-        if let Some(cached) = CACHE.get(query, source) {
-            return Ok(cached.into_iter().filter_map(from_value).collect());
-        }
-
         let clean = sanitize_search_query(query, 200);
         if clean.is_empty() {
             return Ok(Vec::new());
         }
 
         if source == "youtube_music" {
+            if let Some(cached) = CACHE.get(query, "youtube_music") {
+                return Ok(cached.into_iter().filter_map(from_value).collect());
+            }
             let url = format!("https://music.youtube.com/search?q={}", quote_plus(&clean));
             let args = vec![
                 "--flat-playlist".to_string(),
@@ -89,61 +93,87 @@ impl SearchEngine {
             return self.run_cli(&args, true, Some(query), Some("youtube_music"));
         }
 
-        self.search_youtube_combined(&clean, query)
+        // YouTube: one search per requested type. Cache by type so switching the
+        // dropdown doesn't serve the wrong list.
+        let kind = match kind {
+            "channels" => "channels",
+            "playlists" => "playlists",
+            _ => "videos",
+        };
+        let cache_src = format!("youtube:{kind}");
+        if let Some(cached) = CACHE.get(query, &cache_src) {
+            return Ok(cached.into_iter().filter_map(from_value).collect());
+        }
+        let results = match kind {
+            "channels" => self.search_youtube_channels(&clean)?,
+            "playlists" => self.search_youtube_playlists(&clean)?,
+            _ => self.search_youtube_videos(&clean)?,
+        };
+        CACHE.set(
+            query,
+            &cache_src,
+            results.iter().filter_map(to_value).collect(),
+        );
+        Ok(results)
     }
 
-    /// Run video + playlist YouTube searches concurrently and merge.
-    fn search_youtube_combined(&self, clean: &str, original: &str) -> Result<Vec<SearchResult>> {
-        let video_args = vec![
-            "--extractor-args".to_string(),
-            "youtube:player_client=web,android_vr".to_string(),
-            "--flat-playlist".to_string(),
-            "--dump-json".to_string(),
-            format!("ytsearch{}:{}", self.search_limit, clean),
-        ];
-        let playlist_limit = (self.search_limit / 3).clamp(3, 5);
-        let playlist_url = format!(
-            "https://www.youtube.com/results?search_query={}&sp=EgIQAw%3D%3D",
-            quote_plus(clean)
-        );
-        let playlist_args = vec![
+    /// Common yt-dlp args for a flat YouTube search of `target` (a `ytsearch…:`
+    /// spec or a results-page URL), capped at `end` entries.
+    fn yt_flat_args(&self, target: String, end: i64) -> Vec<String> {
+        vec![
             "--extractor-args".to_string(),
             "youtube:player_client=web,android_vr".to_string(),
             "--flat-playlist".to_string(),
             "--playlist-end".to_string(),
-            playlist_limit.to_string(),
+            end.max(1).to_string(),
             "--dump-json".to_string(),
-            playlist_url,
-        ];
+            target,
+        ]
+    }
 
-        // Run both concurrently; video search is required, playlists best-effort.
-        let videos = std::thread::scope(|scope| {
-            let pl = scope.spawn(|| self.run_cli(&playlist_args, false, None, Some("youtube")));
-            let videos = self.run_cli(&video_args, false, None, Some("youtube"));
-            let playlists = pl.join().unwrap_or_else(|_| Ok(Vec::new()));
-            (videos, playlists)
-        });
+    /// Videos only (the `ytsearch` results, minus any stray playlist wrappers).
+    fn search_youtube_videos(&self, clean: &str) -> Result<Vec<SearchResult>> {
+        let args = self.yt_flat_args(
+            format!("ytsearch{}:{}", self.search_limit, clean),
+            self.search_limit,
+        );
+        let results = self.run_cli(&args, false, None, Some("youtube"))?;
+        Ok(results.into_iter().filter(|r| !r.is_playlist).collect())
+    }
 
-        let (videos, playlists) = videos;
-        let videos = videos?; // propagate the required search's error
-        let playlists_raw = playlists.unwrap_or_default();
+    /// Playlists only (YouTube results filtered to the Playlists tab).
+    fn search_youtube_playlists(&self, clean: &str) -> Result<Vec<SearchResult>> {
+        let url = format!(
+            "https://www.youtube.com/results?search_query={}&sp=EgIQAw%3D%3D",
+            quote_plus(clean)
+        );
+        let args = self.yt_flat_args(url, self.search_limit);
+        let results = self.run_cli(&args, false, None, Some("youtube"))?;
+        Ok(results.into_iter().filter(|r| r.is_playlist).collect())
+    }
 
-        let plimit = playlist_limit as usize;
-        let mut merged: Vec<SearchResult> = playlists_raw
-            .into_iter()
-            .filter(|r| r.is_playlist)
-            .take(plimit)
-            .collect();
-        merged.extend(videos.into_iter().filter(|r| !r.is_playlist));
-
-        if !original.is_empty() {
-            CACHE.set(
-                original,
-                "youtube",
-                merged.iter().filter_map(to_value).collect(),
-            );
+    /// Channels only (YouTube results filtered to the Channels tab). Each entry
+    /// is flagged `is_channel` so the UI offers an "open" action that lists the
+    /// channel's videos.
+    fn search_youtube_channels(&self, clean: &str) -> Result<Vec<SearchResult>> {
+        let url = format!(
+            "https://www.youtube.com/results?search_query={}&sp=EgIQAg%3D%3D",
+            quote_plus(clean)
+        );
+        let args = self.yt_flat_args(url, self.search_limit);
+        let mut results = self.run_cli(&args, false, None, Some("youtube"))?;
+        for r in results.iter_mut() {
+            // Channel search entries come back as plain links; mark them so the UI
+            // treats them as channels (open → list videos), and prefer the channel
+            // page URL when present.
+            r.is_channel = true;
+            r.is_playlist = false;
+            r.is_video = false;
+            if !r.uploader_url.is_empty() {
+                r.url = r.uploader_url.clone();
+            }
         }
-        Ok(merged)
+        Ok(results.into_iter().filter(|r| !r.url.is_empty()).collect())
     }
 
     /// Process a direct link, expanding playlists (`_handle_direct_link`).
@@ -439,6 +469,7 @@ fn parse_entry(entry: &Value, force_audio: bool) -> SearchResult {
         duration: entry.get("duration").and_then(Value::as_f64).unwrap_or(0.0),
         is_video,
         is_playlist: false,
+        is_channel: false,
         playlist_count: 0,
     }
 }
@@ -477,6 +508,7 @@ fn parse_playlist_entry(entry: &Value, thumb: String, force_audio: bool) -> Sear
         duration: 0.0,
         is_video: false,
         is_playlist: true,
+        is_channel: false,
         playlist_count: count,
     }
 }
@@ -506,7 +538,12 @@ fn extract_thumbnail(entry: &Value) -> String {
     }
     if let Some(id) = entry.get("id").and_then(Value::as_str) {
         if looks_like_youtube_video_id(id) {
-            return format!("https://i.ytimg.com/vi/{id}/hqdefault.jpg");
+            // `mqdefault` is a clean 16:9 frame (320×180) that always exists —
+            // unlike `hqdefault` (4:3 with black bars, which looks bad once the UI
+            // crops it to fill) or `maxresdefault` (often missing → broken image).
+            // This is what YouTube Music rows fall back to (their flat entries
+            // carry no thumbnails).
+            return format!("https://i.ytimg.com/vi/{id}/mqdefault.jpg");
         }
     }
     String::new()
@@ -726,7 +763,7 @@ mod tests {
         let r = parse_entry(&entry, false);
         assert_eq!(
             r.thumbnail,
-            "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
+            "https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg"
         );
     }
 }

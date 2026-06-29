@@ -652,10 +652,19 @@ msgid "Save Search History"
 msgstr ""
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:376
-msgid "Show Playlists in Results"
+msgid "Videos"
 msgstr ""
 
-msgid "Include playlists alongside videos in search results"
+msgid "Channels"
+msgstr ""
+
+msgid "Playlists"
+msgstr ""
+
+msgid "Result type"
+msgstr ""
+
+msgid "Channel"
 msgstr ""
 
 msgid "Enable Search Suggestions"

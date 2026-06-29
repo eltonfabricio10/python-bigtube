@@ -652,11 +652,20 @@ msgid "Save Search History"
 msgstr "Keresési előzmények mentése"
 
 #: /home/runner/work/python-bigtube/python-bigtube/src/bigtube/core/locales.py:376
-msgid "Show Playlists in Results"
-msgstr "Lejátszási listák megjelenítése"
+msgid "Videos"
+msgstr "Videók"
 
-msgid "Include playlists alongside videos in search results"
-msgstr "Lejátszási listák megjelenítése a videók mellett a keresési találatokban"
+msgid "Channels"
+msgstr "Csatornák"
+
+msgid "Playlists"
+msgstr "Lejátszási listák"
+
+msgid "Result type"
+msgstr "Találat típusa"
+
+msgid "Channel"
+msgstr "Csatorna"
 
 msgid "Enable Search Suggestions"
 msgstr "Keresési javaslatok engedélyezése"

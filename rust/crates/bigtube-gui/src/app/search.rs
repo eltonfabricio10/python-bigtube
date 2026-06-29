@@ -22,16 +22,6 @@ use crate::i18n::tr;
 use crate::objects::VideoObject;
 use crate::row::{RowAction, SearchResultRow};
 
-/// On-disk known-channels index (`~/.config/bigtube/channels.json`).
-fn channels_path() -> std::path::PathBuf {
-    bigtube_core::paths::config_dir().join("channels.json")
-}
-
-/// A fresh handle to the known-channels store.
-fn channels() -> bigtube_core::channels::Channels {
-    bigtube_core::channels::Channels::new(channels_path())
-}
-
 pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     let page = gtk::Box::new(gtk::Orientation::Vertical, 0);
 
@@ -46,6 +36,20 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         tr("YouTube Music").as_str(),
         tr("Direct Link").as_str(),
     ]);
+    // Result type for YouTube searches: videos / channels / playlists.
+    let kind_dd = gtk::DropDown::from_strings(&[
+        tr("Videos").as_str(),
+        tr("Channels").as_str(),
+        tr("Playlists").as_str(),
+    ]);
+    kind_dd.set_tooltip_text(Some(&tr("Result type")));
+    // Only meaningful for YouTube (not YT Music / Direct Link).
+    {
+        let kind_dd = kind_dd.clone();
+        let sync = move |dd: &gtk::DropDown| kind_dd.set_sensitive(dd.selected() == 0);
+        sync(&source);
+        source.connect_selected_notify(sync);
+    }
     let entry = gtk::SearchEntry::new();
     entry.set_hexpand(true);
     entry.set_placeholder_text(Some(&tr("Paste URL or type keywords...")));
@@ -60,6 +64,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     btn_select.set_sensitive(false);
     a11y_label(&btn_select, &tr("Toggle Selection Mode"));
     bar.append(&source);
+    bar.append(&kind_dd);
     bar.append(&entry);
     bar.append(&button);
     bar.append(&btn_select);
@@ -380,6 +385,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         let state = state.clone();
         let entry = entry.clone();
         let source = source.clone();
+        let kind_dd = kind_dd.clone();
         let popover = popover.clone();
         let last_query = last_query.clone();
         Rc::new(move || {
@@ -407,7 +413,13 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 _ => "youtube",
             }
             .to_string();
-            run_search(&state, query, src);
+            let kind = match kind_dd.selected() {
+                1 => "channels",
+                2 => "playlists",
+                _ => "videos",
+            }
+            .to_string();
+            run_search(&state, query, src, kind);
         })
     };
 
@@ -443,11 +455,11 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         let rebuild_slot = rebuild_slot.clone();
         let online_cache = online_cache.clone();
         Rc::new(move |text: &str| {
-            // Close on every keystroke; we re-open (popup) below only when there
-            // are matches. Re-opening yields a fresh surface sized to the current
-            // content, so the popover never keeps a stale, stretched height — and
-            // clearing the text simply leaves it closed.
-            popover.popdown();
+            // Update the suggestion list in place — DON'T popdown/popup on every
+            // keystroke (that destroys+recreates the surface and makes the popover
+            // flicker). We only popup() when it isn't already open, and popdown()
+            // when there's nothing to show. The content (and the scrolled window's
+            // natural height) updates live as rows are swapped.
             while let Some(c) = sugg_list.first_child() {
                 sugg_list.remove(&c);
             }
@@ -467,9 +479,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             // Group 1: local search-query history (with a per-item delete button).
             let history = bigtube_core::search_history::SearchHistory::new(search_history_path())
                 .get_matches(text, max);
-            // Group 2: known channels harvested from past results (opens the channel).
-            let chans = channels().get_matches(text, max.min(6));
-            // Group 3: online autocomplete completions (from cache; fetched async).
+            // Group 2: online autocomplete completions (from cache; fetched async).
             let online: Vec<String> = if online_enabled && online_cache.borrow().0 == text {
                 online_cache.borrow().1.clone()
             } else {
@@ -564,19 +574,6 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 }
             }
 
-            // Channel rows: clicking opens the channel (its URL flows through the
-            // Direct Link path, expanding into the channel's videos).
-            for c in &chans {
-                let pick = add_row("bigtube-channel-symbolic", &c.name);
-                let entry = entry.clone();
-                let trigger = trigger.clone();
-                let url = c.url.clone();
-                pick.connect_clicked(move |_| {
-                    entry.set_text(&url);
-                    trigger();
-                });
-            }
-
             // Online completion rows: dedup against history and the typed text.
             let mut seen: std::collections::HashSet<String> =
                 history.iter().map(|s| s.to_lowercase()).collect();
@@ -597,14 +594,18 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 shown_online += 1;
             }
 
-            if history.is_empty() && chans.is_empty() && shown_online == 0 {
+            if history.is_empty() && shown_online == 0 {
                 popover.popdown();
                 return;
             }
             // Match the popover width to the search entry so labels aren't clipped;
             // the popover hugs the box height on its own (no scroll = no leftover).
             popover.set_size_request(entry.width().max(320), -1);
-            popover.popup();
+            // Only open it if it isn't already showing — updating content in place
+            // avoids the close/reopen flicker.
+            if !popover.is_visible() {
+                popover.popup();
+            }
         })
     };
     *rebuild_slot.borrow_mut() = Some(rebuild.clone());
@@ -660,7 +661,7 @@ fn search_error_message(e: &bigtube_core::errors::BigTubeError) -> String {
     }
 }
 
-fn run_search(state: &Rc<AppState>, query: String, source: String) {
+fn run_search(state: &Rc<AppState>, query: String, source: String, kind: String) {
     let query = query.trim().to_string();
     if query.is_empty() {
         return;
@@ -668,13 +669,10 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
     state.search_store.remove_all();
 
     // Persist the query to search history (honouring the setting).
-    let (save, show_playlists) = {
-        let c = config::global().read().unwrap_or_else(|e| e.into_inner());
-        (
-            c.get_bool("save_search_history"),
-            c.get_bool("show_playlists"),
-        )
-    };
+    let save = config::global()
+        .read()
+        .unwrap_or_else(|e| e.into_inner())
+        .get_bool("save_search_history");
     bigtube_core::search_history::SearchHistory::new(search_history_path()).add(&query, save);
 
     // Show the spinner page while the search runs.
@@ -694,7 +692,7 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
         let result = SearchEngine::new()
             .map_err(|e| search_error_message(&e))
             .and_then(|eng| {
-                eng.search(&query, &source)
+                eng.search(&query, &source, &kind)
                     .map_err(|e| search_error_message(&e))
             });
         let _ = tx.send_blocking(result);
@@ -707,11 +705,10 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
                 Ok(list) => {
                     let mode = state.select_mode.get();
                     for r in &list {
-                        // Direct-link results are already expanded videos; drop any
-                        // stray playlist wrapper so no "open playlist" row appears.
-                        // Also honour the "Show Playlists" setting for keyword
-                        // searches (default on).
-                        if r.is_playlist && (is_url_search || !show_playlists) {
+                        // A pasted link is expanded into its videos by the core, so
+                        // drop any stray playlist wrapper (a pasted playlist lists
+                        // its videos inline, never an "open playlist" row).
+                        if r.is_playlist && is_url_search {
                             continue;
                         }
                         let obj = VideoObject::from_result(r);
@@ -720,20 +717,6 @@ fn run_search(state: &Rc<AppState>, query: String, source: String) {
                         obj.connect_is_selected_notify(move |_| st.refresh_selection_count());
                         state.search_store.append(&obj);
                     }
-                    // Remember the channels behind these results so they can be
-                    // suggested next time the user types. For a keyword search the
-                    // query becomes a topic alias (so the channel can be suggested
-                    // by topic, not only by its name); a pasted URL has no topic.
-                    let harvest_query = if is_url_search {
-                        ""
-                    } else {
-                        query_for_prompt.as_str()
-                    };
-                    channels().record_many(
-                        harvest_query,
-                        list.iter()
-                            .map(|r| (r.uploader.as_str(), r.uploader_url.as_str())),
-                    );
                     state.update_search_empty();
                     state.refresh_selection_count();
                     // Nothing playable came back.

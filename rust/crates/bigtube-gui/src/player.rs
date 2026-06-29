@@ -135,21 +135,9 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     picture.set_paintable(Some(&paintable));
     picture.set_size_request(640, 360);
 
-    // Header bar with maximize + fullscreen toggles (icons flip to a "restore"
-    // glyph once active, driven by the window's notify::maximized/fullscreened).
+    // Plain header bar (just the title + standard window controls). Fullscreen is
+    // toggled from the overlay control bar over the video, not the header.
     let header = adw::HeaderBar::new();
-    let btn_max = gtk::Button::from_icon_name("bigtube-window-maximize-symbolic");
-    btn_max.add_css_class("flat");
-    btn_max.set_focus_on_click(false);
-    btn_max.set_tooltip_text(Some(&tr("Maximize")));
-    crate::app::a11y_label(&btn_max, &tr("Maximize"));
-    let btn_fs = gtk::Button::from_icon_name("bigtube-view-fullscreen-symbolic");
-    btn_fs.add_css_class("flat");
-    btn_fs.set_focus_on_click(false);
-    btn_fs.set_tooltip_text(Some(&tr("Fullscreen")));
-    crate::app::a11y_label(&btn_fs, &tr("Fullscreen"));
-    header.pack_end(&btn_max);
-    header.pack_end(&btn_fs);
 
     // Overlay controls — a compact mirror of the bottom bar that floats over the
     // video so playback stays drivable when the window is maximized or
@@ -601,27 +589,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         let p = player.clone();
         ov_next.connect_clicked(move |_| p.next());
     }
-    // Maximize / fullscreen toggles (header + overlay).
-    {
-        let w = video_window.clone();
-        btn_max.connect_clicked(move |_| {
-            if w.is_maximized() {
-                w.unmaximize();
-            } else {
-                w.maximize();
-            }
-        });
-    }
-    {
-        let w = video_window.clone();
-        btn_fs.connect_clicked(move |_| {
-            if w.is_fullscreen() {
-                w.unfullscreen();
-            } else {
-                w.fullscreen();
-            }
-        });
-    }
+    // Fullscreen toggle (overlay control bar over the video).
     {
         let w = video_window.clone();
         ov_fs.connect_clicked(move |_| {
@@ -634,14 +602,8 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     }
     // Keep the toggle icons in sync with the actual window state.
     {
-        let b = btn_max.clone();
         let p = player.clone();
-        video_window.connect_maximized_notify(move |w| {
-            b.set_icon_name(if w.is_maximized() {
-                "bigtube-window-restore-symbolic"
-            } else {
-                "bigtube-window-maximize-symbolic"
-            });
+        video_window.connect_maximized_notify(move |_| {
             // Maximizing starts the auto-hide cycle; restoring pins controls +
             // pointer back on.
             p.show_controls();
@@ -649,7 +611,6 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     }
     {
         let p = player.clone();
-        let bf = btn_fs.clone();
         let of = ov_fs.clone();
         video_window.connect_fullscreened_notify(move |w| {
             let icon = if w.is_fullscreen() {
@@ -657,7 +618,6 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
             } else {
                 "bigtube-view-fullscreen-symbolic"
             };
-            bf.set_icon_name(icon);
             of.set_icon_name(icon);
             // The bottom rule only makes sense windowed/maximized.
             if w.is_fullscreen() {

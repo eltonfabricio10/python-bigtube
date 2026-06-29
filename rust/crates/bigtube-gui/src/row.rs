@@ -81,7 +81,7 @@ mod imp {
     #[derive(Default)]
     pub struct SearchResultRow {
         pub checkbox: OnceCell<gtk::CheckButton>,
-        pub thumb: OnceCell<gtk::Image>,
+        pub thumb: OnceCell<gtk::Picture>,
         pub title: OnceCell<gtk::Label>,
         pub channel: OnceCell<gtk::Label>,
         pub btn_play: OnceCell<gtk::Button>,
@@ -131,9 +131,15 @@ mod imp {
             checkbox.set_valign(gtk::Align::Center);
             checkbox.set_visible(false);
 
-            let thumb = gtk::Image::from_icon_name("bigtube-video-x-generic-symbolic");
-            thumb.set_pixel_size(48);
+            // A Picture (not an Image) so real thumbnails fill the box edge-to-edge
+            // (cover-fit) instead of being icon-sized and letterboxed. overflow:
+            // hidden clips the image to the rounded corners (`.result-thumb`).
+            let thumb = gtk::Picture::new();
             thumb.set_size_request(80, 45);
+            thumb.set_content_fit(gtk::ContentFit::Cover);
+            thumb.add_css_class("result-thumb");
+            thumb.set_overflow(gtk::Overflow::Hidden);
+            set_thumb_placeholder(&thumb, "bigtube-video-x-generic-symbolic");
 
             let vbox = gtk::Box::new(gtk::Orientation::Vertical, 2);
             vbox.set_hexpand(true);
@@ -468,7 +474,13 @@ impl SearchResultRow {
         imp.title.get().unwrap().set_text(&title);
 
         let is_playlist = item.is_playlist();
-        let subtitle = if is_playlist {
+        let is_channel = item.is_channel();
+        // Channels and playlists aren't directly playable: they "open" to list
+        // their videos.
+        let is_container = is_playlist || is_channel;
+        let subtitle = if is_channel {
+            tr("Channel")
+        } else if is_playlist {
             let count = item.playlist_count();
             let uploader = item.uploader();
             let label = if count > 0 {
@@ -491,29 +503,33 @@ impl SearchResultRow {
         };
         imp.channel.get().unwrap().set_text(&subtitle);
 
-        // Playlist rows aren't directly playable: show "open" instead.
-        imp.btn_play.get().unwrap().set_visible(!is_playlist);
-        imp.btn_download.get().unwrap().set_visible(!is_playlist);
-        imp.btn_open.get().unwrap().set_visible(is_playlist);
-        // The heart is for individual videos only — never on a playlist row
-        // (which just opens the playlist window). Only when handlers are wired.
+        // Playlist/channel rows aren't directly playable: show "open" instead.
+        imp.btn_play.get().unwrap().set_visible(!is_container);
+        imp.btn_download.get().unwrap().set_visible(!is_container);
+        imp.btn_open.get().unwrap().set_visible(is_container);
+        // The heart is for individual videos only — never on a container row.
         if let Some(btn) = imp.btn_favorite.get() {
             let has_handlers = imp.is_favorite.borrow().is_some();
-            btn.set_visible(has_handlers && !is_playlist);
+            btn.set_visible(has_handlers && !is_container);
         }
 
         // Invalidate any in-flight thumbnail load for the previous item.
         imp.thumb_gen.set(imp.thumb_gen.get().wrapping_add(1));
 
+        // Pick a placeholder icon per kind, then load the real thumbnail (videos,
+        // playlists and channels all carry one).
         let thumb = imp.thumb.get().unwrap();
-        if is_playlist {
-            thumb.set_icon_name(Some("bigtube-view-list-symbolic"));
+        let placeholder = if is_channel {
+            "bigtube-channel-symbolic"
+        } else if is_playlist {
+            "bigtube-view-list-symbolic"
         } else {
-            thumb.set_icon_name(Some("bigtube-video-x-generic-symbolic"));
-            let url = item.thumbnail();
-            if !url.is_empty() {
-                self.load_thumbnail(&url);
-            }
+            "bigtube-video-x-generic-symbolic"
+        };
+        set_thumb_placeholder(thumb, placeholder);
+        let url = item.thumbnail();
+        if !url.is_empty() {
+            self.load_thumbnail(&url);
         }
     }
 
@@ -524,6 +540,7 @@ impl SearchResultRow {
         let thumb = imp.thumb.get().unwrap().clone();
 
         if let Some(tex) = THUMB_CACHE.with(|c| c.borrow().get(url)) {
+            thumb.set_content_fit(gtk::ContentFit::Cover);
             thumb.set_paintable(Some(&tex));
             return;
         }
@@ -546,9 +563,31 @@ impl SearchResultRow {
             }
             if let Some(tex) = decode_texture(&bytes) {
                 THUMB_CACHE.with(|c| c.borrow_mut().insert(url_key, tex.clone()));
-                row.imp().thumb.get().unwrap().set_paintable(Some(&tex));
+                let thumb = row.imp().thumb.get().unwrap();
+                thumb.set_content_fit(gtk::ContentFit::Cover);
+                thumb.set_paintable(Some(&tex));
             }
         });
+    }
+}
+
+/// Show a centered placeholder icon in the thumbnail Picture (used before/instead
+/// of a real cover image). Uses `Scale Down` so the icon stays small and centered
+/// rather than being stretched to cover the box.
+fn set_thumb_placeholder(thumb: &gtk::Picture, icon_name: &str) {
+    thumb.set_content_fit(gtk::ContentFit::ScaleDown);
+    if let Some(display) = gtk::gdk::Display::default() {
+        let paintable = gtk::IconTheme::for_display(&display).lookup_icon(
+            icon_name,
+            &[],
+            24,
+            1,
+            gtk::TextDirection::None,
+            gtk::IconLookupFlags::empty(),
+        );
+        thumb.set_paintable(Some(&paintable));
+    } else {
+        thumb.set_paintable(gtk::gdk::Paintable::NONE);
     }
 }
 

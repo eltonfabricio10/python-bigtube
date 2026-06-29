@@ -28,6 +28,8 @@ mod imp {
         #[property(get, set)]
         pub is_playlist: Cell<bool>,
         #[property(get, set)]
+        pub is_channel: Cell<bool>,
+        #[property(get, set)]
         pub playlist_count: Cell<i32>,
         #[property(get, set)]
         pub is_selected: Cell<bool>,
@@ -162,6 +164,7 @@ impl VideoObject {
             .property("uploader", &r.uploader)
             .property("is-video", r.is_video)
             .property("is-playlist", r.is_playlist)
+            .property("is-channel", r.is_channel)
             .property("playlist-count", r.playlist_count as i32)
             .build()
     }

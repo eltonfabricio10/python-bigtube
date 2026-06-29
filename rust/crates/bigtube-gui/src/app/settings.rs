@@ -171,7 +171,6 @@ pub(crate) fn build_settings_page(state: &Rc<AppState>) -> gtk::Widget {
             use_source_folder: cfg.get_bool("use_source_folder"),
             save_converter_history: cfg.get_bool("save_converter_history"),
             search_limit: cfg.get_i64("search_limit"),
-            show_playlists: cfg.get_bool("show_playlists"),
             enable_suggestions: cfg.get_bool("enable_suggestions"),
             online_suggestions: cfg.get_bool("online_suggestions"),
             max_suggestions: cfg.get_i64("max_suggestions"),
@@ -231,7 +230,6 @@ struct Cfg {
     use_source_folder: bool,
     save_converter_history: bool,
     search_limit: i64,
-    show_playlists: bool,
     enable_suggestions: bool,
     online_suggestions: bool,
     max_suggestions: i64,
@@ -912,12 +910,6 @@ fn build_search_group(state: &Rc<AppState>, c: &Cfg) -> adw::PreferencesGroup {
         100.0,
         c.search_limit as f64,
         |v| set_cfg("search_limit", serde_json::json!(v as i64)),
-    ));
-    group.add(&switch_row(
-        &tr("Show Playlists in Results"),
-        &tr("Include playlists alongside videos in search results"),
-        c.show_playlists,
-        |v| set_cfg("show_playlists", serde_json::json!(v)),
     ));
     group.add(&switch_row(
         &tr("Enable Search Suggestions"),

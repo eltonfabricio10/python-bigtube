@@ -374,7 +374,6 @@ fn build_defaults() -> Map<String, Value> {
     m.insert("online_suggestions".into(), json!(true));
     m.insert("max_suggestions".into(), json!(10));
     m.insert("search_limit".into(), json!(15));
-    m.insert("show_playlists".into(), json!(true));
     m.insert("save_converter_history".into(), json!(true));
     m.insert("auto_clear_finished".into(), json!(false));
     m.insert("converter_path".into(), json!(converted.to_string_lossy()));
