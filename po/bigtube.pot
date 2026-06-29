@@ -667,6 +667,9 @@ msgstr ""
 msgid "Channel"
 msgstr ""
 
+msgid "Songs"
+msgstr ""
+
 msgid "Enable Search Suggestions"
 msgstr ""
 

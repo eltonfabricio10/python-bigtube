@@ -81,16 +81,36 @@ impl SearchEngine {
         }
 
         if source == "youtube_music" {
-            if let Some(cached) = CACHE.get(query, "youtube_music") {
+            // Only Songs and Videos come back with usable (titled) entries from a
+            // flat YT Music search; its Artists/Albums/Playlists tabs return
+            // titleless browse links, and resolving them is prohibitively slow.
+            let kind = if kind == "videos" { "videos" } else { "songs" };
+            let cache_src = format!("youtube_music:{kind}");
+            if let Some(cached) = CACHE.get(query, &cache_src) {
                 return Ok(cached.into_iter().filter_map(from_value).collect());
             }
-            let url = format!("https://music.youtube.com/search?q={}", quote_plus(&clean));
+            // YT Music search-filter params (`sp`): protobuf for the Songs / Videos
+            // result tabs.
+            let sp = match kind {
+                "videos" => "Eg-KAQwIABABGAAgACgAMABqChAEEAMQCRAFEBA%3D",
+                _ => "Eg-KAQwIARAAGAAgACgAMABqChAEEAMQCRAFEBA%3D",
+            };
+            let url = format!(
+                "https://music.youtube.com/search?q={}&sp={sp}",
+                quote_plus(&clean)
+            );
             let args = vec![
                 "--flat-playlist".to_string(),
                 "--dump-json".to_string(),
                 url,
             ];
-            return self.run_cli(&args, true, Some(query), Some("youtube_music"));
+            let results = self.run_cli(&args, true, None, Some("youtube_music"))?;
+            CACHE.set(
+                query,
+                &cache_src,
+                results.iter().filter_map(to_value).collect(),
+            );
+            return Ok(results);
         }
 
         // YouTube: one search per requested type. Cache by type so switching the

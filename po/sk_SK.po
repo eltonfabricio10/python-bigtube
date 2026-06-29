@@ -667,6 +667,9 @@ msgstr "Typ výsledkov"
 msgid "Channel"
 msgstr "Kanál"
 
+msgid "Songs"
+msgstr "Skladby"
+
 msgid "Enable Search Suggestions"
 msgstr "Povoliť návrhy vyhľadávania"
 

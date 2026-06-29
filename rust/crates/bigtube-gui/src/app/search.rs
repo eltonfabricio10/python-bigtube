@@ -36,17 +36,38 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         tr("YouTube Music").as_str(),
         tr("Direct Link").as_str(),
     ]);
-    // Result type for YouTube searches: videos / channels / playlists.
+    // Result-type filter. The options depend on the source: YouTube has
+    // Videos/Channels/Playlists; YouTube Music only Songs/Videos (its other
+    // categories come back without titles from yt-dlp's flat search); a Direct
+    // Link has no result type, so the dropdown is disabled.
     let kind_dd = gtk::DropDown::from_strings(&[
         tr("Videos").as_str(),
         tr("Channels").as_str(),
         tr("Playlists").as_str(),
     ]);
     kind_dd.set_tooltip_text(Some(&tr("Result type")));
-    // Only meaningful for YouTube (not YT Music / Direct Link).
     {
         let kind_dd = kind_dd.clone();
-        let sync = move |dd: &gtk::DropDown| kind_dd.set_sensitive(dd.selected() == 0);
+        let yt = [tr("Videos"), tr("Channels"), tr("Playlists")];
+        let ytm = [tr("Songs"), tr("Videos")];
+        let sync = move |dd: &gtk::DropDown| {
+            match dd.selected() {
+                1 => {
+                    let m =
+                        gtk::StringList::new(&ytm.iter().map(String::as_str).collect::<Vec<_>>());
+                    kind_dd.set_model(Some(&m));
+                    kind_dd.set_sensitive(true);
+                }
+                2 => kind_dd.set_sensitive(false), // Direct Link
+                _ => {
+                    let m =
+                        gtk::StringList::new(&yt.iter().map(String::as_str).collect::<Vec<_>>());
+                    kind_dd.set_model(Some(&m));
+                    kind_dd.set_sensitive(true);
+                }
+            }
+            kind_dd.set_selected(0);
+        };
         sync(&source);
         source.connect_selected_notify(sync);
     }
@@ -413,9 +434,14 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 _ => "youtube",
             }
             .to_string();
-            let kind = match kind_dd.selected() {
-                1 => "channels",
-                2 => "playlists",
+            // The kind dropdown's options differ per source (see its setup above),
+            // so map by both: YouTube → videos/channels/playlists; YT Music →
+            // songs/videos.
+            let kind = match (source.selected(), kind_dd.selected()) {
+                (0, 1) => "channels",
+                (0, 2) => "playlists",
+                (1, 1) => "videos",
+                (1, _) => "songs",
                 _ => "videos",
             }
             .to_string();

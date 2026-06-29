@@ -667,6 +667,9 @@ msgstr "Tip de rezultat"
 msgid "Channel"
 msgstr "Canal"
 
+msgid "Songs"
+msgstr "Melodii"
+
 msgid "Enable Search Suggestions"
 msgstr "Activează sugestiile de căutare"
 

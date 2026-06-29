@@ -667,6 +667,9 @@ msgstr "Tipo di risultato"
 msgid "Channel"
 msgstr "Canale"
 
+msgid "Songs"
+msgstr "Brani"
+
 msgid "Enable Search Suggestions"
 msgstr "Abilita suggerimenti di ricerca"
 

@@ -667,6 +667,9 @@ msgstr "Találat típusa"
 msgid "Channel"
 msgstr "Csatorna"
 
+msgid "Songs"
+msgstr "Dalok"
+
 msgid "Enable Search Suggestions"
 msgstr "Keresési javaslatok engedélyezése"
 
