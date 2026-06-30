@@ -371,6 +371,9 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     // Center vertically so it doesn't stretch to the bar's full height (which
     // makes its hover/highlight a tall block instead of a compact button).
     btn_favorites.set_valign(gtk::Align::Center);
+    // A little breathing room on its right so the heart isn't flush against the
+    // bar's edge (it's the last control in the bar).
+    btn_favorites.set_margin_end(6);
     btn_favorites.set_tooltip_text(Some(&tr("Favorites")));
     crate::app::a11y_label(&btn_favorites, &tr("Favorites"));
 
