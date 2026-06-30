@@ -665,6 +665,18 @@ msgstr "Canal"
 msgid "Songs"
 msgstr "Canciones"
 
+msgid "Albums"
+msgstr "Álbumes"
+
+msgid "Album"
+msgstr "Álbum"
+
+msgid "Artist"
+msgstr "Artista"
+
+msgid "Artists"
+msgstr "Artistas"
+
 msgid "Enable Search Suggestions"
 msgstr "Activar sugerencias de búsqueda"
 

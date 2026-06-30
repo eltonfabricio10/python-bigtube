@@ -37,9 +37,9 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         tr("Direct Link").as_str(),
     ]);
     // Result-type filter. The options depend on the source: YouTube has
-    // Videos/Channels/Playlists; YouTube Music only Songs/Videos (its other
-    // categories come back without titles from yt-dlp's flat search); a Direct
-    // Link has no result type, so the dropdown is disabled.
+    // Videos/Channels/Playlists; YouTube Music has Songs/Albums/Artists/Playlists
+    // (music only — no plain "Videos" tab; all titled via the youtubei JSON API);
+    // a Direct Link has no result type, so the dropdown is disabled.
     let kind_dd = gtk::DropDown::from_strings(&[
         tr("Videos").as_str(),
         tr("Channels").as_str(),
@@ -49,7 +49,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     {
         let kind_dd = kind_dd.clone();
         let yt = [tr("Videos"), tr("Channels"), tr("Playlists")];
-        let ytm = [tr("Songs"), tr("Videos")];
+        let ytm = [tr("Songs"), tr("Albums"), tr("Artists"), tr("Playlists")];
         let sync = move |dd: &gtk::DropDown| {
             match dd.selected() {
                 1 => {
@@ -131,6 +131,13 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 let state = state.clone();
                 Rc::new(move |items: Vec<VideoObject>| schedule_all(&state, items))
             };
+            // A YT Music album expands without per-track artists, so pass its
+            // artist (the row's credit) as a fallback for the dialog's tracks.
+            let fallback_artist = if item.result_kind() == "album" {
+                item.uploader()
+            } else {
+                String::new()
+            };
             crate::playlist::show(
                 &win,
                 item.url(),
@@ -139,6 +146,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 on_download.clone(),
                 on_download_all,
                 on_schedule_all,
+                fallback_artist,
             );
         })
     };
@@ -436,12 +444,14 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             .to_string();
             // The kind dropdown's options differ per source (see its setup above),
             // so map by both: YouTube → videos/channels/playlists; YT Music →
-            // songs/videos.
+            // songs/albums/artists/playlists (music only, no plain Videos tab).
             let kind = match (source.selected(), kind_dd.selected()) {
                 (0, 1) => "channels",
                 (0, 2) => "playlists",
-                (1, 1) => "videos",
-                (1, _) => "songs",
+                (1, 0) => "songs",
+                (1, 1) => "albums",
+                (1, 2) => "artists",
+                (1, 3) => "playlists",
                 _ => "videos",
             }
             .to_string();

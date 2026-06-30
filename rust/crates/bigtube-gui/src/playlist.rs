@@ -44,6 +44,7 @@ fn build_queue(store: &gio::ListStore) -> Vec<QueueItem> {
     items
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn show(
     parent: &adw::ApplicationWindow,
     url: String,
@@ -52,6 +53,9 @@ pub fn show(
     on_download: RowAction,
     on_download_all: BatchAction,
     on_schedule_all: BatchAction,
+    // Artist to credit tracks that come back without one (a YT Music album
+    // expands flat with no per-track artist); empty for ordinary playlists.
+    fallback_artist: String,
 ) {
     // Size proportional to the main window (clamped to sane bounds).
     let (win_w, win_h) = {
@@ -75,6 +79,12 @@ pub fn show(
         .default_height(win_h)
         .title(&title)
         .build();
+    // Register the dialog with the application so it becomes the "active window"
+    // while focused — download/quality dialogs opened from here then parent to
+    // this window (and appear on top) instead of hiding behind it on the main one.
+    if let Some(app) = parent.application() {
+        win.set_application(Some(&app));
+    }
     crate::app::apply_theme_classes(&win);
 
     let toolbar = adw::ToolbarView::new();
@@ -403,7 +413,7 @@ pub fn show(
     // Show any cached contents instantly so reopening a playlist is immediate;
     // the live fetch below still runs and refreshes the list when it returns.
     if let Some(cached) = cache_get(&url) {
-        populate(&store, &cached);
+        populate(&store, &cached, &fallback_artist);
         if store.n_items() > 0 {
             stack.set_visible_child_name("results");
             filter_ctrl.set_sensitive(true);
@@ -426,7 +436,7 @@ pub fn show(
             Ok(Ok(list)) => {
                 // Replace whatever is shown (cache or empty) with the fresh data,
                 // then update the cache for next time.
-                populate(&store, &list);
+                populate(&store, &list, &fallback_artist);
                 if store.n_items() == 0 {
                     status.set_title(&tr("No results found!"));
                     stack.set_visible_child_name("empty");
@@ -456,14 +466,20 @@ pub fn show(
 }
 
 /// Fill `store` with the videos in `list` (replacing its contents and keeping
-/// the list flat — nested playlist entries are skipped).
-fn populate(store: &gio::ListStore, list: &[SearchResult]) {
+/// the list flat — nested playlist entries are skipped). Tracks that come back
+/// without an artist are credited to `fallback_artist` when one is given.
+fn populate(store: &gio::ListStore, list: &[SearchResult], fallback_artist: &str) {
     store.remove_all();
     for r in list {
         if r.is_playlist {
             continue;
         }
-        store.append(&VideoObject::from_result(r));
+        let obj = VideoObject::from_result(r);
+        let u = obj.uploader();
+        if !fallback_artist.is_empty() && (u.is_empty() || u == "Unknown") {
+            obj.set_uploader(fallback_artist);
+        }
+        store.append(&obj);
     }
 }
 

@@ -670,6 +670,18 @@ msgstr "Chaîne"
 msgid "Songs"
 msgstr "Titres"
 
+msgid "Albums"
+msgstr "Albums"
+
+msgid "Album"
+msgstr "Album"
+
+msgid "Artist"
+msgstr "Artiste"
+
+msgid "Artists"
+msgstr "Artistes"
+
 msgid "Enable Search Suggestions"
 msgstr "Activer les suggestions de recherche"
 

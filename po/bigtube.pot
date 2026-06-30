@@ -670,6 +670,18 @@ msgstr ""
 msgid "Songs"
 msgstr ""
 
+msgid "Albums"
+msgstr ""
+
+msgid "Album"
+msgstr ""
+
+msgid "Artist"
+msgstr ""
+
+msgid "Artists"
+msgstr ""
+
 msgid "Enable Search Suggestions"
 msgstr ""
 

@@ -1053,6 +1053,14 @@ button:focus:not(:focus-visible) {
 .busy-dim {
     background-color: alpha(black, 0.45);
 }
+/* The over-a-dialog busy overlay is a borderless window whose only visible part
+   is the dim scrim + card, so its own surface must be fully transparent (no
+   window background or shadow showing as a rectangle around the scrim). */
+.busy-scrim-window,
+.busy-scrim-window.background {
+    background-color: transparent;
+    box-shadow: none;
+}
 .busy-card {
     padding: 14px 8px;
     /* Match the theme's WINDOW background (opaque). The custom themes set

@@ -670,6 +670,18 @@ msgstr "Kanál"
 msgid "Songs"
 msgstr "Skladby"
 
+msgid "Albums"
+msgstr "Alba"
+
+msgid "Album"
+msgstr "Album"
+
+msgid "Artist"
+msgstr "Interpret"
+
+msgid "Artists"
+msgstr "Interpreti"
+
 msgid "Enable Search Suggestions"
 msgstr "Povolit návrhy vyhledávání"
 

@@ -18,7 +18,7 @@ pub type ScheduleFn = Rc<dyn Fn(String, String)>;
 pub type CloseFn = Rc<dyn Fn()>;
 
 pub fn show(
-    parent: &adw::ApplicationWindow,
+    parent: &impl IsA<gtk::Window>,
     info: &ParsedInfo,
     audio_only: bool,
     on_pick: PickFn,

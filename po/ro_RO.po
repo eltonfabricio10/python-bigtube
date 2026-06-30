@@ -670,6 +670,18 @@ msgstr "Canal"
 msgid "Songs"
 msgstr "Melodii"
 
+msgid "Albums"
+msgstr "Albume"
+
+msgid "Album"
+msgstr "Album"
+
+msgid "Artist"
+msgstr "Artist"
+
+msgid "Artists"
+msgstr "Artiști"
+
 msgid "Enable Search Suggestions"
 msgstr "Activează sugestiile de căutare"
 

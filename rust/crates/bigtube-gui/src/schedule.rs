@@ -20,7 +20,7 @@ use crate::i18n::tr;
 /// pre-selects the Repeat dropdown. Used both for a fresh schedule and to edit
 /// an existing one.
 pub fn show(
-    parent: &adw::ApplicationWindow,
+    parent: &impl IsA<gtk::Window>,
     default_ts: Option<f64>,
     default_recurrence: &str,
     on_confirm: ScheduleFn,

@@ -670,6 +670,18 @@ msgstr "Csatorna"
 msgid "Songs"
 msgstr "Dalok"
 
+msgid "Albums"
+msgstr "Albumok"
+
+msgid "Album"
+msgstr "Album"
+
+msgid "Artist"
+msgstr "Előadó"
+
+msgid "Artists"
+msgstr "Előadók"
+
 msgid "Enable Search Suggestions"
 msgstr "Keresési javaslatok engedélyezése"
 

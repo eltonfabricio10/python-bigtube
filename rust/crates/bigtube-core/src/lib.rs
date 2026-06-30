@@ -28,5 +28,6 @@ pub mod search_history;
 pub mod updater;
 pub mod util;
 pub mod validators;
+pub mod ytmusic_api;
 
 pub use errors::{BigTubeError, Result};

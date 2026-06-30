@@ -29,6 +29,9 @@ mod imp {
         pub is_playlist: Cell<bool>,
         #[property(get, set)]
         pub is_channel: Cell<bool>,
+        /// Finer container type for labelling ("album"/"artist"); empty otherwise.
+        #[property(get, set)]
+        pub result_kind: RefCell<String>,
         #[property(get, set)]
         pub playlist_count: Cell<i32>,
         #[property(get, set)]
@@ -165,6 +168,7 @@ impl VideoObject {
             .property("is-video", r.is_video)
             .property("is-playlist", r.is_playlist)
             .property("is-channel", r.is_channel)
+            .property("result-kind", &r.result_kind)
             .property("playlist-count", r.playlist_count as i32)
             .build()
     }

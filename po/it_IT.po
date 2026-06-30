@@ -670,6 +670,18 @@ msgstr "Canale"
 msgid "Songs"
 msgstr "Brani"
 
+msgid "Albums"
+msgstr "Album"
+
+msgid "Album"
+msgstr "Album"
+
+msgid "Artist"
+msgstr "Artista"
+
+msgid "Artists"
+msgstr "Artisti"
+
 msgid "Enable Search Suggestions"
 msgstr "Abilita suggerimenti di ricerca"
 

@@ -475,30 +475,36 @@ impl SearchResultRow {
 
         let is_playlist = item.is_playlist();
         let is_channel = item.is_channel();
+        let result_kind = item.result_kind();
         // Channels and playlists aren't directly playable: they "open" to list
         // their videos.
         let is_container = is_playlist || is_channel;
-        let subtitle = if is_channel {
-            tr("Channel")
-        } else if is_playlist {
-            let count = item.playlist_count();
-            let uploader = item.uploader();
-            let label = if count > 0 {
-                tr("{count} videos").replace("{count}", &count.to_string())
-            } else {
-                tr("Playlist")
-            };
-            if uploader.is_empty() || uploader == "Unknown" {
-                label
-            } else {
-                format!("{uploader} • {label}")
+        let uploader = item.uploader();
+        // A YT Music album/artist gets its own label (a plain container would
+        // read "Playlist"/"Channel"); the artist/owner credit follows when known.
+        let subtitle = match result_kind.as_str() {
+            "album" => with_credit(&tr("Album"), &uploader),
+            "artist" => with_credit(&tr("Artist"), &uploader),
+            _ if is_channel => tr("Channel"),
+            _ if is_playlist => {
+                let count = item.playlist_count();
+                let label = if count > 0 {
+                    tr("{count} videos").replace("{count}", &count.to_string())
+                } else {
+                    tr("Playlist")
+                };
+                if uploader.is_empty() || uploader == "Unknown" {
+                    label
+                } else {
+                    format!("{uploader} • {label}")
+                }
             }
-        } else {
-            let u = item.uploader();
-            if u.is_empty() {
-                tr("Unknown Artist")
-            } else {
-                u
+            _ => {
+                if uploader.is_empty() {
+                    tr("Unknown Artist")
+                } else {
+                    uploader.clone()
+                }
             }
         };
         imp.channel.get().unwrap().set_text(&subtitle);
@@ -568,6 +574,17 @@ impl SearchResultRow {
                 thumb.set_paintable(Some(&tex));
             }
         });
+    }
+}
+
+/// Join a type label with an artist/owner credit ("Album" + "Daft Punk" →
+/// "Album • Daft Punk"); just the label when no credit is known.
+fn with_credit(label: &str, credit: &str) -> String {
+    let credit = credit.trim();
+    if credit.is_empty() || credit == "Unknown" {
+        label.to_string()
+    } else {
+        format!("{label} • {credit}")
     }
 }
 

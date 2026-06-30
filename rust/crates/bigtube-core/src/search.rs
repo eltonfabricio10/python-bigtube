@@ -37,6 +37,10 @@ pub struct SearchResult {
     /// channel's videos, like a playlist.
     #[serde(default)]
     pub is_channel: bool,
+    /// Finer container type for UI labelling, when it isn't a plain video/
+    /// playlist/channel: `"album"` or `"artist"` (YT Music). Empty otherwise.
+    #[serde(default)]
+    pub result_kind: String,
     pub playlist_count: i64,
 }
 
@@ -81,36 +85,7 @@ impl SearchEngine {
         }
 
         if source == "youtube_music" {
-            // Only Songs and Videos come back with usable (titled) entries from a
-            // flat YT Music search; its Artists/Albums/Playlists tabs return
-            // titleless browse links, and resolving them is prohibitively slow.
-            let kind = if kind == "videos" { "videos" } else { "songs" };
-            let cache_src = format!("youtube_music:{kind}");
-            if let Some(cached) = CACHE.get(query, &cache_src) {
-                return Ok(cached.into_iter().filter_map(from_value).collect());
-            }
-            // YT Music search-filter params (`sp`): protobuf for the Songs / Videos
-            // result tabs.
-            let sp = match kind {
-                "videos" => "Eg-KAQwIABABGAAgACgAMABqChAEEAMQCRAFEBA%3D",
-                _ => "Eg-KAQwIARAAGAAgACgAMABqChAEEAMQCRAFEBA%3D",
-            };
-            let url = format!(
-                "https://music.youtube.com/search?q={}&sp={sp}",
-                quote_plus(&clean)
-            );
-            let args = vec![
-                "--flat-playlist".to_string(),
-                "--dump-json".to_string(),
-                url,
-            ];
-            let results = self.run_cli(&args, true, None, Some("youtube_music"))?;
-            CACHE.set(
-                query,
-                &cache_src,
-                results.iter().filter_map(to_value).collect(),
-            );
-            return Ok(results);
+            return self.search_youtube_music(query, &clean, kind);
         }
 
         // YouTube: one search per requested type. Cache by type so switching the
@@ -135,6 +110,72 @@ impl SearchEngine {
             results.iter().filter_map(to_value).collect(),
         );
         Ok(results)
+    }
+
+    /// YouTube Music search via the internal `youtubei` JSON API, which returns
+    /// titled results for all five tabs (Songs/Videos/Albums/Artists/Playlists)
+    /// — unlike yt-dlp's flat search, which only titles Songs/Videos. Falls back
+    /// to the yt-dlp path for Songs/Videos if the API call fails.
+    fn search_youtube_music(
+        &self,
+        query: &str,
+        clean: &str,
+        kind: &str,
+    ) -> Result<Vec<SearchResult>> {
+        let kind = match kind {
+            "videos" => "videos",
+            "albums" => "albums",
+            "artists" => "artists",
+            "playlists" => "playlists",
+            _ => "songs",
+        };
+        let cache_src = format!("youtube_music:{kind}");
+        if let Some(cached) = CACHE.get(query, &cache_src) {
+            return Ok(cached.into_iter().filter_map(from_value).collect());
+        }
+
+        let results =
+            match crate::ytmusic_api::search(clean, kind, self.search_limit.max(1) as usize) {
+                Ok(r) if !r.is_empty() => r,
+                other => {
+                    // Songs/Videos have a yt-dlp fallback; the other tabs only exist
+                    // via the API, so surface their error / empty result as-is.
+                    if matches!(kind, "songs" | "videos") {
+                        self.search_youtube_music_ytdlp(clean, kind)?
+                    } else {
+                        other?
+                    }
+                }
+            };
+
+        CACHE.set(
+            query,
+            &cache_src,
+            results.iter().filter_map(to_value).collect(),
+        );
+        Ok(results)
+    }
+
+    /// Legacy yt-dlp YT Music search (Songs/Videos only) used as a fallback.
+    fn search_youtube_music_ytdlp(&self, clean: &str, kind: &str) -> Result<Vec<SearchResult>> {
+        let sp = match kind {
+            "videos" => "Eg-KAQwIABABGAAgACgAMABqChAEEAMQCRAFEBA%3D",
+            _ => "Eg-KAQwIARAAGAAgACgAMABqChAEEAMQCRAFEBA%3D",
+        };
+        let url = format!(
+            "https://music.youtube.com/search?q={}&sp={sp}",
+            quote_plus(clean)
+        );
+        let args = vec![
+            "--flat-playlist".to_string(),
+            // Cap at yt-dlp level: a flat YT Music search yields ~470 entries and
+            // extracting them all took ~20s; capping brings it to ~1.7s.
+            "--playlist-end".to_string(),
+            self.search_limit.max(1).to_string(),
+            "--dump-json".to_string(),
+            url,
+        ];
+        self.run_cli(&args, true, None, Some("youtube_music"))
     }
 
     /// Common yt-dlp args for a flat YouTube search of `target` (a `ytsearch…:`
@@ -198,17 +239,89 @@ impl SearchEngine {
 
     /// Process a direct link, expanding playlists (`_handle_direct_link`).
     pub fn handle_direct_link(&self, url: &str) -> Result<Vec<SearchResult>> {
-        let is_playlist = is_playlist_url(url);
+        // A YT Music album or playlist resolves through the youtubei browse API,
+        // which reports each track's type — so a mixed playlist keeps its real
+        // videos as videos and its cover-only tracks as audio (yt-dlp's flat
+        // output can't tell them apart). Falls through to yt-dlp on any failure.
+        if url.contains("music.youtube.com") {
+            if let Ok(tracks) =
+                crate::ytmusic_api::browse_tracks(url, self.search_limit.max(1) as usize)
+            {
+                if !tracks.is_empty() {
+                    return Ok(tracks);
+                }
+            }
+        }
+
+        // A YT Music album opens as `music.youtube.com/browse/MPREb…`; it's a
+        // container of tracks, so expand it flat like a playlist.
+        let is_playlist = is_playlist_url(url) || is_music_browse_url(url);
         // A channel page lists thousands of videos; resolving each is very slow.
         // Expand it flat and capped (its Videos tab) so the results show quickly.
         let is_channel = crate::validators::is_channel_url(url);
-        let url = if is_channel {
-            channel_videos_url(url)
-        } else {
-            url.to_string()
-        };
-        let url = url.as_str();
+        // A YT Music container (album/playlist/artist) holds music tracks — audio
+        // with cover art, not videos. Treat its entries as audio so they don't
+        // open the video player / video download flow.
+        let force_audio = url.contains("music.youtube.com");
 
+        // For a channel, try the Videos tab first; some channels (auto-generated
+        // "- Topic" artist channels, or ones with no Videos tab) come back empty
+        // there, so fall back to the bare channel URL, which lists their uploads.
+        let targets: Vec<String> = if is_channel {
+            let videos = channel_videos_url(url);
+            let bare = url.trim_end_matches('/').to_string();
+            if videos == bare {
+                vec![bare]
+            } else {
+                vec![videos, bare]
+            }
+        } else {
+            vec![url.to_string()]
+        };
+
+        let mut results: Vec<SearchResult> = Vec::new();
+        let mut last_err: Option<BigTubeError> = None;
+        let mut used_target = targets[0].clone();
+        for target in &targets {
+            let args = self.direct_link_args(target, is_playlist, is_channel);
+            match self.run_cli(&args, force_audio, None, None) {
+                Ok(r) if !r.is_empty() => {
+                    results = r;
+                    used_target = target.clone();
+                    break;
+                }
+                Ok(_) => {} // empty: try the next candidate (channel fallback)
+                Err(e) => last_err = Some(e),
+            }
+        }
+        if results.is_empty() {
+            return Err(
+                last_err.unwrap_or_else(|| BigTubeError::Search("No results found!".into()))
+            );
+        }
+        if (is_playlist || is_channel) && crate::helpers::is_youtube_url(&used_target) {
+            for r in results.iter_mut() {
+                if !r.url.is_empty()
+                    && !r.url.starts_with("http://")
+                    && !r.url.starts_with("https://")
+                {
+                    r.url = format!("https://www.youtube.com/watch?v={}", r.url);
+                }
+            }
+        }
+        // For YT Music containers, classify each track audio/video by its title
+        // ("(… Audio …)" → audio, otherwise video) — yt-dlp can't tell them apart
+        // and `force_audio` marked them all audio above.
+        if force_audio {
+            for r in results.iter_mut() {
+                r.is_video = !crate::ytmusic_api::title_is_audio(&r.title);
+            }
+        }
+        Ok(results)
+    }
+
+    /// Build the yt-dlp args to expand `target` (a video/playlist/channel URL).
+    fn direct_link_args(&self, target: &str, is_playlist: bool, is_channel: bool) -> Vec<String> {
         let mut args: Vec<String> = Vec::new();
         if is_playlist || is_channel {
             args.push("--flat-playlist".into());
@@ -222,7 +335,7 @@ impl SearchEngine {
         if !is_playlist && !is_channel {
             args.push("--no-playlist".into());
         }
-        if crate::helpers::is_youtube_url(url) {
+        if crate::helpers::is_youtube_url(target) {
             args.push("--extractor-args".into());
             args.push("youtube:player_client=web,android_vr".into());
         }
@@ -230,23 +343,8 @@ impl SearchEngine {
             let cfg = config::global().read().unwrap_or_else(|e| e.into_inner());
             args.extend(cfg.get_yt_dlp_common_args());
         }
-        args.push(url.to_string());
-
-        let mut results = self.run_cli(&args, false, None, None)?;
-        if results.is_empty() {
-            return Err(BigTubeError::Search("No results found!".into()));
-        }
-        if (is_playlist || is_channel) && crate::helpers::is_youtube_url(url) {
-            for r in results.iter_mut() {
-                if !r.url.is_empty()
-                    && !r.url.starts_with("http://")
-                    && !r.url.starts_with("https://")
-                {
-                    r.url = format!("https://www.youtube.com/watch?v={}", r.url);
-                }
-            }
-        }
-        Ok(results)
+        args.push(target.to_string());
+        args
     }
 
     /// Expand a playlist URL into its videos (`expand_playlist`).
@@ -400,12 +498,29 @@ fn is_playlist_entry(entry: &Value) -> bool {
     matches!(ie, Some("YoutubeTab") | Some("YoutubePlaylist"))
 }
 
+/// True for a YT Music browse URL (`music.youtube.com/browse/…`), used for
+/// albums returned by the youtubei search. These are containers expanded flat.
+fn is_music_browse_url(url: &str) -> bool {
+    url::Url::parse(url.trim())
+        .map(|u| {
+            u.host_str().unwrap_or("").contains("music.youtube.com")
+                && u.path().starts_with("/browse/")
+        })
+        .unwrap_or(false)
+}
+
 /// Point a channel URL at its Videos tab so a flat expansion lists videos (not
 /// the channel's tab index). Leaves an already-tabbed URL (`/videos`, `/shorts`,
 /// `/streams`, `/playlists`) untouched.
 fn channel_videos_url(url: &str) -> String {
     let base = url.trim_end_matches('/');
     let lower = base.to_lowercase();
+    // A YT Music artist channel (`music.youtube.com/channel/UC…`) has no Videos
+    // tab — its bare page already lists the artist's tracks. Appending /videos
+    // returns nothing, so leave music URLs untouched.
+    if lower.contains("music.youtube.com") {
+        return base.to_string();
+    }
     if lower.ends_with("/videos")
         || lower.ends_with("/shorts")
         || lower.ends_with("/streams")
@@ -490,6 +605,7 @@ fn parse_entry(entry: &Value, force_audio: bool) -> SearchResult {
         is_video,
         is_playlist: false,
         is_channel: false,
+        result_kind: String::new(),
         playlist_count: 0,
     }
 }
@@ -529,6 +645,7 @@ fn parse_playlist_entry(entry: &Value, thumb: String, force_audio: bool) -> Sear
         is_video: false,
         is_playlist: true,
         is_channel: false,
+        result_kind: String::new(),
         playlist_count: count,
     }
 }
@@ -536,7 +653,7 @@ fn parse_playlist_entry(entry: &Value, thumb: String, force_audio: bool) -> Sear
 fn extract_thumbnail(entry: &Value) -> String {
     if let Some(t) = entry.get("thumbnail").and_then(Value::as_str) {
         if !t.trim().is_empty() {
-            return t.trim().to_string();
+            return absolutize_thumb(t.trim());
         }
     }
     if let Some(thumbs) = entry.get("thumbnails").and_then(Value::as_array) {
@@ -553,7 +670,7 @@ fn extract_thumbnail(entry: &Value) -> String {
             })
             .max_by_key(|(area, _)| *area);
         if let Some((_, u)) = best {
-            return u;
+            return absolutize_thumb(&u);
         }
     }
     if let Some(id) = entry.get("id").and_then(Value::as_str) {
@@ -567,6 +684,17 @@ fn extract_thumbnail(entry: &Value) -> String {
         }
     }
     String::new()
+}
+
+/// Make a thumbnail URL absolute. YouTube channel thumbnails come back
+/// protocol-relative (`//yt3.ggpht.com/…`); without a scheme the HTTP client
+/// can't fetch them, so the channel row showed no image.
+fn absolutize_thumb(url: &str) -> String {
+    if let Some(rest) = url.strip_prefix("//") {
+        format!("https://{rest}")
+    } else {
+        url.to_string()
+    }
 }
 
 const ARTIST_KEYS: [&str; 9] = [
@@ -775,6 +903,14 @@ mod tests {
         assert!(should_skip_entry(&browse, Some("youtube_music")));
         // non-music source never skips
         assert!(!should_skip_entry(&browse, Some("youtube")));
+    }
+
+    #[test]
+    fn absolutizes_protocol_relative_thumbnail() {
+        // YouTube channel thumbnails come back protocol-relative.
+        let entry = json!({"title": "Chan", "thumbnail": "//yt3.ggpht.com/abc=s176"});
+        let r = parse_entry(&entry, false);
+        assert_eq!(r.thumbnail, "https://yt3.ggpht.com/abc=s176");
     }
 
     #[test]

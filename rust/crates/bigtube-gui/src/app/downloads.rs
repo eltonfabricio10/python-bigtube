@@ -29,6 +29,83 @@ use crate::dialog;
 use crate::i18n::tr;
 use crate::objects::VideoObject;
 
+/// The window a download dialog should parent to: the application's currently
+/// active window — e.g. an open playlist/album/artist dialog — so the dialog
+/// appears on top of it, falling back to the main window. Without this, a dialog
+/// opened from the (non-modal) playlist window hides behind it on the main one.
+fn dialog_parent(state: &Rc<AppState>) -> Option<gtk::Window> {
+    let main = state.window.borrow().clone()?;
+    Some(
+        main.application()
+            .and_then(|a| a.active_window())
+            .unwrap_or_else(|| main.upcast()),
+    )
+}
+
+/// True when the application's active window is the main window (not a secondary
+/// dialog like the playlist/album/artist window). The "Processing…" busy card is
+/// an overlay on the main window, so it's only the right feedback when the action
+/// came from there; from a dialog it would sit behind, under the format dialog.
+fn active_is_main(state: &Rc<AppState>) -> bool {
+    let Some(main) = state.window.borrow().clone() else {
+        return true;
+    };
+    let main_win: gtk::Window = main.clone().upcast();
+    main.application()
+        .and_then(|a| a.active_window())
+        .map(|active| active == main_win)
+        .unwrap_or(true)
+}
+
+/// A modal "Processing…" overlay shown over `parent` (a secondary dialog) while a
+/// download's formats are fetched — the main window's busy-card overlay can't
+/// cover another window, so this reproduces the same design (a dimmed scrim with
+/// the centered `.busy-card`) as a borderless window sized to the dialog.
+fn show_busy_window(parent: &gtk::Window) -> adw::Window {
+    // Same card as the main-window overlay: accent-tinted, rounded, accent spinner.
+    let card = gtk::Box::new(gtk::Orientation::Vertical, 18);
+    card.set_halign(gtk::Align::Center);
+    card.set_valign(gtk::Align::Center);
+    card.set_vexpand(true);
+    card.add_css_class("busy-card");
+    let spinner = gtk::Spinner::new();
+    spinner.set_size_request(54, 54);
+    spinner.set_margin_top(34);
+    spinner.set_margin_start(64);
+    spinner.set_margin_end(64);
+    spinner.start();
+    let label = gtk::Label::new(Some(&tr("Processing...")));
+    label.add_css_class("title-2");
+    label.set_margin_bottom(34);
+    card.append(&spinner);
+    card.append(&label);
+
+    // A dim scrim fills the window so the card floats over a darkened dialog,
+    // exactly like the main overlay.
+    let scrim = gtk::Box::new(gtk::Orientation::Vertical, 0);
+    scrim.set_hexpand(true);
+    scrim.set_vexpand(true);
+    scrim.add_css_class("busy-dim");
+    scrim.append(&card);
+
+    // Borderless + transparent background so only the scrim/card show, matching
+    // the dialog's footprint (covering it) rather than looking like a new window.
+    let (w, h) = (parent.width().max(240), parent.height().max(160));
+    let win = adw::Window::builder()
+        .transient_for(parent)
+        .modal(true)
+        .resizable(false)
+        .decorated(false)
+        .default_width(w)
+        .default_height(h)
+        .content(&scrim)
+        .build();
+    win.add_css_class("busy-scrim-window");
+    apply_theme_classes(&win);
+    win.present();
+    win
+}
+
 pub(crate) fn build_downloads_page(state: &Rc<AppState>) -> gtk::Widget {
     let page = gtk::Box::new(gtk::Orientation::Vertical, 0);
 
@@ -151,9 +228,17 @@ pub(crate) fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
     let thumb = item.thumbnail();
     let uploader = item.uploader();
     let audio_only = !item.is_video();
-    // The centered busy card (spinner + "Processing…") conveys progress; it's
-    // shown by busy_begin and hidden by busy_end right as the result appears.
-    state.busy_begin();
+    // "Processing…" feedback while formats are fetched. From the main window it's
+    // the centered busy-card overlay; from a secondary window (the playlist/album/
+    // artist dialog) that overlay would hide behind the format dialog, so show a
+    // small spinner window over that dialog instead.
+    let on_main = active_is_main(state);
+    let busy_win: Rc<RefCell<Option<adw::Window>>> = Rc::new(RefCell::new(None));
+    if on_main {
+        state.busy_begin();
+    } else if let Some(parent) = dialog_parent(state) {
+        *busy_win.borrow_mut() = Some(show_busy_window(&parent));
+    }
 
     let (tx, rx) = async_channel::bounded::<
         std::result::Result<bigtube_core::downloader::ParsedInfo, StatusCode>,
@@ -174,23 +259,37 @@ pub(crate) fn on_download_clicked(state: &Rc<AppState>, item: &VideoObject) {
         // screen — on slow machines, parsing + building the dialog takes a beat,
         // and ending "busy" early left a dead gap with no feedback. End it on
         // each terminal branch instead (right as the dialog/toast appears).
+        let end_busy = || {
+            if on_main {
+                state.busy_end();
+            }
+            if let Some(w) = busy_win.borrow_mut().take() {
+                w.close();
+            }
+        };
         let info = match received {
             Ok(Ok(info)) => info,
             Ok(Err(StatusCode::BotBlocked)) => {
-                state.busy_end();
+                end_busy();
                 state.notify_bot_block();
                 return;
             }
             _ => {
-                state.busy_end();
+                end_busy();
                 state.toast(&tr("No formats found"));
                 return;
             }
         };
+        // The secondary-window spinner is itself modal, so close it before the
+        // format dialog opens over the same parent. The main-window busy card,
+        // by contrast, stays up until the dialog is on screen (no flicker gap).
+        if let Some(w) = busy_win.borrow_mut().take() {
+            w.close();
+        }
         run_download_flow(&state, info, url, title, thumb, uploader, audio_only);
-        // Dialog is built and presented — hide the busy card now, so it doesn't
-        // linger past the options appearing.
-        state.busy_end();
+        if on_main {
+            state.busy_end();
+        }
     });
 }
 
@@ -222,7 +321,7 @@ fn show_format_dialog(
     uploader: String,
     audio_only: bool,
 ) {
-    let Some(window) = state.window.borrow().clone() else {
+    let Some(window) = dialog_parent(state) else {
         return;
     };
     let on_pick: dialog::PickFn = {
@@ -301,7 +400,7 @@ pub(crate) fn download_all(state: &Rc<AppState>, items: Vec<VideoObject>) {
         state.toast(&tr("No results found!"));
         return;
     }
-    let Some(window) = state.window.borrow().clone() else {
+    let Some(window) = dialog_parent(state) else {
         return;
     };
     // Group a playlist / multi-selection under a folder named after the first
@@ -419,7 +518,7 @@ pub(crate) fn schedule_all(state: &Rc<AppState>, items: Vec<VideoObject>) {
         state.toast(&tr("No results found!"));
         return;
     }
-    let Some(window) = state.window.borrow().clone() else {
+    let Some(window) = dialog_parent(state) else {
         return;
     };
     let artist = bigtube_core::validators::sanitize_filename(&items[0].uploader(), 100);
@@ -433,7 +532,7 @@ pub(crate) fn schedule_all(state: &Rc<AppState>, items: Vec<VideoObject>) {
     show_quality_dialog(&window, move |q| {
         let sel = q.as_value().to_string();
         let ext = quality_ext(q);
-        let Some(win) = st.window.borrow().clone() else {
+        let Some(win) = dialog_parent(&st) else {
             return;
         };
         // One time + recurrence applied to the whole batch.
@@ -480,7 +579,7 @@ fn is_audio_quality(q: bigtube_core::enums::VideoQuality) -> bool {
 /// kind, and the dropdown lists the qualities for that kind. Defaults to the
 /// configured preferred quality.
 fn show_quality_dialog(
-    parent: &adw::ApplicationWindow,
+    parent: &impl IsA<gtk::Window>,
     on_pick: impl Fn(bigtube_core::enums::VideoQuality) + 'static,
 ) {
     use bigtube_core::enums::VideoQuality;
