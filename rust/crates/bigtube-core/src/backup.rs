@@ -17,6 +17,7 @@ pub const BACKUP_FILES: &[&str] = &[
     "converter_history.json",
     "scheduled_downloads.json",
     "playlist_cache.json",
+    "favorites.json",
 ];
 
 /// Collect the existing data files into a single versioned bundle. Missing or
@@ -78,20 +79,23 @@ mod tests {
         std::fs::write(src.path().join("config.json"), r#"{"theme_mode":"dark"}"#).unwrap();
         std::fs::write(src.path().join("history.json"), r#"[{"id":"a"}]"#).unwrap();
         std::fs::write(src.path().join("playlist_cache.json"), r#"{"u":[]}"#).unwrap();
+        std::fs::write(src.path().join("favorites.json"), r#"[{"id":"fav"}]"#).unwrap();
 
         let bundle = build_backup(src.path());
         assert_eq!(bundle["format"], json!("bigtube-backup"));
         let files = bundle["files"].as_object().unwrap();
-        assert_eq!(files.len(), 3); // only the files that exist
+        assert_eq!(files.len(), 4); // only the files that exist
         assert!(!files.contains_key("search_history.json"));
 
         let dst = tempfile::tempdir().unwrap();
         let n = restore_backup(dst.path(), &bundle).unwrap();
-        assert_eq!(n, 3);
+        assert_eq!(n, 4);
         let cfg: Value = load_json(dst.path().join("config.json"), Value::Null);
         assert_eq!(cfg["theme_mode"], json!("dark"));
         let hist: Value = load_json(dst.path().join("history.json"), Value::Null);
         assert_eq!(hist[0]["id"], json!("a"));
+        let favs: Value = load_json(dst.path().join("favorites.json"), Value::Null);
+        assert_eq!(favs[0]["id"], json!("fav"));
     }
 
     #[test]

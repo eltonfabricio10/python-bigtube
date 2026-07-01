@@ -1380,3 +1380,6 @@ msgstr "Tap the heart on a video to add it here."
 
 msgid "Favorite all"
 msgstr "Favorite all"
+
+msgid "Volume"
+msgstr "Volume"

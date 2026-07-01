@@ -66,6 +66,7 @@ pub struct Player {
     ov_scale: gtk::Scale,
     ov_cur: gtk::Label,
     ov_tot: gtk::Label,
+    ov_volume: gtk::ScaleButton,
     ov_reveal: gtk::Revealer,
     // Bumped on each pointer motion; a scheduled auto-hide only fires if it
     // still matches (i.e. no motion happened in between).
@@ -74,6 +75,10 @@ pub struct Player {
     // that blanking the cursor itself emits, so it doesn't immediately un-hide
     // (which caused the pointer to flicker).
     suppress_motion: Cell<bool>,
+    // True while the overlay volume slider popup is open: the pointer is then on
+    // the popup's own surface (no window motion), so the auto-hide must NOT fire
+    // and pull the bar — and the slider — out from under the user.
+    ov_menu_open: Cell<bool>,
     seeking: Rc<Cell<bool>>,
     duration: Rc<Cell<f64>>,
     token: Arc<AtomicU64>,
@@ -119,6 +124,19 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     };
     let paintable: gtk::gdk::Paintable = sink.property("paintable");
     playbin.set_property("video-sink", &sink);
+
+    // Route audio through an explicit pulsesink so the volume slider maps to
+    // this app's OWN stream volume in the system mixer (PulseAudio/PipeWire),
+    // shown there as a separate "BigTube" stream — not just an internal software
+    // gain. playbin forwards its `volume` property to the sink because pulsesink
+    // implements GstStreamVolume. On a box without PulseAudio/PipeWire, creation
+    // fails and we keep the default auto-plugged sink (volume stays software).
+    if let Ok(audiosink) = gst::ElementFactory::make("pulsesink").build() {
+        if audiosink.has_property("client-name", None) {
+            audiosink.set_property("client-name", "BigTube");
+        }
+        playbin.set_property("audio-sink", &audiosink);
+    }
 
     // Hint a fast connection so adaptive (HLS) playback stays on the top
     // rendition instead of dropping to a pixelated lower one on brief dips, and
@@ -170,7 +188,26 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     let ov_tot = gtk::Label::new(Some("--:--"));
     ov_tot.add_css_class("numeric");
 
-    // A single slim row: transport + time + seek + fullscreen.
+    // Volume mirror for the video window, kept in sync with the bottom bar's
+    // (both drive the same per-app stream volume via the playbin).
+    let ov_volume = gtk::ScaleButton::new(
+        0.0,
+        1.0,
+        0.02,
+        &[
+            "bigtube-audio-volume-muted-symbolic",
+            "bigtube-audio-volume-high-symbolic",
+            "bigtube-audio-volume-low-symbolic",
+            "bigtube-audio-volume-medium-symbolic",
+        ],
+    );
+    ov_volume.set_value(1.0);
+    ov_volume.add_css_class("flat");
+    ov_volume.set_focus_on_click(false);
+    ov_volume.set_valign(gtk::Align::Center);
+    ov_volume.set_tooltip_text(Some(&tr("Volume")));
+
+    // A single slim row: transport + time + seek + volume + fullscreen.
     let ov_box = gtk::Box::new(gtk::Orientation::Horizontal, 6);
     ov_box.add_css_class("osd");
     ov_box.add_css_class("toolbar");
@@ -184,6 +221,7 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
     ov_box.append(&ov_cur);
     ov_box.append(&ov_scale);
     ov_box.append(&ov_tot);
+    ov_box.append(&ov_volume);
     ov_box.append(&ov_fs);
 
     let ov_reveal = gtk::Revealer::new();
@@ -409,9 +447,11 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         ov_scale: ov_scale.clone(),
         ov_cur,
         ov_tot,
+        ov_volume: ov_volume.clone(),
         ov_reveal: ov_reveal.clone(),
         autohide_gen: Cell::new(0),
         suppress_motion: Cell::new(false),
+        ov_menu_open: Cell::new(false),
         seeking: Rc::new(Cell::new(false)),
         duration: Rc::new(Cell::new(0.0)),
         token: Arc::new(AtomicU64::new(0)),
@@ -476,10 +516,34 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         let p = player.clone();
         btn_next.connect_clicked(move |_| p.next());
     }
-    // Volume → playbin.
+    // Volume → playbin, mirrored between the bottom bar and the video-window
+    // overlay. A shared guard stops the two `set_value` calls from ping-ponging.
     {
-        let pb = playbin.clone();
-        volume.connect_value_changed(move |_, v| pb.set_property("volume", v));
+        let syncing = Rc::new(Cell::new(false));
+        {
+            let pb = playbin.clone();
+            let ov = ov_volume.clone();
+            let guard = syncing.clone();
+            volume.connect_value_changed(move |_, v| {
+                pb.set_property("volume", v);
+                if !guard.replace(true) {
+                    ov.set_value(v);
+                    guard.set(false);
+                }
+            });
+        }
+        {
+            let pb = playbin.clone();
+            let main = volume.clone();
+            let guard = syncing.clone();
+            ov_volume.connect_value_changed(move |_, v| {
+                pb.set_property("volume", v);
+                if !guard.replace(true) {
+                    main.set_value(v);
+                    guard.set(false);
+                }
+            });
+        }
     }
     // Click the thumbnail/inline-video area to pop out the big video window.
     {
@@ -660,6 +724,19 @@ pub fn build(parent: &adw::ApplicationWindow) -> Option<(Rc<Player>, gtk::Widget
         video_window.add_controller(motion);
     }
 
+    // Pin the overlay bar while the volume slider popup is open; restart the
+    // auto-hide cycle when it closes (see `ov_menu_open`).
+    {
+        let popup = player.ov_volume.popup();
+        let p_open = player.clone();
+        popup.connect_map(move |_| p_open.ov_menu_open.set(true));
+        let p_close = player.clone();
+        popup.connect_unmap(move |_| {
+            p_close.ov_menu_open.set(false);
+            p_close.show_controls();
+        });
+    }
+
     // Bus watch: handle buffering (HLS/network streams), advance on EOS, stop on
     // error.
     if let Some(bus) = playbin.bus() {
@@ -747,6 +824,11 @@ impl Player {
         glib::timeout_add_local_once(Duration::from_secs(2), move || {
             // Only hide if no motion happened since (gen unchanged).
             if this.autohide_gen.get() != gen {
+                return;
+            }
+            // Don't hide while the volume slider popup is open — closing it
+            // (unmap) restarts this cycle, so the bar hides shortly after.
+            if this.ov_menu_open.get() {
                 return;
             }
             this.ov_reveal.set_reveal_child(false);
@@ -1027,6 +1109,7 @@ impl Player {
         self.volume.set_sensitive(on);
         self.ov_play.set_sensitive(on);
         self.ov_scale.set_sensitive(on);
+        self.ov_volume.set_sensitive(on);
         if on {
             // prev/next + inline video refine themselves per queue/item.
             self.update_nav();

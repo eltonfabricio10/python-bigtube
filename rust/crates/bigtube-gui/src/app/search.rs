@@ -4,7 +4,7 @@
 //! search-history path helper live in the parent module and are reached via
 //! `super::`.
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use adw::prelude::*;
@@ -482,6 +482,45 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     let online_cache: Rc<RefCell<(String, Vec<String>)>> =
         Rc::new(RefCell::new((String::new(), Vec::new())));
 
+    // Keyboard navigation of the suggestion list. `sugg_items` mirrors the visible
+    // rows top-to-bottom (history then online); `sel` is the highlighted index
+    // (-1 = none, i.e. the field itself). Focus never leaves the entry (the
+    // popover is non-autohide so the entry keeps key focus and typing keeps
+    // working); Up/Down just move a visual highlight and Enter picks it.
+    let sugg_items: Rc<RefCell<Vec<String>>> = Rc::new(RefCell::new(Vec::new()));
+    let sel: Rc<Cell<i32>> = Rc::new(Cell::new(-1));
+
+    // Highlight row `idx` (or clear when -1) and scroll it into view.
+    let set_sel: Rc<dyn Fn(i32)> = {
+        let sugg_list = sugg_list.clone();
+        let sugg_scroll = sugg_scroll.clone();
+        let sel = sel.clone();
+        Rc::new(move |idx: i32| {
+            sel.set(idx);
+            let mut i = 0i32;
+            let mut child = sugg_list.first_child();
+            while let Some(c) = child {
+                if i == idx {
+                    c.add_css_class("suggestion-selected");
+                    // Keep the highlighted row within the scrolled viewport.
+                    if let Some(b) = c.compute_bounds(&sugg_list) {
+                        let (top, bottom) = (b.y() as f64, (b.y() + b.height()) as f64);
+                        let adj = sugg_scroll.vadjustment();
+                        if top < adj.value() {
+                            adj.set_value(top);
+                        } else if bottom > adj.value() + adj.page_size() {
+                            adj.set_value(bottom - adj.page_size());
+                        }
+                    }
+                } else {
+                    c.remove_css_class("suggestion-selected");
+                }
+                child = c.next_sibling();
+                i += 1;
+            }
+        })
+    };
+
     // Rebuild the suggestion list for the current text.
     let rebuild: Rc<dyn Fn(&str)> = {
         let sugg_list = sugg_list.clone();
@@ -490,6 +529,8 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
         let trigger = trigger.clone();
         let rebuild_slot = rebuild_slot.clone();
         let online_cache = online_cache.clone();
+        let sugg_items = sugg_items.clone();
+        let sel = sel.clone();
         Rc::new(move |text: &str| {
             // Update the suggestion list in place — DON'T popdown/popup on every
             // keystroke (that destroys+recreates the surface and makes the popover
@@ -521,10 +562,10 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
             } else {
                 Vec::new()
             };
-
             // Kick an async online fetch when the cache misses the current text;
             // when it returns (and the text is unchanged) it re-runs rebuild, which
-            // then renders the online group.
+            // renders the online group and re-presents the popover so it grows to
+            // fit (no tolerance/hold needed — present() resizes smoothly in place).
             if online_enabled && online_cache.borrow().0 != text {
                 let (otx, orx) = async_channel::bounded::<Vec<String>>(1);
                 let q = text.to_string();
@@ -539,7 +580,9 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 let q2 = text.to_string();
                 glib::spawn_future_local(async move {
                     if let Ok(res) = orx.recv().await {
-                        // Only apply if the user is still on the same query.
+                        // Only apply if the user is still on the same query. rebuild
+                        // renders the online rows and re-presents the popover so its
+                        // surface resizes to fit them (see the popup logic below).
                         if entry2.text() == q2 {
                             *online_cache2.borrow_mut() = (q2.clone(), res);
                             if let Some(rebuild) = rebuild_slot2.borrow().as_ref() {
@@ -576,6 +619,8 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                 pick
             };
 
+            // Rows top-to-bottom, mirrored into `sugg_items` for keyboard nav.
+            let mut items: Vec<String> = Vec::new();
             // History rows (with delete).
             for m in &history {
                 let pick = add_row("bigtube-document-open-recent-symbolic", m);
@@ -608,6 +653,7 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                         }
                     });
                 }
+                items.push(m.clone());
             }
 
             // Online completion rows: dedup against history and the typed text.
@@ -627,20 +673,38 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
                     entry.set_text(&q);
                     trigger();
                 });
+                items.push(s.clone());
                 shown_online += 1;
             }
 
-            if history.is_empty() && shown_online == 0 {
+            // New content → indices changed; drop any keyboard highlight.
+            *sugg_items.borrow_mut() = items;
+            sel.set(-1);
+
+            let has_content = !history.is_empty() || shown_online > 0;
+            if !has_content {
+                // Nothing to show for this query yet — close the popover (don't
+                // leave it open showing the empty, just-cleared list, which is what
+                // fast typing/deleting hit). If online results are still on the way,
+                // the grace timer / async result reopens it once there's something
+                // (both guard on the query still matching and rows being present).
                 popover.popdown();
                 return;
             }
             // Match the popover width to the search entry so labels aren't clipped;
             // the popover hugs the box height on its own (no scroll = no leftover).
             popover.set_size_request(entry.width().max(320), -1);
-            // Only open it if it isn't already showing — updating content in place
-            // avoids the close/reopen flicker.
             if !popover.is_visible() {
+                // Closed: open it now with whatever we have (history is synchronous;
+                // online rows are appended smoothly when the fetch returns).
                 popover.popup();
+            } else {
+                // Already open and the content just changed in place: re-present so
+                // the popup surface RE-COMPUTES its size. Wayland popups don't grow
+                // or shrink on their own, so without this the surface keeps its old
+                // height — clipping new rows (online arriving) or leaving blank space
+                // below when the list shrank (the empty-lines-under-one-result bug).
+                popover.present();
             }
         })
     };
@@ -678,6 +742,64 @@ pub(crate) fn build_search_page(state: &Rc<AppState>) -> gtk::Widget {
     {
         let trigger = trigger.clone();
         button.connect_clicked(move |_| trigger());
+    }
+
+    // Keyboard navigation: Up/Down move a highlight between the field and the
+    // suggestion rows, Enter picks the highlighted one, Esc closes the popover.
+    // Capture phase so it runs before the entry's own Enter→activate/cursor keys.
+    {
+        let key = gtk::EventControllerKey::new();
+        key.set_propagation_phase(gtk::PropagationPhase::Capture);
+        let popover = popover.clone();
+        let sel = sel.clone();
+        let sugg_items = sugg_items.clone();
+        let set_sel = set_sel.clone();
+        let entry_k = entry.clone();
+        let trigger = trigger.clone();
+        key.connect_key_pressed(move |_, keyval, _, _| {
+            use gtk::gdk::Key;
+            if !popover.is_visible() {
+                return glib::Propagation::Proceed;
+            }
+            let n = sugg_items.borrow().len() as i32;
+            if n == 0 {
+                return glib::Propagation::Proceed;
+            }
+            match keyval {
+                // Down: into the list (first row), then downward, stopping at last.
+                Key::Down => {
+                    set_sel((sel.get() + 1).min(n - 1));
+                    glib::Propagation::Stop
+                }
+                // Up: upward, and off the first row back to the field (-1).
+                Key::Up => {
+                    let cur = sel.get();
+                    set_sel(if cur <= 0 { -1 } else { cur - 1 });
+                    glib::Propagation::Stop
+                }
+                // Enter on a highlighted row picks it; with none, fall through so
+                // the entry's activate runs a plain search of the typed text.
+                Key::Return | Key::KP_Enter => {
+                    let cur = sel.get();
+                    if cur < 0 {
+                        return glib::Propagation::Proceed;
+                    }
+                    let picked = sugg_items.borrow().get(cur as usize).cloned();
+                    if let Some(q) = picked {
+                        entry_k.set_text(&q);
+                        trigger();
+                    }
+                    glib::Propagation::Stop
+                }
+                Key::Escape => {
+                    set_sel(-1);
+                    popover.popdown();
+                    glib::Propagation::Stop
+                }
+                _ => glib::Propagation::Proceed,
+            }
+        });
+        entry.add_controller(key);
     }
     entry.connect_activate(move |_| trigger());
 

@@ -1382,3 +1382,6 @@ msgstr "Atinge inima unui videoclip pentru a-l adăuga aici."
 
 msgid "Favorite all"
 msgstr "Adaugă toate la favorite"
+
+msgid "Volume"
+msgstr "Volum"

@@ -45,7 +45,7 @@
 - **Direct Links** - Support for 400+ sites via URL
 - **Open containers** - Open a channel, album, artist, or playlist in a modal listing all its videos/tracks, with **Play all**, **Download all**, and a selection mode to download only the checked ones
 - **Playlists by link** - Paste a YouTube playlist link (`playlist?list=` or `watch?v=...&list=`) and the search lists all its videos
-- **Search suggestions** - Local search history plus online autocomplete as you type
+- **Search suggestions** - Local search history plus online autocomplete as you type, with full keyboard navigation (↑/↓ to move, Enter to pick, Esc to dismiss)
 
 ### ⬇️ Advanced Downloads
 | Feature | Description |
@@ -69,8 +69,8 @@
 ### 📺 Built-in Player
 - **GStreamer** playback engine (native, integrated with GTK4)
 - Video preview before downloading, with configurable preview quality (144p–720p)
-- Playlist navigation (Prev / Play-Pause / **Stop** / Next), seek bar and volume
-- Detachable video window
+- Playlist navigation (Prev / Play-Pause / **Stop** / Next), seek bar, and a volume slider that drives the app's own stream in the system mixer (PulseAudio/PipeWire)
+- Detachable video window with its own on-video controls, including volume
 
 ### 🎨 Appearance Customization
 | Mode | Description |
@@ -316,8 +316,8 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | Setting | Default | Explanation |
 |---------|---------|-------------|
 | **Clear data on exit** | Disabled | When closing the app, clears the download, search, and conversion histories. App settings are preserved. When enabled, the "save history" options are disabled in the interface. |
-| **Export history** | Manual action | Saves the download history to a JSON file, by default `bigtube_history.json`. |
-| **Import history** | Manual action | Restores a download history from a valid JSON file. |
+| **Export Backup** | Manual action | Saves a full backup — settings plus the download, search, and conversion histories, scheduled downloads, playlist cache, and favorites — to a single JSON file. |
+| **Import Backup** | Manual action | Restores all settings and data from a valid backup file. |
 | **Clear all app data** | Manual action | Permanently deletes `config.json`, `history.json`, `search_history.json`, and `converter_history.json`, recreates the default configuration, and quits the application. |
 
 ### `config.json` keys

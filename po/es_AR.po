@@ -1381,3 +1381,6 @@ msgstr "Tocá el corazón de un video para agregarlo acá."
 
 msgid "Favorite all"
 msgstr "Agregar todo a favoritos"
+
+msgid "Volume"
+msgstr "Volumen"

@@ -1382,3 +1382,6 @@ msgstr "Klik op het hartje van een video om het hier toe te voegen."
 
 msgid "Favorite all"
 msgstr "Alles aan favorieten"
+
+msgid "Volume"
+msgstr "Volume"

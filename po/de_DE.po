@@ -1382,3 +1382,6 @@ msgstr "Tippen Sie auf das Herz eines Videos, um es hier hinzuzufügen."
 
 msgid "Favorite all"
 msgstr "Alle zu Favoriten hinzufügen"
+
+msgid "Volume"
+msgstr "Lautstärke"

@@ -1382,3 +1382,6 @@ msgstr "Dotknij serca przy filmie, aby dodać go tutaj."
 
 msgid "Favorite all"
 msgstr "Dodaj wszystko do ulubionych"
+
+msgid "Volume"
+msgstr "Głośność"

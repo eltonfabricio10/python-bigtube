@@ -45,7 +45,7 @@
 - **Enlaces directos** - Compatibilidad con más de 400 sitios mediante URL
 - **Abrir contenedores** - Abre un canal, álbum, artista o lista de reproducción en una ventana modal con todos sus videos/pistas, con **Reproducir todo**, **Descargar todo** y un modo de selección para descargar solo los marcados
 - **Listas de reproducción por enlace** - Pega un enlace de una lista de reproducción de YouTube (`playlist?list=` o `watch?v=...&list=`) y la búsqueda mostrará todos sus videos
-- **Sugerencias de búsqueda** - Historial local más autocompletado en línea mientras escribes
+- **Sugerencias de búsqueda** - Historial local más autocompletado en línea mientras escribes, con navegación completa por teclado (↑/↓ para moverte, Enter para elegir, Esc para cerrar)
 
 ### ⬇️ Descargas avanzadas
 | Característica | Descripción |
@@ -69,8 +69,8 @@
 ### 📺 Reproductor integrado
 - Motor de reproducción **GStreamer** (nativo, integrado con GTK4)
 - Vista previa del video antes de descargar, con calidad de vista previa configurable (144p–720p)
-- Navegación por la lista de reproducción (Anterior / Reproducir-Pausar / **Detener** / Siguiente), barra de búsqueda (seek) y volumen
-- Ventana de video desacoplable
+- Navegación por la lista de reproducción (Anterior / Reproducir-Pausar / **Detener** / Siguiente), barra de búsqueda (seek) y un control de volumen que ajusta el propio flujo de la app en el mezclador del sistema (PulseAudio/PipeWire)
+- Ventana de video desacoplable, con sus propios controles sobre el video, incluido el volumen
 
 ### 🎨 Personalización de la apariencia
 | Modo | Descripción |
@@ -316,8 +316,8 @@ Las preferencias se guardan en `~/.config/bigtube/config.json`. Cuando el archiv
 | Ajuste | Predeterminado | Explicación |
 |---------|---------|-------------|
 | **Borrar datos al salir** | Deshabilitado | Al cerrar la aplicación, borra los historiales de descargas, búsquedas y conversiones. La configuración de la aplicación se conserva. Cuando está habilitado, las opciones de "guardar historial" se deshabilitan en la interfaz. |
-| **Exportar historial** | Acción manual | Guarda el historial de descargas en un archivo JSON, de forma predeterminada `bigtube_history.json`. |
-| **Importar historial** | Acción manual | Restaura un historial de descargas desde un archivo JSON válido. |
+| **Exportar copia de seguridad** | Acción manual | Guarda una copia de seguridad completa — la configuración más los historiales de descargas, búsquedas y conversiones, las descargas programadas, la caché de listas de reproducción y los favoritos — en un único archivo JSON. |
+| **Importar copia de seguridad** | Acción manual | Restaura toda la configuración y los datos desde un archivo de copia de seguridad válido. |
 | **Borrar todos los datos de la aplicación** | Acción manual | Elimina de forma permanente `config.json`, `history.json`, `search_history.json` y `converter_history.json`, vuelve a crear la configuración predeterminada y cierra la aplicación. |
 
 ### Claves de `config.json`

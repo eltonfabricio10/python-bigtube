@@ -45,7 +45,7 @@
 - **Links Diretos** - Suporte a 400+ sites via URL
 - **Abrir containers** - Abra um canal, álbum, artista ou playlist num modal com todos os vídeos/faixas, com **Play all**, **Download all** e modo de seleção pra baixar só os marcados
 - **Playlists por link** - Cole um link de playlist do YouTube (`playlist?list=` ou `watch?v=...&list=`) e a busca lista todos os vídeos
-- **Sugestões de busca** - Histórico local mais autocomplete online enquanto você digita
+- **Sugestões de busca** - Histórico local mais autocomplete online enquanto você digita, com navegação completa pelo teclado (↑/↓ para mover, Enter para escolher, Esc para fechar)
 
 ### ⬇️ Downloads Avançados
 | Recurso | Descrição |
@@ -69,8 +69,8 @@
 ### 📺 Player Integrado
 - Motor de reprodução **GStreamer** (nativo, integrado ao GTK4)
 - Prévia de vídeos antes do download, com qualidade de pré-visualização configurável (144p–720p)
-- Navegação de playlist (Prev / Play-Pause / **Stop** / Next), barra de busca (seek) e volume
-- Janela de vídeo destacável
+- Navegação de playlist (Prev / Play-Pause / **Stop** / Next), barra de busca (seek) e um controle de volume que ajusta o próprio fluxo do app no mixer do sistema (PulseAudio/PipeWire)
+- Janela de vídeo destacável, com seus próprios controles sobre o vídeo, incluindo volume
 
 ### 🎨 Personalização de Aparência
 | Modo | Descrição |
@@ -316,8 +316,8 @@ As preferências são salvas em `~/.config/bigtube/config.json`. Quando o arquiv
 | Configuração | Padrão | Explicação |
 |--------------|--------|------------|
 | **Limpar dados ao sair** | Desativado | Ao fechar o app, limpa os históricos de downloads, buscas e conversões. A configuração do app é preservada. Quando ativada, as opções de salvar histórico ficam desabilitadas na interface. |
-| **Exportar histórico** | Ação manual | Salva o histórico de downloads em um arquivo JSON, por padrão `bigtube_history.json`. |
-| **Importar histórico** | Ação manual | Restaura um histórico de downloads a partir de um arquivo JSON válido. |
+| **Exportar backup** | Ação manual | Salva um backup completo — configurações mais os históricos de downloads, buscas e conversões, downloads agendados, cache de playlists e favoritos — em um único arquivo JSON. |
+| **Importar backup** | Ação manual | Restaura todas as configurações e dados a partir de um arquivo de backup válido. |
 | **Limpar todos os dados do app** | Ação manual | Apaga permanentemente `config.json`, `history.json`, `search_history.json` e `converter_history.json`, recria a configuração padrão e encerra o aplicativo. |
 
 ### Chaves do `config.json`

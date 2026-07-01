@@ -45,7 +45,7 @@
 - **Liens directs** - Prise en charge de plus de 400 sites via URL
 - **Ouvrir les conteneurs** - Ouvrez une chaîne, un album, un artiste ou une playlist dans une fenêtre modale listant toutes ses vidéos/pistes, avec **Tout lire**, **Tout télécharger** et un mode de sélection pour ne télécharger que les éléments cochés
 - **Playlists par lien** - Collez un lien de playlist YouTube (`playlist?list=` ou `watch?v=...&list=`) et la recherche liste toutes ses vidéos
-- **Suggestions de recherche** - Historique local et autocomplétion en ligne pendant la saisie
+- **Suggestions de recherche** - Historique local et autocomplétion en ligne pendant la saisie, avec navigation complète au clavier (↑/↓ pour se déplacer, Entrée pour choisir, Échap pour fermer)
 
 ### ⬇️ Téléchargements avancés
 | Fonctionnalité | Description |
@@ -69,8 +69,8 @@
 ### 📺 Lecteur intégré
 - Moteur de lecture **GStreamer** (natif, intégré à GTK4)
 - Aperçu vidéo avant le téléchargement, avec qualité d'aperçu configurable (144p–720p)
-- Navigation dans la playlist (Précédent / Lecture-Pause / **Arrêt** / Suivant), barre de progression (seek) et volume
-- Fenêtre vidéo détachable
+- Navigation dans la playlist (Précédent / Lecture-Pause / **Arrêt** / Suivant), barre de progression (seek) et un curseur de volume qui règle le propre flux de l'application dans le mélangeur du système (PulseAudio/PipeWire)
+- Fenêtre vidéo détachable, avec ses propres commandes sur la vidéo, y compris le volume
 
 ### 🎨 Personnalisation de l'apparence
 | Mode | Description |
@@ -316,8 +316,8 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | Paramètre | Par défaut | Explication |
 |---------|---------|-------------|
 | **Effacer les données à la fermeture** | Désactivé | À la fermeture de l'application, efface les historiques de téléchargement, de recherche et de conversion. Les paramètres de l'application sont conservés. Lorsqu'il est activé, les options « enregistrer l'historique » sont désactivées dans l'interface. |
-| **Exporter l'historique** | Action manuelle | Enregistre l'historique des téléchargements dans un fichier JSON, par défaut `bigtube_history.json`. |
-| **Importer l'historique** | Action manuelle | Restaure un historique de téléchargements à partir d'un fichier JSON valide. |
+| **Exporter la sauvegarde** | Action manuelle | Enregistre une sauvegarde complète — les paramètres ainsi que les historiques de téléchargement, de recherche et de conversion, les téléchargements programmés, le cache des playlists et les favoris — dans un seul fichier JSON. |
+| **Importer la sauvegarde** | Action manuelle | Restaure tous les paramètres et données à partir d'un fichier de sauvegarde valide. |
 | **Effacer toutes les données de l'application** | Action manuelle | Supprime définitivement `config.json`, `history.json`, `search_history.json` et `converter_history.json`, recrée la configuration par défaut et quitte l'application. |
 
 ### Clés de `config.json`

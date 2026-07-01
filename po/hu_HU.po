@@ -1382,3 +1382,6 @@ msgstr "Koppintson egy videó szív ikonjára, hogy ide kerüljön."
 
 msgid "Favorite all"
 msgstr "Összes a kedvencekhez"
+
+msgid "Volume"
+msgstr "Hangerő"

@@ -1005,6 +1005,13 @@ button:focus:not(:focus-visible) {
     padding-bottom: 6px;
 }
 
+/* Keyboard-navigation highlight — Up/Down move it between rows (the pointer uses
+   the button's own :hover). Matches the accent tint of the list's :selected.
+   Only the pick button (first child) is tinted, never the history row's X. */
+.suggestion-row.suggestion-selected > button:first-child {
+    background-color: alpha(var(--bigtube-accent), 0.15);
+}
+
 /* Tighten the popover's own inner padding so a single suggestion doesn't leave
    a noticeable gap below the row. */
 .suggestions-popover > contents {

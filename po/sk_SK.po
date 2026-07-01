@@ -1380,3 +1380,6 @@ msgstr "Kliknutím na srdiečko pri videu ho sem pridáte."
 
 msgid "Favorite all"
 msgstr "Všetko do obľúbených"
+
+msgid "Volume"
+msgstr "Hlasitosť"
