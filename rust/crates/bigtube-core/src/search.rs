@@ -550,10 +550,26 @@ pub fn fetch_online_suggestions(query: &str, max: usize) -> Vec<String> {
         .query("q", q)
         .call();
     let body = match resp {
-        Ok(r) => match r.into_string() {
-            Ok(b) => b,
-            Err(_) => return Vec::new(),
-        },
+        Ok(r) => {
+            use std::io::Read;
+            let mut buf = Vec::new();
+            if r.into_reader()
+                .take(1_000_000)
+                .read_to_end(&mut buf)
+                .is_err()
+            {
+                return Vec::new();
+            }
+            // The client=firefox endpoint declares (and really uses) ISO-8859-1,
+            // so accented suggestions arrive as raw Latin-1 bytes. ureq (built
+            // without the `charset` feature) would decode them as UTF-8 and turn
+            // each byte into U+FFFD (the "<?>" the user saw). Decode as UTF-8
+            // when valid, else fall back to Latin-1 (byte value == codepoint).
+            match String::from_utf8(buf) {
+                Ok(s) => s,
+                Err(e) => e.into_bytes().iter().map(|&b| b as char).collect(),
+            }
+        }
         Err(_) => return Vec::new(),
     };
     let Ok(val) = serde_json::from_str::<Value>(&body) else {

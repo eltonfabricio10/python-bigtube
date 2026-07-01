@@ -80,6 +80,50 @@ pub fn browse_tracks(url: &str, limit: usize) -> Result<Vec<SearchResult>> {
     Ok(out)
 }
 
+/// Duration (seconds) scanned from a row's flex columns — YT Music puts it in a
+/// subtitle run like "6:10" (or "1:02:03"). 0.0 when none is found.
+fn duration_from_columns(cols: &[Value]) -> f64 {
+    // Skip column 0 (the title — a song literally named "4:44" shouldn't read as
+    // a duration); the clock lives in the subtitle column(s).
+    for c in cols.iter().skip(1) {
+        let Some(runs) = c
+            .get("musicResponsiveListItemFlexColumnRenderer")
+            .and_then(|r| r.get("text"))
+            .and_then(|t| t.get("runs"))
+            .and_then(Value::as_array)
+        else {
+            continue;
+        };
+        for run in runs {
+            if let Some(secs) = run
+                .get("text")
+                .and_then(Value::as_str)
+                .and_then(parse_clock)
+            {
+                return secs;
+            }
+        }
+    }
+    0.0
+}
+
+/// Parse a clock string ("M:SS" or "H:MM:SS") to seconds. None if it isn't one.
+fn parse_clock(s: &str) -> Option<f64> {
+    let s = s.trim();
+    let parts: Vec<&str> = s.split(':').collect();
+    if !(2..=3).contains(&parts.len()) {
+        return None;
+    }
+    let mut total = 0i64;
+    for p in &parts {
+        if p.is_empty() || p.len() > 2 || !p.chars().all(|c| c.is_ascii_digit()) {
+            return None;
+        }
+        total = total * 60 + p.parse::<i64>().ok()?;
+    }
+    Some(total as f64)
+}
+
 /// True when a track title marks it as audio-only: a parenthetical mentioning
 /// "audio", such as "(Audio)" or "(Official Audio)". Everything else is a video.
 pub fn title_is_audio(title: &str) -> bool {
@@ -295,7 +339,7 @@ fn parse_item(item: &Value, kind: &str) -> Option<SearchResult> {
                 thumbnail,
                 uploader: clean_credit(&uploader),
                 uploader_url: String::new(),
-                duration: 0.0,
+                duration: duration_from_columns(cols),
                 // A Song is audio; a Video is a music video. This drives the
                 // play/download flow (audio-only vs. video+audio).
                 is_video: kind == "videos",
