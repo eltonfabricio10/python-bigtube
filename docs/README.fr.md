@@ -71,6 +71,7 @@
 - Aperçu vidéo avant le téléchargement, avec qualité d'aperçu configurable (144p–720p)
 - Navigation dans la playlist (Précédent / Lecture-Pause / **Arrêt** / Suivant), barre de progression (seek) et un curseur de volume qui règle le propre flux de l'application dans le mélangeur du système (PulseAudio/PipeWire)
 - Fenêtre vidéo détachable, avec ses propres commandes sur la vidéo, y compris le volume
+- **Favoris** — marquez n'importe quelle piste avec le cœur sur les lignes de résultats et de playlists ; ouvrez la liste des favoris depuis la barre du lecteur pour lire, retirer ou vider les éléments marqués
 
 ### 🎨 Personnalisation de l'apparence
 | Mode | Description |
@@ -84,6 +85,7 @@
 - Historique des conversions
 - Historique des recherches
 - Téléchargements planifiés
+- Favoris
 - Option pour effacer automatiquement les données à la fermeture
 
 ---
@@ -212,6 +214,7 @@ bigtube -d <url> --format "bestvideo+bestaudio"  # custom format
 | `~/.config/bigtube/search_history.json` | Historique des recherches |
 | `~/.config/bigtube/converter_history.json` | Historique des conversions |
 | `~/.config/bigtube/scheduled_downloads.json` | Téléchargements planifiés |
+| `~/.config/bigtube/favorites.json` | Favoris |
 | `~/.local/share/bigtube/bin/` | Binaires inclus (`yt-dlp`, `deno`) |
 | `~/.cache/bigtube/thumbnails/` | Cache des miniatures |
 | `~/Downloads/BigTube/` | Dossier de téléchargement par défaut |
@@ -235,7 +238,8 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | Paramètre | Par défaut | Explication |
 |---------|---------|-------------|
 | **Enregistrer l'historique des recherches** | Activé | Stocke vos recherches localement dans `search_history.json`, ce qui vous permet de réutiliser des requêtes précédentes. |
-| **Activer les suggestions de recherche** | Activé | Affiche des suggestions au fur et à mesure de la saisie, en utilisant l'historique local des recherches. |
+| **Activer les suggestions de recherche** | Activé | Affiche des suggestions au fur et à mesure de la saisie, en utilisant l'historique local des recherches. Naviguez avec ↑/↓, choisissez avec Entrée, fermez avec Échap. |
+| **Suggestions en ligne** | Activé | Récupère aussi des complétions d'autocomplétion en ligne pendant la saisie (en plus de l'historique local). |
 | **Nombre maximal de suggestions** | 10 | Définit combien de suggestions peuvent apparaître en même temps. Accepte des valeurs de 1 à 50. |
 | **Effacer l'historique des recherches** | Action manuelle | Supprime toutes les entrées enregistrées de l'historique des recherches. Ne supprime pas les fichiers téléchargés. |
 | **Nombre maximal de résultats de recherche** | 15 | Définit combien de résultats BigTube demande à `yt-dlp` pour les recherches textuelles. Accepte des valeurs de 5 à 100. |
@@ -338,6 +342,7 @@ Les préférences sont enregistrées dans `~/.config/bigtube/config.json`. Lorsq
 | `save_history` | `true` | Historique des téléchargements |
 | `save_search_history` | `true` | Historique des recherches |
 | `enable_suggestions` | `true` | Suggestions de recherche |
+| `online_suggestions` | `true` | Suggestions d'autocomplétion en ligne |
 | `max_suggestions` | `10` | Nombre de suggestions |
 | `search_limit` | `15` | Nombre de résultats de recherche |
 | `save_converter_history` | `true` | Historique du convertisseur |

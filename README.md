@@ -71,6 +71,7 @@
 - Video preview before downloading, with configurable preview quality (144p–720p)
 - Playlist navigation (Prev / Play-Pause / **Stop** / Next), seek bar, and a volume slider that drives the app's own stream in the system mixer (PulseAudio/PipeWire)
 - Detachable video window with its own on-video controls, including volume
+- **Favorites** — star any track with the heart on result and playlist rows; open the favorites list from the player bar to play, remove, or clear starred items
 
 ### 🎨 Appearance Customization
 | Mode | Description |
@@ -84,6 +85,7 @@
 - Conversion history
 - Search history
 - Scheduled downloads
+- Favorites
 - Option to automatically clear data on exit
 
 ---
@@ -212,6 +214,7 @@ bigtube -d <url> --format "bestvideo+bestaudio"  # custom format
 | `~/.config/bigtube/search_history.json` | Search history |
 | `~/.config/bigtube/converter_history.json` | Conversion history |
 | `~/.config/bigtube/scheduled_downloads.json` | Scheduled downloads |
+| `~/.config/bigtube/favorites.json` | Favorites |
 | `~/.local/share/bigtube/bin/` | Bundled binaries (`yt-dlp`, `deno`) |
 | `~/.cache/bigtube/thumbnails/` | Thumbnail cache |
 | `~/Downloads/BigTube/` | Default downloads folder |
@@ -235,7 +238,8 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | Setting | Default | Explanation |
 |---------|---------|-------------|
 | **Save search history** | Enabled | Stores your searches locally in `search_history.json`, allowing you to reuse previous queries. |
-| **Enable search suggestions** | Enabled | Shows suggestions as you type, using the local search history. |
+| **Enable search suggestions** | Enabled | Shows suggestions as you type, using the local search history. Navigate them with ↑/↓, pick with Enter, dismiss with Esc. |
+| **Online Suggestions** | Enabled | Also fetches online autocomplete completions as you type (in addition to the local history). |
 | **Maximum suggestions** | 10 | Defines how many suggestions can appear at once. Accepts values from 1 to 50. |
 | **Clear search history** | Manual action | Removes all saved search history entries. Does not delete downloaded files. |
 | **Maximum search results** | 15 | Defines how many results BigTube requests from `yt-dlp` for text searches. Accepts values from 5 to 100. |
@@ -338,6 +342,7 @@ Preferences are saved in `~/.config/bigtube/config.json`. When the file doesn't 
 | `save_history` | `true` | Download history |
 | `save_search_history` | `true` | Search history |
 | `enable_suggestions` | `true` | Search suggestions |
+| `online_suggestions` | `true` | Online autocomplete suggestions |
 | `max_suggestions` | `10` | Number of suggestions |
 | `search_limit` | `15` | Number of search results |
 | `save_converter_history` | `true` | Converter history |
