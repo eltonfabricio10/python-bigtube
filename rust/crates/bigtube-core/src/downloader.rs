@@ -1086,8 +1086,12 @@ impl VideoDownloader {
                 // Empty formats on YouTube almost always means the bot check
                 // stripped them (parse_formats then leaves only the "best"
                 // fallback). Surface it so the UI can suggest cookies.
-                let only_fallback =
-                    info.audios.is_empty() && info.videos.len() == 1 && info.videos[0].id == "best";
+                // Detect by the sole "best" sentinel video — don't also require
+                // `audios.is_empty()`, since parse_formats' inject_virtual_options
+                // fills the audio column with convert options in exactly this
+                // case, which would otherwise mask the bot block behind a broken
+                // "Best Available Quality" / "Untitled" dialog.
+                let only_fallback = info.videos.len() == 1 && info.videos[0].id == "best";
                 if is_yt && only_fallback {
                     Err(StatusCode::BotBlocked)
                 } else {
